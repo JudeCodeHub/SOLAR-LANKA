@@ -1,0 +1,1 @@
+"""Solar Lanka backend application."""

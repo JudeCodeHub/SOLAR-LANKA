@@ -1,0 +1,51 @@
+name: solarlanka
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    pull_policy: never
+    environment:
+      POSTGRES_USER: solarlanka_dev
+      POSTGRES_DB: solarlanka_dev
+      POSTGRES_PASSWORD: ${POSTGRES_DEV_PASSWORD:?Set POSTGRES_DEV_PASSWORD in the root .env}
+    ports:
+      - "127.0.0.1:${POSTGRES_DEV_PORT:-5432}:5432"
+    volumes:
+      - postgres16_dev_data:/var/lib/postgresql/data
+    networks:
+      - database_dev
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  postgres-test:
+    image: postgres:16-alpine
+    pull_policy: never
+    profiles: ["test"]
+    environment:
+      POSTGRES_USER: solarlanka_test
+      POSTGRES_DB: solarlanka_test
+      POSTGRES_PASSWORD: ${POSTGRES_TEST_PASSWORD:?Set POSTGRES_TEST_PASSWORD in the root .env}
+    ports:
+      - "127.0.0.1:${POSTGRES_TEST_PORT:-5433}:5432"
+    volumes:
+      - postgres16_test_data:/var/lib/postgresql/data
+    networks:
+      - database_test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+volumes:
+  postgres16_dev_data:
+  postgres16_test_data:
+
+networks:
+  database_dev:
+  database_test:
