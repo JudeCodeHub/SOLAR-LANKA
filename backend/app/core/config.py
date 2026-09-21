@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
@@ -22,3 +22,5 @@ class Settings(BaseSettings):
 
     environment: Literal["development", "test", "production"]
     app_name: str = Field(default="Solar Lanka API", min_length=1)
+    database_url: SecretStr | None = None
+    test_database_url: SecretStr | None = None
