@@ -10,6 +10,20 @@ from app.core.database_config import DatabaseSettings, load_test_database_settin
 from app.main import create_app
 
 
+def pytest_addoption(parser: pytest.Parser) -> None:
+    parser.addoption("--database", action="store_true", help="Run dedicated PostgreSQL tests")
+
+
+def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
+    if not config.getoption("--database"):
+        skip_database = pytest.mark.skip(
+            reason="Requires --database and the PostgreSQL test service"
+        )
+        for item in items:
+            if "database" in item.keywords:
+                item.add_marker(skip_database)
+
+
 @pytest.fixture
 def database_settings() -> DatabaseSettings:
     """The only database configuration fixture for future database-dependent tests."""

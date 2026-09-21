@@ -1,4 +1,4 @@
-"""Database target selection; connections and sessions are added in subphase 2.02."""
+"""Validated database target selection shared by application and test sessions."""
 
 from typing import Self
 from urllib.parse import unquote, urlsplit

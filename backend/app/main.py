@@ -1,10 +1,16 @@
 """Application factory used by Uvicorn and API tests."""
 
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from pydantic import ValidationError
 
 from app.api.routes.health import router as health_router
+from app.api.routes.readiness import router as readiness_router
 from app.core.config import Settings
+from app.core.database_config import DatabaseSettings
+from app.db.session import create_database_engine, create_session_factory
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -22,6 +28,25 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 "Check SOLAR_ environment variables or backend/.env against .env.example."
             ) from None
 
-    application = FastAPI(title=settings.app_name, version="0.1.0")
+    @asynccontextmanager
+    async def lifespan(application: FastAPI) -> AsyncIterator[None]:
+        engine = None
+        application.state.database_engine = None
+        application.state.session_factory = None
+        try:
+            if settings.database_url is not None or settings.test_database_url is not None:
+                database_settings = DatabaseSettings(_env_file=None, **settings.model_dump())
+                engine = create_database_engine(database_settings)
+                application.state.database_engine = engine
+                application.state.session_factory = create_session_factory(engine)
+            yield
+        finally:
+            if engine is not None:
+                engine.dispose()
+            application.state.database_engine = None
+            application.state.session_factory = None
+
+    application = FastAPI(title=settings.app_name, version="0.1.0", lifespan=lifespan)
     application.include_router(health_router)
+    application.include_router(readiness_router)
     return application
