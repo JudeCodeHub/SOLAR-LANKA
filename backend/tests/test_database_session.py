@@ -16,7 +16,7 @@ def test_unconfigured_database_does_not_break_liveness(client: TestClient) -> No
     assert client.get("/health").status_code == 200
     response = client.get("/health/ready")
     assert response.status_code == 503
-    assert response.json() == {"detail": "Database is not configured"}
+    assert response.json()["error"]["code"] == "service_unavailable"
 
 
 def test_readiness_hides_database_error_details(client: TestClient) -> None:
@@ -25,7 +25,13 @@ def test_readiness_hides_database_error_details(client: TestClient) -> None:
     client.app.state.database_engine = engine
     response = client.get("/health/ready")
     assert response.status_code == 503
-    assert response.json() == {"detail": "Database is unavailable"}
+    assert response.json() == {
+        "error": {
+            "code": "service_unavailable",
+            "message": "The service is temporarily unavailable.",
+            "issues": [],
+        }
+    }
 
 
 @pytest.mark.parametrize("fail", [False, True])

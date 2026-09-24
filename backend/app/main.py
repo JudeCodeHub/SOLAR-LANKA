@@ -6,8 +6,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from pydantic import ValidationError
 
+from app.api.errors import register_error_handlers
 from app.api.routes.health import router as health_router
 from app.api.routes.readiness import router as readiness_router
+from app.api.schemas.errors import ERROR_STATUS_CODES, ErrorResponse
 from app.core.config import Settings
 from app.core.database_config import DatabaseSettings
 from app.db.session import create_database_engine, create_session_factory
@@ -46,7 +48,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             application.state.database_engine = None
             application.state.session_factory = None
 
-    application = FastAPI(title=settings.app_name, version="0.1.0", lifespan=lifespan)
+    application = FastAPI(
+        title=settings.app_name,
+        version="0.1.0",
+        lifespan=lifespan,
+        responses={code: {"model": ErrorResponse} for code in ERROR_STATUS_CODES.values()},
+    )
+    register_error_handlers(application)
     application.include_router(health_router)
     application.include_router(readiness_router)
     return application

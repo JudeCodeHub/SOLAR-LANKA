@@ -1,4 +1,4 @@
-"""Error response contract; shared HTTP handlers are implemented in subphase 2.08.
+"""Error response contract used by shared HTTP exception handlers.
 
 Clients branch on `error.code`, not human-readable messages. A validation issue's
 location follows the request path, e.g. ["body", "items", 0, "quantity"]. Messages
@@ -29,6 +29,7 @@ class ErrorCode(StrEnum):
     UNAUTHENTICATED = "unauthenticated"
     FORBIDDEN = "forbidden"
     NOT_FOUND = "not_found"
+    METHOD_NOT_ALLOWED = "method_not_allowed"
     CONFLICT = "conflict"
     VALIDATION_ERROR = "validation_error"
     RATE_LIMITED = "rate_limited"
@@ -42,6 +43,7 @@ ERROR_STATUS_CODES = MappingProxyType(
         ErrorCode.UNAUTHENTICATED: 401,
         ErrorCode.FORBIDDEN: 403,
         ErrorCode.NOT_FOUND: 404,
+        ErrorCode.METHOD_NOT_ALLOWED: 405,
         ErrorCode.CONFLICT: 409,
         ErrorCode.VALIDATION_ERROR: 422,
         ErrorCode.RATE_LIMITED: 429,
