@@ -8,11 +8,14 @@ from alembic import command
 from alembic.config import Config
 from alembic.migration import MigrationContext
 from sqlalchemy import create_engine, inspect, text
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 from sqlalchemy.pool import NullPool
 
 from app.core.config import BACKEND_DIR
 from app.core.database_config import DatabaseSettings
 from app.db.session import create_database_engine
+from app.models.user import AppUser
 
 
 def migration_config() -> Config:
@@ -60,19 +63,39 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             config.attributes["connection"] = connection
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0001_initial_baseline"
+                "0002_app_users"
             )
+
+        with Session(temporary_engine) as session:
+            user = AppUser(clerk_subject="user_verified_test_subject")
+            session.add(user)
+            session.commit()
+            user_id = user.id
+            session.expunge_all()
+            persisted = session.get(AppUser, user_id)
+            assert persisted is not None
+            assert persisted.clerk_subject == "user_verified_test_subject"
+            assert persisted.created_at.utcoffset() is not None
+            with pytest.raises(IntegrityError) as duplicate:
+                with session.begin_nested():
+                    session.add(AppUser(clerk_subject=persisted.clerk_subject))
+                    session.flush()
+            assert duplicate.value.orig.diag.constraint_name == "uq_app_users_clerk_subject"
+            with pytest.raises(IntegrityError):
+                with session.begin_nested():
+                    session.add(AppUser(clerk_subject=None))
+                    session.flush()
 
         # Verify the revision was persisted, repeated upgrades are safe, and rollback works.
         with temporary_engine.begin() as connection:
             config.attributes["connection"] = connection
-            assert inspect(connection).get_table_names() == ["alembic_version"]
+            assert inspect(connection).get_table_names() == ["alembic_version", "app_users"]
             command.upgrade(config, "head")
             command.downgrade(config, "base")
             assert MigrationContext.configure(connection).get_current_revision() is None
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0001_initial_baseline"
+                "0002_app_users"
             )
     finally:
         if temporary_engine is not None:

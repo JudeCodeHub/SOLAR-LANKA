@@ -7,9 +7,9 @@ from sqlalchemy.engine import make_url
 from app.core.database_config import DatabaseSettings, load_test_database_settings
 from app.db.base import Base
 from app.db.session import create_database_engine
+from app.models.user import AppUser  # noqa: F401 -- register model metadata
 
 config = context.config
-# Import future model modules here so their tables are registered with Base.metadata.
 target_metadata = Base.metadata
 
 
