@@ -7,6 +7,7 @@ from sqlalchemy.engine import make_url
 from app.core.database_config import DatabaseSettings, load_test_database_settings
 from app.db.base import Base
 from app.db.session import create_database_engine
+from app.models.lifecycle_event import LifecycleEvent  # noqa: F401
 from app.models.user import AppUser  # noqa: F401 -- register model metadata
 
 config = context.config

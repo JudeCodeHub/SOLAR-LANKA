@@ -1,4 +1,4 @@
-"""Account lifecycle contract for the verified synchronisation handler in 3.09.
+"""Account lifecycle contract used by the verified synchronisation handler.
 
 Only verified provider events or authorised local administration may change state.
 A local suspension takes effect on the next protected request after commit, even
@@ -17,8 +17,8 @@ account, assign roles, or restore memberships. A new Clerk subject is a distinct
 identity and must never inherit the deleted account's privileges. Events received
 before initial provisioning must also retain revocation state (a tombstone).
 
-The handler must reject invalid events and deduplicate/order verified events before
-applying this transition policy. Event verification and persistence are 3.09.
+The webhook handler verifies signatures and the instance, persists receipt IDs,
+and orders transitions by event timestamp. Equal-time conflicts favour revocation.
 """
 
 from dataclasses import dataclass, replace

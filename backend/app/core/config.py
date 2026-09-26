@@ -30,3 +30,6 @@ class Settings(BaseSettings):
     clerk_audience: str | None = None
     clerk_jwt_key: SecretStr | None = None
     clerk_secret_key: SecretStr | None = None
+
+    clerk_webhook_signing_secret: SecretStr | None = None
+    clerk_instance_id: str | None = None

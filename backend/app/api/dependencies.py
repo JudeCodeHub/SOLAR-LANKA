@@ -17,7 +17,7 @@ def require_local_user(
 ) -> AppUser:
     """Verify identity before provisioning; never accept a subject from request input."""
     user = provision_user(session, identity)
-    if user.is_suspended:
+    if user.is_suspended or user.provider_state != "active":
         raise HTTPException(status_code=403)
     session.commit()
     return user

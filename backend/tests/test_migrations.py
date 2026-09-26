@@ -63,7 +63,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             config.attributes["connection"] = connection
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0004_user_suspension"
+                "0005_lifecycle_sync"
             )
 
         with Session(temporary_engine) as session:
@@ -91,13 +91,17 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
         # Verify the revision was persisted, repeated upgrades are safe, and rollback works.
         with temporary_engine.begin() as connection:
             config.attributes["connection"] = connection
-            assert inspect(connection).get_table_names() == ["alembic_version", "app_users"]
+            assert inspect(connection).get_table_names() == [
+                "alembic_version",
+                "app_users",
+                "clerk_lifecycle_events",
+            ]
             command.upgrade(config, "head")
             command.downgrade(config, "base")
             assert MigrationContext.configure(connection).get_current_revision() is None
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0004_user_suspension"
+                "0005_lifecycle_sync"
             )
     finally:
         if temporary_engine is not None:

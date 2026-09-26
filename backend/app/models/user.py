@@ -3,7 +3,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import CheckConstraint, DateTime, String, UniqueConstraint, false, func
+from sqlalchemy import BigInteger, CheckConstraint, DateTime, String, UniqueConstraint, false, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.permissions import Role
@@ -28,6 +28,12 @@ class AppUser(Base):
     )
     is_suspended: Mapped[bool] = mapped_column(
         nullable=False, default=False, server_default=false()
+    )
+    provider_state: Mapped[str] = mapped_column(
+        String(16), nullable=False, server_default="active", default="active"
+    )
+    provider_event_timestamp: Mapped[int] = mapped_column(
+        BigInteger, nullable=False, server_default="0", default=0
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
