@@ -54,6 +54,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         lifespan=lifespan,
         responses={code: {"model": ErrorResponse} for code in ERROR_STATUS_CODES.values()},
     )
+    application.state.settings = settings
     register_error_handlers(application)
     application.include_router(health_router)
     application.include_router(readiness_router)

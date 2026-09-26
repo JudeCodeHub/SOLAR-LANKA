@@ -35,8 +35,8 @@ Verification policy for implementation in 3.03:
 
 Configuration needed before enabling protected routes: expected issuer, allowed
 frontend origins, signing key or secret key, and audience when configured in Clerk.
-Pin and inspect the installed SDK version in 3.03; this review used upstream main,
-not a locally installed SDK or a live Clerk tenant. Authentication is not wired yet.
+Implemented with clerk-backend-api 7.0.0 in core.auth.require_identity.
+Protected routes opt in using Depends(require_identity).
 
 Official sources:
 https://clerk.com/articles/how-to-add-authentication-to-a-python-backend

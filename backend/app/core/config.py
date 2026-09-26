@@ -24,3 +24,9 @@ class Settings(BaseSettings):
     app_name: str = Field(default="Solar Lanka API", min_length=1)
     database_url: SecretStr | None = None
     test_database_url: SecretStr | None = None
+
+    clerk_issuer: str | None = None
+    clerk_authorized_parties: list[str] = Field(default_factory=list)
+    clerk_audience: str | None = None
+    clerk_jwt_key: SecretStr | None = None
+    clerk_secret_key: SecretStr | None = None
