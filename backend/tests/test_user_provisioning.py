@@ -9,6 +9,7 @@ from sqlalchemy import func, select, text
 
 from app.api.dependencies import require_local_user
 from app.core.auth import VerifiedIdentity, require_identity
+from app.core.permissions import Action, required_scopes
 from app.models.user import AppUser
 from app.services.users import provision_user
 
@@ -38,6 +39,8 @@ def test_repeated_provisioning(database_session, user_table):
         database_session, VerifiedIdentity(subject="user_other", session_id="session_other")
     )
     assert other.id != first_id
+    assert repeated.role == other.role == "customer"
+    assert not required_scopes(Action.USER_STATUS_MANAGE, repeated.role)
 
 
 @pytest.mark.database
@@ -46,7 +49,7 @@ def test_dependency_provisions_only_verified_identity(
 ):
     @database_client.app.get("/test-local-user")
     def local_user(user: Annotated[AppUser, Depends(require_local_user)]):
-        return {"id": str(user.id), "subject": user.clerk_subject}
+        return {"id": str(user.id), "subject": user.clerk_subject, "role": user.role}
 
     assert database_client.get("/test-local-user?subject=user_fake").status_code == 401
     assert database_session.scalar(select(func.count()).select_from(AppUser)) == 0
@@ -54,10 +57,16 @@ def test_dependency_provisions_only_verified_identity(
     database_client.app.dependency_overrides[require_identity] = lambda: VerifiedIdentity(
         subject="user_verified", session_id="session_one"
     )
-    first = database_client.get("/test-local-user?subject=user_fake")
+    first = database_client.request(
+        "GET",
+        "/test-local-user?subject=user_fake&role=platform_admin",
+        headers={"X-Role": "platform_admin"},
+        json={"role": "platform_admin", "is_admin": True},
+    )
     second = database_client.get("/test-local-user")
     assert first.status_code == second.status_code == 200
     assert first.json() == second.json()
+    assert first.json()["role"] == "customer"
     assert first.json()["subject"] == "user_verified"
     assert database_session.scalar(select(func.count()).select_from(AppUser)) == 1
 
@@ -65,3 +74,8 @@ def test_dependency_provisions_only_verified_identity(
 def test_raw_subject_is_rejected():
     with pytest.raises(TypeError, match="verified identity"):
         provision_user(None, "user_unverified")
+
+
+def test_provisioning_does_not_accept_role():
+    with pytest.raises(TypeError):
+        provision_user(None, VerifiedIdentity("user_test", "session_test"), role="platform_admin")

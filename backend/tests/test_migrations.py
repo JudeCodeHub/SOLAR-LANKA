@@ -63,7 +63,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             config.attributes["connection"] = connection
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0002_app_users"
+                "0003_user_role"
             )
 
         with Session(temporary_engine) as session:
@@ -74,6 +74,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             session.expunge_all()
             persisted = session.get(AppUser, user_id)
             assert persisted is not None
+            assert persisted.role == "customer"
             assert persisted.clerk_subject == "user_verified_test_subject"
             assert persisted.created_at.utcoffset() is not None
             with pytest.raises(IntegrityError) as duplicate:
@@ -95,7 +96,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             assert MigrationContext.configure(connection).get_current_revision() is None
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0002_app_users"
+                "0003_user_role"
             )
     finally:
         if temporary_engine is not None:
