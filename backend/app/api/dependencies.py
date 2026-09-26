@@ -2,7 +2,7 @@
 
 from typing import Annotated
 
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.auth import VerifiedIdentity, require_identity
@@ -17,5 +17,7 @@ def require_local_user(
 ) -> AppUser:
     """Verify identity before provisioning; never accept a subject from request input."""
     user = provision_user(session, identity)
+    if user.is_suspended:
+        raise HTTPException(status_code=403)
     session.commit()
     return user

@@ -63,7 +63,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             config.attributes["connection"] = connection
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0003_user_role"
+                "0004_user_suspension"
             )
 
         with Session(temporary_engine) as session:
@@ -74,6 +74,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             session.expunge_all()
             persisted = session.get(AppUser, user_id)
             assert persisted is not None
+            assert persisted.is_suspended is False
             assert persisted.role == "customer"
             assert persisted.clerk_subject == "user_verified_test_subject"
             assert persisted.created_at.utcoffset() is not None
@@ -96,7 +97,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             assert MigrationContext.configure(connection).get_current_revision() is None
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0003_user_role"
+                "0004_user_suspension"
             )
     finally:
         if temporary_engine is not None:

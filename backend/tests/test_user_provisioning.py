@@ -112,3 +112,31 @@ def test_current_user_requires_authentication(client, headers):
     response = client.get("/users/me", headers=headers)
     assert response.status_code == (503 if headers else 401)
     assert set(response.json()) == {"error"}
+
+
+@pytest.mark.database
+@pytest.mark.parametrize("role", ["customer", "platform_admin"])
+def test_suspended_accounts_cannot_use_protected_routes(
+    database_client, database_session, user_table, role
+):
+    identity = VerifiedIdentity("user_suspension_test", "session_existing")
+    user = provision_user(database_session, identity)
+    user.role = role
+    database_session.commit()
+    database_client.app.dependency_overrides[require_identity] = lambda: identity
+    assert database_client.get("/users/me").status_code == 200
+
+    user.is_suspended = True
+    database_session.commit()
+    for _ in range(2):
+        response = database_client.get("/users/me?is_suspended=false")
+        assert response.status_code == 403
+        assert response.json()["error"]["code"] == "forbidden"
+    database_session.refresh(user)
+    assert user.is_suspended is True
+    assert user.role == role
+    assert database_client.get("/health").status_code == 200
+
+    user.is_suspended = False
+    database_session.commit()
+    assert database_client.get("/users/me").status_code == 200
