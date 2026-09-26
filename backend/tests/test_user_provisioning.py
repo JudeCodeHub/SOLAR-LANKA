@@ -79,3 +79,36 @@ def test_raw_subject_is_rejected():
 def test_provisioning_does_not_accept_role():
     with pytest.raises(TypeError):
         provision_user(None, VerifiedIdentity("user_test", "session_test"), role="platform_admin")
+
+
+@pytest.mark.database
+def test_current_user_returns_only_own_profile(database_client, database_session, user_table):
+    other = provision_user(database_session, VerifiedIdentity("user_other", "session_other"))
+    database_session.commit()
+    other_id = str(other.id)
+    database_client.app.dependency_overrides[require_identity] = lambda: VerifiedIdentity(
+        "user_current", "session_current"
+    )
+    response = database_client.get(
+        f"/users/me?user_id={other_id}&subject=user_other&role=platform_admin"
+    )
+    assert response.status_code == 200
+    profile = response.json()
+    assert set(profile) == {"id", "role", "created_at"}
+    assert profile["id"] != other_id
+    assert profile["role"] == "customer"
+    assert profile["created_at"].endswith("Z")
+    assert response.headers["cache-control"] == "no-store"
+    assert database_client.get("/users/me").json() == profile
+    current = database_session.scalar(
+        select(AppUser).where(AppUser.clerk_subject == "user_current")
+    )
+    assert profile["id"] == str(current.id)
+
+
+@pytest.mark.parametrize("headers", [{}, {"Authorization": "Bearer malformed"}])
+def test_current_user_requires_authentication(client, headers):
+    # Missing Clerk configuration fails closed for a supplied token.
+    response = client.get("/users/me", headers=headers)
+    assert response.status_code == (503 if headers else 401)
+    assert set(response.json()) == {"error"}
