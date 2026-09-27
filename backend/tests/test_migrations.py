@@ -15,6 +15,7 @@ from sqlalchemy.pool import NullPool
 from app.core.config import BACKEND_DIR
 from app.core.database_config import DatabaseSettings
 from app.db.session import create_database_engine
+from app.models.company import Company, CompanyMembership
 from app.models.user import AppUser
 
 
@@ -59,11 +60,11 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
         )
         config = migration_config()
         with temporary_engine.begin() as connection:
-            assert inspect(connection).get_table_names() == []
+            assert sorted(inspect(connection).get_table_names()) == []
             config.attributes["connection"] = connection
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0005_lifecycle_sync"
+                "0006_companies_memberships"
             )
 
         with Session(temporary_engine) as session:
@@ -88,20 +89,42 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
                     session.add(AppUser(clerk_subject=None))
                     session.flush()
 
+        with Session(temporary_engine) as session:
+            company = Company(name="Migration Test Company")
+            session.add(company)
+            session.flush()
+            membership = CompanyMembership(user_id=user_id, company_id=company.id, role="sales")
+            session.add(membership)
+            session.commit()
+            assert company.publication_status == "draft"
+            assert membership.status == "active"
+            for values in (
+                dict(user_id=user_id, company_id=company.id, role="sales"),
+                dict(user_id=user_id, company_id=company.id, role="platform_admin"),
+                dict(user_id=uuid4(), company_id=company.id, role="sales"),
+                dict(user_id=user_id, company_id=uuid4(), role="sales"),
+            ):
+                with pytest.raises(IntegrityError):
+                    with session.begin_nested():
+                        session.add(CompanyMembership(**values))
+                        session.flush()
+
         # Verify the revision was persisted, repeated upgrades are safe, and rollback works.
         with temporary_engine.begin() as connection:
             config.attributes["connection"] = connection
-            assert inspect(connection).get_table_names() == [
+            assert sorted(inspect(connection).get_table_names()) == [
                 "alembic_version",
                 "app_users",
                 "clerk_lifecycle_events",
+                "companies",
+                "company_memberships",
             ]
             command.upgrade(config, "head")
             command.downgrade(config, "base")
             assert MigrationContext.configure(connection).get_current_revision() is None
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0005_lifecycle_sync"
+                "0006_companies_memberships"
             )
     finally:
         if temporary_engine is not None:
