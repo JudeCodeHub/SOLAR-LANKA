@@ -85,3 +85,13 @@ class CompanyProfileResponse(BaseModel):
     services: list[Service]
     declared_credentials: list[DeclaredCredential]
     created_at: Timestamp
+
+
+class CompanyReviewResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: EntityId
+    company_id: EntityId
+    actor_id: EntityId
+    outcome: Literal["submitted", "approved", "rejected"]
+    created_at: Timestamp

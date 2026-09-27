@@ -10,7 +10,7 @@ from sqlalchemy import select, text
 from app.api.company_access import require_company_membership, require_company_permission
 from app.core.auth import VerifiedIdentity, require_identity
 from app.core.permissions import Action
-from app.models.company import Company, CompanyMembership
+from app.models.company import Company, CompanyMembership, CompanyReview
 from app.models.user import AppUser
 
 pytestmark = pytest.mark.database
@@ -21,7 +21,12 @@ def company_access(database_client, database_connection, database_session):
     schema = f"company_access_{uuid4().hex}"
     database_connection.execute(text(f'CREATE SCHEMA "{schema}"'))
     database_connection.execute(text(f'SET LOCAL search_path TO "{schema}"'))
-    for table in (AppUser.__table__, Company.__table__, CompanyMembership.__table__):
+    for table in (
+        AppUser.__table__,
+        Company.__table__,
+        CompanyMembership.__table__,
+        CompanyReview.__table__,
+    ):
         table.create(database_connection)
     user = AppUser(clerk_subject="user_current")
     other = AppUser(clerk_subject="user_other")
@@ -285,3 +290,36 @@ def test_company_services_and_credentials(company_access):
 def test_company_service_validation(company_access, payload):
     client, _, _, own, _ = company_access
     assert client.patch(f"/companies/{own}", json=payload).status_code == 422
+
+
+def test_company_submission_history(company_access, database_session):
+    client, user, _, own, foreign = company_access
+    response = client.post(
+        f"/companies/{own}/submit", json={"actor_id": str(uuid4()), "outcome": "approved"}
+    )
+    assert response.status_code == 201
+    entry = response.json()
+    assert entry["actor_id"] == str(user.id)
+    assert entry["outcome"] == "submitted"
+    assert entry["created_at"].endswith("Z")
+    assert client.get(f"/companies/{own}").json()["publication_status"] == "pending"
+    assert client.post(f"/companies/{own}/submit").status_code == 409
+    assert client.get(f"/companies/{own}/reviews").json() == [entry]
+    assert client.get(f"/companies/{own}/reviews?limit=1&offset=1").json() == []
+    assert client.post(f"/companies/{foreign}/submit").status_code == 403
+    assert client.get(f"/companies/{foreign}/reviews").status_code == 403
+    company = database_session.get(Company, own)
+    company.publication_status = "rejected"
+    database_session.commit()
+    assert client.post(f"/companies/{own}/submit").status_code == 201
+    history = client.get(f"/companies/{own}/reviews").json()
+    assert len(history) == 2
+    assert entry in history
+
+
+def test_technician_cannot_submit_or_read_reviews(company_access, database_session):
+    client, _, member, own, _ = company_access
+    member.role = "technician"
+    database_session.commit()
+    assert client.post(f"/companies/{own}/submit").status_code == 403
+    assert client.get(f"/companies/{own}/reviews").status_code == 403
