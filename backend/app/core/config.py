@@ -33,3 +33,8 @@ class Settings(BaseSettings):
 
     clerk_webhook_signing_secret: SecretStr | None = None
     clerk_instance_id: str | None = None
+
+    # Server-only ImageKit variables also live in the shared backend dotenv file.
+    imagekit_private_key: SecretStr | None = None
+    imagekit_public_key: str | None = None
+    imagekit_url_endpoint: str | None = None

@@ -23,6 +23,7 @@ from app.db.session import get_session
 from app.models.company import Company, CompanyMembership, CompanyReview
 from app.models.user import AppUser
 from app.services.audit import AuditAction, record_audit
+from app.services.public_media import public_media_for
 
 router = APIRouter(prefix="/companies", tags=["companies"])
 
@@ -163,15 +164,28 @@ def list_public_companies(
     pagination: Annotated[PaginationParams, Query()],
     response: Response,
 ) -> list[PublicCompanyResponse]:
-    companies = session.scalars(
-        select(Company)
-        .where(Company.publication_status == "approved")
-        .order_by(Company.name, Company.id)
-        .limit(pagination.limit)
-        .offset(pagination.offset)
+    companies = list(
+        session.scalars(
+            select(Company)
+            .where(Company.publication_status == "approved")
+            .order_by(Company.name, Company.id)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
+        )
+    )
+    logos = public_media_for(
+        session,
+        parent_kind="company",
+        parent_ids=[company.id for company in companies],
+        categories=("company_logo",),
     )
     response.headers["Cache-Control"] = "no-store"
-    return [PublicCompanyResponse.model_validate(company) for company in companies]
+    return [
+        PublicCompanyResponse.model_validate(company).model_copy(
+            update={"logo": next(iter(logos.get(company.id, [])), None)}
+        )
+        for company in companies
+    ]
 
 
 @public_router.get("/{company_id}", response_model=PublicCompanyResponse)
@@ -185,5 +199,13 @@ def read_public_company(
     ).one_or_none()
     if company is None:
         raise HTTPException(404)
+    logos = public_media_for(
+        session,
+        parent_kind="company",
+        parent_ids=[company.id],
+        categories=("company_logo",),
+    )
     response.headers["Cache-Control"] = "no-store"
-    return PublicCompanyResponse.model_validate(company)
+    return PublicCompanyResponse.model_validate(company).model_copy(
+        update={"logo": next(iter(logos.get(company.id, [])), None)}
+    )

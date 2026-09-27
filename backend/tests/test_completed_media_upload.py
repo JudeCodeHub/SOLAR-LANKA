@@ -62,6 +62,7 @@ def prepared_upload(monkeypatch: pytest.MonkeyPatch):
         {
             "fileId": body.file_id,
             "filePath": f"/pending/{body.token}/photo.jpg",
+            "url": f"https://ik.imagekit.io/test/pending/{body.token}/photo.jpg",
             "mime": "image/jpeg",
             "size": 1024,
             "fileType": "image",
@@ -86,6 +87,7 @@ def test_verified_file_is_attached_without_trusting_client_url(
     assert asset.owner_user_id == user.id
     assert asset.parent_id == body.parent_id
     assert asset.visibility == "public"
+    assert asset.public_url == f"https://ik.imagekit.io/test/pending/{body.token}/photo.jpg"
     adapter.get_file_details.assert_called_once_with("file_123")
     session.commit.assert_called_once()
 
@@ -154,6 +156,7 @@ def test_adapter_fetches_file_details_from_imagekit_api(monkeypatch: pytest.Monk
             json={
                 "fileId": "file_123",
                 "filePath": "/pending/test/photo.jpg",
+                "url": "https://ik.imagekit.io/test/pending/test/photo.jpg",
                 "mime": "image/jpeg",
                 "size": 100,
                 "fileType": "image",

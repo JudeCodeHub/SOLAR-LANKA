@@ -3,7 +3,16 @@
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, String, UniqueConstraint, func
+from sqlalchemy import (
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    Index,
+    String,
+    Text,
+    UniqueConstraint,
+    func,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.value_types import new_entity_id
@@ -19,6 +28,9 @@ class MediaAsset(Base):
         UniqueConstraint("provider", "provider_file_id", name="uq_media_assets_provider_file"),
         Index("ix_media_assets_parent", "parent_kind", "parent_id"),
         CheckConstraint("length(trim(provider)) > 0", name="ck_media_assets_provider"),
+        CheckConstraint(
+            "visibility = 'public' OR public_url IS NULL", name="ck_media_assets_public_url"
+        ),
         CheckConstraint(
             "length(trim(provider_file_id)) > 0", name="ck_media_assets_provider_file_id"
         ),
@@ -49,6 +61,7 @@ class MediaAsset(Base):
     # Some parent tables arrive in later phases; verify this reference in the upload service.
     parent_id: Mapped[UUID] = mapped_column(nullable=False)
     visibility: Mapped[str] = mapped_column(String(16), nullable=False)
+    public_url: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
