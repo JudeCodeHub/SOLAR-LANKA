@@ -187,7 +187,15 @@ def test_company_profile_read_edit(company_access, database_session, role):
     database_session.commit()
     response = client.get(f"/companies/{own}")
     assert response.status_code == 200
-    assert set(response.json()) == {"id", "name", "publication_status", "created_at"}
+    assert set(response.json()) == {
+        "id",
+        "name",
+        "publication_status",
+        "created_at",
+        "service_districts",
+        "services",
+        "declared_credentials",
+    }
     assert response.headers["cache-control"] == "no-store"
     updated = client.patch(f"/companies/{own}", json={"name": "  Updated Company  "})
     assert updated.status_code == 200
@@ -238,3 +246,42 @@ def test_company_profile_access_restrictions(company_access, database_session, r
     expected = 401 if restriction == "anonymous" else 403
     assert client.get(f"/companies/{own}").status_code == expected
     assert client.patch(f"/companies/{own}", json={"name": "Blocked"}).status_code == expected
+
+
+def test_company_services_and_credentials(company_access):
+    client, _, _, own, foreign = company_access
+    payload = {
+        "service_districts": ["Colombo", "Gampaha"],
+        "services": ["installation"],
+        "declared_credentials": [{"name": "Demo credential", "issuer": "Demo issuer"}],
+    }
+    assert client.patch(f"/companies/{foreign}", json=payload).status_code == 403
+    response = client.patch(f"/companies/{own}", json=payload)
+    assert response.status_code == 200
+    profile = client.get(f"/companies/{own}").json()
+    assert profile["name"] == "Own"
+    assert profile["service_districts"] == payload["service_districts"]
+    assert profile["services"] == payload["services"]
+    assert profile["declared_credentials"][0]["verification_status"] == "company_declared"
+    assert client.patch(f"/companies/{own}", json={"services": []}).status_code == 200
+    assert client.get(f"/companies/{own}").json()["services"] == []
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {"service_districts": ["Unsupported"]},
+        {"services": ["unsupported"]},
+        {"services": ["installation", "installation"]},
+        {"service_districts": None},
+        {
+            "declared_credentials": [
+                {"name": "Demo", "issuer": "Demo", "verification_status": "verified"}
+            ]
+        },
+        {"declared_credentials": [{"name": " ", "issuer": "Demo"}]},
+    ],
+)
+def test_company_service_validation(company_access, payload):
+    client, _, _, own, _ = company_access
+    assert client.patch(f"/companies/{own}", json=payload).status_code == 422
