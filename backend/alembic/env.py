@@ -9,6 +9,7 @@ from app.db.base import Base
 from app.db.session import create_database_engine
 from app.models.audit import AuditEvent  # noqa: F401
 from app.models.company import Company, CompanyMembership, CompanyReview  # noqa: F401
+from app.models.inverter import Inverter  # noqa: F401
 from app.models.lifecycle_event import LifecycleEvent  # noqa: F401
 from app.models.panel import Panel  # noqa: F401
 from app.models.product import Product  # noqa: F401
