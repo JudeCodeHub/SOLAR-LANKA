@@ -323,3 +323,61 @@ def test_technician_cannot_submit_or_read_reviews(company_access, database_sessi
     database_session.commit()
     assert client.post(f"/companies/{own}/submit").status_code == 403
     assert client.get(f"/companies/{own}/reviews").status_code == 403
+
+
+@pytest.mark.parametrize("outcome", ["approved", "rejected"])
+def test_admin_review_and_publication(company_access, database_session, outcome):
+    client, user, _, own, _ = company_access
+    assert client.get(f"/public/companies/{own}").status_code == 404
+    assert client.get("/public/companies").json() == []
+    assert client.post(f"/companies/{own}/submit").status_code == 201
+    assert client.get(f"/public/companies/{own}").status_code == 404
+    assert client.post(f"/companies/{own}/review", json={"outcome": outcome}).status_code == 403
+    user.role = "platform_admin"
+    database_session.commit()
+    reviewed = client.post(f"/companies/{own}/review", json={"outcome": outcome})
+    assert reviewed.status_code == 201
+    assert reviewed.json()["actor_id"] == str(user.id)
+    assert reviewed.json()["outcome"] == outcome
+    assert client.post(f"/companies/{own}/review", json={"outcome": outcome}).status_code == 409
+    history = client.get(f"/companies/{own}/reviews").json()
+    assert {entry["outcome"] for entry in history} == {"submitted", outcome}
+    client.app.dependency_overrides.pop(require_identity)
+    public = client.get(f"/public/companies/{own}")
+    assert public.status_code == (200 if outcome == "approved" else 404)
+    listing = client.get("/public/companies").json()
+    assert len(listing) == (1 if outcome == "approved" else 0)
+    if outcome == "approved":
+        assert set(public.json()) == {
+            "id",
+            "name",
+            "services",
+            "service_districts",
+            "declared_credentials",
+        }
+
+
+def test_profile_changes_require_new_approval(company_access, database_session):
+    client, user, _, own, _ = company_access
+    client.post(f"/companies/{own}/submit")
+    user.role = "platform_admin"
+    database_session.commit()
+    assert client.post(f"/companies/{own}/review", json={"outcome": "approved"}).status_code == 201
+    assert client.patch(f"/companies/{own}", json={"name": "Edited"}).status_code == 200
+    assert client.get(f"/public/companies/{own}").status_code == 404
+    assert client.get("/public/companies").json() == []
+    assert client.post(f"/companies/{own}/review", json={"outcome": "approved"}).status_code == 409
+    assert len(client.get(f"/companies/{own}/reviews").json()) == 2
+
+
+def test_company_admin_cannot_review_and_suspended_admin_denied(company_access, database_session):
+    client, user, member, own, _ = company_access
+    member.role = "company_admin"
+    database_session.commit()
+    client.post(f"/companies/{own}/submit")
+    assert client.post(f"/companies/{own}/review", json={"outcome": "approved"}).status_code == 403
+    user.role = "platform_admin"
+    user.is_suspended = True
+    database_session.commit()
+    assert client.post(f"/companies/{own}/review", json={"outcome": "approved"}).status_code == 403
+    assert client.get(f"/public/companies/{own}").status_code == 404
