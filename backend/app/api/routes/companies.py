@@ -43,7 +43,8 @@ def edit_company_profile(
     response: Response,
 ) -> CompanyProfileResponse:
     company = _company(session, membership)
-    company.name = body.name
+    for field, value in body.model_dump(exclude_unset=True).items():
+        setattr(company, field, value)
     session.commit()
     response.headers["Cache-Control"] = "no-store"
     return CompanyProfileResponse.model_validate(company)

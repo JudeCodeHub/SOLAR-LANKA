@@ -4,6 +4,7 @@ from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import CheckConstraint, DateTime, ForeignKey, String, UniqueConstraint, func
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.value_types import new_entity_id
@@ -24,6 +25,11 @@ class Company(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     publication_status: Mapped[str] = mapped_column(
         String(16), nullable=False, default="draft", server_default="draft"
+    )
+    service_districts: Mapped[list[str]] = mapped_column(JSONB, default=list, server_default="[]")
+    services: Mapped[list[str]] = mapped_column(JSONB, default=list, server_default="[]")
+    declared_credentials: Mapped[list[dict[str, str]]] = mapped_column(
+        JSONB, default=list, server_default="[]"
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
