@@ -1,5 +1,10 @@
 """Server-only ImageKit API configuration and HTTP adapter."""
 
+import hashlib
+import hmac
+import time
+from uuid import uuid4
+
 import httpx
 from pydantic import Field, HttpUrl, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -17,6 +22,7 @@ class ImageKitSettings(BaseSettings):
     )
 
     private_key: SecretStr = Field(min_length=1)
+    public_key: str = Field(pattern=r"^public_.+")
     url_endpoint: HttpUrl
 
     @field_validator("private_key")
@@ -47,3 +53,20 @@ class ImageKitServerAdapter:
 
     def close(self) -> None:
         self._client.close()
+
+
+def issue_upload_auth(settings: ImageKitSettings) -> dict[str, str | int]:
+    """Issue ImageKit Upload V1 parameters for one short-lived browser upload."""
+    token = str(uuid4())
+    expire = int(time.time()) + 300
+    signature = hmac.new(
+        settings.private_key.get_secret_value().encode(),
+        f"{token}{expire}".encode(),
+        hashlib.sha1,
+    ).hexdigest()
+    return {
+        "token": token,
+        "expire": expire,
+        "signature": signature,
+        "publicKey": settings.public_key,
+    }
