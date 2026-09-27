@@ -178,3 +178,63 @@ def test_membership_assignment_restrictions(company_access, database_session, mo
         )
         is None
     )
+
+
+@pytest.mark.parametrize("role", ["company_admin", "sales"])
+def test_company_profile_read_edit(company_access, database_session, role):
+    client, _, member, own, foreign = company_access
+    member.role = role
+    database_session.commit()
+    response = client.get(f"/companies/{own}")
+    assert response.status_code == 200
+    assert set(response.json()) == {"id", "name", "publication_status", "created_at"}
+    assert response.headers["cache-control"] == "no-store"
+    updated = client.patch(f"/companies/{own}", json={"name": "  Updated Company  "})
+    assert updated.status_code == 200
+    assert updated.json()["name"] == "Updated Company"
+    assert client.get(f"/companies/{own}").json()["name"] == "Updated Company"
+    assert client.get(f"/companies/{foreign}").status_code == 403
+    assert (
+        client.patch(
+            f"/companies/{foreign}?company_id={own}", json={"name": "Unauthorized"}
+        ).status_code
+        == 403
+    )
+    database_session.expire_all()
+    assert database_session.get(Company, foreign).name == "Foreign"
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        {},
+        {"name": None},
+        {"name": "   "},
+        {"name": "x" * 256},
+        {"name": "Valid", "publication_status": "approved"},
+        {"name": "Valid", "id": str(uuid4())},
+    ],
+)
+def test_company_profile_rejects_invalid_fields(company_access, body):
+    client, _, _, own, _ = company_access
+    assert client.patch(f"/companies/{own}", json=body).status_code == 422
+    profile = client.get(f"/companies/{own}").json()
+    assert profile["name"] == "Own"
+    assert profile["publication_status"] == "draft"
+
+
+@pytest.mark.parametrize("restriction", ["technician", "suspended", "public", "anonymous"])
+def test_company_profile_access_restrictions(company_access, database_session, restriction):
+    client, _, member, own, _ = company_access
+    if restriction == "technician":
+        member.role = "technician"
+    elif restriction == "suspended":
+        member.status = "suspended"
+    elif restriction == "public":
+        database_session.delete(member)
+    else:
+        client.app.dependency_overrides.pop(require_identity)
+    database_session.commit()
+    expected = 401 if restriction == "anonymous" else 403
+    assert client.get(f"/companies/{own}").status_code == expected
+    assert client.patch(f"/companies/{own}", json={"name": "Blocked"}).status_code == expected
