@@ -16,6 +16,8 @@ from app.core.config import BACKEND_DIR
 from app.core.database_config import DatabaseSettings
 from app.db.session import create_database_engine
 from app.models.company import Company, CompanyMembership
+from app.models.panel import Panel
+from app.models.product import Product
 from app.models.user import AppUser
 
 
@@ -63,9 +65,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             assert sorted(inspect(connection).get_table_names()) == []
             config.attributes["connection"] = connection
             command.upgrade(config, "head")
-            assert MigrationContext.configure(connection).get_current_revision() == (
-                "0009_audit_events"
-            )
+            assert MigrationContext.configure(connection).get_current_revision() == ("0010_panels")
 
         with Session(temporary_engine) as session:
             user = AppUser(clerk_subject="user_verified_test_subject")
@@ -109,6 +109,25 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
                         session.add(CompanyMembership(**values))
                         session.flush()
 
+        with Session(temporary_engine) as session:
+            product = Product(kind="panel", brand="Fictional test brand", model="Test model")
+            session.add(product)
+            session.flush()
+            panel = Panel(product_id=product.id, product_warranty_years=0)
+            session.add(panel)
+            session.commit()
+            session.refresh(panel)
+            assert panel.wattage_w is None
+            assert panel.efficiency_percent is None
+            assert panel.country_of_manufacture is None
+            assert panel.product_warranty_years == 0
+            assert panel.performance_warranty_years is None
+            assert product.verified_at is None
+            with pytest.raises(IntegrityError):
+                with session.begin_nested():
+                    panel.efficiency_percent = 101
+                    session.flush()
+
         # Verify the revision was persisted, repeated upgrades are safe, and rollback works.
         with temporary_engine.begin() as connection:
             config.attributes["connection"] = connection
@@ -120,14 +139,14 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
                 "companies",
                 "company_memberships",
                 "company_reviews",
+                "panels",
+                "products",
             ]
             command.upgrade(config, "head")
             command.downgrade(config, "base")
             assert MigrationContext.configure(connection).get_current_revision() is None
             command.upgrade(config, "head")
-            assert MigrationContext.configure(connection).get_current_revision() == (
-                "0009_audit_events"
-            )
+            assert MigrationContext.configure(connection).get_current_revision() == ("0010_panels")
     finally:
         if temporary_engine is not None:
             temporary_engine.dispose()
