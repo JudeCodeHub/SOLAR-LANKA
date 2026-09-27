@@ -14,6 +14,7 @@ from app.core.database_config import DatabaseSettings
 from app.db.session import create_database_engine
 from app.models.company import Company, CompanyMembership
 from app.models.user import AppUser
+from app.seed_catalogue import seed_catalogue
 
 DEMO_COMPANIES = (
     (UUID("f7b6a8b0-4091-42b0-9d36-000000000001"), "Demo Sunbird Solar (Fictional)"),
@@ -47,6 +48,12 @@ def seed_demo(session: Session, *, environment: str) -> None:
             .on_conflict_do_nothing(constraint="uq_company_memberships_user_company")
         )
 
+    seed_catalogue(
+        session,
+        environment=environment,
+        company_ids=tuple(company_id for company_id, _ in DEMO_COMPANIES),
+    )
+
 
 def main() -> None:
     settings = DatabaseSettings()
@@ -57,9 +64,7 @@ def main() -> None:
         with Session(engine) as session:
             seed_demo(session, environment=settings.environment)
             session.commit()
-        print(
-            "Demo fixtures ready; existing records preserved. No login credentials created."
-        )
+        print("Demo fixtures ready; existing records preserved. No login credentials created.")
     finally:
         engine.dispose()
 
