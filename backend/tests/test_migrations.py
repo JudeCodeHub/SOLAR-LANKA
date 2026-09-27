@@ -64,7 +64,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             config.attributes["connection"] = connection
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0007_company_services"
+                "0008_company_reviews"
             )
 
         with Session(temporary_engine) as session:
@@ -118,13 +118,14 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
                 "clerk_lifecycle_events",
                 "companies",
                 "company_memberships",
+                "company_reviews",
             ]
             command.upgrade(config, "head")
             command.downgrade(config, "base")
             assert MigrationContext.configure(connection).get_current_revision() is None
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0007_company_services"
+                "0008_company_reviews"
             )
     finally:
         if temporary_engine is not None:

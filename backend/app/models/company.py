@@ -60,3 +60,26 @@ class CompanyMembership(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
+
+
+class CompanyReview(Base):
+    """Historical workflow entries; retain actors and companies instead of cascading deletes."""
+
+    __tablename__ = "company_reviews"
+    __table_args__ = (
+        CheckConstraint(
+            "outcome IN ('submitted', 'approved', 'rejected')", name="ck_company_reviews_outcome"
+        ),
+    )
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=new_entity_id)
+    company_id: Mapped[UUID] = mapped_column(
+        ForeignKey("companies.id", ondelete="RESTRICT"), nullable=False, index=True
+    )
+    actor_id: Mapped[UUID] = mapped_column(
+        ForeignKey("app_users.id", ondelete="RESTRICT"), nullable=False
+    )
+    outcome: Mapped[str] = mapped_column(String(16), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
