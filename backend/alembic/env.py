@@ -12,6 +12,7 @@ from app.models.company import Company, CompanyMembership, CompanyReview  # noqa
 from app.models.favourite import Favourite  # noqa: F401
 from app.models.inverter import Inverter  # noqa: F401
 from app.models.lifecycle_event import LifecycleEvent  # noqa: F401
+from app.models.media_asset import MediaAsset  # noqa: F401
 from app.models.panel import Panel  # noqa: F401
 from app.models.product import Product  # noqa: F401
 from app.models.product_offer import ProductOffer  # noqa: F401
