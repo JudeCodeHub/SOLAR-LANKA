@@ -5,7 +5,7 @@ from uuid import uuid4
 
 import pytest
 from fastapi import Depends
-from sqlalchemy import text
+from sqlalchemy import select, text
 
 from app.api.company_access import require_company_membership, require_company_permission
 from app.core.auth import VerifiedIdentity, require_identity
@@ -120,3 +120,61 @@ def test_company_action_policy(company_access, database_session, role, action, e
     membership.status = "suspended"
     database_session.commit()
     assert client.post(f"/test-actions/{own}").status_code == 403
+
+
+@pytest.mark.parametrize("role", ["sales", "company_admin", "technician"])
+def test_admin_assigns_membership(company_access, database_session, role):
+    client, _, actor, own, foreign = company_access
+    actor.role = "company_admin"
+    target = AppUser(clerk_subject="user_assignee")
+    database_session.add(target)
+    database_session.commit()
+    target_id = target.id
+    payload = {"user_id": str(target_id), "role": role}
+    assert client.post(f"/companies/{foreign}/memberships", json=payload).status_code == 403
+    response = client.post(f"/companies/{own}/memberships", json=payload)
+    assert response.status_code == 201
+    assert response.json()["company_id"] == str(own)
+    assert response.json()["role"] == role
+    payload["role"] = "company_admin"
+    assert client.post(f"/companies/{own}/memberships", json=payload).status_code == 409
+    grant = database_session.scalars(
+        select(CompanyMembership).where(
+            CompanyMembership.user_id == target_id,
+            CompanyMembership.company_id == own,
+        )
+    ).one()
+    assert grant.role == role
+    database_session.refresh(target)
+    assert target.role == "customer"
+
+
+@pytest.mark.parametrize("mode", ["public", "sales", "self", "platform_role", "inactive", "extra"])
+def test_membership_assignment_restrictions(company_access, database_session, mode):
+    client, user, actor, own, _ = company_access
+    actor.role = "company_admin" if mode not in {"sales", "public"} else "sales"
+    target = AppUser(clerk_subject="user_target", is_suspended=(mode == "inactive"))
+    database_session.add(target)
+    if mode == "public":
+        database_session.delete(actor)
+    database_session.commit()
+    payload = {
+        "user_id": str(user.id if mode in {"public", "self"} else target.id),
+        "role": "platform_admin" if mode == "platform_role" else "sales",
+    }
+    if mode == "extra":
+        payload["company_id"] = str(own)
+    response = client.post(f"/companies/{own}/memberships", json=payload)
+    assert response.status_code == (
+        {"platform_role": 422, "extra": 422, "inactive": 409}.get(mode, 403)
+    )
+    database_session.expire_all()
+    assert (
+        database_session.scalar(
+            select(CompanyMembership).where(
+                CompanyMembership.user_id == target.id,
+                CompanyMembership.company_id == own,
+            )
+        )
+        is None
+    )

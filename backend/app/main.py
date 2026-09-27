@@ -8,6 +8,7 @@ from pydantic import ValidationError
 
 from app.api.errors import register_error_handlers
 from app.api.routes.health import router as health_router
+from app.api.routes.memberships import router as memberships_router
 from app.api.routes.readiness import router as readiness_router
 from app.api.routes.users import router as users_router
 from app.api.routes.webhooks import router as webhooks_router
@@ -61,5 +62,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(health_router)
     application.include_router(readiness_router)
     application.include_router(users_router)
+    application.include_router(memberships_router)
     application.include_router(webhooks_router)
     return application
