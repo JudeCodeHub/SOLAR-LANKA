@@ -126,3 +126,42 @@ def test_sdk_failure_is_safe(auth_client, monkeypatch):
     response = auth_client.get("/protected", headers={"Authorization": "Bearer token"})
     assert response.status_code == 401
     assert "secret details" not in response.text
+
+
+@pytest.mark.parametrize("kind", ["missing", "malformed", "expired", "wrong_signature", "unsigned"])
+def test_current_user_rejects_identity_before_database_access(auth_client, signing_key, kind):
+    from app.db.session import get_session
+
+    def forbidden_database_access():
+        raise AssertionError("Invalid identities must not access user persistence")
+
+    auth_client.app.dependency_overrides[get_session] = forbidden_database_access
+    headers = {}
+    if kind != "missing":
+        if kind == "malformed":
+            value = "malformed"
+        elif kind == "expired":
+            value = token(signing_key, exp=1)
+        elif kind == "wrong_signature":
+            other_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+            value = token(other_key)
+        else:
+            value = jwt.encode({"sub": "user_test"}, key="", algorithm="none")
+        headers["Authorization"] = f"Bearer {value}"
+    response = auth_client.get("/users/me", headers=headers)
+    assert response.status_code == 401
+    assert response.json()["error"]["code"] == "unauthenticated"
+    assert response.headers["www-authenticate"] == "Bearer"
+    assert "set-cookie" not in response.headers
+
+
+def test_duplicate_authorization_headers_are_rejected(auth_client, signing_key):
+    bearer = f"Bearer {token(signing_key)}"
+    response = auth_client.get(
+        "/users/me",
+        headers=[
+            ("Authorization", bearer),
+            ("Authorization", bearer),
+        ],
+    )
+    assert response.status_code == 401
