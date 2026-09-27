@@ -7,8 +7,10 @@ import pytest
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
+from app.api.routes import media_uploads
 from app.api.routes.media_uploads import request_upload
 from app.api.schemas.media_uploads import UploadRequest
+from app.core.imagekit import ImageKitSettings
 from app.core.media_policy import AssetCategory
 from app.models.company import Company, CompanyMembership
 from app.models.product import Product
@@ -26,7 +28,16 @@ def actor(role: str = "customer") -> AppUser:
     )
 
 
-def test_platform_admin_can_request_existing_product_upload() -> None:
+def test_platform_admin_can_request_existing_product_upload(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    config = ImageKitSettings(
+        _env_file=None,
+        private_key="private_test_value",
+        public_key="public_test_value",
+        url_endpoint="https://ik.imagekit.io/test",
+    )
+    monkeypatch.setattr(media_uploads, "ImageKitSettings", lambda: config)
     product = Product(id=uuid4(), kind="panel", brand="Test", model="T1")
     session = MagicMock(spec=Session)
     session.get.return_value = product
@@ -41,6 +52,8 @@ def test_platform_admin_can_request_existing_product_upload() -> None:
 
     assert result.visibility == "public"
     assert result.parent_id == product.id
+    assert result.publicKey == "public_test_value"
+    assert len(result.signature) == 40
     session.get.assert_called_once_with(Product, product.id)
 
 

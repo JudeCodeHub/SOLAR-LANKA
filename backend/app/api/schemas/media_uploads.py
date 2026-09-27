@@ -20,3 +20,7 @@ class UploadPermission(BaseModel):
     visibility: Visibility
     max_bytes: int
     allowed_mime_types: list[str]
+    token: str
+    expire: int
+    signature: str
+    publicKey: str
