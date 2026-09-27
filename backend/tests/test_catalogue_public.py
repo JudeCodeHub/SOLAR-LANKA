@@ -72,3 +72,49 @@ def test_archived_and_wrong_kind_not_public(catalogue):
     assert client.get(f"/catalogue/panels/{ids[3]}").status_code == 404
     assert client.get(f"/catalogue/inverters/{ids[0]}").status_code == 404
     assert client.get(f"/catalogue/panels/{uuid4()}").status_code == 404
+
+
+def test_search_brand_model_and_filters(catalogue):
+    client, ids = catalogue
+    assert client.get("/catalogue/panels?search=alpha").json()["total"] == 2
+    assert client.get("/catalogue/panels?search=p1").json()["items"][0]["id"] == str(ids[0])
+    assert client.get("/catalogue/panels?search=%25").json()["total"] == 0
+    assert client.get("/catalogue/panels?min_wattage_w=400").json()["total"] == 1
+    assert client.get("/catalogue/panels?max_wattage_w=399").json()["total"] == 0
+    assert client.get("/catalogue/panels?min_efficiency_percent=20").json()["total"] == 0
+    assert client.get("/catalogue/inverters?search=beta&category=hybrid").json()["total"] == 1
+    assert client.get("/catalogue/inverters?category=on_grid").json()["total"] == 0
+    assert client.get("/catalogue/inverters?min_capacity_kw=5").json()["total"] == 0
+    filtered = client.get("/catalogue/panels?min_wattage_w=400&limit=1&offset=1").json()
+    assert filtered["items"] == [] and filtered["total"] == 1
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "/catalogue/panels?min_wattage_w=500&max_wattage_w=400",
+        "/catalogue/panels?min_wattage_w=-1",
+        "/catalogue/panels?min_efficiency_percent=101",
+        "/catalogue/inverters?category=wrong",
+        "/catalogue/inverters?min_capacity_kw=5&max_capacity_kw=4",
+        "/catalogue/inverters?min_capacity_kw=0",
+    ],
+)
+def test_invalid_specification_filters(catalogue, path):
+    client, _ = catalogue
+    assert client.get(path).status_code == 422
+
+
+def test_numeric_filters_match_known_specs(catalogue, database_session):
+    client, ids = catalogue
+    panel = database_session.get(Panel, ids[0])
+    inverter = database_session.get(Inverter, ids[3])
+    panel.efficiency_percent = 21
+    inverter.capacity_kw = 5
+    database_session.commit()
+    assert client.get("/catalogue/panels?min_efficiency_percent=20").json()["total"] == 1
+    assert client.get("/catalogue/panels?min_efficiency_percent=22").json()["total"] == 0
+    assert (
+        client.get("/catalogue/inverters?min_capacity_kw=4&max_capacity_kw=6").json()["total"] == 1
+    )
+    assert client.get("/catalogue/inverters?max_capacity_kw=4").json()["total"] == 0
