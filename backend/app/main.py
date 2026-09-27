@@ -13,6 +13,7 @@ from app.api.routes.companies import public_router as public_companies_router
 from app.api.routes.companies import router as companies_router
 from app.api.routes.health import router as health_router
 from app.api.routes.memberships import router as memberships_router
+from app.api.routes.offers import router as offers_router
 from app.api.routes.readiness import router as readiness_router
 from app.api.routes.users import router as users_router
 from app.api.routes.webhooks import router as webhooks_router
@@ -67,6 +68,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(readiness_router)
     application.include_router(users_router)
     application.include_router(memberships_router)
+    application.include_router(offers_router)
     application.include_router(companies_router)
     application.include_router(catalogue_admin_router)
     application.include_router(audit_router)
