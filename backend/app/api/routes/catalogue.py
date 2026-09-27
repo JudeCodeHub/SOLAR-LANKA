@@ -14,6 +14,11 @@ from app.api.schemas.catalogue import (
     ProductSummary,
 )
 from app.api.schemas.catalogue_filters import InverterQuery, PanelQuery
+from app.api.schemas.comparison import (
+    PANEL_UNITS,
+    PanelComparisonRequest,
+    PanelComparisonResponse,
+)
 from app.api.schemas.pagination import PageResponse
 from app.db.session import get_session
 from app.models.inverter import Inverter
@@ -117,6 +122,17 @@ def list_panels(
 ) -> PageResponse[ProductSummary]:
     response.headers["Cache-Control"] = "no-store"
     return _list("panel", session, pagination)
+
+
+@router.post("/panels/compare", response_model=PanelComparisonResponse)
+def compare_panels(
+    body: PanelComparisonRequest,
+    session: Annotated[Session, Depends(get_session)],
+    response: Response,
+) -> PanelComparisonResponse:
+    items = [_detail("panel", product_id, session) for product_id in body.product_ids]
+    response.headers["Cache-Control"] = "no-store"
+    return PanelComparisonResponse(items=items, units=PANEL_UNITS)
 
 
 @router.get("/panels/{product_id}", response_model=ProductDetail)
