@@ -3,7 +3,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import CheckConstraint, DateTime, String, Text, func
+from sqlalchemy import CheckConstraint, DateTime, String, Text, false, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -23,6 +23,7 @@ class Product(Base):
     kind: Mapped[str] = mapped_column(String(16), nullable=False)
     brand: Mapped[str] = mapped_column(String(255), nullable=False)
     model: Mapped[str] = mapped_column(String(255), nullable=False)
+    is_archived: Mapped[bool] = mapped_column(nullable=False, default=False, server_default=false())
     image_urls: Mapped[list[str] | None] = mapped_column(JSONB(none_as_null=True))
     datasheet_urls: Mapped[list[str] | None] = mapped_column(JSONB(none_as_null=True))
     source_url: Mapped[str | None] = mapped_column(Text)
