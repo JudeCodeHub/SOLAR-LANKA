@@ -4,7 +4,7 @@ from typing import Annotated, Literal
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.api.schemas.catalogue import (
@@ -13,7 +13,8 @@ from app.api.schemas.catalogue import (
     ProductDetail,
     ProductSummary,
 )
-from app.api.schemas.pagination import PageResponse, PaginationParams
+from app.api.schemas.catalogue_filters import InverterQuery, PanelQuery
+from app.api.schemas.pagination import PageResponse
 from app.db.session import get_session
 from app.models.inverter import Inverter
 from app.models.panel import Panel
@@ -22,15 +23,50 @@ from app.models.product import Product
 router = APIRouter(prefix="/catalogue", tags=["catalogue"])
 
 
+def _search_pattern(value: str) -> str:
+    escaped = value.lower().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+    return f"%{escaped}%"
+
+
 def _list(
-    kind: Literal["panel", "inverter"], session: Session, pagination: PaginationParams
+    kind: Literal["panel", "inverter"], session: Session, pagination: PanelQuery | InverterQuery
 ) -> PageResponse[ProductSummary]:
-    visible = (Product.kind == kind, Product.is_archived.is_(False))
-    total = session.scalar(select(func.count()).select_from(Product).where(*visible)) or 0
+    spec_model = Panel if kind == "panel" else Inverter
+    conditions = [Product.kind == kind, Product.is_archived.is_(False)]
+    if pagination.search:
+        pattern = _search_pattern(pagination.search)
+        conditions.append(
+            or_(
+                func.lower(Product.brand).like(pattern, escape="\\"),
+                func.lower(Product.model).like(pattern, escape="\\"),
+            )
+        )
+    if isinstance(pagination, PanelQuery):
+        if pagination.min_wattage_w is not None:
+            conditions.append(Panel.wattage_w >= pagination.min_wattage_w)
+        if pagination.max_wattage_w is not None:
+            conditions.append(Panel.wattage_w <= pagination.max_wattage_w)
+        if pagination.min_efficiency_percent is not None:
+            conditions.append(Panel.efficiency_percent >= pagination.min_efficiency_percent)
+    else:
+        if pagination.category is not None:
+            conditions.append(Inverter.category == pagination.category)
+        if pagination.min_capacity_kw is not None:
+            conditions.append(Inverter.capacity_kw >= pagination.min_capacity_kw)
+        if pagination.max_capacity_kw is not None:
+            conditions.append(Inverter.capacity_kw <= pagination.max_capacity_kw)
+    base = select(Product).join(spec_model, spec_model.product_id == Product.id).where(*conditions)
+    total = (
+        session.scalar(
+            select(func.count())
+            .select_from(Product)
+            .join(spec_model, spec_model.product_id == Product.id)
+            .where(*conditions)
+        )
+        or 0
+    )
     products = session.scalars(
-        select(Product)
-        .where(*visible)
-        .order_by(Product.brand, Product.model, Product.id)
+        base.order_by(Product.brand, Product.model, Product.id)
         .limit(pagination.limit)
         .offset(pagination.offset)
     )
@@ -76,7 +112,7 @@ def _detail(
 @router.get("/panels", response_model=PageResponse[ProductSummary])
 def list_panels(
     session: Annotated[Session, Depends(get_session)],
-    pagination: Annotated[PaginationParams, Query()],
+    pagination: Annotated[PanelQuery, Query()],
     response: Response,
 ) -> PageResponse[ProductSummary]:
     response.headers["Cache-Control"] = "no-store"
@@ -94,7 +130,7 @@ def panel_detail(
 @router.get("/inverters", response_model=PageResponse[ProductSummary])
 def list_inverters(
     session: Annotated[Session, Depends(get_session)],
-    pagination: Annotated[PaginationParams, Query()],
+    pagination: Annotated[InverterQuery, Query()],
     response: Response,
 ) -> PageResponse[ProductSummary]:
     response.headers["Cache-Control"] = "no-store"
