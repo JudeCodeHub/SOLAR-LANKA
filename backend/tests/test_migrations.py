@@ -1,5 +1,6 @@
 """Exercise migration lifecycle on an empty database owned solely by this test."""
 
+from datetime import UTC, datetime, timedelta
 from io import StringIO
 from uuid import uuid4
 
@@ -19,6 +20,7 @@ from app.models.company import Company, CompanyMembership
 from app.models.inverter import Inverter
 from app.models.panel import Panel
 from app.models.product import Product
+from app.models.product_source import ProductSource
 from app.models.user import AppUser
 
 
@@ -67,7 +69,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             config.attributes["connection"] = connection
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0011_inverters"
+                "0012_product_sources"
             )
 
         with Session(temporary_engine) as session:
@@ -164,6 +166,37 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             assert inverter.mppt_count == 0
             assert inverter.compatibility_source_url is not None
 
+        with Session(temporary_engine) as session:
+            product = Product(kind="panel", brand="Test source brand", model="Test provenance")
+            session.add(product)
+            session.flush()
+            retrieved = datetime(2026, 1, 1, tzinfo=UTC)
+            source = ProductSource(
+                product_id=product.id,
+                source_url="https://example.invalid/datasheet",
+                specifications={"wattage_w": "400.000"},
+                retrieved_at=retrieved,
+            )
+            session.add(source)
+            session.commit()
+            session.refresh(source)
+            assert source.verified_at is None
+            assert source.retrieved_at == retrieved
+            assert source.specifications == {"wattage_w": "400.000"}
+            for field, value in (
+                ("source_url", " "),
+                ("specifications", {}),
+                ("verified_at", retrieved - timedelta(days=1)),
+            ):
+                with pytest.raises(IntegrityError):
+                    with session.begin_nested():
+                        setattr(source, field, value)
+                        session.flush()
+            source.verified_at = retrieved + timedelta(days=1)
+            session.commit()
+            session.refresh(source)
+            assert source.verified_at.utcoffset() is not None
+
         # Verify the revision was persisted, repeated upgrades are safe, and rollback works.
         with temporary_engine.begin() as connection:
             config.attributes["connection"] = connection
@@ -177,6 +210,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
                 "company_reviews",
                 "inverters",
                 "panels",
+                "product_sources",
                 "products",
             ]
             command.upgrade(config, "head")
@@ -184,7 +218,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             assert MigrationContext.configure(connection).get_current_revision() is None
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0011_inverters"
+                "0012_product_sources"
             )
     finally:
         if temporary_engine is not None:
