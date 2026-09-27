@@ -95,3 +95,19 @@ class CompanyReviewResponse(BaseModel):
     actor_id: EntityId
     outcome: Literal["submitted", "approved", "rejected"]
     created_at: Timestamp
+
+
+class CompanyReviewDecision(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    outcome: Literal["approved", "rejected"]
+
+
+class PublicCompanyResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: EntityId
+    name: str
+    service_districts: list[District]
+    services: list[Service]
+    declared_credentials: list[DeclaredCredential]

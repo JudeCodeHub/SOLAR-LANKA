@@ -6,6 +6,7 @@ from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.auth import VerifiedIdentity, require_identity
+from app.core.permissions import Action, Scope, required_scopes
 from app.db.session import get_session
 from app.models.user import AppUser
 from app.services.users import provision_user
@@ -20,4 +21,12 @@ def require_local_user(
     if user.is_suspended or user.provider_state != "active":
         raise HTTPException(status_code=403)
     session.commit()
+    return user
+
+
+def require_company_reviewer(
+    user: Annotated[AppUser, Depends(require_local_user)],
+) -> AppUser:
+    if Scope.PLATFORM not in required_scopes(Action.COMPANY_REVIEW, user.role):
+        raise HTTPException(403)
     return user
