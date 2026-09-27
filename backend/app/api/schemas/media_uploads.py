@@ -24,3 +24,21 @@ class UploadPermission(BaseModel):
     expire: int
     signature: str
     publicKey: str
+    upload_folder: str
+    attachment_proof: str
+
+
+class CompletedUpload(BaseModel):
+    category: AssetCategory
+    parent_id: UUID
+    file_id: str = Field(pattern=r"^[A-Za-z0-9_-]{1,255}$")
+    token: UUID
+    expire: int
+    attachment_proof: str
+
+
+class AttachedAsset(BaseModel):
+    id: UUID
+    category: AssetCategory
+    parent_id: UUID
+    visibility: Visibility

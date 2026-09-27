@@ -2,11 +2,12 @@
 
 import hashlib
 import hmac
+import re
 import time
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import httpx
-from pydantic import Field, HttpUrl, SecretStr, field_validator
+from pydantic import BaseModel, Field, HttpUrl, SecretStr, StrictInt, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from app.core.config import BACKEND_DIR
@@ -40,6 +41,16 @@ class ImageKitSettings(BaseSettings):
         return value
 
 
+class ImageKitFileDetails(BaseModel):
+    file_id: str = Field(alias="fileId")
+    file_path: str = Field(alias="filePath")
+    mime: str
+    size: StrictInt
+    file_type: str = Field(alias="fileType")
+    is_private_file: bool = Field(alias="isPrivateFile")
+    is_published: bool = Field(alias="isPublished")
+
+
 class ImageKitServerAdapter:
     """Authenticated ImageKit REST client; never serialize this object to an API response."""
 
@@ -50,6 +61,14 @@ class ImageKitServerAdapter:
             auth=httpx.BasicAuth(settings.private_key.get_secret_value(), ""),
             timeout=10.0,
         )
+
+    def get_file_details(self, file_id: str) -> ImageKitFileDetails:
+        """Retrieve authoritative metadata by provider ID, never by a client URL."""
+        if re.fullmatch(r"[A-Za-z0-9_-]{1,255}", file_id) is None:
+            raise ValueError("Invalid ImageKit file ID")
+        response = self._client.get(f"/v1/files/{file_id}/details")
+        response.raise_for_status()
+        return ImageKitFileDetails.model_validate(response.json())
 
     def close(self) -> None:
         self._client.close()
@@ -70,3 +89,42 @@ def issue_upload_auth(settings: ImageKitSettings) -> dict[str, str | int]:
         "signature": signature,
         "publicKey": settings.public_key,
     }
+
+
+def sign_upload_intent(
+    settings: ImageKitSettings,
+    *,
+    token: str,
+    expire: int,
+    owner_id: UUID,
+    category: str,
+    parent_id: UUID,
+) -> str:
+    """Bind an upload folder to one actor, category, target, and expiry."""
+    message = f"attachment:v1:{token}:{expire}:{owner_id}:{category}:{parent_id}"
+    return hmac.new(
+        settings.private_key.get_secret_value().encode(), message.encode(), hashlib.sha256
+    ).hexdigest()
+
+
+def verify_upload_intent(
+    settings: ImageKitSettings,
+    *,
+    token: UUID,
+    expire: int,
+    signature: str,
+    owner_id: UUID,
+    category: str,
+    parent_id: UUID,
+) -> bool:
+    if expire <= int(time.time()) or expire > int(time.time()) + 3600:
+        return False
+    expected = sign_upload_intent(
+        settings,
+        token=str(token),
+        expire=expire,
+        owner_id=owner_id,
+        category=category,
+        parent_id=parent_id,
+    )
+    return hmac.compare_digest(expected, signature)
