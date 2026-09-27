@@ -24,6 +24,7 @@ from app.db.session import get_session
 from app.models.inverter import Inverter
 from app.models.panel import Panel
 from app.models.product import Product
+from app.services.public_media import public_media_for
 
 router = APIRouter(prefix="/catalogue", tags=["catalogue"])
 
@@ -70,16 +71,29 @@ def _list(
         )
         or 0
     )
-    products = session.scalars(
-        base.order_by(Product.brand, Product.model, Product.id)
-        .limit(pagination.limit)
-        .offset(pagination.offset)
+    products = list(
+        session.scalars(
+            base.order_by(Product.brand, Product.model, Product.id)
+            .limit(pagination.limit)
+            .offset(pagination.offset)
+        )
+    )
+    media = public_media_for(
+        session,
+        parent_kind="product",
+        parent_ids=[product.id for product in products],
+        categories=("product_image", "product_datasheet"),
     )
     return PageResponse[ProductSummary](
         limit=pagination.limit,
         offset=pagination.offset,
         total=total,
-        items=[ProductSummary.model_validate(product) for product in products],
+        items=[
+            ProductSummary.model_validate(product).model_copy(
+                update={"media": media.get(product.id, [])}
+            )
+            for product in products
+        ],
     )
 
 
@@ -98,12 +112,19 @@ def _detail(
     specs = session.get(spec_model, product.id)
     if specs is None:
         raise HTTPException(404)
+    media = public_media_for(
+        session,
+        parent_kind="product",
+        parent_ids=[product.id],
+        categories=("product_image", "product_datasheet"),
+    )
     return ProductDetail.model_validate(
         {
             "id": product.id,
             "kind": product.kind,
             "brand": product.brand,
             "model": product.model,
+            "media": media.get(product.id, []),
             "image_urls": product.image_urls,
             "datasheet_urls": product.datasheet_urls,
             "source_url": product.source_url,

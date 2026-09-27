@@ -1,6 +1,7 @@
 """Issue short-lived ImageKit upload auth after checking target-record access."""
 
 from typing import Annotated
+from urllib.parse import unquote, urlsplit
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException
@@ -108,9 +109,15 @@ def attach_completed_upload(
     finally:
         adapter.close()
     expected_folder = f"/pending/{body.token}/"
+    expected_url = f"{str(settings.url_endpoint).rstrip('/')}{details.file_path}"
+    delivered_url = str(details.url)
     if (
         details.file_id != body.file_id
         or not details.file_path.startswith(expected_folder)
+        or ".." in details.file_path.split("/")
+        or unquote(urlsplit(delivered_url).path) != unquote(urlsplit(expected_url).path)
+        or urlsplit(delivered_url).scheme != urlsplit(expected_url).scheme
+        or urlsplit(delivered_url).netloc != urlsplit(expected_url).netloc
         or details.is_private_file
         or not details.is_published
         or details.mime not in policy.mime_types
@@ -136,6 +143,7 @@ def attach_completed_upload(
         parent_kind=policy.parent_kind.value,
         parent_id=body.parent_id,
         visibility=policy.visibility.value,
+        public_url=delivered_url,
     )
     session.add(asset)
     try:

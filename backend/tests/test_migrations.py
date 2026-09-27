@@ -70,7 +70,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             config.attributes["connection"] = connection
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0016_favourites"
+                "0018_media_public_urls"
             )
 
         with Session(temporary_engine) as session:
@@ -251,6 +251,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
                 "company_reviews",
                 "favourites",
                 "inverters",
+                "media_assets",
                 "panels",
                 "product_offers",
                 "product_sources",
@@ -261,7 +262,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             assert MigrationContext.configure(connection).get_current_revision() is None
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0016_favourites"
+                "0018_media_public_urls"
             )
     finally:
         if temporary_engine is not None:

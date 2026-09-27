@@ -44,6 +44,7 @@ class ImageKitSettings(BaseSettings):
 class ImageKitFileDetails(BaseModel):
     file_id: str = Field(alias="fileId")
     file_path: str = Field(alias="filePath")
+    url: HttpUrl
     mime: str
     size: StrictInt
     file_type: str = Field(alias="fileType")

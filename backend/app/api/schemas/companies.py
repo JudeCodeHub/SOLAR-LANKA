@@ -4,6 +4,7 @@ from typing import Annotated, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
+from app.api.schemas.public_media import PublicMedia
 from app.core.value_types import EntityId, Timestamp
 
 CompanyName = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=255)]
@@ -107,6 +108,7 @@ class PublicCompanyResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: EntityId
+    logo: PublicMedia | None = None
     name: str
     service_districts: list[District]
     services: list[Service]

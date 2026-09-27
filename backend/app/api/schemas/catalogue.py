@@ -3,8 +3,9 @@
 from decimal import Decimal
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
+from app.api.schemas.public_media import PublicMedia
 from app.core.value_types import EntityId, Timestamp
 
 
@@ -15,6 +16,7 @@ class ProductSummary(BaseModel):
     kind: Literal["panel", "inverter"]
     brand: str
     model: str
+    media: list[PublicMedia] = Field(default_factory=list)
 
 
 class PanelSpecifications(BaseModel):

@@ -356,6 +356,7 @@ def test_admin_review_and_publication(company_access, database_session, outcome)
             "services",
             "service_districts",
             "declared_credentials",
+            "logo",
         }
 
 
