@@ -14,6 +14,7 @@ from app.core.permissions import Action
 from app.db.session import get_session
 from app.models.company import CompanyMembership
 from app.models.user import AppUser
+from app.services.audit import AuditAction, record_audit
 
 router = APIRouter(prefix="/companies", tags=["memberships"])
 
@@ -45,5 +46,12 @@ def assign_membership(
         select(CompanyMembership).where(CompanyMembership.id == membership_id)
     ).one()
     response = MembershipResponse.model_validate(membership)
+    record_audit(
+        session,
+        actor_id=actor.user_id,
+        company_id=actor.company_id,
+        target_id=membership.id,
+        action=AuditAction.MEMBERSHIP_ASSIGNED,
+    )
     session.commit()
     return response

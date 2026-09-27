@@ -22,6 +22,7 @@ from app.core.permissions import Action
 from app.db.session import get_session
 from app.models.company import Company, CompanyMembership, CompanyReview
 from app.models.user import AppUser
+from app.services.audit import AuditAction, record_audit
 
 router = APIRouter(prefix="/companies", tags=["companies"])
 
@@ -61,6 +62,13 @@ def edit_company_profile(
     if any(getattr(company, field) != value for field, value in changes.items()):
         # An approval covers the reviewed profile, never later unreviewed edits.
         company.publication_status = "draft"
+        record_audit(
+            session,
+            actor_id=membership.user_id,
+            company_id=company.id,
+            target_id=company.id,
+            action=AuditAction.COMPANY_UPDATED,
+        )
     for field, value in changes.items():
         setattr(company, field, value)
     session.commit()
@@ -85,6 +93,13 @@ def submit_company(
     session.add(entry)
     session.flush()
     result = CompanyReviewResponse.model_validate(entry)
+    record_audit(
+        session,
+        actor_id=entry.actor_id,
+        company_id=company.id,
+        target_id=company.id,
+        action=AuditAction("company." + entry.outcome),
+    )
     session.commit()
     return result
 
@@ -128,6 +143,13 @@ def review_company(
     session.add(entry)
     session.flush()
     result = CompanyReviewResponse.model_validate(entry)
+    record_audit(
+        session,
+        actor_id=entry.actor_id,
+        company_id=company.id,
+        target_id=company.id,
+        action=AuditAction("company." + entry.outcome),
+    )
     session.commit()
     return result
 

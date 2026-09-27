@@ -10,6 +10,7 @@ from sqlalchemy import select, text
 from app.api.company_access import require_company_membership, require_company_permission
 from app.core.auth import VerifiedIdentity, require_identity
 from app.core.permissions import Action
+from app.models.audit import AuditEvent
 from app.models.company import Company, CompanyMembership, CompanyReview
 from app.models.user import AppUser
 
@@ -26,6 +27,7 @@ def company_access(database_client, database_connection, database_session):
         Company.__table__,
         CompanyMembership.__table__,
         CompanyReview.__table__,
+        AuditEvent.__table__,
     ):
         table.create(database_connection)
     user = AppUser(clerk_subject="user_current")
@@ -381,3 +383,67 @@ def test_company_admin_cannot_review_and_suspended_admin_denied(company_access, 
     database_session.commit()
     assert client.post(f"/companies/{own}/review", json={"outcome": "approved"}).status_code == 403
     assert client.get(f"/public/companies/{own}").status_code == 404
+
+
+def test_sensitive_changes_are_audited(company_access, database_session):
+    client, user, member, own, foreign = company_access
+    secret_marker = "secret-value-must-not-be-audited"
+    assert client.patch(f"/companies/{own}", json={"name": secret_marker}).status_code == 200
+    assert client.post(f"/companies/{own}/submit").status_code == 201
+    assert client.get("/audit-events").status_code == 403
+    member.role = "company_admin"
+    target = AppUser(clerk_subject="user_audit_target")
+    database_session.add(target)
+    database_session.commit()
+    assigned = client.post(
+        f"/companies/{own}/memberships", json={"user_id": str(target.id), "role": "sales"}
+    )
+    assert assigned.status_code == 201
+    assert client.get("/audit-events").status_code == 403
+    user.role = "platform_admin"
+    database_session.commit()
+    assert client.post(f"/companies/{own}/review", json={"outcome": "approved"}).status_code == 201
+    response = client.get(f"/audit-events?company_id={own}")
+    assert response.status_code == 200
+    events = response.json()
+    assert {e["action"] for e in events} == {
+        "company.updated",
+        "company.submitted",
+        "company.approved",
+        "membership.assigned",
+    }
+    assert all(e["actor_id"] == str(user.id) and e["company_id"] == str(own) for e in events)
+    assert all(
+        set(e) == {"id", "actor_id", "company_id", "target_id", "action", "created_at"}
+        for e in events
+    )
+    assert secret_marker not in response.text
+    assert (
+        next(e for e in events if e["action"] == "membership.assigned")["target_id"]
+        == assigned.json()["id"]
+    )
+    assert client.get(f"/audit-events?company_id={foreign}").json() == []
+    assert len(client.get("/audit-events?limit=1").json()) == 1
+    assert client.get("/audit-events?limit=101").status_code == 422
+    user.is_suspended = True
+    database_session.commit()
+    assert client.get("/audit-events").status_code == 403
+    client.app.dependency_overrides.pop(require_identity)
+    assert client.get("/audit-events").status_code == 401
+
+
+def test_audit_failure_rolls_back_change(company_access, database_session, monkeypatch):
+    from app.api.routes import companies
+
+    client, _, _, own, _ = company_access
+
+    def fail(*args, **kwargs):
+        raise RuntimeError("simulated audit failure")
+
+    monkeypatch.setattr(companies, "record_audit", fail)
+    with pytest.raises(RuntimeError):
+        client.post(f"/companies/{own}/submit")
+    database_session.expire_all()
+    assert database_session.get(Company, own).publication_status == "draft"
+    assert database_session.scalar(select(AuditEvent)) is None
+    assert database_session.scalar(select(CompanyReview)) is None
