@@ -16,6 +16,7 @@ from app.core.config import BACKEND_DIR
 from app.core.database_config import DatabaseSettings
 from app.db.session import create_database_engine
 from app.models.company import Company, CompanyMembership
+from app.models.inverter import Inverter
 from app.models.panel import Panel
 from app.models.product import Product
 from app.models.user import AppUser
@@ -65,7 +66,9 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             assert sorted(inspect(connection).get_table_names()) == []
             config.attributes["connection"] = connection
             command.upgrade(config, "head")
-            assert MigrationContext.configure(connection).get_current_revision() == ("0010_panels")
+            assert MigrationContext.configure(connection).get_current_revision() == (
+                "0011_inverters"
+            )
 
         with Session(temporary_engine) as session:
             user = AppUser(clerk_subject="user_verified_test_subject")
@@ -128,6 +131,39 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
                     panel.efficiency_percent = 101
                     session.flush()
 
+        with Session(temporary_engine) as session:
+            product = Product(kind="inverter", brand="Fictional test brand", model="Test inverter")
+            session.add(product)
+            session.flush()
+            inverter = Inverter(product_id=product.id)
+            session.add(inverter)
+            session.commit()
+            session.refresh(inverter)
+            assert inverter.capacity_kw is None
+            assert inverter.mppt_count is None
+            assert inverter.compatibility_notes is None
+            assert inverter.connectivity is None
+            for field, value in (
+                ("category", "unsupported"),
+                ("capacity_kw", -1),
+                ("mppt_count", -1),
+                ("compatibility_notes", "Unsourced claim"),
+            ):
+                with pytest.raises(IntegrityError):
+                    with session.begin_nested():
+                        setattr(inverter, field, value)
+                        session.flush()
+            for category in ("on_grid", "off_grid", "hybrid"):
+                inverter.category = category
+                session.flush()
+            inverter.compatibility_notes = "Fictional test compatibility statement"
+            inverter.compatibility_source_url = "https://example.invalid/test-source"
+            inverter.mppt_count = 0
+            session.commit()
+            session.refresh(inverter)
+            assert inverter.mppt_count == 0
+            assert inverter.compatibility_source_url is not None
+
         # Verify the revision was persisted, repeated upgrades are safe, and rollback works.
         with temporary_engine.begin() as connection:
             config.attributes["connection"] = connection
@@ -139,6 +175,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
                 "companies",
                 "company_memberships",
                 "company_reviews",
+                "inverters",
                 "panels",
                 "products",
             ]
@@ -146,7 +183,9 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             command.downgrade(config, "base")
             assert MigrationContext.configure(connection).get_current_revision() is None
             command.upgrade(config, "head")
-            assert MigrationContext.configure(connection).get_current_revision() == ("0010_panels")
+            assert MigrationContext.configure(connection).get_current_revision() == (
+                "0011_inverters"
+            )
     finally:
         if temporary_engine is not None:
             temporary_engine.dispose()
