@@ -7,8 +7,9 @@ import pytest
 from fastapi import Depends
 from sqlalchemy import text
 
-from app.api.company_access import require_company_membership
+from app.api.company_access import require_company_membership, require_company_permission
 from app.core.auth import VerifiedIdentity, require_identity
+from app.core.permissions import Action
 from app.models.company import Company, CompanyMembership
 from app.models.user import AppUser
 
@@ -83,3 +84,39 @@ def test_missing_identity(company_access):
     client, _, _, own, _ = company_access
     client.app.dependency_overrides.pop(require_identity)
     assert client.get(f"/test-companies/{own}").status_code == 401
+
+
+@pytest.mark.parametrize(
+    "role,action,expected",
+    [
+        ("company_admin", Action.MEMBERSHIP_MANAGE, 200),
+        ("sales", Action.MEMBERSHIP_MANAGE, 403),
+        ("technician", Action.MEMBERSHIP_MANAGE, 403),
+        ("company_admin", Action.COMPANY_UPDATE, 200),
+        ("sales", Action.COMPANY_UPDATE, 200),
+        ("technician", Action.COMPANY_UPDATE, 403),
+        ("company_admin", Action.COMPANY_REVIEW, 403),
+        ("sales", Action.COMPANY_REVIEW, 403),
+        ("company_admin", Action.QUOTATION_SEND, 403),
+        ("company_admin", "unknown.action", 403),
+    ],
+)
+def test_company_action_policy(company_access, database_session, role, action, expected):
+    client, _, membership, own, foreign = company_access
+    membership.role = role
+    database_session.commit()
+    permission = require_company_permission(action)
+
+    @client.app.post("/test-actions/{company_id}")
+    def protected_action(member: Annotated[CompanyMembership, Depends(permission)]):
+        return {"role": member.role}
+
+    response = client.post(
+        f"/test-actions/{own}?role=company_admin&action=company.update",
+        json={"role": "company_admin"},
+    )
+    assert response.status_code == expected
+    assert client.post(f"/test-actions/{foreign}").status_code == 403
+    membership.status = "suspended"
+    database_session.commit()
+    assert client.post(f"/test-actions/{own}").status_code == 403
