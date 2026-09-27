@@ -20,6 +20,7 @@ from app.models.company import Company, CompanyMembership
 from app.models.inverter import Inverter
 from app.models.panel import Panel
 from app.models.product import Product
+from app.models.product_offer import ProductOffer
 from app.models.product_source import ProductSource
 from app.models.user import AppUser
 
@@ -69,7 +70,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             config.attributes["connection"] = connection
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0013_product_archive"
+                "0014_product_offers"
             )
 
         with Session(temporary_engine) as session:
@@ -197,6 +198,46 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             session.refresh(source)
             assert source.verified_at.utcoffset() is not None
 
+        with Session(temporary_engine) as session:
+            company = Company(name="Offer test company")
+            product = Product(kind="panel", brand="Test brand", model="Test product")
+            session.add_all([company, product])
+            session.flush()
+            offer = ProductOffer(
+                company_id=company.id,
+                product_id=product.id,
+                company_claim="Company-declared installation support",
+            )
+            session.add(offer)
+            session.commit()
+            session.refresh(offer)
+            assert offer.indicative_price is None
+            assert offer.currency is None
+            assert offer.claim_label == "company_declared"
+            assert product.source_url is None
+            offer.indicative_price = 0
+            offer.currency = "LKR"
+            offer.is_demo_price = True
+            session.commit()
+            assert offer.indicative_price == 0
+            with pytest.raises(IntegrityError):
+                with session.begin_nested():
+                    session.add(ProductOffer(company_id=company.id, product_id=product.id))
+                    session.flush()
+            for field, value in (
+                ("indicative_price", -1),
+                ("currency", "USD"),
+                ("claim_label", "verified"),
+            ):
+                with pytest.raises(IntegrityError):
+                    with session.begin_nested():
+                        setattr(offer, field, value)
+                        if field == "currency":
+                            offer.indicative_price = None
+                        session.flush()
+            session.refresh(product)
+            assert product.model == "Test product"
+
         # Verify the revision was persisted, repeated upgrades are safe, and rollback works.
         with temporary_engine.begin() as connection:
             config.attributes["connection"] = connection
@@ -210,6 +251,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
                 "company_reviews",
                 "inverters",
                 "panels",
+                "product_offers",
                 "product_sources",
                 "products",
             ]
@@ -218,7 +260,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             assert MigrationContext.configure(connection).get_current_revision() is None
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0013_product_archive"
+                "0014_product_offers"
             )
     finally:
         if temporary_engine is not None:
