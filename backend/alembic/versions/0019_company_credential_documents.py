@@ -2,7 +2,7 @@
 
 from alembic import op
 
-revision = "0019_company_credential_documents"
+revision = "0019_company_credentials"
 down_revision = "0018_media_public_urls"
 branch_labels = None
 depends_on = None
