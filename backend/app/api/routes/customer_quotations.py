@@ -10,11 +10,17 @@ from sqlalchemy.orm import Session
 
 from app.api.dependencies import require_local_user
 from app.api.quotation_views import revision_view
+from app.api.schemas.offer_comparison import (
+    ComparisonEquipment,
+    ComparisonInclusions,
+    ComparisonOffer,
+    OfferComparison,
+)
 from app.api.schemas.pagination import PageResponse, PaginationParams
 from app.api.schemas.quotations import QuotationRevisionView
 from app.core.permissions import Action, Scope, required_scopes
 from app.db.session import get_session
-from app.models.quotation import Quotation, QuotationRevision
+from app.models.quotation import Quotation, QuotationLineItem, QuotationRevision
 from app.models.quotation_request import QuotationRequest, RequestDelivery
 from app.models.user import AppUser
 
@@ -27,6 +33,14 @@ def require_customer_quote_reader(
     user: Annotated[AppUser, Depends(require_local_user)],
 ) -> AppUser:
     if Scope.OWNER not in required_scopes(Action.QUOTATION_READ, user.role):
+        raise HTTPException(403)
+    return user
+
+
+def require_customer_quote_comparer(
+    user: Annotated[AppUser, Depends(require_local_user)],
+) -> AppUser:
+    if Scope.OWNER not in required_scopes(Action.QUOTATION_COMPARE, user.role):
         raise HTTPException(403)
     return user
 
@@ -55,6 +69,96 @@ def owned_quotation(
     if quotation is None:
         raise HTTPException(404)
     return quotation
+
+
+@router.get("/compare", response_model=OfferComparison)
+def compare_current_offers(
+    request_id: UUID,
+    user: Annotated[AppUser, Depends(require_customer_quote_comparer)],
+    session: Annotated[Session, Depends(get_session)],
+    response: Response,
+) -> OfferComparison:
+    response.headers["Cache-Control"] = "no-store"
+    request = session.scalars(
+        select(QuotationRequest).where(
+            QuotationRequest.id == request_id,
+            QuotationRequest.customer_id == user.id,
+        )
+    ).one_or_none()
+    if request is None:
+        raise HTTPException(404)
+    if request.status != "submitted":
+        return OfferComparison(request_id=request.id, offers=[])
+    rows = list(
+        session.execute(
+            select(Quotation, RequestDelivery, QuotationRevision)
+            .join(RequestDelivery, Quotation.delivery_id == RequestDelivery.id)
+            .join(QuotationRevision, QuotationRevision.quotation_id == Quotation.id)
+            .where(
+                RequestDelivery.request_id == request.id,
+                RequestDelivery.status.not_in(("closed", "cancelled")),
+                QuotationRevision.status == "sent",
+                QuotationRevision.sent_at.is_not(None),
+                QuotationRevision.valid_until > datetime.now(UTC),
+            )
+            .order_by(RequestDelivery.company_id, QuotationRevision.revision_number.desc())
+        )
+    )
+    revision_ids = [revision.id for _, _, revision in rows]
+    lines_by_revision: dict[UUID, list[QuotationLineItem]] = {
+        revision_id: [] for revision_id in revision_ids
+    }
+    if revision_ids:
+        lines = session.scalars(
+            select(QuotationLineItem)
+            .where(QuotationLineItem.revision_id.in_(revision_ids))
+            .order_by(QuotationLineItem.position)
+        )
+        for line in lines:
+            lines_by_revision[line.revision_id].append(line)
+    offers = []
+    for quotation, delivery, revision in rows:
+        equipment = []
+        included = set()
+        for line in lines_by_revision[revision.id]:
+            if line.kind != "equipment":
+                continue
+            snapshot = line.product_snapshot or {}
+            kind = snapshot.get("kind")
+            if kind not in {"panel", "inverter"}:
+                kind = None
+            if kind is not None:
+                included.add(kind)
+            equipment.append(
+                ComparisonEquipment(
+                    product_id=line.product_id,
+                    kind=kind,
+                    brand=snapshot.get("brand"),
+                    model=snapshot.get("model"),
+                    description=line.description,
+                    quantity=line.quantity,
+                    line_total_lkr=line.line_total,
+                )
+            )
+        offers.append(
+            ComparisonOffer(
+                quotation_id=quotation.id,
+                revision_id=revision.id,
+                company_id=delivery.company_id,
+                sent_at=revision.sent_at,
+                valid_until=revision.valid_until,
+                total_lkr=revision.total,
+                capacity_kwp=revision.capacity_kwp,
+                warranty_terms=revision.warranty_terms,
+                exclusions=revision.exclusions,
+                equipment=equipment,
+                inclusions=ComparisonInclusions(
+                    panel_equipment="included" if "panel" in included else "not_specified",
+                    inverter_equipment="included" if "inverter" in included else "not_specified",
+                ),
+            )
+        )
+    return OfferComparison(request_id=request.id, offers=offers)
 
 
 @router.get("/{quotation_id}/revisions", response_model=PageResponse[QuotationRevisionView])

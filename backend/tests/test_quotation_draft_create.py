@@ -154,6 +154,17 @@ def test_draft_creation_is_scoped_and_unique(
     assert line.product_snapshot["model"] == "Panel A"
     assert line.unit_price == Decimal("100.05")
     assert revision.total == Decimal("265.61")
+    compare_path = f"/users/me/requests/{request.id}/quotations/compare"
+    subject["value"] = customer.clerk_subject
+    compared = database_client.get(compare_path)
+    assert compared.status_code == 200
+    assert len(compared.json()["offers"]) == 1
+    assert compared.json()["offers"][0]["total_lkr"] == "265.61"
+    assert compared.json()["offers"][0]["equipment"][0]["model"] == "Panel A"
+    assert compared.json()["offers"][0]["inclusions"]["panel_equipment"] == "included"
+    assert compared.json()["offers"][0]["inclusions"]["permits"] == "not_specified"
+    subject["value"] = staff_b.clerk_subject
+    assert database_client.get(compare_path).status_code == 404
     customer_history = (
         f"/users/me/requests/{request.id}/quotations/{created.json()['id']}/revisions"
     )
@@ -247,5 +258,6 @@ def test_draft_creation_is_scoped_and_unique(
         f"/users/me/requests/{request.id}/quotations/{created_b.json()['id']}/revisions"
     )
     assert database_client.get(b_customer_history).json()["items"][0]["status"] == "withdrawn"
+    assert database_client.get(compare_path).json()["offers"] == []
     subject["value"] = staff_a.clerk_subject
     assert database_client.get(b_history).status_code == 403
