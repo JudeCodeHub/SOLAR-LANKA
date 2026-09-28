@@ -44,6 +44,8 @@ def test_offline_upgrade_generates_sql_without_a_connection(
     sql = output.getvalue()
     assert "CREATE TABLE alembic_version" in sql
     assert "0001_initial_baseline" in sql
+    assert "trg_quotation_revision_immutable" in sql
+    assert "trg_quotation_line_immutable" in sql
     assert "private-password" not in sql
 
 
@@ -71,7 +73,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             config.attributes["connection"] = connection
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0028_quotation_offer_details"
+                "0029_immutable_quotation_snapshots"
             )
 
         with Session(temporary_engine) as session:
@@ -296,7 +298,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             assert MigrationContext.configure(connection).get_current_revision() is None
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0028_quotation_offer_details"
+                "0029_immutable_quotation_snapshots"
             )
     finally:
         if temporary_engine is not None:

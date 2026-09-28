@@ -15,6 +15,7 @@ from sqlalchemy import (
     UniqueConstraint,
     func,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.value_types import new_entity_id
@@ -124,6 +125,7 @@ class QuotationLineItem(Base):
     position: Mapped[int] = mapped_column(nullable=False)
     kind: Mapped[str] = mapped_column(String(16), nullable=False, server_default="charge")
     product_id: Mapped[UUID | None] = mapped_column(ForeignKey("products.id", ondelete="RESTRICT"))
+    product_snapshot: Mapped[dict | None] = mapped_column(JSONB(none_as_null=True))
     description: Mapped[str] = mapped_column(Text, nullable=False)
     quantity: Mapped[Decimal] = mapped_column(Numeric(12, 3), nullable=False)
     unit_price: Mapped[Decimal] = mapped_column(Numeric(18, 2), nullable=False)
