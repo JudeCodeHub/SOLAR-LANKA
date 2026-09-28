@@ -1,7 +1,7 @@
 """Admin input for versioned estimator assumptions and their source snapshots."""
 
 from datetime import date
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import AnyHttpUrl, BaseModel, ConfigDict, Field
 
@@ -16,6 +16,7 @@ class SourceSnapshot(BaseModel):
     reviewed_on: date
     effective_from: date | None = None
     limitation: str = Field(min_length=1, max_length=1000)
+    basis: Literal["installer_quote"] | None = None
 
 
 class SourceSnapshots(BaseModel):
