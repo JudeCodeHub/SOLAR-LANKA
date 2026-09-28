@@ -60,7 +60,8 @@ def test_draft_creation_is_scoped_and_unique(
     database_session.add(request)
     database_session.flush()
     delivery = RequestDelivery(request_id=request.id, company_id=company_a.id)
-    database_session.add(delivery)
+    delivery_b = RequestDelivery(request_id=request.id, company_id=company_b.id)
+    database_session.add_all([delivery, delivery_b])
     database_session.commit()
     subject = {"value": staff_b.clerk_subject}
     database_client.app.dependency_overrides[require_identity] = lambda: VerifiedIdentity(
@@ -151,3 +152,81 @@ def test_draft_creation_is_scoped_and_unique(
     assert line.product_snapshot["model"] == "Panel A"
     assert line.unit_price == Decimal("100.05")
     assert revision.total == Decimal("265.61")
+    customer_history = (
+        f"/users/me/requests/{request.id}/quotations/{created.json()['id']}/revisions"
+    )
+    subject["value"] = customer.clerk_subject
+    initial_history = database_client.get(customer_history)
+    assert initial_history.status_code == 200
+    assert initial_history.json()["total"] == 1
+    assert initial_history.json()["items"][0]["lines"][0]["product_snapshot"]["model"] == "Panel A"
+    subject["value"] = staff_b.clerk_subject
+    assert database_client.get(customer_history).status_code == 404
+    subject["value"] = staff_a.clerk_subject
+    revisions_path = f"{own_path}/{created.json()['id']}/revisions"
+    replacement = database_client.post(revisions_path)
+    assert replacement.status_code == 201
+    assert replacement.json()["revision_number"] == 2
+    assert database_client.get(revisions_path).json()["total"] == 2
+    subject["value"] = customer.clerk_subject
+    assert database_client.get(customer_history).json()["total"] == 1
+    draft_detail = f"{customer_history}/{replacement.json()['revision_id']}"
+    assert database_client.get(draft_detail).status_code == 404
+    subject["value"] = staff_a.clerk_subject
+    assert database_client.post(send_path).status_code == 200
+    history = database_client.get(revisions_path).json()["items"]
+    assert [item["status"] for item in history] == ["sent", "revised"]
+    assert history[1]["lines"][0]["product_snapshot"]["model"] == "Panel A"
+    subject["value"] = customer.clerk_subject
+    assert database_client.get(customer_history).json()["total"] == 2
+    declined = database_client.post(
+        f"{customer_history}/{replacement.json()['revision_id']}/decline"
+    )
+    assert declined.status_code == 200
+    assert declined.json()["status"] == "declined"
+    assert (
+        database_client.post(
+            f"{customer_history}/{replacement.json()['revision_id']}/decline"
+        ).status_code
+        == 409
+    )
+    assert database_client.get(customer_history).json()["total"] == 2
+
+    subject["value"] = staff_b.clerk_subject
+    own_b_path = f"/companies/{company_b.id}/request-deliveries/{delivery_b.id}/quotations"
+    created_b = database_client.post(own_b_path)
+    assert created_b.status_code == 201
+    terms_b = {
+        "lines": [
+            {
+                "kind": "charge",
+                "description": "Installation",
+                "quantity": "1",
+                "unit_price": "100.00",
+            }
+        ],
+        "capacity_kwp": "1.000",
+        "warranty_terms": "One year",
+        "exclusions": "Roof repairs excluded",
+        "validity_days": 30,
+    }
+    assert (
+        database_client.put(
+            f"{own_b_path}/{created_b.json()['id']}/draft", json=terms_b
+        ).status_code
+        == 200
+    )
+    assert database_client.post(f"{own_b_path}/{created_b.json()['id']}/send").status_code == 200
+    b_history = f"{own_b_path}/{created_b.json()['id']}/revisions"
+    b_revision_id = created_b.json()["revision_id"]
+    withdrawn = database_client.post(f"{b_history}/{b_revision_id}/withdraw")
+    assert withdrawn.status_code == 200
+    assert withdrawn.json()["status"] == "withdrawn"
+    assert database_client.get(b_history).json()["total"] == 1
+    subject["value"] = customer.clerk_subject
+    b_customer_history = (
+        f"/users/me/requests/{request.id}/quotations/{created_b.json()['id']}/revisions"
+    )
+    assert database_client.get(b_customer_history).json()["items"][0]["status"] == "withdrawn"
+    subject["value"] = staff_a.clerk_subject
+    assert database_client.get(b_history).status_code == 403

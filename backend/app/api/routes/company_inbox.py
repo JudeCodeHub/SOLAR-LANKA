@@ -314,6 +314,31 @@ def send_quotation(
     ).one_or_none()
     if revision is None or revision.status != "draft":
         raise HTTPException(409, "Only the current draft can be sent.")
+    previous = session.scalars(
+        select(QuotationRevision)
+        .where(
+            QuotationRevision.quotation_id == quotation.id,
+            QuotationRevision.status == "sent",
+        )
+        .with_for_update()
+    ).one_or_none()
+    has_sent_history = (
+        session.scalar(
+            select(QuotationRevision.id)
+            .where(
+                QuotationRevision.quotation_id == quotation.id,
+                QuotationRevision.sent_at.is_not(None),
+            )
+            .limit(1)
+        )
+        is not None
+    )
+    if has_sent_history and (
+        previous is None
+        or previous.valid_until is None
+        or datetime.now(UTC) >= previous.valid_until
+    ):
+        raise HTTPException(409, "The prior sent offer is no longer eligible for revision.")
     try:
         required = SentOfferRequired.model_validate(revision)
     except ValidationError as error:
@@ -373,6 +398,8 @@ def send_quotation(
     check_validity_window(sent_at, valid_until)
     revision.sent_at = sent_at
     revision.valid_until = valid_until
+    if previous is not None:
+        previous.status = "revised"
     revision.status = "sent"
     session.commit()
     return QuotationSent(
