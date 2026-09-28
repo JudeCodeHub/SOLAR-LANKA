@@ -20,6 +20,7 @@ from app.api.routes.media_uploads import router as media_uploads_router
 from app.api.routes.memberships import router as memberships_router
 from app.api.routes.offers import router as offers_router
 from app.api.routes.private_media import router as private_media_router
+from app.api.routes.quotation_requests import router as quotation_requests_router
 from app.api.routes.readiness import router as readiness_router
 from app.api.routes.saved_estimates import router as saved_estimates_router
 from app.api.routes.users import router as users_router
@@ -83,6 +84,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(estimator_config_router)
     application.include_router(estimates_router)
     application.include_router(saved_estimates_router)
+    application.include_router(quotation_requests_router)
     application.include_router(catalogue_router)
     application.include_router(favourites_router)
     application.include_router(audit_router)
