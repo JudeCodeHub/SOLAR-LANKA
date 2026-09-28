@@ -22,6 +22,7 @@ from app.api.schemas.request_reads import (
     CustomerRequestDetail,
     CustomerRequestSummary,
     DeliveryProgress,
+    RequestStatusResponse,
 )
 from app.core.permissions import Action, Scope, required_scopes
 from app.core.value_types import new_entity_id
@@ -48,6 +49,46 @@ def require_request_reader(
     if Scope.OWNER not in required_scopes(Action.REQUEST_READ, user.role):
         raise HTTPException(403)
     return user
+
+
+def require_request_withdrawer(
+    user: Annotated[AppUser, Depends(require_local_user)],
+) -> AppUser:
+    if Scope.OWNER not in required_scopes(Action.REQUEST_WITHDRAW, user.role):
+        raise HTTPException(403)
+    return user
+
+
+@router.post("/{request_id}/withdraw", response_model=RequestStatusResponse)
+def withdraw_request(
+    request_id: UUID,
+    user: Annotated[AppUser, Depends(require_request_withdrawer)],
+    session: Annotated[Session, Depends(get_session)],
+    response: Response,
+) -> RequestStatusResponse:
+    response.headers["Cache-Control"] = "no-store"
+    request = session.scalars(
+        select(QuotationRequest)
+        .where(QuotationRequest.id == request_id, QuotationRequest.customer_id == user.id)
+        .with_for_update()
+    ).one_or_none()
+    if request is None:
+        raise HTTPException(404)
+    if request.status != "submitted":
+        raise BusinessConflict("Only an active request can be withdrawn.")
+    deliveries = list(session.scalars(
+        select(RequestDelivery)
+        .where(RequestDelivery.request_id == request.id)
+        .order_by(RequestDelivery.id)
+        .with_for_update()
+    ))
+    if any(delivery.status in {"responding", "closed"} for delivery in deliveries):
+        raise BusinessConflict("A request with a company response cannot be withdrawn.")
+    request.status = "cancelled"
+    for delivery in deliveries:
+        delivery.status = "cancelled"
+    session.commit()
+    return RequestStatusResponse(id=request.id, status="cancelled")
 
 
 def progress(delivery: RequestDelivery) -> DeliveryProgress:
