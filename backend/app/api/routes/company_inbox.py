@@ -21,6 +21,7 @@ from app.api.schemas.request_reads import (
     DeliveryProgressUpdate,
 )
 from app.core.permissions import Action, Scope, required_scopes
+from app.core.quotation_terms import calculate_totals
 from app.db.session import get_session
 from app.models.company import CompanyMembership
 from app.models.product import Product
@@ -223,6 +224,19 @@ def edit_quotation_draft(
         products = list(session.scalars(select(Product).where(Product.id.in_(product_ids))))
         if len(products) != len(product_ids) or any(product.is_archived for product in products):
             raise HTTPException(422, "Equipment must reference active catalogue products.")
+    try:
+        totals = calculate_totals(
+            [(line.quantity, line.unit_price) for line in body.lines],
+            discount_kind=body.discount_kind,
+            discount_value=body.discount_value,
+            tax_rate_percent=body.tax_rate_percent,
+        )
+    except ValueError as error:
+        raise HTTPException(422, str(error)) from error
+    revision.subtotal = totals.subtotal
+    revision.discount = totals.discount
+    revision.tax = totals.tax
+    revision.total = totals.total
     revision.discount_kind = body.discount_kind
     revision.discount_value = body.discount_value
     revision.tax_rate_percent = body.tax_rate_percent
@@ -237,6 +251,7 @@ def edit_quotation_draft(
                 description=line.description,
                 quantity=line.quantity,
                 unit_price=line.unit_price,
+                line_total=totals.line_totals[position - 1],
             )
             for position, line in enumerate(body.lines, start=1)
         ]
@@ -246,6 +261,10 @@ def edit_quotation_draft(
         quotation_id=quotation.id,
         revision_id=revision.id,
         line_count=len(body.lines),
+        subtotal=totals.subtotal,
+        discount=totals.discount,
+        tax=totals.tax,
+        total=totals.total,
         status="draft",
     )
 
