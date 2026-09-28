@@ -18,6 +18,7 @@ from app.core.database_config import DatabaseSettings
 from app.db.session import create_database_engine
 from app.models.company import Company, CompanyMembership
 from app.models.estimator_config import EstimatorConfigVersion
+from app.models.installation import Installation
 from app.models.inverter import Inverter
 from app.models.panel import Panel
 from app.models.product import Product
@@ -75,7 +76,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             config.attributes["connection"] = connection
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0029_immutable_quote_snapshots"
+                "0030_installations"
             )
 
         with Session(temporary_engine) as session:
@@ -193,6 +194,22 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             session.refresh(line)
             assert revision_row.total == 10
             assert line.unit_price == 10
+            revision_row.status = "accepted"
+            session.commit()
+            installation = Installation(accepted_revision_id=revision_row.id)
+            session.add(installation)
+            session.commit()
+            session.refresh(installation)
+            assert installation.accepted_revision_id == revision_row.id
+            assert installation.created_at.utcoffset() is not None
+            with pytest.raises(IntegrityError):
+                with session.begin_nested():
+                    session.add(Installation(accepted_revision_id=revision_row.id))
+                    session.flush()
+            with pytest.raises(IntegrityError):
+                with session.begin_nested():
+                    session.add(Installation(accepted_revision_id=uuid4()))
+                    session.flush()
 
         with Session(temporary_engine) as session:
             product = Product(kind="panel", brand="Fictional test brand", model="Test model")
@@ -330,6 +347,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
                 "company_reviews",
                 "estimator_config_versions",
                 "favourites",
+                "installations",
                 "inverters",
                 "media_assets",
                 "panels",
@@ -354,7 +372,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             assert MigrationContext.configure(connection).get_current_revision() is None
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0029_immutable_quote_snapshots"
+                "0030_installations"
             )
     finally:
         if temporary_engine is not None:
