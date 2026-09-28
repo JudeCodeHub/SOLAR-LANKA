@@ -56,7 +56,7 @@ class EstimatorInputs(BaseModel):
     monthly_bill_lkr: Annotated[MoneyAmount, Field(ge=0)] | None = None
     connection_scheme: ConnectionScheme
     system_type: Literal["on_grid", "off_grid", "hybrid"]
-    backup_required: bool
+    backup_required: bool = Field(strict=True)
 
     @model_validator(mode="after")
     def supported_scenario(self) -> Self:
