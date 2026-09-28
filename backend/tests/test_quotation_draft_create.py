@@ -78,6 +78,7 @@ def test_draft_creation_is_scoped_and_unique(
     assert created.json()["delivery_id"] == str(delivery.id)
     assert created.json()["revision_number"] == 1
     assert created.json()["status"] == "draft"
+    assert database_client.post(f"{own_path}/{created.json()['id']}/send").status_code == 422
     assert database_client.post(own_path).status_code == 409
     assert database_session.query(Quotation).count() == 1
     assert database_session.query(QuotationRevision).count() == 1
@@ -118,6 +119,7 @@ def test_draft_creation_is_scoped_and_unique(
         "validity_days": 30,
         "notes": "Site visit required",
     }
+    assert database_client.put(edit_path, json=terms | {"total": "0.01"}).status_code == 422
     saved = database_client.put(edit_path, json=terms)
     assert saved.status_code == 200
     assert saved.json()["total"] == "265.61"
@@ -167,6 +169,7 @@ def test_draft_creation_is_scoped_and_unique(
     replacement = database_client.post(revisions_path)
     assert replacement.status_code == 201
     assert replacement.json()["revision_number"] == 2
+    assert database_client.post(revisions_path).status_code == 409
     assert database_client.get(revisions_path).json()["total"] == 2
     subject["value"] = customer.clerk_subject
     assert database_client.get(customer_history).json()["total"] == 1
@@ -176,6 +179,12 @@ def test_draft_creation_is_scoped_and_unique(
     assert database_client.post(send_path).status_code == 200
     history = database_client.get(revisions_path).json()["items"]
     assert [item["status"] for item in history] == ["sent", "revised"]
+    assert (
+        database_client.post(
+            f"{revisions_path}/{created.json()['revision_id']}/withdraw"
+        ).status_code
+        == 409
+    )
     assert history[1]["lines"][0]["product_snapshot"]["model"] == "Panel A"
     subject["value"] = customer.clerk_subject
     assert database_client.get(customer_history).json()["total"] == 2
@@ -184,6 +193,15 @@ def test_draft_creation_is_scoped_and_unique(
     )
     assert declined.status_code == 200
     assert declined.json()["status"] == "declined"
+    subject["value"] = staff_a.clerk_subject
+    assert database_client.post(revisions_path).status_code == 409
+    assert (
+        database_client.post(
+            f"{revisions_path}/{replacement.json()['revision_id']}/withdraw"
+        ).status_code
+        == 409
+    )
+    subject["value"] = customer.clerk_subject
     assert (
         database_client.post(
             f"{customer_history}/{replacement.json()['revision_id']}/decline"
@@ -222,6 +240,7 @@ def test_draft_creation_is_scoped_and_unique(
     withdrawn = database_client.post(f"{b_history}/{b_revision_id}/withdraw")
     assert withdrawn.status_code == 200
     assert withdrawn.json()["status"] == "withdrawn"
+    assert database_client.post(f"{b_history}/{b_revision_id}/withdraw").status_code == 409
     assert database_client.get(b_history).json()["total"] == 1
     subject["value"] = customer.clerk_subject
     b_customer_history = (

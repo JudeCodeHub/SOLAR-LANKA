@@ -23,6 +23,8 @@ from app.models.panel import Panel
 from app.models.product import Product
 from app.models.product_offer import ProductOffer
 from app.models.product_source import ProductSource
+from app.models.quotation import Quotation, QuotationLineItem, QuotationRevision
+from app.models.quotation_request import QuotationRequest, RequestDelivery
 from app.models.user import AppUser
 
 
@@ -137,6 +139,60 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
                     with session.begin_nested():
                         session.add(CompanyMembership(**values))
                         session.flush()
+
+        with Session(temporary_engine) as session:
+            request = QuotationRequest(
+                customer_id=user_id,
+                requirements={"district": "Colombo", "details": "Migration quote"},
+            )
+            session.add(request)
+            session.flush()
+            delivery = RequestDelivery(request_id=request.id, company_id=company.id)
+            session.add(delivery)
+            session.flush()
+            quotation = Quotation(delivery_id=delivery.id)
+            session.add(quotation)
+            session.flush()
+            revision_row = QuotationRevision(
+                quotation_id=quotation.id,
+                revision_number=1,
+                status="draft",
+                currency="LKR",
+                total=10,
+            )
+            session.add(revision_row)
+            session.flush()
+            line = QuotationLineItem(
+                revision_id=revision_row.id,
+                position=1,
+                kind="charge",
+                description="Installation",
+                quantity=1,
+                unit_price=10,
+                line_total=10,
+            )
+            session.add(line)
+            session.commit()
+            revision_row.sent_at = datetime.now(UTC)
+            revision_row.valid_until = revision_row.sent_at + timedelta(days=1)
+            revision_row.status = "sent"
+            session.commit()
+            with pytest.raises(IntegrityError):
+                with session.begin_nested():
+                    revision_row.total = 999
+                    session.flush()
+            with pytest.raises(IntegrityError):
+                with session.begin_nested():
+                    line.unit_price = 999
+                    session.flush()
+            with pytest.raises(IntegrityError):
+                with session.begin_nested():
+                    session.delete(line)
+                    session.flush()
+            session.refresh(revision_row)
+            session.refresh(line)
+            assert revision_row.total == 10
+            assert line.unit_price == 10
 
         with Session(temporary_engine) as session:
             product = Product(kind="panel", brand="Fictional test brand", model="Test model")
