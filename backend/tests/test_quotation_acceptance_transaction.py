@@ -119,18 +119,20 @@ def test_acceptance_rechecks_inside_transaction(
     assert installation.accepted_revision_id == revisions[0].id
     database_session.refresh(revisions[0])
     assert revisions[0].status == "accepted"
-    with pytest.raises(AcceptanceRejected) as competing:
-        accept_revision_in_transaction(
-            database_session,
-            customer_id=owner.id,
-            request_id=request.id,
-            quotation_id=quotations[1].id,
-            revision_id=revisions[1].id,
-            now=now,
-        )
-    assert competing.value.failure is AcceptanceFailure.WINNER_EXISTS
+    retry_response = database_client.post(accept_path)
+    assert retry_response.status_code == 200
+    assert retry_response.json() == accepted_response.json()
+    assert len(database_session.scalars(select(Installation)).all()) == 1
+
+    competing_path = (
+        f"/users/me/requests/{request.id}/quotations/{quotations[1].id}"
+        f"/revisions/{revisions[1].id}/accept"
+    )
+    competing_response = database_client.post(competing_path)
+    assert competing_response.status_code == 409
     database_session.refresh(revisions[1])
     assert revisions[1].status == "sent"
+    assert len(database_session.scalars(select(Installation)).all()) == 1
 
     failing_request = QuotationRequest(
         customer_id=owner.id, requirements={"district": "Colombo", "details": "Second quote"}

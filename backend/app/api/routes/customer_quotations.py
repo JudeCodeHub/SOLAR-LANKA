@@ -306,6 +306,27 @@ def accept_quotation_revision(
         session.add(installation)
         session.commit()
     except AcceptanceRejected as error:
+        if error.failure is AcceptanceFailure.WINNER_EXISTS:
+            existing = session.scalar(
+                select(Installation)
+                .join(QuotationRevision, Installation.accepted_revision_id == QuotationRevision.id)
+                .where(
+                    Installation.accepted_revision_id == revision_id,
+                    QuotationRevision.quotation_id == quotation_id,
+                    QuotationRevision.request_id == request_id,
+                    QuotationRevision.status == "accepted",
+                )
+            )
+            if existing is not None:
+                installation_id = existing.id
+                session.rollback()
+                response.status_code = 200
+                return AcceptedInstallation(
+                    installation_id=installation_id,
+                    request_id=request_id,
+                    revision_id=revision_id,
+                    status="accepted",
+                )
         session.rollback()
         status = 404 if error.failure is AcceptanceFailure.NOT_FOUND else 409
         raise HTTPException(status, error.failure.value) from error
