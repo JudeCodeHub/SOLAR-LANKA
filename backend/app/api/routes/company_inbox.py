@@ -5,11 +5,12 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from app.api.company_access import require_company_membership
 from app.api.schemas.pagination import PageResponse, PaginationParams
+from app.api.schemas.quotation_edit import DraftTermsInput, DraftTermsSaved
 from app.api.schemas.quotations import QuotationDraftCreated
 from app.api.schemas.request_reads import (
     CompanyDeliveryDetail,
@@ -22,7 +23,8 @@ from app.api.schemas.request_reads import (
 from app.core.permissions import Action, Scope, required_scopes
 from app.db.session import get_session
 from app.models.company import CompanyMembership
-from app.models.quotation import Quotation, QuotationRevision
+from app.models.product import Product
+from app.models.quotation import Quotation, QuotationLineItem, QuotationRevision
 from app.models.quotation_request import QuotationRequest, RequestDelivery
 from app.models.request_delivery_note import RequestDeliveryNote
 
@@ -105,9 +107,7 @@ def company_inbox(
 ) -> PageResponse[CompanyInboxItem]:
     response.headers["Cache-Control"] = "no-store"
     scope = RequestDelivery.company_id == membership.company_id
-    total = session.scalar(
-        select(func.count()).select_from(RequestDelivery).where(scope)
-    ) or 0
+    total = session.scalar(select(func.count()).select_from(RequestDelivery).where(scope)) or 0
     rows = session.execute(
         select(RequestDelivery, QuotationRequest)
         .join(QuotationRequest, RequestDelivery.request_id == QuotationRequest.id)
@@ -165,9 +165,7 @@ def locked_active_delivery(
     return delivery, request
 
 
-@router.post(
-    "/{delivery_id}/quotations", status_code=201, response_model=QuotationDraftCreated
-)
+@router.post("/{delivery_id}/quotations", status_code=201, response_model=QuotationDraftCreated)
 def create_quotation_draft(
     delivery_id: UUID,
     membership: Annotated[CompanyMembership, Depends(require_quotation_drafter)],
@@ -195,6 +193,63 @@ def create_quotation_draft(
     )
 
 
+@router.put("/{delivery_id}/quotations/{quotation_id}/draft", response_model=DraftTermsSaved)
+def edit_quotation_draft(
+    delivery_id: UUID,
+    quotation_id: UUID,
+    body: DraftTermsInput,
+    membership: Annotated[CompanyMembership, Depends(require_quotation_drafter)],
+    session: Annotated[Session, Depends(get_session)],
+    response: Response,
+) -> DraftTermsSaved:
+    response.headers["Cache-Control"] = "no-store"
+    delivery, _ = locked_active_delivery(session, delivery_id, membership.company_id)
+    quotation = session.scalars(
+        select(Quotation).where(Quotation.id == quotation_id, Quotation.delivery_id == delivery.id)
+    ).one_or_none()
+    if quotation is None:
+        raise HTTPException(404)
+    revision = session.scalars(
+        select(QuotationRevision)
+        .where(QuotationRevision.quotation_id == quotation.id)
+        .order_by(QuotationRevision.revision_number.desc())
+        .limit(1)
+        .with_for_update()
+    ).one_or_none()
+    if revision is None or revision.status != "draft":
+        raise HTTPException(409, "Only the current draft can be edited.")
+    product_ids = {line.product_id for line in body.lines if line.product_id is not None}
+    if product_ids:
+        products = list(session.scalars(select(Product).where(Product.id.in_(product_ids))))
+        if len(products) != len(product_ids) or any(product.is_archived for product in products):
+            raise HTTPException(422, "Equipment must reference active catalogue products.")
+    revision.discount_kind = body.discount_kind
+    revision.discount_value = body.discount_value
+    revision.tax_rate_percent = body.tax_rate_percent
+    session.execute(delete(QuotationLineItem).where(QuotationLineItem.revision_id == revision.id))
+    session.add_all(
+        [
+            QuotationLineItem(
+                revision_id=revision.id,
+                position=position,
+                kind=line.kind,
+                product_id=line.product_id,
+                description=line.description,
+                quantity=line.quantity,
+                unit_price=line.unit_price,
+            )
+            for position, line in enumerate(body.lines, start=1)
+        ]
+    )
+    session.commit()
+    return DraftTermsSaved(
+        quotation_id=quotation.id,
+        revision_id=revision.id,
+        line_count=len(body.lines),
+        status="draft",
+    )
+
+
 @router.post("/{delivery_id}/close", response_model=DeliveryClosureResponse)
 def close_delivery(
     delivery_id: UUID,
@@ -207,7 +262,9 @@ def close_delivery(
     delivery.status = "closed"
     session.flush()
     open_count = session.scalar(
-        select(func.count()).select_from(RequestDelivery).where(
+        select(func.count())
+        .select_from(RequestDelivery)
+        .where(
             RequestDelivery.request_id == request.id,
             RequestDelivery.status != "closed",
         )
@@ -215,9 +272,7 @@ def close_delivery(
     if open_count == 0:
         request.status = "closed"
     session.commit()
-    return DeliveryClosureResponse(
-        id=delivery.id, status="closed", request_status=request.status
-    )
+    return DeliveryClosureResponse(id=delivery.id, status="closed", request_status=request.status)
 
 
 @router.patch("/{delivery_id}/progress", response_model=DeliveryProgressUpdate)
@@ -252,9 +307,7 @@ def list_delivery_notes(
     response.headers["Cache-Control"] = "no-store"
     scoped_delivery(session, delivery_id, membership.company_id)
     scope = RequestDeliveryNote.delivery_id == delivery_id
-    total = session.scalar(
-        select(func.count()).select_from(RequestDeliveryNote).where(scope)
-    ) or 0
+    total = session.scalar(select(func.count()).select_from(RequestDeliveryNote).where(scope)) or 0
     notes = session.scalars(
         select(RequestDeliveryNote)
         .where(scope)

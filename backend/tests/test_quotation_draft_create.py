@@ -8,7 +8,8 @@ from sqlalchemy import text
 from app.core.auth import VerifiedIdentity, require_identity
 from app.models.company import Company, CompanyMembership
 from app.models.estimator_config import EstimatorConfigVersion
-from app.models.quotation import Quotation, QuotationRevision
+from app.models.product import Product
+from app.models.quotation import Quotation, QuotationLineItem, QuotationRevision
 from app.models.quotation_request import QuotationRequest, RequestDelivery
 from app.models.saved_estimate import SavedEstimate
 from app.models.user import AppUser
@@ -24,8 +25,8 @@ def test_draft_creation_is_scoped_and_unique(
     database_connection.execute(text(f'SET LOCAL search_path TO "{schema}"'))
     for model in (
         AppUser, Company, EstimatorConfigVersion, SavedEstimate,
-        CompanyMembership, QuotationRequest, RequestDelivery,
-        Quotation, QuotationRevision,
+        CompanyMembership, Product, QuotationRequest, RequestDelivery,
+        Quotation, QuotationRevision, QuotationLineItem,
     ):
         model.__table__.create(database_connection)
     customer = AppUser(clerk_subject="user_draft_customer")
@@ -66,3 +67,22 @@ def test_draft_creation_is_scoped_and_unique(
     assert database_client.post(own_path).status_code == 409
     assert database_session.query(Quotation).count() == 1
     assert database_session.query(QuotationRevision).count() == 1
+    product = Product(kind="panel", brand="Fictional", model="Panel A")
+    database_session.add(product)
+    database_session.commit()
+    edit_path = f"{own_path}/{created.json()['id']}/draft"
+    terms = {
+        "lines": [
+            {"kind": "equipment", "product_id": str(product.id),
+             "description": "Panel A", "quantity": "2", "unit_price": "100.05"},
+            {"kind": "charge", "description": "Installation",
+             "quantity": "1", "unit_price": "50.00"},
+        ],
+        "discount_kind": "percent", "discount_value": "10.00",
+        "tax_rate_percent": "18.00",
+    }
+    assert database_client.put(edit_path, json=terms).status_code == 200
+    assert database_session.query(QuotationLineItem).count() == 2
+    subject["value"] = staff_b.clerk_subject
+    foreign_edit_path = f"{foreign_path}/{created.json()['id']}/draft"
+    assert database_client.put(foreign_edit_path, json=terms).status_code == 404
