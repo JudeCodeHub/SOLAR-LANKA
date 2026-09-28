@@ -19,6 +19,8 @@ from app.api.routes.estimates import router as estimates_router
 from app.api.routes.estimator_config import router as estimator_config_router
 from app.api.routes.favourites import router as favourites_router
 from app.api.routes.health import router as health_router
+from app.api.routes.installations import company_router as company_installations_router
+from app.api.routes.installations import customer_router as customer_installations_router
 from app.api.routes.media_uploads import router as media_uploads_router
 from app.api.routes.memberships import router as memberships_router
 from app.api.routes.offers import router as offers_router
@@ -91,6 +93,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(company_inbox_router)
     application.include_router(company_quotations_router)
     application.include_router(customer_quotations_router)
+    application.include_router(customer_installations_router)
+    application.include_router(company_installations_router)
     application.include_router(catalogue_router)
     application.include_router(favourites_router)
     application.include_router(audit_router)
