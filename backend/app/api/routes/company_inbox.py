@@ -186,7 +186,11 @@ def create_quotation_draft(
     session.add(quotation)
     session.flush()
     revision = QuotationRevision(
-        quotation_id=quotation.id, revision_number=1, status="draft", currency="LKR"
+        quotation_id=quotation.id,
+        request_id=delivery.request_id,
+        revision_number=1,
+        status="draft",
+        currency="LKR",
     )
     session.add(revision)
     session.commit()

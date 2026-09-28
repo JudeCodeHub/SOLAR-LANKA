@@ -14,6 +14,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     func,
+    text,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
@@ -68,11 +69,20 @@ class QuotationRevision(Base):
         ),
         CheckConstraint("length(notes) <= 4000", name="ck_quotation_notes"),
         Index("ix_quotation_revisions_quotation_created", "quotation_id", "created_at"),
+        Index(
+            "uq_quotation_revisions_one_accepted_request",
+            "request_id",
+            unique=True,
+            postgresql_where=text("status = 'accepted'"),
+        ),
     )
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=new_entity_id)
     quotation_id: Mapped[UUID] = mapped_column(
         ForeignKey("quotations.id", ondelete="RESTRICT"), nullable=False
+    )
+    request_id: Mapped[UUID] = mapped_column(
+        ForeignKey("quotation_requests.id", ondelete="RESTRICT"), nullable=False
     )
     revision_number: Mapped[int] = mapped_column(nullable=False)
     status: Mapped[str] = mapped_column(String(16), nullable=False, default="draft")
