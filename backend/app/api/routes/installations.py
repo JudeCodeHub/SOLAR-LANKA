@@ -9,12 +9,23 @@ from sqlalchemy.orm import Session
 
 from app.api.company_access import require_company_permission
 from app.api.dependencies import require_local_user
-from app.api.schemas.installations import InstallationProgress, MilestoneProgress
+from app.api.schemas.installations import (
+    InstallationProgress,
+    MilestoneProgress,
+    MilestoneTransition,
+)
+from app.core.installation_milestones import (
+    REQUIRED_EVIDENCE,
+    InstallationMilestone,
+    MilestoneStatus,
+    can_transition,
+)
 from app.core.permissions import Action, Scope, required_scopes
 from app.db.session import get_session
 from app.models.company import CompanyMembership
 from app.models.installation import Installation
 from app.models.installation_milestone import InstallationMilestoneRecord
+from app.models.media_asset import MediaAsset
 from app.models.quotation import Quotation, QuotationRevision
 from app.models.quotation_request import QuotationRequest, RequestDelivery
 from app.models.user import AppUser
@@ -54,6 +65,7 @@ def _installation_for_scope(
     *,
     customer_id: UUID | None = None,
     company_id: UUID | None = None,
+    lock: bool = False,
 ) -> Installation:
     statement = (
         select(Installation)
@@ -67,6 +79,8 @@ def _installation_for_scope(
         statement = statement.where(QuotationRequest.customer_id == customer_id)
     if company_id is not None:
         statement = statement.where(RequestDelivery.company_id == company_id)
+    if lock:
+        statement = statement.with_for_update(of=Installation)
     installation = session.scalars(statement).one_or_none()
     if installation is None:
         raise HTTPException(404)
@@ -99,4 +113,82 @@ def company_installation_progress(
     return _progress(
         session,
         _installation_for_scope(session, installation_id, company_id=membership.company_id),
+    )
+
+
+@company_router.put(
+    "/{installation_id}/milestones/{milestone_id}", response_model=MilestoneProgress
+)
+def transition_milestone(
+    installation_id: UUID,
+    milestone_id: UUID,
+    body: MilestoneTransition,
+    membership: Annotated[
+        CompanyMembership, Depends(require_company_permission(Action.INSTALLATION_UPDATE))
+    ],
+    session: Annotated[Session, Depends(get_session)],
+    response: Response,
+) -> MilestoneProgress:
+    response.headers["Cache-Control"] = "no-store"
+    _installation_for_scope(session, installation_id, company_id=membership.company_id, lock=True)
+    milestone = session.scalars(
+        select(InstallationMilestoneRecord)
+        .where(
+            InstallationMilestoneRecord.id == milestone_id,
+            InstallationMilestoneRecord.installation_id == installation_id,
+        )
+        .with_for_update()
+    ).one_or_none()
+    if milestone is None:
+        raise HTTPException(404)
+
+    predecessor_completed = (
+        milestone.position == 1
+        or session.scalar(
+            select(InstallationMilestoneRecord.status).where(
+                InstallationMilestoneRecord.installation_id == installation_id,
+                InstallationMilestoneRecord.position == milestone.position - 1,
+            )
+        )
+        == MilestoneStatus.COMPLETED.value
+    )
+    if body.evidence and body.status is not MilestoneStatus.COMPLETED:
+        raise HTTPException(409, "Evidence can only be attached when completing a milestone.")
+    evidence_kinds = {item.kind for item in body.evidence}
+    asset_ids = {item.asset_id for item in body.evidence}
+    if len(evidence_kinds) != len(body.evidence) or len(asset_ids) != len(body.evidence):
+        raise HTTPException(409, "Duplicate milestone evidence.")
+    if body.status is MilestoneStatus.COMPLETED:
+        required = REQUIRED_EVIDENCE[InstallationMilestone(milestone.kind)]
+        if evidence_kinds != required:
+            raise HTTPException(409, "Required milestone evidence is missing or unsupported.")
+        assets = session.scalars(
+            select(MediaAsset).where(
+                MediaAsset.id.in_(asset_ids),
+                MediaAsset.parent_kind == "installation",
+                MediaAsset.parent_id == installation_id,
+                MediaAsset.category == "installation_evidence",
+                MediaAsset.visibility == "private",
+                MediaAsset.public_url.is_(None),
+            )
+        ).all()
+        if len(assets) != len(asset_ids):
+            raise HTTPException(409, "Milestone evidence does not belong to this installation.")
+    if not can_transition(
+        MilestoneStatus(milestone.status),
+        body.status,
+        milestone=InstallationMilestone(milestone.kind),
+        predecessor_completed=predecessor_completed,
+        verified_evidence=frozenset(evidence_kinds),
+        reset_reason=body.reason,
+    ):
+        raise HTTPException(409, "Milestone transition is not allowed.")
+    milestone.status = body.status.value
+    if body.status is MilestoneStatus.COMPLETED:
+        milestone.evidence_refs = [
+            {"kind": item.kind, "asset_id": str(item.asset_id)} for item in body.evidence
+        ]
+    session.commit()
+    return MilestoneProgress(
+        position=milestone.position, kind=milestone.kind, status=milestone.status
     )

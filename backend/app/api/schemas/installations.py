@@ -4,7 +4,9 @@ from datetime import datetime
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+from app.core.installation_milestones import MilestoneStatus
 
 
 class MilestoneProgress(BaseModel):
@@ -18,3 +20,14 @@ class InstallationProgress(BaseModel):
     accepted_revision_id: UUID
     created_at: datetime
     milestones: list[MilestoneProgress]
+
+
+class MilestoneEvidence(BaseModel):
+    kind: str
+    asset_id: UUID
+
+
+class MilestoneTransition(BaseModel):
+    status: MilestoneStatus
+    evidence: list[MilestoneEvidence] = Field(default_factory=list, max_length=8)
+    reason: str | None = Field(default=None, max_length=1000)
