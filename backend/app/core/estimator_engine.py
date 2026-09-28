@@ -63,6 +63,9 @@ def calculate_sizing(
     inputs: EstimatorInputs, config: EstimatorConfigVersion
 ) -> SizingEstimate:
     """Apply the hand-checkable 7.04 formulas without inventing missing values."""
+    # Revalidate at the engine boundary: internal callers can construct Pydantic
+    # models without validation, but unsupported systems must never be sized.
+    inputs = EstimatorInputs.model_validate(inputs.model_dump(mode="python"))
     if config.status != "published" or config.scenario != GRID_NET_METERING.identifier:
         raise ValueError("A published configuration for this scenario is required")
     if not isinstance(config.source_metadata, dict) or not config.source_metadata.get("yield"):
