@@ -1,17 +1,22 @@
 """Company staff can read only deliveries addressed to their active company."""
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
+from pydantic import ValidationError
 from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from app.api.company_access import require_company_membership
 from app.api.schemas.pagination import PageResponse, PaginationParams
-from app.api.schemas.quotation_edit import DraftTermsInput, DraftTermsSaved
-from app.api.schemas.quotations import QuotationDraftCreated
+from app.api.schemas.quotation_edit import DraftTermsInput, DraftTermsSaved, SentOfferRequired
+from app.api.schemas.quotations import (
+    QuotationDraftCreated,
+    QuotationSent,
+    SentQuotationLine,
+)
 from app.api.schemas.request_reads import (
     CompanyDeliveryDetail,
     CompanyInboxItem,
@@ -21,7 +26,7 @@ from app.api.schemas.request_reads import (
     DeliveryProgressUpdate,
 )
 from app.core.permissions import Action, Scope, required_scopes
-from app.core.quotation_terms import calculate_totals
+from app.core.quotation_terms import calculate_totals, check_validity_window
 from app.db.session import get_session
 from app.models.company import CompanyMembership
 from app.models.product import Product
@@ -271,6 +276,133 @@ def edit_quotation_draft(
         tax=totals.tax,
         total=totals.total,
         status="draft",
+    )
+
+
+def require_quotation_sender(
+    membership: Annotated[CompanyMembership, Depends(require_company_membership)],
+) -> CompanyMembership:
+    if Scope.DELIVERY_COMPANY not in required_scopes(Action.QUOTATION_SEND, membership.role):
+        raise HTTPException(403)
+    return membership
+
+
+@router.post("/{delivery_id}/quotations/{quotation_id}/send", response_model=QuotationSent)
+def send_quotation(
+    delivery_id: UUID,
+    quotation_id: UUID,
+    membership: Annotated[CompanyMembership, Depends(require_quotation_sender)],
+    session: Annotated[Session, Depends(get_session)],
+    response: Response,
+) -> QuotationSent:
+    response.headers["Cache-Control"] = "no-store"
+    delivery, _ = locked_active_delivery(session, delivery_id, membership.company_id)
+    quotation = session.scalars(
+        select(Quotation).where(
+            Quotation.id == quotation_id,
+            Quotation.delivery_id == delivery.id,
+        )
+    ).one_or_none()
+    if quotation is None:
+        raise HTTPException(404)
+    revision = session.scalars(
+        select(QuotationRevision)
+        .where(QuotationRevision.quotation_id == quotation.id)
+        .order_by(QuotationRevision.revision_number.desc())
+        .limit(1)
+        .with_for_update()
+    ).one_or_none()
+    if revision is None or revision.status != "draft":
+        raise HTTPException(409, "Only the current draft can be sent.")
+    try:
+        required = SentOfferRequired.model_validate(revision)
+    except ValidationError as error:
+        raise HTTPException(
+            422, "Capacity, warranty, exclusions, and validity are required."
+        ) from error
+    lines = list(
+        session.scalars(
+            select(QuotationLineItem)
+            .where(QuotationLineItem.revision_id == revision.id)
+            .order_by(QuotationLineItem.position)
+            .with_for_update()
+        )
+    )
+    if not lines:
+        raise HTTPException(422, "A quotation needs at least one line.")
+    try:
+        totals = calculate_totals(
+            [(line.quantity, line.unit_price) for line in lines],
+            discount_kind=revision.discount_kind,
+            discount_value=revision.discount_value,
+            tax_rate_percent=revision.tax_rate_percent,
+        )
+    except ValueError as error:
+        raise HTTPException(422, str(error)) from error
+    product_ids = {line.product_id for line in lines if line.product_id is not None}
+    products = (
+        {
+            product.id: product
+            for product in session.scalars(
+                select(Product).where(Product.id.in_(product_ids)).with_for_update(read=True)
+            )
+        }
+        if product_ids
+        else {}
+    )
+    if len(products) != len(product_ids) or any(
+        product.is_archived for product in products.values()
+    ):
+        raise HTTPException(422, "Equipment must reference active catalogue products.")
+    for line, amount in zip(lines, totals.line_totals, strict=True):
+        line.line_total = amount
+        if line.product_id is not None:
+            product = products[line.product_id]
+            line.product_snapshot = {
+                "id": str(product.id),
+                "kind": product.kind,
+                "brand": product.brand,
+                "model": product.model,
+            }
+    revision.subtotal = totals.subtotal
+    revision.discount = totals.discount
+    revision.tax = totals.tax
+    revision.total = totals.total
+    sent_at = datetime.now(UTC)
+    valid_until = sent_at + timedelta(days=required.validity_days)
+    check_validity_window(sent_at, valid_until)
+    revision.sent_at = sent_at
+    revision.valid_until = valid_until
+    revision.status = "sent"
+    session.commit()
+    return QuotationSent(
+        id=quotation.id,
+        revision_id=revision.id,
+        revision_number=revision.revision_number,
+        status="sent",
+        sent_at=sent_at,
+        valid_until=valid_until,
+        capacity_kwp=format(required.capacity_kwp, ".3f"),
+        warranty_terms=required.warranty_terms,
+        exclusions=required.exclusions,
+        notes=revision.notes,
+        subtotal=format(totals.subtotal, ".2f"),
+        discount=format(totals.discount, ".2f"),
+        tax=format(totals.tax, ".2f"),
+        total=format(totals.total, ".2f"),
+        lines=[
+            SentQuotationLine(
+                position=line.position,
+                kind=line.kind,
+                product_id=line.product_id,
+                product_snapshot=line.product_snapshot,
+                description=line.description,
+                quantity=format(line.quantity, ".3f"),
+                unit_price=format(line.unit_price, ".2f"),
+                line_total=format(line.line_total, ".2f"),
+            )
+            for line in lines
+        ],
     )
 
 

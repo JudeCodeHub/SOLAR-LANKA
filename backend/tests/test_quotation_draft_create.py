@@ -10,6 +10,7 @@ from app.core.auth import VerifiedIdentity, require_identity
 from app.models.company import Company, CompanyMembership
 from app.models.estimator_config import EstimatorConfigVersion
 from app.models.product import Product
+from app.models.product_offer import ProductOffer
 from app.models.quotation import Quotation, QuotationLineItem, QuotationRevision
 from app.models.quotation_request import QuotationRequest, RequestDelivery
 from app.models.saved_estimate import SavedEstimate
@@ -31,6 +32,7 @@ def test_draft_creation_is_scoped_and_unique(
         SavedEstimate,
         CompanyMembership,
         Product,
+        ProductOffer,
         QuotationRequest,
         RequestDelivery,
         Quotation,
@@ -80,6 +82,14 @@ def test_draft_creation_is_scoped_and_unique(
     assert database_session.query(QuotationRevision).count() == 1
     product = Product(kind="panel", brand="Fictional", model="Panel A")
     database_session.add(product)
+    database_session.flush()
+    offer = ProductOffer(
+        company_id=company_a.id,
+        product_id=product.id,
+        indicative_price=Decimal("100.05"),
+        currency="LKR",
+    )
+    database_session.add(offer)
     database_session.commit()
     edit_path = f"{own_path}/{created.json()['id']}/draft"
     terms = {
@@ -123,3 +133,21 @@ def test_draft_creation_is_scoped_and_unique(
     subject["value"] = staff_b.clerk_subject
     foreign_edit_path = f"{foreign_path}/{created.json()['id']}/draft"
     assert database_client.put(foreign_edit_path, json=terms).status_code == 404
+    subject["value"] = staff_a.clerk_subject
+    send_path = f"{own_path}/{created.json()['id']}/send"
+    sent = database_client.post(send_path)
+    assert sent.status_code == 200
+    assert sent.json()["status"] == "sent"
+    assert sent.json()["total"] == "265.61"
+    assert sent.json()["lines"][0]["product_snapshot"]["model"] == "Panel A"
+    assert database_client.post(send_path).status_code == 409
+    assert database_client.put(edit_path, json=terms).status_code == 409
+    product.model = "Panel B"
+    offer.indicative_price = Decimal("999.00")
+    database_session.commit()
+    line = database_session.query(QuotationLineItem).filter_by(kind="equipment").one()
+    database_session.refresh(line)
+    database_session.refresh(revision)
+    assert line.product_snapshot["model"] == "Panel A"
+    assert line.unit_price == Decimal("100.05")
+    assert revision.total == Decimal("265.61")
