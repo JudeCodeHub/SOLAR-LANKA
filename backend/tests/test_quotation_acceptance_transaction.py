@@ -9,7 +9,7 @@ from sqlalchemy import select, text
 from app.core.auth import VerifiedIdentity, require_identity
 from app.core.installation_milestones import SEQUENCE
 from app.core.quotation_acceptance import AcceptanceFailure
-from app.models.company import Company
+from app.models.company import Company, CompanyMembership
 from app.models.estimator_config import EstimatorConfigVersion
 from app.models.installation import Installation
 from app.models.installation_milestone import InstallationMilestoneRecord
@@ -34,6 +34,7 @@ def test_acceptance_rechecks_inside_transaction(
     for model in (
         AppUser,
         Company,
+        CompanyMembership,
         EstimatorConfigVersion,
         SavedEstimate,
         QuotationRequest,
@@ -160,6 +161,31 @@ def test_acceptance_rechecks_inside_transaction(
     ).all()
     assert [row.kind for row in milestones] == [milestone.value for milestone in SEQUENCE]
     assert [row.status for row in milestones] == ["in_progress", *["pending"] * 7]
+    customer_path = f"/users/me/installations/{installation.id}"
+    customer_progress = database_client.get(customer_path)
+    assert customer_progress.status_code == 200
+    assert [row["kind"] for row in customer_progress.json()["milestones"]] == [
+        milestone.value for milestone in SEQUENCE
+    ]
+    database_client.app.dependency_overrides[require_identity] = lambda: VerifiedIdentity(
+        foreign.clerk_subject, "session_test"
+    )
+    assert database_client.get(customer_path).status_code == 404
+
+    accepted_staff = CompanyMembership(user_id=foreign.id, company_id=company_a.id, role="sales")
+    other_staff = CompanyMembership(user_id=foreign.id, company_id=company_b.id, role="sales")
+    database_session.add_all([accepted_staff, other_staff])
+    database_session.commit()
+    accepted_company_path = f"/companies/{company_a.id}/installations/{installation.id}"
+    other_company_path = f"/companies/{company_b.id}/installations/{installation.id}"
+    assert database_client.get(accepted_company_path).json() == customer_progress.json()
+    assert database_client.get(other_company_path).status_code == 404
+    other_staff.status = "suspended"
+    database_session.commit()
+    assert database_client.get(other_company_path).status_code == 403
+    database_client.app.dependency_overrides[require_identity] = lambda: VerifiedIdentity(
+        owner.clerk_subject, "session_test"
+    )
     database_session.refresh(revisions[0])
     assert revisions[0].status == "accepted"
     retry_response = database_client.post(accept_path)
