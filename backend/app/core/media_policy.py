@@ -29,6 +29,7 @@ class AssetCategory(StrEnum):
     COMPANY_LOGO = "company_logo"
     INSTALLATION_GALLERY = "installation_gallery"
     PRODUCT_DATASHEET = "product_datasheet"
+    COMPANY_CREDENTIAL_DOCUMENT = "company_credential_document"
     QUOTATION_DOCUMENT = "quotation_document"
     INSTALLATION_EVIDENCE = "installation_evidence"
     SUPPORT_EVIDENCE = "support_evidence"
@@ -78,6 +79,13 @@ POLICIES: Mapping[AssetCategory, AssetPolicy] = MappingProxyType(
             ParentKind.PRODUCT,
             Visibility.PUBLIC,
             (Grant(Role.PLATFORM_ADMIN, Scope.PLATFORM),),
+            15 * MIB,
+            PDF_TYPES,
+        ),
+        AssetCategory.COMPANY_CREDENTIAL_DOCUMENT: AssetPolicy(
+            ParentKind.COMPANY,
+            Visibility.PRIVATE,
+            (Grant(Role.COMPANY_ADMIN, Scope.COMPANY),),
             15 * MIB,
             PDF_TYPES,
         ),
