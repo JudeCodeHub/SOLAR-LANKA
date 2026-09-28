@@ -5,17 +5,23 @@ from hashlib import sha256
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Response
-from sqlalchemy import select
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, Response
+from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import require_local_user
 from app.api.errors import BusinessConflict
+from app.api.schemas.pagination import PageResponse, PaginationParams
 from app.api.schemas.quotation_requests import (
     QuotationRequestCreate,
     QuotationRequestCreated,
     RequestDeliveryCreated,
+)
+from app.api.schemas.request_reads import (
+    CustomerRequestDetail,
+    CustomerRequestSummary,
+    DeliveryProgress,
 )
 from app.core.permissions import Action, Scope, required_scopes
 from app.core.value_types import new_entity_id
@@ -34,6 +40,101 @@ def require_request_customer(
     if Scope.OWNER not in required_scopes(Action.REQUEST_CREATE, user.role):
         raise HTTPException(403)
     return user
+
+
+def require_request_reader(
+    user: Annotated[AppUser, Depends(require_local_user)],
+) -> AppUser:
+    if Scope.OWNER not in required_scopes(Action.REQUEST_READ, user.role):
+        raise HTTPException(403)
+    return user
+
+
+def progress(delivery: RequestDelivery) -> DeliveryProgress:
+    return DeliveryProgress(
+        id=delivery.id,
+        company_id=delivery.company_id,
+        status=delivery.status,
+        created_at=delivery.created_at,
+        viewed_at=delivery.viewed_at,
+    )
+
+
+@router.get("", response_model=PageResponse[CustomerRequestSummary])
+def list_requests(
+    user: Annotated[AppUser, Depends(require_request_reader)],
+    session: Annotated[Session, Depends(get_session)],
+    pagination: Annotated[PaginationParams, Query()],
+    response: Response,
+) -> PageResponse[CustomerRequestSummary]:
+    response.headers["Cache-Control"] = "no-store"
+    total = session.scalar(
+        select(func.count()).select_from(QuotationRequest)
+        .where(QuotationRequest.customer_id == user.id)
+    ) or 0
+    requests = list(session.scalars(
+        select(QuotationRequest)
+        .where(QuotationRequest.customer_id == user.id)
+        .order_by(QuotationRequest.created_at.desc(), QuotationRequest.id.desc())
+        .limit(pagination.limit)
+        .offset(pagination.offset)
+    ))
+    deliveries_by_request: dict[UUID, list[DeliveryProgress]] = {
+        request.id: [] for request in requests
+    }
+    if requests:
+        deliveries = session.scalars(
+            select(RequestDelivery)
+            .where(RequestDelivery.request_id.in_(deliveries_by_request))
+            .order_by(RequestDelivery.created_at, RequestDelivery.id)
+        )
+        for delivery in deliveries:
+            deliveries_by_request[delivery.request_id].append(progress(delivery))
+    return PageResponse[CustomerRequestSummary](
+        limit=pagination.limit,
+        offset=pagination.offset,
+        total=total,
+        items=[
+            CustomerRequestSummary(
+                id=request.id,
+                status=request.status,
+                created_at=request.created_at,
+                deliveries=deliveries_by_request[request.id],
+            )
+            for request in requests
+        ],
+    )
+
+
+@router.get("/{request_id}", response_model=CustomerRequestDetail)
+def request_detail(
+    request_id: UUID,
+    user: Annotated[AppUser, Depends(require_request_reader)],
+    session: Annotated[Session, Depends(get_session)],
+    response: Response,
+) -> CustomerRequestDetail:
+    response.headers["Cache-Control"] = "no-store"
+    request = session.scalars(
+        select(QuotationRequest).where(
+            QuotationRequest.id == request_id,
+            QuotationRequest.customer_id == user.id,
+        )
+    ).one_or_none()
+    if request is None:
+        raise HTTPException(404)
+    deliveries = session.scalars(
+        select(RequestDelivery)
+        .where(RequestDelivery.request_id == request.id)
+        .order_by(RequestDelivery.created_at, RequestDelivery.id)
+    )
+    return CustomerRequestDetail(
+        id=request.id,
+        status=request.status,
+        created_at=request.created_at,
+        deliveries=[progress(delivery) for delivery in deliveries],
+        requirements=request.requirements,
+        saved_estimate_id=request.saved_estimate_id,
+    )
 
 
 def submission_fingerprint(body: QuotationRequestCreate) -> str:
