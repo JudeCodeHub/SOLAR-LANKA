@@ -110,6 +110,39 @@ def test_acceptance_rechecks_inside_transaction(
         f"/users/me/requests/{request.id}/quotations/{quotations[0].id}"
         f"/revisions/{revisions[0].id}/accept"
     )
+    # Foreign identities and mismatched revision IDs must never reach a write.
+    database_client.app.dependency_overrides[require_identity] = lambda: VerifiedIdentity(
+        foreign.clerk_subject, "session_test"
+    )
+    assert database_client.post(accept_path).status_code == 404
+    database_client.app.dependency_overrides[require_identity] = lambda: VerifiedIdentity(
+        owner.clerk_subject, "session_test"
+    )
+    mismatched_path = (
+        f"/users/me/requests/{request.id}/quotations/{quotations[0].id}"
+        f"/revisions/{revisions[1].id}/accept"
+    )
+    assert database_client.post(mismatched_path).status_code == 404
+
+    # Every ineligible state leaves the original revision and installation untouched.
+    invalid_states = (
+        (request, "status", "closed"),
+        (deliveries[0], "status", "closed"),
+        (revisions[0], "status", "draft"),
+        (revisions[0], "status", "withdrawn"),
+        (revisions[0], "valid_until", now - timedelta(hours=1)),
+    )
+    for record, field, invalid_value in invalid_states:
+        original_value = getattr(record, field)
+        setattr(record, field, invalid_value)
+        database_session.commit()
+        assert database_client.post(accept_path).status_code == 409
+        database_session.refresh(revisions[0])
+        assert revisions[0].status != "accepted"
+        assert database_session.scalar(select(Installation.id)) is None
+        setattr(record, field, original_value)
+        database_session.commit()
+
     accepted_response = database_client.post(accept_path)
     assert accepted_response.status_code == 201
     assert accepted_response.json()["revision_id"] == str(revisions[0].id)
