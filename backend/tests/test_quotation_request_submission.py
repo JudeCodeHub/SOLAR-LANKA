@@ -71,6 +71,11 @@ def test_customer_submission_rejects_foreign_estimates_and_ineligible_companies(
     current_subject["value"] = customer.clerk_subject
 
     route = "/users/me/requests"
+    def submit(payload):
+        return database_client.post(
+            route, json=payload, headers={"Idempotency-Key": str(uuid4())}
+        )
+
     body = {
         "district": "Colombo",
         "details": "Please quote an on-grid rooftop installation.",
@@ -78,7 +83,7 @@ def test_customer_submission_rejects_foreign_estimates_and_ineligible_companies(
         "saved_estimate_id": owned_estimate,
         "company_ids": [str(eligible_a.id), str(eligible_b.id)],
     }
-    created = database_client.post(route, json=body)
+    created = submit(body)
     assert created.status_code == 201
     result = created.json()
     assert created.headers["cache-control"] == "no-store"
@@ -107,13 +112,13 @@ def test_customer_submission_rejects_foreign_estimates_and_ineligible_companies(
         ({"company_ids": [str(eligible_a.id), str(eligible_a.id)]}, 422),
     ]
     for change, status in cases:
-        assert database_client.post(route, json={**body, **change}).status_code == status
+        assert submit({**body, **change}).status_code == status
     assert database_session.scalar(select(func.count()).select_from(QuotationRequest)) == 1
     assert database_session.scalar(select(func.count()).select_from(RequestDelivery)) == 2
 
-    without_estimate = database_client.post(
-        route, json={**body, "saved_estimate_id": None, "company_ids": [str(eligible_a.id)]}
+    without_estimate = submit(
+        {**body, "saved_estimate_id": None, "company_ids": [str(eligible_a.id)]}
     )
     assert without_estimate.status_code == 201
     current_subject["value"] = admin.clerk_subject
-    assert database_client.post(route, json=body).status_code == 403
+    assert submit(body).status_code == 403
