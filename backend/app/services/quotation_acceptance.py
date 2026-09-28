@@ -32,6 +32,7 @@ def accept_revision_in_transaction(
     *,
     customer_id: UUID,
     request_id: UUID,
+    quotation_id: UUID,
     revision_id: UUID,
     now: datetime | None = None,
 ) -> QuotationRevision:
@@ -50,13 +51,14 @@ def accept_revision_in_transaction(
         .join(RequestDelivery, Quotation.delivery_id == RequestDelivery.id)
         .where(
             QuotationRevision.id == revision_id,
+            Quotation.id == quotation_id,
             QuotationRevision.request_id == request.id,
             RequestDelivery.request_id == request.id,
         )
     ).one_or_none()
     if target is None:
         raise AcceptanceRejected(AcceptanceFailure.NOT_FOUND)
-    quotation_id, delivery_id = target
+    _, delivery_id = target
     delivery = session.scalars(
         select(RequestDelivery).where(RequestDelivery.id == delivery_id).with_for_update()
     ).one()
