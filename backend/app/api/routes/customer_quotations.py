@@ -6,6 +6,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import require_local_user
@@ -17,12 +18,18 @@ from app.api.schemas.offer_comparison import (
     OfferComparison,
 )
 from app.api.schemas.pagination import PageResponse, PaginationParams
-from app.api.schemas.quotations import QuotationRevisionView
+from app.api.schemas.quotations import AcceptedInstallation, QuotationRevisionView
 from app.core.permissions import Action, Scope, required_scopes
+from app.core.quotation_acceptance import AcceptanceFailure
 from app.db.session import get_session
+from app.models.installation import Installation
 from app.models.quotation import Quotation, QuotationLineItem, QuotationRevision
 from app.models.quotation_request import QuotationRequest, RequestDelivery
 from app.models.user import AppUser
+from app.services.quotation_acceptance import (
+    AcceptanceRejected,
+    accept_revision_in_transaction,
+)
 
 router = APIRouter(
     prefix="/users/me/requests/{request_id}/quotations", tags=["customer quotations"]
@@ -41,6 +48,14 @@ def require_customer_quote_comparer(
     user: Annotated[AppUser, Depends(require_local_user)],
 ) -> AppUser:
     if Scope.OWNER not in required_scopes(Action.QUOTATION_COMPARE, user.role):
+        raise HTTPException(403)
+    return user
+
+
+def require_customer_quote_acceptor(
+    user: Annotated[AppUser, Depends(require_local_user)],
+) -> AppUser:
+    if Scope.OWNER not in required_scopes(Action.QUOTATION_ACCEPT, user.role):
         raise HTTPException(403)
     return user
 
@@ -263,3 +278,46 @@ def decline_quotation_revision(
     revision.status = "declined"
     session.commit()
     return revision_view(session, revision)
+
+
+@router.post(
+    "/{quotation_id}/revisions/{revision_id}/accept",
+    status_code=201,
+    response_model=AcceptedInstallation,
+)
+def accept_quotation_revision(
+    request_id: UUID,
+    quotation_id: UUID,
+    revision_id: UUID,
+    user: Annotated[AppUser, Depends(require_customer_quote_acceptor)],
+    session: Annotated[Session, Depends(get_session)],
+    response: Response,
+) -> AcceptedInstallation:
+    response.headers["Cache-Control"] = "no-store"
+    try:
+        revision = accept_revision_in_transaction(
+            session,
+            customer_id=user.id,
+            request_id=request_id,
+            quotation_id=quotation_id,
+            revision_id=revision_id,
+        )
+        installation = Installation(accepted_revision_id=revision.id)
+        session.add(installation)
+        session.commit()
+    except AcceptanceRejected as error:
+        session.rollback()
+        status = 404 if error.failure is AcceptanceFailure.NOT_FOUND else 409
+        raise HTTPException(status, error.failure.value) from error
+    except IntegrityError as error:
+        session.rollback()
+        raise HTTPException(409, "Acceptance could not be completed.") from error
+    except Exception:
+        session.rollback()
+        raise
+    return AcceptedInstallation(
+        installation_id=installation.id,
+        request_id=request_id,
+        revision_id=revision.id,
+        status="accepted",
+    )

@@ -61,3 +61,10 @@ class QuotationRevisionView(BaseModel):
     tax: str | None
     total: str | None
     lines: list[SentQuotationLine]
+
+
+class AcceptedInstallation(BaseModel):
+    installation_id: UUID
+    request_id: UUID
+    revision_id: UUID
+    status: Literal["accepted"]
