@@ -209,3 +209,118 @@ def test_acceptance_rechecks_inside_transaction(
         )
         is None
     )
+
+
+def test_competing_acceptance_has_one_committed_winner(database_engine):
+    """Separate connections race on one request; a rolled-back attempt leaves no winner."""
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Barrier
+
+    from sqlalchemy.orm import Session
+
+    schema = f"acceptance_race_{uuid4().hex}"
+    try:
+        with database_engine.begin() as connection:
+            connection.execute(text(f'CREATE SCHEMA "{schema}"'))
+            connection.execute(text(f'SET LOCAL search_path TO "{schema}"'))
+            for model in (
+                AppUser,
+                Company,
+                EstimatorConfigVersion,
+                SavedEstimate,
+                QuotationRequest,
+                RequestDelivery,
+                Quotation,
+                QuotationRevision,
+                Installation,
+            ):
+                model.__table__.create(connection)
+            with Session(bind=connection) as session:
+                owner = AppUser(clerk_subject=f"race_owner_{schema}")
+                companies = [Company(name=f"Fictional race {index}") for index in range(2)]
+                session.add_all([owner, *companies])
+                session.flush()
+                request = QuotationRequest(
+                    customer_id=owner.id,
+                    requirements={"district": "Colombo", "details": "Race"},
+                )
+                session.add(request)
+                session.flush()
+                revisions = []
+                now = datetime.now(UTC)
+                for company in companies:
+                    delivery = RequestDelivery(request_id=request.id, company_id=company.id)
+                    session.add(delivery)
+                    session.flush()
+                    quotation = Quotation(delivery_id=delivery.id)
+                    session.add(quotation)
+                    session.flush()
+                    revision = QuotationRevision(
+                        quotation_id=quotation.id,
+                        request_id=request.id,
+                        revision_number=1,
+                        status="sent",
+                        currency="LKR",
+                        sent_at=now - timedelta(days=1),
+                        valid_until=now + timedelta(days=1),
+                    )
+                    session.add(revision)
+                    revisions.append(revision)
+                session.flush()
+                owner_id, request_id = owner.id, request.id
+                targets = [(revision.quotation_id, revision.id) for revision in revisions]
+
+        # A failed transaction must release its tentative acceptance and installation.
+        with database_engine.connect() as connection:
+            connection.execute(text(f'SET search_path TO "{schema}"'))
+            with Session(bind=connection) as session:
+                revision = accept_revision_in_transaction(
+                    session,
+                    customer_id=owner_id,
+                    request_id=request_id,
+                    quotation_id=targets[0][0],
+                    revision_id=targets[0][1],
+                )
+                session.add(Installation(accepted_revision_id=revision.id))
+                session.flush()
+                session.rollback()
+
+        barrier = Barrier(2)
+
+        def attempt(target):
+            quotation_id, revision_id = target
+            with database_engine.connect() as connection:
+                connection.execute(text(f'SET search_path TO "{schema}"'))
+                connection.commit()
+                with Session(bind=connection) as session:
+                    barrier.wait(timeout=10)
+                    try:
+                        revision = accept_revision_in_transaction(
+                            session,
+                            customer_id=owner_id,
+                            request_id=request_id,
+                            quotation_id=quotation_id,
+                            revision_id=revision_id,
+                        )
+                        session.add(Installation(accepted_revision_id=revision.id))
+                        session.commit()
+                        return "accepted"
+                    except AcceptanceRejected as error:
+                        session.rollback()
+                        return error.failure
+
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            results = list(pool.map(attempt, targets))
+        assert sorted(str(result) for result in results) == ["accepted", "winner_exists"]
+        with database_engine.connect() as connection:
+            connection.execute(text(f'SET search_path TO "{schema}"'))
+            with Session(bind=connection) as session:
+                winners = session.scalars(
+                    select(QuotationRevision).where(QuotationRevision.status == "accepted")
+                ).all()
+                installations = session.scalars(select(Installation)).all()
+                assert len(winners) == len(installations) == 1
+                assert installations[0].accepted_revision_id == winners[0].id
+    finally:
+        with database_engine.begin() as connection:
+            connection.execute(text(f'DROP SCHEMA IF EXISTS "{schema}" CASCADE'))
