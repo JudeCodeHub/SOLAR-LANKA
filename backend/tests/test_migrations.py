@@ -71,7 +71,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             config.attributes["connection"] = connection
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0021_estimator_config_immutable"
+                "0022_saved_estimates"
             )
 
         with Session(temporary_engine) as session:
@@ -278,13 +278,14 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
                 "product_offers",
                 "product_sources",
                 "products",
+                "saved_estimates",
             ]
             command.upgrade(config, "head")
             command.downgrade(config, "base")
             assert MigrationContext.configure(connection).get_current_revision() is None
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0021_estimator_config_immutable"
+                "0022_saved_estimates"
             )
     finally:
         if temporary_engine is not None:
