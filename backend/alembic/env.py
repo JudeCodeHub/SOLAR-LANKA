@@ -13,6 +13,7 @@ from app.models.estimator_config import EstimatorConfigVersion  # noqa: F401
 from app.models.favourite import Favourite  # noqa: F401
 from app.models.installation import Installation  # noqa: F401
 from app.models.installation_milestone import InstallationMilestoneRecord  # noqa: F401
+from app.models.installation_milestone_event import InstallationMilestoneEvent  # noqa: F401
 from app.models.inverter import Inverter  # noqa: F401
 from app.models.lifecycle_event import LifecycleEvent  # noqa: F401
 from app.models.media_asset import MediaAsset  # noqa: F401
