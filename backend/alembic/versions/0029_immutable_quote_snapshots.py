@@ -4,7 +4,7 @@ import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.dialects.postgresql import JSONB
 
-revision = "0029_immutable_quotation_snapshots"
+revision = "0029_immutable_quote_snapshots"
 down_revision = "0028_quotation_offer_details"
 branch_labels = None
 depends_on = None
