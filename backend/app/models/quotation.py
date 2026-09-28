@@ -55,6 +55,17 @@ class QuotationRevision(Base):
         ),
         CheckConstraint("discount_value >= 0", name="ck_quotation_discount_value"),
         CheckConstraint("tax_rate_percent BETWEEN 0 AND 100", name="ck_quotation_tax_rate"),
+        CheckConstraint("capacity_kwp > 0", name="ck_quotation_capacity_kwp"),
+        CheckConstraint("validity_days BETWEEN 1 AND 90", name="ck_quotation_validity_days"),
+        CheckConstraint(
+            "length(trim(warranty_terms)) BETWEEN 1 AND 2000",
+            name="ck_quotation_warranty_terms",
+        ),
+        CheckConstraint(
+            "length(trim(exclusions)) BETWEEN 1 AND 2000",
+            name="ck_quotation_exclusions",
+        ),
+        CheckConstraint("length(notes) <= 4000", name="ck_quotation_notes"),
         Index("ix_quotation_revisions_quotation_created", "quotation_id", "created_at"),
     )
 
@@ -74,6 +85,11 @@ class QuotationRevision(Base):
     tax_rate_percent: Mapped[Decimal] = mapped_column(
         Numeric(5, 2), nullable=False, default=Decimal("0.00"), server_default="0.00"
     )
+    capacity_kwp: Mapped[Decimal | None] = mapped_column(Numeric(10, 3))
+    warranty_terms: Mapped[str | None] = mapped_column(Text)
+    exclusions: Mapped[str | None] = mapped_column(Text)
+    validity_days: Mapped[int | None] = mapped_column()
+    notes: Mapped[str | None] = mapped_column(Text)
     subtotal: Mapped[Decimal | None] = mapped_column(Numeric(18, 2))
     discount: Mapped[Decimal | None] = mapped_column(Numeric(18, 2))
     tax: Mapped[Decimal | None] = mapped_column(Numeric(18, 2))

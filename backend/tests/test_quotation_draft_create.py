@@ -1,5 +1,6 @@
 """Only addressed company staff can start an active delivery quotation."""
 
+from decimal import Decimal
 from uuid import uuid4
 
 import pytest
@@ -100,6 +101,11 @@ def test_draft_creation_is_scoped_and_unique(
         "discount_kind": "percent",
         "discount_value": "10.00",
         "tax_rate_percent": "18.00",
+        "capacity_kwp": "5.250",
+        "warranty_terms": "Panel warranty: 10 years",
+        "exclusions": "Roof repairs excluded",
+        "validity_days": 30,
+        "notes": "Site visit required",
     }
     saved = database_client.put(edit_path, json=terms)
     assert saved.status_code == 200
@@ -107,6 +113,9 @@ def test_draft_creation_is_scoped_and_unique(
     revision = database_session.query(QuotationRevision).one()
     database_session.refresh(revision)
     assert str(revision.total) == "265.61"
+    assert revision.capacity_kwp == Decimal("5.250")
+    assert revision.warranty_terms == "Panel warranty: 10 years"
+    assert revision.validity_days == 30
     assert [
         str(line.line_total)
         for line in database_session.query(QuotationLineItem).order_by(QuotationLineItem.position)

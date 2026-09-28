@@ -52,6 +52,22 @@ class DraftTermsInput(BaseModel):
     discount_kind: Literal["none", "fixed", "percent"] = "none"
     discount_value: Annotated[MoneyAmount, Field(ge=0)] = Decimal("0.00")
     tax_rate_percent: Annotated[MoneyAmount, Field(ge=0, le=100)] = Decimal("0.00")
+    capacity_kwp: (
+        Annotated[
+            Decimal, BeforeValidator(exact_decimal), Field(gt=0, max_digits=10, decimal_places=3)
+        ]
+        | None
+    ) = None
+    warranty_terms: (
+        Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=2000)]
+        | None
+    ) = None
+    exclusions: (
+        Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=2000)]
+        | None
+    ) = None
+    validity_days: Annotated[int, Field(strict=True, ge=1, le=90)] | None = None
+    notes: Annotated[str, StringConstraints(strip_whitespace=True, max_length=4000)] | None = None
 
     @model_validator(mode="after")
     def valid_discount(self):
@@ -78,3 +94,14 @@ class DraftTermsSaved(BaseModel):
     tax: MoneyAmount
     total: MoneyAmount
     status: Literal["draft"]
+
+
+class SentOfferRequired(BaseModel):
+    """Validate required fields before a later send operation freezes a revision."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    capacity_kwp: Annotated[Decimal, Field(gt=0, max_digits=10, decimal_places=3)]
+    warranty_terms: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+    exclusions: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+    validity_days: Annotated[int, Field(ge=1, le=90)]
