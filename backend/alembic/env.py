@@ -19,6 +19,7 @@ from app.models.product import Product  # noqa: F401
 from app.models.product_offer import ProductOffer  # noqa: F401
 from app.models.product_source import ProductSource  # noqa: F401
 from app.models.quotation_request import QuotationRequest, RequestDelivery  # noqa: F401
+from app.models.request_delivery_note import RequestDeliveryNote  # noqa: F401
 from app.models.saved_estimate import SavedEstimate  # noqa: F401
 from app.models.user import AppUser  # noqa: F401 -- register model metadata
 
