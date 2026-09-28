@@ -76,7 +76,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             config.attributes["connection"] = connection
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0030_installations"
+                "0031_one_winner_per_request"
             )
 
         with Session(temporary_engine) as session:
@@ -156,6 +156,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             session.flush()
             revision_row = QuotationRevision(
                 quotation_id=quotation.id,
+                request_id=request.id,
                 revision_number=1,
                 status="draft",
                 currency="LKR",
@@ -210,6 +211,46 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
                 with session.begin_nested():
                     session.add(Installation(accepted_revision_id=uuid4()))
                     session.flush()
+            second_company = Company(name="Second migration quote company")
+            second_request = QuotationRequest(
+                customer_id=user_id,
+                requirements={"district": "Colombo", "details": "Another request"},
+            )
+            session.add_all([second_company, second_request])
+            session.flush()
+            second_delivery = RequestDelivery(request_id=request.id, company_id=second_company.id)
+            session.add(second_delivery)
+            session.flush()
+            second_quote = Quotation(delivery_id=second_delivery.id)
+            session.add(second_quote)
+            session.flush()
+            with pytest.raises(IntegrityError):
+                with session.begin_nested():
+                    session.add(
+                        QuotationRevision(
+                            quotation_id=second_quote.id,
+                            request_id=second_request.id,
+                            revision_number=1,
+                            status="draft",
+                            currency="LKR",
+                        )
+                    )
+                    session.flush()
+            competing = QuotationRevision(
+                quotation_id=second_quote.id,
+                request_id=request.id,
+                revision_number=1,
+                status="draft",
+                currency="LKR",
+            )
+            session.add(competing)
+            session.flush()
+            with pytest.raises(IntegrityError):
+                with session.begin_nested():
+                    competing.status = "accepted"
+                    session.flush()
+            session.refresh(competing)
+            assert competing.status == "draft"
 
         with Session(temporary_engine) as session:
             product = Product(kind="panel", brand="Fictional test brand", model="Test model")
@@ -372,7 +413,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             assert MigrationContext.configure(connection).get_current_revision() is None
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0030_installations"
+                "0031_one_winner_per_request"
             )
     finally:
         if temporary_engine is not None:

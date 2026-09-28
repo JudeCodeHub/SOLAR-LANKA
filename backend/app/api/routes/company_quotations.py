@@ -157,11 +157,16 @@ def start_quotation_revision(
     number = latest.revision_number + 1
     if current is None:
         replacement = QuotationRevision(
-            quotation_id=quotation.id, revision_number=number, status="draft", currency="LKR"
+            quotation_id=quotation.id,
+            request_id=delivery.request_id,
+            revision_number=number,
+            status="draft",
+            currency="LKR",
         )
     else:
         replacement = QuotationRevision(
             quotation_id=quotation.id,
+            request_id=delivery.request_id,
             revision_number=number,
             status="draft",
             currency=current.currency,
