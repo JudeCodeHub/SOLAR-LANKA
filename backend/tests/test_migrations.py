@@ -71,7 +71,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             config.attributes["connection"] = connection
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0022_saved_estimates"
+                "0023_quotation_requests"
             )
 
         with Session(temporary_engine) as session:
@@ -278,6 +278,8 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
                 "product_offers",
                 "product_sources",
                 "products",
+                "quotation_requests",
+                "request_deliveries",
                 "saved_estimates",
             ]
             command.upgrade(config, "head")
@@ -285,7 +287,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             assert MigrationContext.configure(connection).get_current_revision() is None
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0022_saved_estimates"
+                "0023_quotation_requests"
             )
     finally:
         if temporary_engine is not None:
