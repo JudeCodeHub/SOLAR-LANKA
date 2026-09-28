@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.api.company_access import require_company_membership
 from app.api.schemas.pagination import PageResponse, PaginationParams
+from app.api.schemas.quotations import QuotationDraftCreated
 from app.api.schemas.request_reads import (
     CompanyDeliveryDetail,
     CompanyInboxItem,
@@ -21,6 +22,7 @@ from app.api.schemas.request_reads import (
 from app.core.permissions import Action, Scope, required_scopes
 from app.db.session import get_session
 from app.models.company import CompanyMembership
+from app.models.quotation import Quotation, QuotationRevision
 from app.models.quotation_request import QuotationRequest, RequestDelivery
 from app.models.request_delivery_note import RequestDeliveryNote
 
@@ -41,6 +43,14 @@ def require_delivery_updater(
     membership: Annotated[CompanyMembership, Depends(require_company_membership)],
 ) -> CompanyMembership:
     if Scope.DELIVERY_COMPANY not in required_scopes(Action.DELIVERY_UPDATE, membership.role):
+        raise HTTPException(403)
+    return membership
+
+
+def require_quotation_drafter(
+    membership: Annotated[CompanyMembership, Depends(require_company_membership)],
+) -> CompanyMembership:
+    if Scope.DELIVERY_COMPANY not in required_scopes(Action.QUOTATION_DRAFT, membership.role):
         raise HTTPException(403)
     return membership
 
@@ -153,6 +163,36 @@ def locked_active_delivery(
     if request.status != "submitted" or delivery.status in {"closed", "cancelled"}:
         raise HTTPException(409, "This delivery is no longer active.")
     return delivery, request
+
+
+@router.post(
+    "/{delivery_id}/quotations", status_code=201, response_model=QuotationDraftCreated
+)
+def create_quotation_draft(
+    delivery_id: UUID,
+    membership: Annotated[CompanyMembership, Depends(require_quotation_drafter)],
+    session: Annotated[Session, Depends(get_session)],
+    response: Response,
+) -> QuotationDraftCreated:
+    response.headers["Cache-Control"] = "no-store"
+    delivery, _ = locked_active_delivery(session, delivery_id, membership.company_id)
+    if session.scalar(select(Quotation.id).where(Quotation.delivery_id == delivery.id)):
+        raise HTTPException(409, "This delivery already has a quotation.")
+    quotation = Quotation(delivery_id=delivery.id)
+    session.add(quotation)
+    session.flush()
+    revision = QuotationRevision(
+        quotation_id=quotation.id, revision_number=1, status="draft", currency="LKR"
+    )
+    session.add(revision)
+    session.commit()
+    return QuotationDraftCreated(
+        id=quotation.id,
+        delivery_id=delivery.id,
+        revision_id=revision.id,
+        revision_number=revision.revision_number,
+        status="draft",
+    )
 
 
 @router.post("/{delivery_id}/close", response_model=DeliveryClosureResponse)
