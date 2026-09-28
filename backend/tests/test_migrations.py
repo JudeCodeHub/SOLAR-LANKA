@@ -9,7 +9,7 @@ from alembic import command
 from alembic.config import Config
 from alembic.migration import MigrationContext
 from sqlalchemy import create_engine, inspect, text
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, ProgrammingError
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import NullPool
 
@@ -17,6 +17,7 @@ from app.core.config import BACKEND_DIR
 from app.core.database_config import DatabaseSettings
 from app.db.session import create_database_engine
 from app.models.company import Company, CompanyMembership
+from app.models.estimator_config import EstimatorConfigVersion
 from app.models.inverter import Inverter
 from app.models.panel import Panel
 from app.models.product import Product
@@ -70,8 +71,28 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             config.attributes["connection"] = connection
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0020_estimator_config_versions"
+                "0021_estimator_config_immutable"
             )
+
+        with Session(temporary_engine) as session:
+            version = EstimatorConfigVersion(
+                scenario="grid_net_metering_no_backup",
+                version=1,
+                assumptions={"monthly_yield_kwh": None},
+                source_metadata={"yield": {}, "tariff": {}, "cost": {}},
+                status="published",
+                published_at=datetime.now(UTC),
+            )
+            session.add(version)
+            session.commit()
+            with pytest.raises(ProgrammingError):
+                with session.begin_nested():
+                    version.assumptions = {"monthly_yield_kwh": 999}
+                    session.flush()
+            session.expire_all()
+            assert session.get(EstimatorConfigVersion, version.id).assumptions == {
+                "monthly_yield_kwh": None
+            }
 
         with Session(temporary_engine) as session:
             user = AppUser(clerk_subject="user_verified_test_subject")
@@ -247,9 +268,9 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
                 "audit_events",
                 "clerk_lifecycle_events",
                 "companies",
-                "estimator_config_versions",
                 "company_memberships",
                 "company_reviews",
+                "estimator_config_versions",
                 "favourites",
                 "inverters",
                 "media_assets",
@@ -263,7 +284,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             assert MigrationContext.configure(connection).get_current_revision() is None
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0020_estimator_config_versions"
+                "0021_estimator_config_immutable"
             )
     finally:
         if temporary_engine is not None:
