@@ -11,6 +11,7 @@ from app.models.audit import AuditEvent  # noqa: F401
 from app.models.company import Company, CompanyMembership, CompanyReview  # noqa: F401
 from app.models.estimator_config import EstimatorConfigVersion  # noqa: F401
 from app.models.favourite import Favourite  # noqa: F401
+from app.models.installation import Installation  # noqa: F401
 from app.models.inverter import Inverter  # noqa: F401
 from app.models.lifecycle_event import LifecycleEvent  # noqa: F401
 from app.models.media_asset import MediaAsset  # noqa: F401
