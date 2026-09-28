@@ -60,3 +60,14 @@ class CompanyNoteResponse(BaseModel):
     author_id: UUID
     body: str
     created_at: datetime
+
+
+class RequestStatusResponse(BaseModel):
+    id: UUID
+    status: Literal["cancelled"]
+
+
+class DeliveryClosureResponse(BaseModel):
+    id: UUID
+    status: Literal["closed"]
+    request_status: Literal["submitted", "closed"]

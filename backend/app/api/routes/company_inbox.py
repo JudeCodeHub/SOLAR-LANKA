@@ -15,6 +15,7 @@ from app.api.schemas.request_reads import (
     CompanyInboxItem,
     CompanyNoteCreate,
     CompanyNoteResponse,
+    DeliveryClosureResponse,
     DeliveryProgressUpdate,
 )
 from app.core.permissions import Action, Scope, required_scopes
@@ -139,6 +140,46 @@ def company_delivery_detail(
     )
 
 
+def locked_active_delivery(
+    session: Session, delivery_id: UUID, company_id: UUID
+) -> tuple[RequestDelivery, QuotationRequest]:
+    candidate = scoped_delivery(session, delivery_id, company_id)
+    request = session.scalars(
+        select(QuotationRequest)
+        .where(QuotationRequest.id == candidate.request_id)
+        .with_for_update()
+    ).one()
+    delivery = scoped_delivery(session, delivery_id, company_id, lock=True)
+    if request.status != "submitted" or delivery.status in {"closed", "cancelled"}:
+        raise HTTPException(409, "This delivery is no longer active.")
+    return delivery, request
+
+
+@router.post("/{delivery_id}/close", response_model=DeliveryClosureResponse)
+def close_delivery(
+    delivery_id: UUID,
+    membership: Annotated[CompanyMembership, Depends(require_delivery_updater)],
+    session: Annotated[Session, Depends(get_session)],
+    response: Response,
+) -> DeliveryClosureResponse:
+    response.headers["Cache-Control"] = "no-store"
+    delivery, request = locked_active_delivery(session, delivery_id, membership.company_id)
+    delivery.status = "closed"
+    session.flush()
+    open_count = session.scalar(
+        select(func.count()).select_from(RequestDelivery).where(
+            RequestDelivery.request_id == request.id,
+            RequestDelivery.status != "closed",
+        )
+    )
+    if open_count == 0:
+        request.status = "closed"
+    session.commit()
+    return DeliveryClosureResponse(
+        id=delivery.id, status="closed", request_status=request.status
+    )
+
+
 @router.patch("/{delivery_id}/progress", response_model=DeliveryProgressUpdate)
 def update_delivery_progress(
     delivery_id: UUID,
@@ -148,14 +189,7 @@ def update_delivery_progress(
     response: Response,
 ) -> DeliveryProgressUpdate:
     response.headers["Cache-Control"] = "no-store"
-    delivery = scoped_delivery(session, delivery_id, membership.company_id, lock=True)
-    request = session.scalars(
-        select(QuotationRequest).where(QuotationRequest.id == delivery.request_id).with_for_update()
-    ).one()
-    if request.status != "submitted" or delivery.status not in {
-        "submitted", "viewed", "responding"
-    }:
-        raise HTTPException(409)
+    delivery, _ = locked_active_delivery(session, delivery_id, membership.company_id)
     if delivery.status == body.status:
         return body
     if delivery.status == "responding" and body.status == "viewed":
@@ -205,10 +239,7 @@ def add_delivery_note(
     response: Response,
 ) -> CompanyNoteResponse:
     response.headers["Cache-Control"] = "no-store"
-    delivery = scoped_delivery(session, delivery_id, membership.company_id)
-    request = session.get(QuotationRequest, delivery.request_id)
-    if request.status != "submitted" or delivery.status in {"closed", "cancelled"}:
-        raise HTTPException(409)
+    delivery, _ = locked_active_delivery(session, delivery_id, membership.company_id)
     note = RequestDeliveryNote(
         delivery_id=delivery.id,
         author_id=membership.user_id,
