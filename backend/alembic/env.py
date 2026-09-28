@@ -18,6 +18,7 @@ from app.models.panel import Panel  # noqa: F401
 from app.models.product import Product  # noqa: F401
 from app.models.product_offer import ProductOffer  # noqa: F401
 from app.models.product_source import ProductSource  # noqa: F401
+from app.models.saved_estimate import SavedEstimate  # noqa: F401
 from app.models.user import AppUser  # noqa: F401 -- register model metadata
 
 config = context.config
