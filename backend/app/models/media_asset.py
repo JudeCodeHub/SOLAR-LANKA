@@ -19,7 +19,10 @@ from app.core.value_types import new_entity_id
 from app.db.base import Base
 
 PUBLIC_CATEGORIES = "'product_image', 'company_logo', 'installation_gallery', 'product_datasheet'"
-PRIVATE_CATEGORIES = "'quotation_document', 'installation_evidence', 'support_evidence'"
+PRIVATE_CATEGORIES = (
+    "'company_credential_document', 'quotation_document', "
+    "'installation_evidence', 'support_evidence'"
+)
 
 
 class MediaAsset(Base):
@@ -41,7 +44,8 @@ class MediaAsset(Base):
         ),
         CheckConstraint(
             "(category IN ('product_image', 'product_datasheet') AND parent_kind = 'product') OR "
-            "(category = 'company_logo' AND parent_kind = 'company') OR "
+            "(category IN ('company_logo', 'company_credential_document') "
+            "AND parent_kind = 'company') OR "
             "(category IN ('installation_gallery', 'installation_evidence') "
             "AND parent_kind = 'installation') OR "
             "(category = 'quotation_document' AND parent_kind = 'quotation_revision') OR "

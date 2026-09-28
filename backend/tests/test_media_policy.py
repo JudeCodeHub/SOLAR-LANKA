@@ -21,6 +21,7 @@ def test_categories_have_explicit_owner_visibility_and_limits():
         assert policy.grants and policy.max_bytes > 0 and policy.mime_types
         assert policy.visibility in Visibility
         if category in {
+            AssetCategory.COMPANY_CREDENTIAL_DOCUMENT,
             AssetCategory.QUOTATION_DOCUMENT,
             AssetCategory.INSTALLATION_EVIDENCE,
             AssetCategory.SUPPORT_EVIDENCE,
