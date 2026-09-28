@@ -73,4 +73,8 @@ class DraftTermsSaved(BaseModel):
     quotation_id: UUID
     revision_id: UUID
     line_count: int
+    subtotal: MoneyAmount
+    discount: MoneyAmount
+    tax: MoneyAmount
+    total: MoneyAmount
     status: Literal["draft"]

@@ -24,9 +24,17 @@ def test_draft_creation_is_scoped_and_unique(
     database_connection.execute(text(f'CREATE SCHEMA "{schema}"'))
     database_connection.execute(text(f'SET LOCAL search_path TO "{schema}"'))
     for model in (
-        AppUser, Company, EstimatorConfigVersion, SavedEstimate,
-        CompanyMembership, Product, QuotationRequest, RequestDelivery,
-        Quotation, QuotationRevision, QuotationLineItem,
+        AppUser,
+        Company,
+        EstimatorConfigVersion,
+        SavedEstimate,
+        CompanyMembership,
+        Product,
+        QuotationRequest,
+        RequestDelivery,
+        Quotation,
+        QuotationRevision,
+        QuotationLineItem,
     ):
         model.__table__.create(database_connection)
     customer = AppUser(clerk_subject="user_draft_customer")
@@ -36,10 +44,12 @@ def test_draft_creation_is_scoped_and_unique(
     company_b = Company(name="Fictional B", publication_status="approved")
     database_session.add_all([customer, staff_a, staff_b, company_a, company_b])
     database_session.flush()
-    database_session.add_all([
-        CompanyMembership(user_id=staff_a.id, company_id=company_a.id, role="sales"),
-        CompanyMembership(user_id=staff_b.id, company_id=company_b.id, role="sales"),
-    ])
+    database_session.add_all(
+        [
+            CompanyMembership(user_id=staff_a.id, company_id=company_a.id, role="sales"),
+            CompanyMembership(user_id=staff_b.id, company_id=company_b.id, role="sales"),
+        ]
+    )
     request = QuotationRequest(
         customer_id=customer.id,
         requirements={"district": "Colombo", "details": "Solar quote"},
@@ -73,16 +83,34 @@ def test_draft_creation_is_scoped_and_unique(
     edit_path = f"{own_path}/{created.json()['id']}/draft"
     terms = {
         "lines": [
-            {"kind": "equipment", "product_id": str(product.id),
-             "description": "Panel A", "quantity": "2", "unit_price": "100.05"},
-            {"kind": "charge", "description": "Installation",
-             "quantity": "1", "unit_price": "50.00"},
+            {
+                "kind": "equipment",
+                "product_id": str(product.id),
+                "description": "Panel A",
+                "quantity": "2",
+                "unit_price": "100.05",
+            },
+            {
+                "kind": "charge",
+                "description": "Installation",
+                "quantity": "1",
+                "unit_price": "50.00",
+            },
         ],
-        "discount_kind": "percent", "discount_value": "10.00",
+        "discount_kind": "percent",
+        "discount_value": "10.00",
         "tax_rate_percent": "18.00",
     }
-    assert database_client.put(edit_path, json=terms).status_code == 200
-    assert database_session.query(QuotationLineItem).count() == 2
+    saved = database_client.put(edit_path, json=terms)
+    assert saved.status_code == 200
+    assert saved.json()["total"] == "265.61"
+    revision = database_session.query(QuotationRevision).one()
+    database_session.refresh(revision)
+    assert str(revision.total) == "265.61"
+    assert [
+        str(line.line_total)
+        for line in database_session.query(QuotationLineItem).order_by(QuotationLineItem.position)
+    ] == ["200.10", "50.00"]
     subject["value"] = staff_b.clerk_subject
     foreign_edit_path = f"{foreign_path}/{created.json()['id']}/draft"
     assert database_client.put(foreign_edit_path, json=terms).status_code == 404

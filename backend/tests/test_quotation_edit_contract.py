@@ -62,6 +62,8 @@ def test_valid_draft_terms():
         {"discount_kind": "none", "discount_value": "1.00"},
         {"tax_rate_percent": "100.01"},
         {"discount_kind": "fixed", "discount_value": "201.00"},
+        {"total": "0.01"},
+        {"subtotal": "0.01"},
     ],
 )
 def test_invalid_draft_terms(change):
