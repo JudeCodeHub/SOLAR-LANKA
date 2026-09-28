@@ -7,10 +7,12 @@ import pytest
 from sqlalchemy import select, text
 
 from app.core.auth import VerifiedIdentity, require_identity
+from app.core.installation_milestones import SEQUENCE
 from app.core.quotation_acceptance import AcceptanceFailure
 from app.models.company import Company
 from app.models.estimator_config import EstimatorConfigVersion
 from app.models.installation import Installation
+from app.models.installation_milestone import InstallationMilestoneRecord
 from app.models.quotation import Quotation, QuotationRevision
 from app.models.quotation_request import QuotationRequest, RequestDelivery
 from app.models.saved_estimate import SavedEstimate
@@ -39,6 +41,7 @@ def test_acceptance_rechecks_inside_transaction(
         Quotation,
         QuotationRevision,
         Installation,
+        InstallationMilestoneRecord,
     ):
         model.__table__.create(database_connection)
     owner = AppUser(clerk_subject="user_accept_owner")
@@ -150,11 +153,19 @@ def test_acceptance_rechecks_inside_transaction(
     assert installation is not None
     assert str(installation.id) == accepted_response.json()["installation_id"]
     assert installation.accepted_revision_id == revisions[0].id
+    milestones = database_session.scalars(
+        select(InstallationMilestoneRecord)
+        .where(InstallationMilestoneRecord.installation_id == installation.id)
+        .order_by(InstallationMilestoneRecord.position)
+    ).all()
+    assert [row.kind for row in milestones] == [milestone.value for milestone in SEQUENCE]
+    assert [row.status for row in milestones] == ["in_progress", *["pending"] * 7]
     database_session.refresh(revisions[0])
     assert revisions[0].status == "accepted"
     retry_response = database_client.post(accept_path)
     assert retry_response.status_code == 200
     assert retry_response.json() == accepted_response.json()
+    assert len(database_session.scalars(select(InstallationMilestoneRecord)).all()) == 8
     assert len(database_session.scalars(select(Installation)).all()) == 1
 
     competing_path = (
@@ -166,6 +177,7 @@ def test_acceptance_rechecks_inside_transaction(
     database_session.refresh(revisions[1])
     assert revisions[1].status == "sent"
     assert len(database_session.scalars(select(Installation)).all()) == 1
+    assert len(database_session.scalars(select(InstallationMilestoneRecord)).all()) == 8
 
     failing_request = QuotationRequest(
         customer_id=owner.id, requirements={"district": "Colombo", "details": "Second quote"}
@@ -209,6 +221,7 @@ def test_acceptance_rechecks_inside_transaction(
         )
         is None
     )
+    assert len(database_session.scalars(select(InstallationMilestoneRecord)).all()) == 8
 
 
 def test_competing_acceptance_has_one_committed_winner(database_engine):

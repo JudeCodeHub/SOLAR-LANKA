@@ -19,10 +19,12 @@ from app.api.schemas.offer_comparison import (
 )
 from app.api.schemas.pagination import PageResponse, PaginationParams
 from app.api.schemas.quotations import AcceptedInstallation, QuotationRevisionView
+from app.core.installation_milestones import SEQUENCE
 from app.core.permissions import Action, Scope, required_scopes
 from app.core.quotation_acceptance import AcceptanceFailure
 from app.db.session import get_session
 from app.models.installation import Installation
+from app.models.installation_milestone import InstallationMilestoneRecord
 from app.models.quotation import Quotation, QuotationLineItem, QuotationRevision
 from app.models.quotation_request import QuotationRequest, RequestDelivery
 from app.models.user import AppUser
@@ -304,6 +306,16 @@ def accept_quotation_revision(
         )
         installation = Installation(accepted_revision_id=revision.id)
         session.add(installation)
+        session.flush()
+        session.add_all(
+            InstallationMilestoneRecord(
+                installation_id=installation.id,
+                position=position,
+                kind=milestone.value,
+                status="in_progress" if position == 1 else "pending",
+            )
+            for position, milestone in enumerate(SEQUENCE, start=1)
+        )
         session.commit()
     except AcceptanceRejected as error:
         if error.failure is AcceptanceFailure.WINNER_EXISTS:
