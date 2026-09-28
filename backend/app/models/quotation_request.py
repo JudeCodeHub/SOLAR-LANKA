@@ -5,6 +5,7 @@ from uuid import UUID
 
 from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, String, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.value_types import new_entity_id
@@ -22,6 +23,16 @@ class QuotationRequest(Base):
             "status IN ('submitted', 'closed', 'cancelled')",
             name="ck_quotation_requests_status",
         ),
+        UniqueConstraint(
+            "customer_id", "idempotency_key", name="uq_quotation_request_customer_key"
+        ),
+        CheckConstraint(
+            "(idempotency_key IS NULL AND submission_fingerprint IS NULL "
+            "AND submission_response IS NULL) OR "
+            "(idempotency_key IS NOT NULL AND submission_fingerprint ~ '^[0-9a-f]{64}$' "
+            "AND jsonb_typeof(submission_response) = 'object')",
+            name="ck_quotation_request_idempotency",
+        ),
     )
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=new_entity_id)
@@ -32,6 +43,10 @@ class QuotationRequest(Base):
         ForeignKey("saved_estimates.id", ondelete="RESTRICT")
     )
     requirements: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    # Nullable only for requests created before idempotency keys were introduced.
+    idempotency_key: Mapped[UUID | None] = mapped_column(PG_UUID(as_uuid=True))
+    submission_fingerprint: Mapped[str | None] = mapped_column(String(64))
+    submission_response: Mapped[dict | None] = mapped_column(JSONB)
     status: Mapped[str] = mapped_column(
         String(16), nullable=False, default="submitted", server_default="submitted"
     )
