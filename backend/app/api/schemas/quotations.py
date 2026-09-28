@@ -23,7 +23,7 @@ class SentQuotationLine(BaseModel):
     description: str
     quantity: str
     unit_price: str
-    line_total: str
+    line_total: str | None
 
 
 class QuotationSent(BaseModel):
@@ -41,4 +41,23 @@ class QuotationSent(BaseModel):
     discount: str
     tax: str
     total: str
+    lines: list[SentQuotationLine]
+
+
+class QuotationRevisionView(BaseModel):
+    id: UUID
+    quotation_id: UUID
+    revision_number: int
+    status: Literal["draft", "sent", "revised", "accepted", "declined", "expired", "withdrawn"]
+    created_at: datetime
+    sent_at: datetime | None
+    valid_until: datetime | None
+    capacity_kwp: str | None
+    warranty_terms: str | None
+    exclusions: str | None
+    notes: str | None
+    subtotal: str | None
+    discount: str | None
+    tax: str | None
+    total: str | None
     lines: list[SentQuotationLine]
