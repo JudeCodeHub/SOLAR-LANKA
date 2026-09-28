@@ -13,6 +13,7 @@ from app.models.company import Company, CompanyMembership
 from app.models.estimator_config import EstimatorConfigVersion
 from app.models.installation import Installation
 from app.models.installation_milestone import InstallationMilestoneRecord
+from app.models.media_asset import MediaAsset
 from app.models.quotation import Quotation, QuotationRevision
 from app.models.quotation_request import QuotationRequest, RequestDelivery
 from app.models.saved_estimate import SavedEstimate
@@ -43,6 +44,7 @@ def test_acceptance_rechecks_inside_transaction(
         QuotationRevision,
         Installation,
         InstallationMilestoneRecord,
+        MediaAsset,
     ):
         model.__table__.create(database_connection)
     owner = AppUser(clerk_subject="user_accept_owner")
@@ -183,6 +185,47 @@ def test_acceptance_rechecks_inside_transaction(
     other_staff.status = "suspended"
     database_session.commit()
     assert database_client.get(other_company_path).status_code == 403
+    first_path = f"{accepted_company_path}/milestones/{milestones[0].id}"
+    second_path = f"{accepted_company_path}/milestones/{milestones[1].id}"
+    assert database_client.put(first_path, json={"status": "completed"}).status_code == 409
+    assert database_client.put(second_path, json={"status": "in_progress"}).status_code == 409
+    evidence = MediaAsset(
+        provider="local_private",
+        provider_file_id=f"survey_{uuid4().hex}",
+        owner_user_id=foreign.id,
+        category="installation_evidence",
+        parent_kind="installation",
+        parent_id=installation.id,
+        visibility="private",
+    )
+    foreign_evidence = MediaAsset(
+        provider="local_private",
+        provider_file_id=f"foreign_{uuid4().hex}",
+        owner_user_id=foreign.id,
+        category="installation_evidence",
+        parent_kind="installation",
+        parent_id=uuid4(),
+        visibility="private",
+    )
+    database_session.add_all([evidence, foreign_evidence])
+    database_session.commit()
+
+    def completion(asset_id):
+        return {
+            "status": "completed",
+            "evidence": [{"kind": "site_survey_record", "asset_id": str(asset_id)}],
+        }
+
+    assert database_client.put(first_path, json=completion(foreign_evidence.id)).status_code == 409
+    database_session.refresh(milestones[0])
+    assert milestones[0].status == "in_progress"
+    assert database_client.put(first_path, json=completion(evidence.id)).status_code == 200
+    database_session.refresh(milestones[0])
+    assert milestones[0].evidence_refs == [
+        {"kind": "site_survey_record", "asset_id": str(evidence.id)}
+    ]
+    assert database_client.put(first_path, json=completion(evidence.id)).status_code == 409
+    assert database_client.put(second_path, json={"status": "in_progress"}).status_code == 200
     database_client.app.dependency_overrides[require_identity] = lambda: VerifiedIdentity(
         owner.clerk_subject, "session_test"
     )
