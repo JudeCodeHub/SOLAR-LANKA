@@ -240,6 +240,11 @@ def edit_quotation_draft(
     revision.discount_kind = body.discount_kind
     revision.discount_value = body.discount_value
     revision.tax_rate_percent = body.tax_rate_percent
+    revision.capacity_kwp = body.capacity_kwp
+    revision.warranty_terms = body.warranty_terms
+    revision.exclusions = body.exclusions
+    revision.validity_days = body.validity_days
+    revision.notes = body.notes
     session.execute(delete(QuotationLineItem).where(QuotationLineItem.revision_id == revision.id))
     session.add_all(
         [
