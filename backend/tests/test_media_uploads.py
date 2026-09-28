@@ -107,3 +107,35 @@ def test_suspended_actor_and_missing_parent_are_denied() -> None:
     with pytest.raises(HTTPException) as caught:
         authorize_upload(session, actor("platform_admin"), AssetCategory.PRODUCT_IMAGE, uuid4())
     assert caught.value.status_code == 404
+
+
+@pytest.mark.parametrize(
+    ("size_bytes", "mime_type"),
+    [
+        (8 * 1024 * 1024 + 1, "image/jpeg"),
+        (100, "image/svg+xml"),
+    ],
+)
+def test_invalid_public_upload_request_issues_no_imagekit_auth(
+    monkeypatch: pytest.MonkeyPatch, size_bytes: int, mime_type: str
+) -> None:
+    product = Product(id=uuid4(), kind="panel", brand="Test", model="T1")
+    session = MagicMock(spec=Session)
+    session.get.return_value = product
+    monkeypatch.setattr(
+        media_uploads,
+        "ImageKitSettings",
+        lambda: pytest.fail("Invalid upload must not load ImageKit credentials"),
+    )
+    with pytest.raises(HTTPException) as caught:
+        request_upload(
+            UploadRequest(
+                category="product_image",
+                parent_id=product.id,
+                size_bytes=size_bytes,
+                mime_type=mime_type,
+            ),
+            actor("platform_admin"),
+            session,
+        )
+    assert caught.value.status_code == 422
