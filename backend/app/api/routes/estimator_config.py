@@ -35,7 +35,7 @@ def locked_draft(session: Session, version_id: UUID) -> EstimatorConfigVersion:
     ).one_or_none()
     if version is None:
         raise HTTPException(404)
-    if version.status != "draft":
+    if version.status != "draft" or version.is_archived:
         raise HTTPException(409)
     return version
 
@@ -94,3 +94,41 @@ def publish_draft(
     version.published_at = datetime.now(UTC)
     session.commit()
     return {"id": str(version.id), "version": version.version, "status": version.status}
+
+
+@router.post("/{version_id}/archive")
+def archive_config(
+    version_id: UUID,
+    admin: Annotated[AppUser, Depends(require_config_admin)],
+    session: Annotated[Session, Depends(get_session)],
+) -> dict[str, str | int | bool]:
+    version = session.scalars(
+        select(EstimatorConfigVersion)
+        .where(EstimatorConfigVersion.id == version_id)
+        .with_for_update()
+    ).one_or_none()
+    if version is None:
+        raise HTTPException(404)
+    if version.is_archived:
+        raise HTTPException(409, "Configuration version is already archived.")
+    if version.status == "published":
+        replacement = session.scalar(
+            select(EstimatorConfigVersion.id)
+            .where(
+                EstimatorConfigVersion.scenario == version.scenario,
+                EstimatorConfigVersion.version > version.version,
+                EstimatorConfigVersion.status == "published",
+                EstimatorConfigVersion.is_archived.is_(False),
+            )
+            .limit(1)
+        )
+        if replacement is None:
+            raise HTTPException(409, "Publish a newer version before archiving this one.")
+    version.is_archived = True
+    session.commit()
+    return {
+        "id": str(version.id),
+        "version": version.version,
+        "status": version.status,
+        "is_archived": version.is_archived,
+    }
