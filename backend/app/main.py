@@ -8,6 +8,7 @@ from fastapi import FastAPI
 from pydantic import ValidationError
 
 from app.api.errors import register_error_handlers
+from app.api.routes.admin_activity import router as admin_activity_router
 from app.api.routes.admin_users import router as admin_users_router
 from app.api.routes.audit import router as audit_router
 from app.api.routes.catalogue import router as catalogue_router
@@ -86,6 +87,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(readiness_router)
     application.include_router(users_router)
     application.include_router(admin_users_router)
+    application.include_router(admin_activity_router)
     application.include_router(notifications_router)
     application.include_router(memberships_router)
     application.include_router(media_uploads_router)

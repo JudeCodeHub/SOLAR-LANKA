@@ -58,3 +58,17 @@ def read_audit_events(
     )
     response.headers["Cache-Control"] = "no-store"
     return [AuditEventResponse.model_validate(entry) for entry in entries]
+
+
+@router.get("/{event_id}", response_model=AuditEventResponse)
+def read_audit_event(
+    event_id: UUID,
+    reader: Annotated[AppUser, Depends(require_audit_reader)],
+    session: Annotated[Session, Depends(get_session)],
+    response: Response,
+) -> AuditEventResponse:
+    event = session.get(AuditEvent, event_id)
+    if event is None:
+        raise HTTPException(404)
+    response.headers["Cache-Control"] = "no-store"
+    return AuditEventResponse.model_validate(event)
