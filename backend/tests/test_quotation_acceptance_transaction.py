@@ -231,11 +231,38 @@ def test_acceptance_rechecks_inside_transaction(
     other_company_path = f"/companies/{company_b.id}/installations/{installation.id}"
     assert database_client.get(accepted_company_path).json() == customer_progress.json()
     assert database_client.get(other_company_path).status_code == 404
+    foreign_company_milestone = f"{other_company_path}/milestones/{milestones[0].id}"
+    assert (
+        database_client.put(
+            foreign_company_milestone, json={"status": "pending", "reason": "No access"}
+        ).status_code
+        == 404
+    )
+    assert (
+        database_client.post(
+            f"{foreign_company_milestone}/updates",
+            json={"reason": "No access", "next_action": "Call customer"},
+        ).status_code
+        == 404
+    )
+    assert database_session.scalar(select(InstallationMilestoneEvent.id)) is None
     other_staff.status = "suspended"
     database_session.commit()
     assert database_client.get(other_company_path).status_code == 403
     first_path = f"{accepted_company_path}/milestones/{milestones[0].id}"
     second_path = f"{accepted_company_path}/milestones/{milestones[1].id}"
+    database_client.app.dependency_overrides[require_identity] = lambda: VerifiedIdentity(
+        owner.clerk_subject, "session_test"
+    )
+    assert (
+        database_client.put(
+            first_path, json={"status": "pending", "reason": "Customer cannot change work"}
+        ).status_code
+        == 403
+    )
+    database_client.app.dependency_overrides[require_identity] = lambda: VerifiedIdentity(
+        foreign.clerk_subject, "session_test"
+    )
     assert database_client.put(first_path, json={"status": "completed"}).status_code == 409
     assert database_client.put(second_path, json={"status": "in_progress"}).status_code == 409
     evidence = MediaAsset(
@@ -345,12 +372,17 @@ def test_acceptance_rechecks_inside_transaction(
         )
     )
     database_session.commit()
+    database_client.app.dependency_overrides[require_identity] = lambda: VerifiedIdentity(
+        owner.clerk_subject, "session_test"
+    )
+    progress_before_retry = database_client.get(customer_path).json()
     with pytest.raises(IntegrityError):
         process_workflow_event(database_session, milestone_event.event_key)
     database_session.refresh(milestone_event)
     assert milestone_event.status == "failed"
     assert milestone_event.last_error == "IntegrityError"
     assert len(database_session.scalars(select(Notification)).all()) == 2
+    assert database_client.get(customer_path).json() == progress_before_retry
     database_session.execute(
         text("ALTER TABLE notifications DROP CONSTRAINT ck_reject_milestone_notification")
     )
@@ -358,6 +390,8 @@ def test_acceptance_rechecks_inside_transaction(
     assert process_workflow_event(database_session, milestone_event.event_key)
     assert not process_workflow_event(database_session, milestone_event.event_key)
     assert len(database_session.scalars(select(Notification)).all()) == 3
+    assert database_client.get(customer_path).json() == progress_before_retry
+    assert len(database_session.scalars(select(InstallationMilestoneEvent)).all()) == 3
     database_client.app.dependency_overrides[require_identity] = lambda: VerifiedIdentity(
         owner.clerk_subject, "session_test"
     )
