@@ -16,6 +16,7 @@ from app.models.installation_internal_note import InstallationInternalNote
 from app.models.installation_milestone import InstallationMilestoneRecord
 from app.models.installation_milestone_event import InstallationMilestoneEvent
 from app.models.media_asset import MediaAsset
+from app.models.outbox_event import OutboxEvent
 from app.models.quotation import Quotation, QuotationRevision
 from app.models.quotation_request import QuotationRequest, RequestDelivery
 from app.models.saved_estimate import SavedEstimate
@@ -49,6 +50,7 @@ def test_acceptance_rechecks_inside_transaction(
         InstallationMilestoneRecord,
         InstallationMilestoneEvent,
         MediaAsset,
+        OutboxEvent,
     ):
         model.__table__.create(database_connection)
     owner = AppUser(clerk_subject="user_accept_owner")
@@ -160,6 +162,12 @@ def test_acceptance_rechecks_inside_transaction(
     assert installation is not None
     assert str(installation.id) == accepted_response.json()["installation_id"]
     assert installation.accepted_revision_id == revisions[0].id
+    acceptance_event = database_session.scalar(
+        select(OutboxEvent).where(OutboxEvent.event_key == f"quotation.accepted:{revisions[0].id}")
+    )
+    assert acceptance_event is not None
+    assert acceptance_event.status == "pending"
+    assert acceptance_event.aggregate_id == installation.id
     milestones = database_session.scalars(
         select(InstallationMilestoneRecord)
         .where(InstallationMilestoneRecord.installation_id == installation.id)
@@ -287,6 +295,7 @@ def test_acceptance_rechecks_inside_transaction(
     )
     assert database_client.post(update_path, json={"reason": "No change"}).status_code == 422
     assert len(database_session.scalars(select(InstallationMilestoneEvent)).all()) == 3
+    assert len(database_session.scalars(select(OutboxEvent)).all()) == 4
     database_client.app.dependency_overrides[require_identity] = lambda: VerifiedIdentity(
         owner.clerk_subject, "session_test"
     )
@@ -295,6 +304,7 @@ def test_acceptance_rechecks_inside_transaction(
     retry_response = database_client.post(accept_path)
     assert retry_response.status_code == 200
     assert retry_response.json() == accepted_response.json()
+    assert len(database_session.scalars(select(OutboxEvent)).all()) == 4
     assert len(database_session.scalars(select(InstallationMilestoneRecord)).all()) == 8
     assert len(database_session.scalars(select(Installation)).all()) == 1
 
@@ -352,6 +362,36 @@ def test_acceptance_rechecks_inside_transaction(
         is None
     )
     assert len(database_session.scalars(select(InstallationMilestoneRecord)).all()) == 8
+
+    # An outbox write failure must roll back acceptance and installation together.
+    database_session.execute(
+        text("ALTER TABLE installations DROP CONSTRAINT ck_reject_failure_test")
+    )
+    database_session.execute(
+        text(
+            "ALTER TABLE outbox_events ADD CONSTRAINT ck_reject_outbox_test "
+            f"CHECK (event_key <> 'quotation.accepted:{failing_revision.id}')"
+        )
+    )
+    database_session.commit()
+    assert database_client.post(failure_path).status_code == 409
+    database_session.refresh(failing_revision)
+    assert failing_revision.status == "sent"
+    assert (
+        database_session.scalar(
+            select(Installation.id).where(Installation.accepted_revision_id == failing_revision.id)
+        )
+        is None
+    )
+    assert (
+        database_session.scalar(
+            select(OutboxEvent.id).where(
+                OutboxEvent.event_key == f"quotation.accepted:{failing_revision.id}"
+            )
+        )
+        is None
+    )
+    assert len(database_session.scalars(select(OutboxEvent)).all()) == 4
 
 
 def test_competing_acceptance_has_one_committed_winner(database_engine):

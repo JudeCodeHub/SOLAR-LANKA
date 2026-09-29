@@ -25,6 +25,7 @@ from app.core.quotation_acceptance import AcceptanceFailure
 from app.db.session import get_session
 from app.models.installation import Installation
 from app.models.installation_milestone import InstallationMilestoneRecord
+from app.models.outbox_event import OutboxEvent
 from app.models.quotation import Quotation, QuotationLineItem, QuotationRevision
 from app.models.quotation_request import QuotationRequest, RequestDelivery
 from app.models.user import AppUser
@@ -315,6 +316,20 @@ def accept_quotation_revision(
                 status="in_progress" if position == 1 else "pending",
             )
             for position, milestone in enumerate(SEQUENCE, start=1)
+        )
+        session.add(
+            OutboxEvent(
+                event_key=f"quotation.accepted:{revision.id}",
+                event_type="quotation.accepted",
+                aggregate_kind="installation",
+                aggregate_id=installation.id,
+                payload={
+                    "version": 1,
+                    "installation_id": str(installation.id),
+                    "request_id": str(request_id),
+                    "revision_id": str(revision.id),
+                },
+            )
         )
         session.commit()
     except AcceptanceRejected as error:

@@ -33,9 +33,26 @@ from app.models.installation_internal_note import InstallationInternalNote
 from app.models.installation_milestone import InstallationMilestoneRecord
 from app.models.installation_milestone_event import InstallationMilestoneEvent
 from app.models.media_asset import MediaAsset
+from app.models.outbox_event import OutboxEvent
 from app.models.quotation import Quotation, QuotationRevision
 from app.models.quotation_request import QuotationRequest, RequestDelivery
 from app.models.user import AppUser
+
+
+def _milestone_outbox(event: InstallationMilestoneEvent, installation_id: UUID) -> OutboxEvent:
+    return OutboxEvent(
+        event_key=f"installation.milestone_changed:{event.id}",
+        event_type="installation.milestone_changed",
+        aggregate_kind="installation",
+        aggregate_id=installation_id,
+        payload={
+            "version": 1,
+            "installation_id": str(installation_id),
+            "milestone_id": str(event.milestone_id),
+            "history_event_id": str(event.id),
+        },
+    )
+
 
 customer_router = APIRouter(prefix="/users/me/installations", tags=["installations"])
 company_router = APIRouter(prefix="/companies/{company_id}/installations", tags=["installations"])
@@ -208,17 +225,18 @@ def transition_milestone(
         milestone.evidence_refs = [
             {"kind": item.kind, "asset_id": str(item.asset_id)} for item in body.evidence
         ]
-    session.add(
-        InstallationMilestoneEvent(
-            milestone_id=milestone.id,
-            actor_id=membership.user_id,
-            from_status=prior_status,
-            to_status=body.status.value,
-            reason=body.reason,
-            delay_until=body.delay_until,
-            next_action=body.next_action,
-        )
+    event = InstallationMilestoneEvent(
+        milestone_id=milestone.id,
+        actor_id=membership.user_id,
+        from_status=prior_status,
+        to_status=body.status.value,
+        reason=body.reason,
+        delay_until=body.delay_until,
+        next_action=body.next_action,
     )
+    session.add(event)
+    session.flush()
+    session.add(_milestone_outbox(event, installation_id))
     session.commit()
     return MilestoneProgress(
         position=milestone.position, kind=milestone.kind, status=milestone.status
@@ -260,6 +278,8 @@ def record_milestone_update(
         next_action=body.next_action,
     )
     session.add(event)
+    session.flush()
+    session.add(_milestone_outbox(event, installation_id))
     session.commit()
     return MilestoneHistory.model_validate(event, from_attributes=True)
 
