@@ -26,6 +26,7 @@ from app.services.audit import AuditAction, record_audit
 from app.services.public_media import public_media_for
 
 router = APIRouter(prefix="/companies", tags=["companies"])
+admin_router = APIRouter(prefix="/admin/companies", tags=["administration"])
 
 
 def _company(session: Session, membership: CompanyMembership) -> Company:
@@ -62,6 +63,14 @@ def edit_company_profile(
     changes = body.model_dump(exclude_unset=True)
     if any(getattr(company, field) != value for field, value in changes.items()):
         # An approval covers the reviewed profile, never later unreviewed edits.
+        if company.publication_status != "draft":
+            session.add(
+                CompanyReview(
+                    company_id=company.id,
+                    actor_id=membership.user_id,
+                    outcome="returned_to_draft",
+                )
+            )
         company.publication_status = "draft"
         record_audit(
             session,
@@ -209,3 +218,56 @@ def read_public_company(
     return PublicCompanyResponse.model_validate(company).model_copy(
         update={"logo": next(iter(logos.get(company.id, [])), None)}
     )
+
+
+@admin_router.get("/pending", response_model=list[CompanyProfileResponse])
+def pending_company_reviews(
+    reviewer: Annotated[AppUser, Depends(require_company_reviewer)],
+    session: Annotated[Session, Depends(get_session)],
+    pagination: Annotated[PaginationParams, Query()],
+    response: Response,
+) -> list[CompanyProfileResponse]:
+    response.headers["Cache-Control"] = "no-store"
+    rows = session.scalars(
+        select(Company)
+        .where(Company.publication_status == "pending")
+        .order_by(Company.created_at, Company.id)
+        .limit(pagination.limit)
+        .offset(pagination.offset)
+    ).all()
+    return [CompanyProfileResponse.model_validate(row) for row in rows]
+
+
+@admin_router.get("/{company_id}", response_model=CompanyProfileResponse)
+def admin_company_profile(
+    company_id: UUID,
+    reviewer: Annotated[AppUser, Depends(require_company_reviewer)],
+    session: Annotated[Session, Depends(get_session)],
+    response: Response,
+) -> CompanyProfileResponse:
+    response.headers["Cache-Control"] = "no-store"
+    company = session.get(Company, company_id)
+    if company is None:
+        raise HTTPException(404)
+    return CompanyProfileResponse.model_validate(company)
+
+
+@admin_router.get("/{company_id}/reviews", response_model=list[CompanyReviewResponse])
+def admin_company_review_history(
+    company_id: UUID,
+    reviewer: Annotated[AppUser, Depends(require_company_reviewer)],
+    session: Annotated[Session, Depends(get_session)],
+    pagination: Annotated[PaginationParams, Query()],
+    response: Response,
+) -> list[CompanyReviewResponse]:
+    response.headers["Cache-Control"] = "no-store"
+    if session.get(Company, company_id) is None:
+        raise HTTPException(404)
+    entries = session.scalars(
+        select(CompanyReview)
+        .where(CompanyReview.company_id == company_id)
+        .order_by(CompanyReview.created_at.desc(), CompanyReview.id.desc())
+        .limit(pagination.limit)
+        .offset(pagination.offset)
+    ).all()
+    return [CompanyReviewResponse.model_validate(entry) for entry in entries]

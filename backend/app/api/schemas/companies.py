@@ -94,7 +94,7 @@ class CompanyReviewResponse(BaseModel):
     id: EntityId
     company_id: EntityId
     actor_id: EntityId
-    outcome: Literal["submitted", "approved", "rejected"]
+    outcome: Literal["submitted", "approved", "rejected", "returned_to_draft"]
     created_at: Timestamp
 
 
