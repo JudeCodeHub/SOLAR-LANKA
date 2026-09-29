@@ -3,6 +3,7 @@
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
+import inngest.fast_api
 from fastapi import FastAPI
 from pydantic import ValidationError
 
@@ -35,6 +36,7 @@ from app.api.schemas.errors import ERROR_STATUS_CODES, ErrorResponse
 from app.core.config import Settings
 from app.core.database_config import DatabaseSettings
 from app.db.session import create_database_engine, create_session_factory
+from app.services.inngest_workflow import create_inngest_client, create_notification_function
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -102,4 +104,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(audit_router)
     application.include_router(public_companies_router)
     application.include_router(webhooks_router)
+    if settings.environment == "production" and (
+        settings.inngest_event_key is None or settings.inngest_signing_key is None
+    ):
+        raise RuntimeError("Inngest event and signing keys are required in production")
+    inngest_client = create_inngest_client(settings)
+    process_notification = create_notification_function(
+        inngest_client, lambda: application.state.session_factory()
+    )
+    inngest.fast_api.serve(application, inngest_client, [process_notification])
     return application
