@@ -9,10 +9,16 @@ from pydantic import BaseModel, Field, field_validator
 from app.core.installation_milestones import MilestoneStatus
 
 
+class MilestoneEvidence(BaseModel):
+    kind: str
+    asset_id: UUID
+
+
 class MilestoneProgress(BaseModel):
     position: int
     kind: str
     status: Literal["pending", "in_progress", "completed"]
+    evidence: list[MilestoneEvidence] = Field(default_factory=list)
 
 
 class MilestoneHistory(BaseModel):
@@ -33,11 +39,6 @@ class InstallationProgress(BaseModel):
     created_at: datetime
     milestones: list[MilestoneProgress]
     history: list[MilestoneHistory]
-
-
-class MilestoneEvidence(BaseModel):
-    kind: str
-    asset_id: UUID
 
 
 class MilestoneTransition(BaseModel):
@@ -64,3 +65,23 @@ class MilestoneScheduleUpdate(BaseModel):
     @classmethod
     def timezone_required(cls, value: datetime | None) -> datetime | None:
         return MilestoneTransition.timezone_required(value)
+
+
+class InternalNoteCreate(BaseModel):
+    body: str = Field(min_length=1, max_length=2000)
+
+    @field_validator("body")
+    @classmethod
+    def require_text(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("Note text is required")
+        return value
+
+
+class InternalNoteView(BaseModel):
+    id: UUID
+    installation_id: UUID
+    actor_id: UUID
+    body: str
+    created_at: datetime

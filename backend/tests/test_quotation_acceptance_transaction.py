@@ -12,6 +12,7 @@ from app.core.quotation_acceptance import AcceptanceFailure
 from app.models.company import Company, CompanyMembership
 from app.models.estimator_config import EstimatorConfigVersion
 from app.models.installation import Installation
+from app.models.installation_internal_note import InstallationInternalNote
 from app.models.installation_milestone import InstallationMilestoneRecord
 from app.models.installation_milestone_event import InstallationMilestoneEvent
 from app.models.media_asset import MediaAsset
@@ -44,6 +45,7 @@ def test_acceptance_rechecks_inside_transaction(
         Quotation,
         QuotationRevision,
         Installation,
+        InstallationInternalNote,
         InstallationMilestoneRecord,
         InstallationMilestoneEvent,
         MediaAsset,
@@ -258,6 +260,31 @@ def test_acceptance_rechecks_inside_transaction(
         foreign.clerk_subject, "session_test"
     )
     assert database_client.get(accepted_company_path).json()["history"] == history
+    notes_path = f"{accepted_company_path}/internal-notes"
+    note_text = "Internal scheduling concern: call supplier before confirming date"
+    note_response = database_client.post(notes_path, json={"body": note_text})
+    assert note_response.status_code == 201
+    assert note_response.json()["actor_id"] == str(foreign.id)
+    assert database_client.get(notes_path).json()[0]["body"] == note_text
+    assert database_client.get(f"{other_company_path}/internal-notes").status_code == 403
+    assert database_client.get(accepted_company_path).json()["milestones"][0]["evidence"] == [
+        {"kind": "site_survey_record", "asset_id": str(evidence.id)}
+    ]
+    database_client.app.dependency_overrides[require_identity] = lambda: VerifiedIdentity(
+        owner.clerk_subject, "session_test"
+    )
+    customer_result = database_client.get(customer_path)
+    assert customer_result.status_code == 200
+    assert customer_result.json()["milestones"][0]["evidence"] == [
+        {"kind": "site_survey_record", "asset_id": str(evidence.id)}
+    ]
+    assert note_text not in customer_result.text
+    assert database_client.get(notes_path).status_code == 403
+    assert database_client.post(notes_path, json={"body": "Unauthorized"}).status_code == 403
+    assert database_session.scalar(select(InstallationInternalNote.body)) == note_text
+    database_client.app.dependency_overrides[require_identity] = lambda: VerifiedIdentity(
+        foreign.clerk_subject, "session_test"
+    )
     assert database_client.post(update_path, json={"reason": "No change"}).status_code == 422
     assert len(database_session.scalars(select(InstallationMilestoneEvent)).all()) == 3
     database_client.app.dependency_overrides[require_identity] = lambda: VerifiedIdentity(
