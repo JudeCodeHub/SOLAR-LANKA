@@ -12,6 +12,7 @@ from app.api.routes.admin_users import router as admin_users_router
 from app.api.routes.audit import router as audit_router
 from app.api.routes.catalogue import router as catalogue_router
 from app.api.routes.catalogue_admin import router as catalogue_admin_router
+from app.api.routes.companies import admin_router as admin_companies_router
 from app.api.routes.companies import public_router as public_companies_router
 from app.api.routes.companies import router as companies_router
 from app.api.routes.company_inbox import router as company_inbox_router
@@ -91,6 +92,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(private_media_router)
     application.include_router(offers_router)
     application.include_router(companies_router)
+    application.include_router(admin_companies_router)
     application.include_router(catalogue_admin_router)
     application.include_router(estimator_config_router)
     application.include_router(estimates_router)

@@ -12,6 +12,7 @@ from app.core.auth import VerifiedIdentity, require_identity
 from app.core.permissions import Action
 from app.models.audit import AuditEvent
 from app.models.company import Company, CompanyMembership, CompanyReview
+from app.models.media_asset import MediaAsset
 from app.models.user import AppUser
 
 pytestmark = pytest.mark.database
@@ -28,6 +29,7 @@ def company_access(database_client, database_connection, database_session):
         CompanyMembership.__table__,
         CompanyReview.__table__,
         AuditEvent.__table__,
+        MediaAsset.__table__,
     ):
         table.create(database_connection)
     user = AppUser(clerk_subject="user_current")
@@ -335,12 +337,26 @@ def test_admin_review_and_publication(company_access, database_session, outcome)
     assert client.post(f"/companies/{own}/submit").status_code == 201
     assert client.get(f"/public/companies/{own}").status_code == 404
     assert client.post(f"/companies/{own}/review", json={"outcome": outcome}).status_code == 403
+    assert client.get("/admin/companies/pending").status_code == 403
     user.role = "platform_admin"
     database_session.commit()
+    pending = client.get("/admin/companies/pending")
+    assert pending.status_code == 200
+    assert [profile["id"] for profile in pending.json()] == [str(own)]
+    assert client.get(f"/admin/companies/{own}").json()["publication_status"] == "pending"
+    assert [row["outcome"] for row in client.get(f"/admin/companies/{own}/reviews").json()] == [
+        "submitted"
+    ]
     reviewed = client.post(f"/companies/{own}/review", json={"outcome": outcome})
     assert reviewed.status_code == 201
     assert reviewed.json()["actor_id"] == str(user.id)
     assert reviewed.json()["outcome"] == outcome
+    assert client.get("/admin/companies/pending").json() == []
+    assert client.get(f"/admin/companies/{own}").json()["publication_status"] == outcome
+    assert {row["outcome"] for row in client.get(f"/admin/companies/{own}/reviews").json()} == {
+        "submitted",
+        outcome,
+    }
     assert client.post(f"/companies/{own}/review", json={"outcome": outcome}).status_code == 409
     history = client.get(f"/companies/{own}/reviews").json()
     assert {entry["outcome"] for entry in history} == {"submitted", outcome}
@@ -370,7 +386,15 @@ def test_profile_changes_require_new_approval(company_access, database_session):
     assert client.get(f"/public/companies/{own}").status_code == 404
     assert client.get("/public/companies").json() == []
     assert client.post(f"/companies/{own}/review", json={"outcome": "approved"}).status_code == 409
-    assert len(client.get(f"/companies/{own}/reviews").json()) == 2
+    history = client.get(f"/companies/{own}/reviews").json()
+    assert len(history) == 3
+    assert history[0]["outcome"] == "returned_to_draft"
+    assert client.get(f"/admin/companies/{own}").json()["publication_status"] == "draft"
+    assert client.post(f"/companies/{own}/submit").status_code == 201
+    assert client.get("/admin/companies/pending").json()[0]["id"] == str(own)
+    assert client.post(f"/companies/{own}/review", json={"outcome": "approved"}).status_code == 201
+    assert client.get(f"/public/companies/{own}").status_code == 200
+    assert len(client.get(f"/admin/companies/{own}/reviews").json()) == 5
 
 
 def test_company_admin_cannot_review_and_suspended_admin_denied(company_access, database_session):
@@ -383,6 +407,7 @@ def test_company_admin_cannot_review_and_suspended_admin_denied(company_access, 
     user.is_suspended = True
     database_session.commit()
     assert client.post(f"/companies/{own}/review", json={"outcome": "approved"}).status_code == 403
+    assert client.get("/admin/companies/pending").status_code == 403
     assert client.get(f"/public/companies/{own}").status_code == 404
 
 

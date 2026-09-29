@@ -3,7 +3,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, String, UniqueConstraint, func
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, String, UniqueConstraint, func, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -68,7 +68,8 @@ class CompanyReview(Base):
     __tablename__ = "company_reviews"
     __table_args__ = (
         CheckConstraint(
-            "outcome IN ('submitted', 'approved', 'rejected')", name="ck_company_reviews_outcome"
+            "outcome IN ('submitted', 'approved', 'rejected', 'returned_to_draft')",
+            name="ck_company_reviews_outcome",
         ),
     )
 
@@ -79,7 +80,7 @@ class CompanyReview(Base):
     actor_id: Mapped[UUID] = mapped_column(
         ForeignKey("app_users.id", ondelete="RESTRICT"), nullable=False
     )
-    outcome: Mapped[str] = mapped_column(String(16), nullable=False)
+    outcome: Mapped[str] = mapped_column(String(24), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False, server_default=func.now()
+        DateTime(timezone=True), nullable=False, server_default=text("clock_timestamp()")
     )
