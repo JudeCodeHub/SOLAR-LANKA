@@ -14,10 +14,17 @@ class AuditAction(StrEnum):
     COMPANY_SUBMITTED = "company.submitted"
     COMPANY_APPROVED = "company.approved"
     COMPANY_REJECTED = "company.rejected"
+    USER_SUSPENDED = "user.suspended"
+    USER_RESTORED = "user.restored"
 
 
 def record_audit(
-    session: Session, *, actor_id: UUID, company_id: UUID, target_id: UUID, action: AuditAction
+    session: Session,
+    *,
+    actor_id: UUID,
+    company_id: UUID | None,
+    target_id: UUID,
+    action: AuditAction,
 ) -> None:
     if not isinstance(action, AuditAction):
         raise ValueError("Audit action must be a predefined action")

@@ -25,7 +25,7 @@ class AuditEventResponse(BaseModel):
 
     id: EntityId
     actor_id: EntityId
-    company_id: EntityId
+    company_id: EntityId | None
     target_id: EntityId
     action: AuditAction
     created_at: Timestamp
