@@ -23,6 +23,7 @@ from app.api.routes.installations import company_router as company_installations
 from app.api.routes.installations import customer_router as customer_installations_router
 from app.api.routes.media_uploads import router as media_uploads_router
 from app.api.routes.memberships import router as memberships_router
+from app.api.routes.notifications import router as notifications_router
 from app.api.routes.offers import router as offers_router
 from app.api.routes.private_media import router as private_media_router
 from app.api.routes.quotation_requests import router as quotation_requests_router
@@ -80,6 +81,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(health_router)
     application.include_router(readiness_router)
     application.include_router(users_router)
+    application.include_router(notifications_router)
     application.include_router(memberships_router)
     application.include_router(media_uploads_router)
     application.include_router(private_media_router)

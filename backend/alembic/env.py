@@ -18,6 +18,7 @@ from app.models.installation_milestone_event import InstallationMilestoneEvent  
 from app.models.inverter import Inverter  # noqa: F401
 from app.models.lifecycle_event import LifecycleEvent  # noqa: F401
 from app.models.media_asset import MediaAsset  # noqa: F401
+from app.models.notification import Notification  # noqa: F401
 from app.models.panel import Panel  # noqa: F401
 from app.models.product import Product  # noqa: F401
 from app.models.product_offer import ProductOffer  # noqa: F401
