@@ -3,7 +3,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -11,7 +11,12 @@ from app.api.company_access import require_company_permission
 from app.api.dependencies import require_local_user
 from app.api.schemas.installations import (
     InstallationProgress,
+    InternalNoteCreate,
+    InternalNoteView,
+    MilestoneEvidence,
+    MilestoneHistory,
     MilestoneProgress,
+    MilestoneScheduleUpdate,
     MilestoneTransition,
 )
 from app.core.installation_milestones import (
@@ -24,7 +29,9 @@ from app.core.permissions import Action, Scope, required_scopes
 from app.db.session import get_session
 from app.models.company import CompanyMembership
 from app.models.installation import Installation
+from app.models.installation_internal_note import InstallationInternalNote
 from app.models.installation_milestone import InstallationMilestoneRecord
+from app.models.installation_milestone_event import InstallationMilestoneEvent
 from app.models.media_asset import MediaAsset
 from app.models.quotation import Quotation, QuotationRevision
 from app.models.quotation_request import QuotationRequest, RequestDelivery
@@ -48,14 +55,26 @@ def _progress(session: Session, installation: Installation) -> InstallationProgr
         .where(InstallationMilestoneRecord.installation_id == installation.id)
         .order_by(InstallationMilestoneRecord.position)
     ).all()
+    history = session.scalars(
+        select(InstallationMilestoneEvent)
+        .join(InstallationMilestoneRecord)
+        .where(InstallationMilestoneRecord.installation_id == installation.id)
+        .order_by(InstallationMilestoneEvent.created_at, InstallationMilestoneEvent.id)
+    ).all()
     return InstallationProgress(
         id=installation.id,
         accepted_revision_id=installation.accepted_revision_id,
         created_at=installation.created_at,
         milestones=[
-            MilestoneProgress(position=row.position, kind=row.kind, status=row.status)
+            MilestoneProgress(
+                position=row.position,
+                kind=row.kind,
+                status=row.status,
+                evidence=[MilestoneEvidence.model_validate(ref) for ref in row.evidence_refs],
+            )
             for row in rows
         ],
+        history=[MilestoneHistory.model_validate(event, from_attributes=True) for event in history],
     )
 
 
@@ -183,12 +202,108 @@ def transition_milestone(
         reset_reason=body.reason,
     ):
         raise HTTPException(409, "Milestone transition is not allowed.")
+    prior_status = milestone.status
     milestone.status = body.status.value
     if body.status is MilestoneStatus.COMPLETED:
         milestone.evidence_refs = [
             {"kind": item.kind, "asset_id": str(item.asset_id)} for item in body.evidence
         ]
+    session.add(
+        InstallationMilestoneEvent(
+            milestone_id=milestone.id,
+            actor_id=membership.user_id,
+            from_status=prior_status,
+            to_status=body.status.value,
+            reason=body.reason,
+            delay_until=body.delay_until,
+            next_action=body.next_action,
+        )
+    )
     session.commit()
     return MilestoneProgress(
         position=milestone.position, kind=milestone.kind, status=milestone.status
     )
+
+
+@company_router.post(
+    "/{installation_id}/milestones/{milestone_id}/updates", response_model=MilestoneHistory
+)
+def record_milestone_update(
+    installation_id: UUID,
+    milestone_id: UUID,
+    body: MilestoneScheduleUpdate,
+    membership: Annotated[
+        CompanyMembership, Depends(require_company_permission(Action.INSTALLATION_UPDATE))
+    ],
+    session: Annotated[Session, Depends(get_session)],
+    response: Response,
+) -> MilestoneHistory:
+    response.headers["Cache-Control"] = "no-store"
+    _installation_for_scope(session, installation_id, company_id=membership.company_id, lock=True)
+    milestone = session.scalars(
+        select(InstallationMilestoneRecord).where(
+            InstallationMilestoneRecord.id == milestone_id,
+            InstallationMilestoneRecord.installation_id == installation_id,
+        )
+    ).one_or_none()
+    if milestone is None:
+        raise HTTPException(404)
+    if body.delay_until is None and not (body.next_action and body.next_action.strip()):
+        raise HTTPException(422, "Specify a delay or next action.")
+    event = InstallationMilestoneEvent(
+        milestone_id=milestone.id,
+        actor_id=membership.user_id,
+        from_status=milestone.status,
+        to_status=milestone.status,
+        reason=body.reason.strip(),
+        delay_until=body.delay_until,
+        next_action=body.next_action,
+    )
+    session.add(event)
+    session.commit()
+    return MilestoneHistory.model_validate(event, from_attributes=True)
+
+
+@company_router.post(
+    "/{installation_id}/internal-notes", response_model=InternalNoteView, status_code=201
+)
+def create_internal_note(
+    installation_id: UUID,
+    body: InternalNoteCreate,
+    membership: Annotated[
+        CompanyMembership, Depends(require_company_permission(Action.INSTALLATION_INTERNAL_NOTE))
+    ],
+    session: Annotated[Session, Depends(get_session)],
+    response: Response,
+) -> InternalNoteView:
+    response.headers["Cache-Control"] = "no-store"
+    _installation_for_scope(session, installation_id, company_id=membership.company_id)
+    note = InstallationInternalNote(
+        installation_id=installation_id,
+        actor_id=membership.user_id,
+        body=body.body,
+    )
+    session.add(note)
+    session.commit()
+    return InternalNoteView.model_validate(note, from_attributes=True)
+
+
+@company_router.get("/{installation_id}/internal-notes", response_model=list[InternalNoteView])
+def list_internal_notes(
+    installation_id: UUID,
+    membership: Annotated[
+        CompanyMembership, Depends(require_company_permission(Action.INSTALLATION_INTERNAL_NOTE))
+    ],
+    session: Annotated[Session, Depends(get_session)],
+    response: Response,
+    limit: Annotated[int, Query(ge=1, le=50)] = 50,
+) -> list[InternalNoteView]:
+    response.headers["Cache-Control"] = "no-store"
+    _installation_for_scope(session, installation_id, company_id=membership.company_id)
+    notes = session.scalars(
+        select(InstallationInternalNote)
+        .where(InstallationInternalNote.installation_id == installation_id)
+        .order_by(InstallationInternalNote.created_at.desc(), InstallationInternalNote.id.desc())
+        .limit(limit)
+    ).all()
+    return [InternalNoteView.model_validate(note, from_attributes=True) for note in notes]
