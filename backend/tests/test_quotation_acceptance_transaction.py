@@ -5,6 +5,8 @@ from uuid import uuid4
 
 import pytest
 from sqlalchemy import select, text
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 
 from app.core.auth import VerifiedIdentity, require_identity
 from app.core.installation_milestones import SEQUENCE
@@ -16,15 +18,18 @@ from app.models.installation_internal_note import InstallationInternalNote
 from app.models.installation_milestone import InstallationMilestoneRecord
 from app.models.installation_milestone_event import InstallationMilestoneEvent
 from app.models.media_asset import MediaAsset
+from app.models.notification import Notification
 from app.models.outbox_event import OutboxEvent
 from app.models.quotation import Quotation, QuotationRevision
 from app.models.quotation_request import QuotationRequest, RequestDelivery
 from app.models.saved_estimate import SavedEstimate
 from app.models.user import AppUser
+from app.services.outbox_dispatch import dispatch_outbox
 from app.services.quotation_acceptance import (
     AcceptanceRejected,
     accept_revision_in_transaction,
 )
+from app.services.workflow_notifications import process_workflow_event
 
 pytestmark = pytest.mark.database
 
@@ -51,6 +56,7 @@ def test_acceptance_rechecks_inside_transaction(
         InstallationMilestoneEvent,
         MediaAsset,
         OutboxEvent,
+        Notification,
     ):
         model.__table__.create(database_connection)
     owner = AppUser(clerk_subject="user_accept_owner")
@@ -190,6 +196,37 @@ def test_acceptance_rechecks_inside_transaction(
     other_staff = CompanyMembership(user_id=foreign.id, company_id=company_b.id, role="sales")
     database_session.add_all([accepted_staff, other_staff])
     database_session.commit()
+
+    class FakeInngest:
+        def __init__(self):
+            self.fail_once = True
+            self.event_ids = []
+
+        def send_sync(self, event):
+            self.event_ids.append(event.id)
+            if self.fail_once:
+                self.fail_once = False
+                raise ConnectionError("simulated outage")
+            return ["accepted-event-id"]
+
+    client = FakeInngest()
+
+    def session_factory():
+        return Session(bind=database_connection, join_transaction_mode="create_savepoint")
+
+    assert dispatch_outbox(session_factory, client, limit=1) == 0
+    database_session.refresh(acceptance_event)
+    assert acceptance_event.status == "failed"
+    assert acceptance_event.last_error == "ConnectionError"
+    assert dispatch_outbox(session_factory, client, limit=1) == 1
+    assert client.event_ids == [acceptance_event.event_key] * 2
+    database_session.refresh(acceptance_event)
+    assert acceptance_event.status == "processing"
+    assert process_workflow_event(database_session, acceptance_event.event_key)
+    assert not process_workflow_event(database_session, acceptance_event.event_key)
+    database_session.refresh(acceptance_event)
+    assert acceptance_event.status == "delivered"
+    assert len(database_session.scalars(select(Notification)).all()) == 2
     accepted_company_path = f"/companies/{company_a.id}/installations/{installation.id}"
     other_company_path = f"/companies/{company_b.id}/installations/{installation.id}"
     assert database_client.get(accepted_company_path).json() == customer_progress.json()
@@ -296,6 +333,31 @@ def test_acceptance_rechecks_inside_transaction(
     assert database_client.post(update_path, json={"reason": "No change"}).status_code == 422
     assert len(database_session.scalars(select(InstallationMilestoneEvent)).all()) == 3
     assert len(database_session.scalars(select(OutboxEvent)).all()) == 4
+    milestone_event = database_session.scalar(
+        select(OutboxEvent)
+        .where(OutboxEvent.event_type == "installation.milestone_changed")
+        .order_by(OutboxEvent.created_at)
+    )
+    database_session.execute(
+        text(
+            "ALTER TABLE notifications ADD CONSTRAINT ck_reject_milestone_notification "
+            "CHECK (kind <> 'installation.milestone_changed')"
+        )
+    )
+    database_session.commit()
+    with pytest.raises(IntegrityError):
+        process_workflow_event(database_session, milestone_event.event_key)
+    database_session.refresh(milestone_event)
+    assert milestone_event.status == "failed"
+    assert milestone_event.last_error == "IntegrityError"
+    assert len(database_session.scalars(select(Notification)).all()) == 2
+    database_session.execute(
+        text("ALTER TABLE notifications DROP CONSTRAINT ck_reject_milestone_notification")
+    )
+    database_session.commit()
+    assert process_workflow_event(database_session, milestone_event.event_key)
+    assert not process_workflow_event(database_session, milestone_event.event_key)
+    assert len(database_session.scalars(select(Notification)).all()) == 3
     database_client.app.dependency_overrides[require_identity] = lambda: VerifiedIdentity(
         owner.clerk_subject, "session_test"
     )

@@ -38,3 +38,6 @@ class Settings(BaseSettings):
     imagekit_private_key: SecretStr | None = None
     imagekit_public_key: str | None = None
     imagekit_url_endpoint: str | None = None
+
+    inngest_event_key: SecretStr | None = None
+    inngest_signing_key: SecretStr | None = None
