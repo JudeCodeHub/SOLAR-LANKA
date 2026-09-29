@@ -3,7 +3,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import CheckConstraint, DateTime, Integer, String, UniqueConstraint, func
+from sqlalchemy import CheckConstraint, DateTime, Integer, String, UniqueConstraint, false, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -40,6 +40,7 @@ class EstimatorConfigVersion(Base):
     scenario: Mapped[str] = mapped_column(String(64), nullable=False)
     version: Mapped[int] = mapped_column(Integer, nullable=False)
     status: Mapped[str] = mapped_column(String(16), nullable=False, default="draft")
+    is_archived: Mapped[bool] = mapped_column(nullable=False, default=False, server_default=false())
     assumptions: Mapped[dict] = mapped_column(JSONB, nullable=False)
     # Each topic snapshot carries URL, publisher, review/effective dates, unit,
     # and limitations as applicable. Null numeric assumptions remain explicit.

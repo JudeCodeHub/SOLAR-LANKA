@@ -19,6 +19,7 @@ def latest_published_config(session: Session) -> EstimatorConfigVersion | None:
         .where(
             EstimatorConfigVersion.scenario == GRID_NET_METERING.identifier,
             EstimatorConfigVersion.status == "published",
+            EstimatorConfigVersion.is_archived.is_(False),
         )
         .order_by(EstimatorConfigVersion.version.desc())
         .limit(1)
