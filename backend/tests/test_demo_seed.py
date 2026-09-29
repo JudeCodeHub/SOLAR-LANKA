@@ -8,14 +8,20 @@ from sqlalchemy import func, select, text
 from app.core.auth import VerifiedIdentity, require_identity
 from app.models.audit import AuditEvent
 from app.models.company import Company, CompanyMembership, CompanyReview
+from app.models.estimator_config import EstimatorConfigVersion
+from app.models.installation import Installation
+from app.models.installation_milestone import InstallationMilestoneRecord
 from app.models.inverter import Inverter
 from app.models.panel import Panel
 from app.models.product import Product
 from app.models.product_offer import ProductOffer
 from app.models.product_source import ProductSource
+from app.models.quotation import Quotation, QuotationRevision
+from app.models.quotation_request import QuotationRequest, RequestDelivery
+from app.models.saved_estimate import SavedEstimate
 from app.models.user import AppUser
 from app.seed_catalogue import GOODWE_DNS, INVERTERS, PANELS, TRINA_RC
-from app.seed_demo import DEMO_COMPANIES, DEMO_USERS, seed_demo
+from app.seed_demo import DEMO_COMPANIES, DEMO_CUSTOMER, DEMO_USERS, demo_id, seed_demo
 
 
 @pytest.mark.database
@@ -36,13 +42,21 @@ def test_seed_repeatability_and_company_isolation(
         Inverter,
         ProductSource,
         ProductOffer,
+        EstimatorConfigVersion,
+        SavedEstimate,
+        QuotationRequest,
+        RequestDelivery,
+        Quotation,
+        QuotationRevision,
+        Installation,
+        InstallationMilestoneRecord,
     ):
         model.__table__.create(database_connection)
     for _ in range(2):
         seed_demo(database_session, environment="test")
         database_session.commit()
-    for model in (AppUser, Company, CompanyMembership):
-        assert database_session.scalar(select(func.count()).select_from(model)) == 2
+    for model, expected in ((AppUser, 3), (Company, 2), (CompanyMembership, 2)):
+        assert database_session.scalar(select(func.count()).select_from(model)) == expected
     assert len(PANELS) == len(INVERTERS) == 10
     for model, expected in (
         (Product, 20),
@@ -50,6 +64,12 @@ def test_seed_repeatability_and_company_isolation(
         (Inverter, 10),
         (ProductSource, 20),
         (ProductOffer, 20),
+        (QuotationRequest, 4),
+        (RequestDelivery, 4),
+        (Quotation, 4),
+        (QuotationRevision, 5),
+        (Installation, 1),
+        (InstallationMilestoneRecord, 8),
     ):
         assert database_session.scalar(select(func.count()).select_from(model)) == expected
     assert all(
@@ -64,6 +84,11 @@ def test_seed_repeatability_and_company_isolation(
     assert database_session.scalars(select(Inverter)).first().compatibility_notes is None
     assert TRINA_RC.startswith("https://static.trinasolar.com/")
     assert GOODWE_DNS.startswith("https://en.goodwe.com/")
+    statuses = {row.status for row in database_session.scalars(select(QuotationRevision))}
+    assert statuses == {"draft", "revised", "sent", "expired", "accepted"}
+    installation = database_session.scalars(select(Installation)).one()
+    assert installation.accepted_revision_id == demo_id("accepted", "revision", "1")
+    assert database_session.get(AppUser, DEMO_CUSTOMER[0]).role == "customer"
     database_session.commit()
     for index in (0, 1):
         subject = DEMO_USERS[index][1]
