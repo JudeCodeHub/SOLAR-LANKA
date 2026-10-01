@@ -41,3 +41,8 @@ class Settings(BaseSettings):
 
     inngest_event_key: SecretStr | None = None
     inngest_signing_key: SecretStr | None = None
+
+    arcjet_key: SecretStr | None = None
+    arcjet_timeout_ms: int = Field(default=1000, ge=100, le=5000)
+    # Proxy addresses/CIDRs whose forwarded-IP headers Arcjet may trust.
+    arcjet_trusted_proxies: list[str] = Field(default_factory=list)

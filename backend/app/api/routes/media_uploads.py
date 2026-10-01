@@ -25,6 +25,7 @@ from app.core.imagekit import (
     verify_upload_intent,
 )
 from app.core.media_policy import Visibility, validate_upload_metadata
+from app.core.request_protection import UPLOAD_REQUEST, protect_user
 from app.db.session import get_session
 from app.models.media_asset import MediaAsset
 from app.models.user import AppUser
@@ -33,7 +34,11 @@ from app.services.media_uploads import authorize_upload
 router = APIRouter(prefix="/media", tags=["media"])
 
 
-@router.post("/upload-requests", response_model=UploadPermission)
+@router.post(
+    "/upload-requests",
+    response_model=UploadPermission,
+    dependencies=[Depends(protect_user(UPLOAD_REQUEST))],
+)
 def request_upload(
     body: UploadRequest,
     user: Annotated[AppUser, Depends(require_local_user)],

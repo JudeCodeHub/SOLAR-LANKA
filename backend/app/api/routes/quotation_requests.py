@@ -25,6 +25,7 @@ from app.api.schemas.request_reads import (
     RequestStatusResponse,
 )
 from app.core.permissions import Action, Scope, required_scopes
+from app.core.request_protection import QUOTATION_REQUEST_WRITE, protect_user
 from app.core.value_types import new_entity_id
 from app.db.session import get_session
 from app.models.company import Company
@@ -201,7 +202,12 @@ def replay(
     return QuotationRequestCreated.model_validate(existing.submission_response)
 
 
-@router.post("", status_code=201, response_model=QuotationRequestCreated)
+@router.post(
+    "",
+    status_code=201,
+    response_model=QuotationRequestCreated,
+    dependencies=[Depends(protect_user(QUOTATION_REQUEST_WRITE))],
+)
 def submit_request(
     body: QuotationRequestCreate,
     key: Annotated[UUID, Header(alias="Idempotency-Key")],

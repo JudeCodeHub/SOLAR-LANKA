@@ -1,6 +1,6 @@
 # Request protection design (Arcjet)
 
-Checklist item: 12.06. Implementation of the rules and tests follows in 12.07; production verification follows in 20.06.
+Checklist items: 12.06 (design) and 12.07 (implementation). Production verification of the ingress boundary follows in 20.06.
 
 ## Decision
 
@@ -28,42 +28,49 @@ How direct bypass is prevented:
 
 1. **No second path to the same code.** The check is a route-level dependency inside FastAPI. Reaching a protected handler without passing the check is not possible, whichever host or port the request arrives on. A gateway design would not give this guarantee.
 2. **Single public origin.** In deployment only the reverse proxy is public. FastAPI listens on a private network. Locally, `compose.yaml` already binds services to `127.0.0.1`.
-3. **No unprotected duplicates.** Protection is attached to the routers listed below, not to individual handlers, so a new write route on a protected router inherits it. 12.07 adds a test that enumerates the application's routes and fails if a route in the protected set lacks the dependency.
+3. **No unclassified write routes.** The dependency is attached per route, because these routers also hold read routes that stay unlimited. `tests/test_request_protection.py` walks the four routers and fails if a state-changing route is neither protected nor in an explicit exemption list, so a new write route forces a decision.
 4. **Trusted proxies.** Arcjet's per-client limits depend on the real client IP. The proxy's addresses are configured as trusted; forwarded-IP headers from anyone else are ignored. Without this, an attacker could rotate `X-Forwarded-For` to dodge limits.
 5. **Arcjet is not authentication.** Clerk verification, ownership/company checks, validation and database constraints still run on every request.
 
-## Protected operations (candidates for 12.07)
+## Protected operations (implemented in 12.07)
 
-| Route | Actor | Why | Planned rule type |
+| Route | Actor | Why | Rule (all in `app/core/request_protection.py`) |
 |---|---|---|---|
-| `POST /estimates/preview` | Visitor (public) | Anonymous and CPU-bound | Rate limit by IP, bot detection |
-| `POST /users/me/estimates` | Customer | Writes snapshots | Rate limit by user |
-| `POST /users/me/requests` | Customer | Fans out to companies; spam risk | Rate limit by user (deduplication stays in the service) |
-| `POST /media/upload-requests` | Authenticated | Issues storage upload permission | Rate limit by user |
-| Quotation revision creation | Company staff | Document/notification generation | Rate limit by user, only if time permits |
+| `POST /estimates/preview` | Visitor (public) | Anonymous and CPU-bound | 30 requests/60 s per IP, bot detection |
+| `POST /users/me/estimates` | Customer | Writes snapshots | 20 requests/60 s per user |
+| `POST /users/me/requests` | Customer | Fans out to companies; spam risk | 10 requests/60 s per user (deduplication stays in the service) |
+| `POST /media/upload-requests` | Authenticated | Issues storage upload permission | 20 requests/60 s per user |
 
-Rule values (limits, windows) are chosen and tested in 12.07.
+Limits are demo-scale starting points, not measured capacity. User-keyed limits use the verified Clerk subject, never a client-supplied identifier, and run after token verification, so an invalid token gets 401 without reaching Arcjet. Quotation revision creation is not limited yet; add it with the document-generation work in Phase 19 if needed.
+
+Exempt state-changing routes: `POST /users/me/requests/{request_id}/withdraw` and `POST /media/attachments`. Both are bounded by ownership checks and database state.
 
 Not protected by Arcjet:
 
 - `/health` and `/readiness`, which stay cheap for probes.
 - `/webhooks/*` and the Inngest callback. These authenticate with their own signatures (Clerk webhook secret, Inngest signing key). Rate limiting them would risk dropping legitimate retries.
 
-## Outage behaviour (to be implemented and tested in 12.07)
+## Outage behaviour (implemented and tested in 12.07)
 
-Proposed policy, subject to confirmation in 12.07:
-
-- Timeout: 1000 ms, lower than the 2000 ms default so users are not stalled by a slow provider.
+- Timeout: `SOLAR_ARCJET_TIMEOUT_MS`, default 1000 ms (allowed 100-5000), lower than the SDK default of 2000 ms so users are not stalled by a slow provider.
 - Public anonymous route (`/estimates/preview`): **fail open**. The estimator is cheap enough that availability matters more than protection during an outage.
-- Authenticated write routes: **fail open**, with an error log. Clerk identity, per-record permissions and database deduplication still limit abuse, and the demo should stay usable.
-- Every `ERROR` decision is logged without request bodies or credentials.
-- Development and test: when `SOLAR_ARCJET_KEY` is unset, protection is disabled explicitly with a startup log line. In production a missing key is a startup error, matching how missing Inngest keys are handled.
+- Authenticated write routes: **fail open**, with a warning log. Clerk identity, per-record permissions and database deduplication still limit abuse, and the demo should stay usable.
+- A policy can opt into fail closed (`fail_open=False`, answering 503). No current route does; the behaviour is tested so a future sensitive route can use it.
+- Every provider error or exception is logged as one line naming the policy, with no request data, headers or exception text.
+- Development and test: when `SOLAR_ARCJET_KEY` is unset, protection is disabled with a startup warning. In production a missing key stops `create_app`, matching how missing Inngest keys are handled.
+- Denials use the shared error contract: 429 `rate_limited` with `Retry-After` set to the window length, or 403 `forbidden` for bot denials.
 - Tests must not call the Arcjet network service. They use a fake client that returns allow, deny and error decisions.
 
-## Configuration additions (12.07)
+## Configuration (12.07)
 
-- `SOLAR_ARCJET_KEY` (secret), `SOLAR_ARCJET_TIMEOUT_MS`, and a trusted-proxy list.
-- Dummy values added to `backend/.env.example`. No real key in source control.
+- `SOLAR_ARCJET_KEY` (secret), `SOLAR_ARCJET_TIMEOUT_MS` and `SOLAR_ARCJET_TRUSTED_PROXIES`, documented with dummy values in `backend/.env.example`. No real key in source control.
+- `arcjet==1.2.0` is pinned in `backend/pyproject.toml`. It installed from the lockfile on Python 3.14 with manylinux wheels.
+- Browser end-to-end runs (17.01) leave the key unset, because bot detection can block headless browsers.
+
+## Known limitations
+
+- Arcjet's service was not called in any test; tests use a fake client. Real-key behaviour (limits actually tripping, bot detection, proxy IP handling) must be checked manually with a development key and again in 20.06.
+- In SDK 1.2.0, `Arcjet.aclose()` leaves an un-awaited coroutine and emits a `RuntimeWarning`. It is harmless at shutdown; revisit when upgrading the SDK.
 
 ## Open items
 
