@@ -2,6 +2,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ComparisonTray } from "@/components/comparison/comparison-tray";
 import { Providers } from "@/components/providers";
 import { SessionWatcher } from "@/components/session-watcher";
 import { SiteFooter } from "@/components/site-footer";
@@ -47,6 +48,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col outline-none">
               {children}
             </main>
+            <ComparisonTray />
             <SiteFooter />
           </Providers>
         </ClerkProvider>
