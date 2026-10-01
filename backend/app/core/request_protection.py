@@ -1,7 +1,15 @@
 """Arcjet request-abuse controls applied as FastAPI dependencies.
 
 Arcjet limits abuse only. It never replaces Clerk verification, ownership checks,
-validation or database constraints. See docs/request-protection.md for the design.
+validation or database constraints.
+
+Ingress boundary: the check runs inside FastAPI as a route dependency, so there is no
+second path to a protected handler and no gateway to bypass. Deployment exposes only the
+reverse proxy; FastAPI stays on a private network. Configure SOLAR_ARCJET_TRUSTED_PROXIES
+so forwarded-IP headers from anyone else are ignored. Provider errors fail open (logged
+without request data) unless a policy sets fail_open=False. Arcjet is skipped when no key
+is set outside production. tests/test_request_protection.py fails if a new write route on
+the protected routers is neither protected nor explicitly exempt.
 """
 
 import logging
