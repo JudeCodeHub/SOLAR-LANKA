@@ -14,6 +14,12 @@ export const queryKeys = {
   estimateChoices: ["estimates", "list", "choices"] as const,
   estimateListAll: ["estimates", "list"] as const,
   estimate: (id: string) => ["estimates", "detail", id] as const,
+  /** Sent quotation requests: one page of the list, and one request with its progress. */
+  requestList: (page: number) => ["requests", "list", page] as const,
+  requestListAll: ["requests", "list"] as const,
+  request: (id: string) => ["requests", "detail", id] as const,
+  /** A company's public name, for showing who a request went to. */
+  companyName: (id: string) => ["companies", "name", id] as const,
   /** Companies that can receive a request for a district. */
   eligibleCompanies: (district: string) => ["companies", "eligible", district] as const,
   /** One product's full record. The single cache entry for it, shared by everything that needs it. */
