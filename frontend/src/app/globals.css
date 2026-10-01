@@ -127,4 +127,43 @@
   html {
     @apply font-sans;
   }
+
+  /*
+   * Touch targets. WCAG 2.2 requires 24 px; on touch screens the controls people use most are
+   * given the 44 px most guidance recommends. Only for coarse pointers, so desktop layouts stay
+   * compact. Links inside running text are left alone (they are exempt and would break lines).
+   */
+  @media (pointer: coarse) {
+    button,
+    [data-slot="button"],
+    [role="button"],
+    select,
+    summary,
+    input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]) {
+      min-height: 2.75rem;
+    }
+    header a,
+    nav a,
+    nav span[aria-disabled="true"],
+    a.inline-block,
+    a.block,
+    a[rel~="noopener"],
+    :is(a, button)[class~="size-8"] {
+      min-height: 2.75rem;
+      min-width: 2.75rem;
+    }
+    header a,
+    nav a,
+    nav span[aria-disabled="true"],
+    a.inline-block,
+    a.block,
+    a[rel~="noopener"] {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    label:has(> input[type="checkbox"]) {
+      min-height: 2.75rem;
+    }
+  }
 }

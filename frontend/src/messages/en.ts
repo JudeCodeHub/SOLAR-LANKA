@@ -30,6 +30,7 @@ export const en = {
     estimator: "Estimate your system · Solar Lanka",
     myEstimates: "My estimates · Solar Lanka",
     savedEstimate: "Saved estimate · Solar Lanka",
+    prepareRequest: "Prepare a quotation request · Solar Lanka",
     notFound: "Page not found · Solar Lanka",
     error: "Something went wrong · Solar Lanka",
   },
@@ -499,6 +500,50 @@ export const en = {
     emptyTitle: "Nothing here yet",
     emptyDescription: "There is nothing to show right now.",
   },
+  requestPrep: {
+    title: "Prepare a quotation request",
+    intro:
+      "A quotation request asks companies you choose to quote for your system. Your saved estimate is the starting point, so you do not have to enter your details again.",
+    empty: {
+      title: "Start from a saved estimate",
+      description:
+        "Choose one of your saved estimates to prepare a request from, or calculate and save a new one.",
+      mine: "My saved estimates",
+      estimate: "Estimate your system",
+    },
+    invalid: {
+      title: "That estimate link is not valid",
+      description: "Open your saved estimates and choose the estimate to use.",
+    },
+    estimate: {
+      title: "Your starting point",
+      size: {
+        one: "{capacity} kWp system, {panels} panel",
+        other: "{capacity} kWp system, {panels} panels",
+      },
+      saved: "Saved {date}, settings version {version}.",
+      view: "View the saved estimate",
+      other: "Choose a different estimate",
+    },
+    carries: {
+      title: "What the request will include",
+      intro: "These come from your saved estimate. You will be able to check them before anything is sent.",
+      district: "District",
+      consumption: "Monthly electricity use",
+      consumptionValue: "{value} kWh per month",
+      attached: "Estimate",
+      attachedValue: "Your saved estimate, exactly as saved (settings version {version})",
+    },
+    next: {
+      title: "What happens next",
+      companies:
+        "You will choose up to 5 companies to receive the request, and see exactly which ones before you send it.",
+      details: "You will describe what you need in your own words.",
+      status:
+        "Nothing has been sent to any company. Choosing companies and sending a request is not available in this build yet.",
+      browse: "Browse companies",
+    },
+  },
   estimator: {
     title: "Estimate your solar system",
     intro:
@@ -587,6 +632,7 @@ export const en = {
       differs:
         "The estimator settings were updated after you calculated, so the saved figures use settings version {saved} instead of {shown}. Open the saved estimate to see them.",
       failed: "The estimate could not be saved.",
+      prepare: "Use it to prepare a quotation request",
     },
     saved: {
       title: "My estimates",
@@ -609,6 +655,8 @@ export const en = {
         savedOn: "Saved on {date}. It is shown exactly as it was calculated.",
         back: "Back to my estimates",
         newEstimate: "Calculate a new estimate",
+        prepare: "Prepare a quotation request from this estimate",
+        prepareHint: "Ask companies for real quotations, starting from these figures.",
         settingsTitle: "Settings this estimate used",
         settingsIntro:
           "Settings version {version}, published {date}. These are the exact values behind the figures above; later updates to the estimator do not change this estimate.",
