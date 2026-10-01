@@ -82,11 +82,9 @@ export function QuotationSection({
               <p className="text-sm" data-quotation-status={current.status}>
                 {format(text.status, { status: statusNames[current.status] ?? current.status })}
               </p>
-              {current.status === "draft" ? (
-                <Button asChild variant="outline">
-                  <Link href={href}>{text.open}</Link>
-                </Button>
-              ) : null}
+              <Button asChild variant="outline">
+                <Link href={href}>{text.open}</Link>
+              </Button>
             </div>
           ) : active ? (
             <div className="space-y-2">
