@@ -21,11 +21,13 @@ export default async function Home() {
         id="panels"
         title={messages.landing.products.panelsTitle}
         section={panels}
+        viewAll={{ href: "/panels", noun: messages.catalogue.panels.resultsNoun }}
       />
       <FeaturedProducts
         id="inverters"
         title={messages.landing.products.invertersTitle}
         section={inverters}
+        viewAll={{ href: "/inverters", noun: messages.catalogue.inverters.resultsNoun }}
       />
       <FeaturedCompanies section={companies} />
     </div>

@@ -11,6 +11,7 @@ from app.api.schemas.catalogue import (
     InverterSpecifications,
     PanelSpecifications,
     ProductDetail,
+    ProductListItem,
     ProductSummary,
 )
 from app.api.schemas.catalogue_filters import InverterQuery, PanelQuery
@@ -36,7 +37,7 @@ def _search_pattern(value: str) -> str:
 
 def _list(
     kind: Literal["panel", "inverter"], session: Session, pagination: PanelQuery | InverterQuery
-) -> PageResponse[ProductSummary]:
+) -> PageResponse[ProductListItem]:
     spec_model = Panel if kind == "panel" else Inverter
     conditions = [Product.kind == kind, Product.is_archived.is_(False)]
     if pagination.search:
@@ -61,7 +62,11 @@ def _list(
             conditions.append(Inverter.capacity_kw >= pagination.min_capacity_kw)
         if pagination.max_capacity_kw is not None:
             conditions.append(Inverter.capacity_kw <= pagination.max_capacity_kw)
-    base = select(Product).join(spec_model, spec_model.product_id == Product.id).where(*conditions)
+    base = (
+        select(Product, spec_model)
+        .join(spec_model, spec_model.product_id == Product.id)
+        .where(*conditions)
+    )
     total = (
         session.scalar(
             select(func.count())
@@ -71,28 +76,34 @@ def _list(
         )
         or 0
     )
-    products = list(
-        session.scalars(
+    rows = list(
+        session.execute(
             base.order_by(Product.brand, Product.model, Product.id)
             .limit(pagination.limit)
             .offset(pagination.offset)
-        )
+        ).all()
     )
     media = public_media_for(
         session,
         parent_kind="product",
-        parent_ids=[product.id for product in products],
+        parent_ids=[product.id for product, _ in rows],
         categories=("product_image", "product_datasheet"),
     )
-    return PageResponse[ProductSummary](
+
+    def highlights(specs: Panel | Inverter) -> dict[str, object]:
+        if isinstance(specs, Panel):
+            return {"wattage_w": specs.wattage_w, "efficiency_percent": specs.efficiency_percent}
+        return {"category": specs.category, "capacity_kw": specs.capacity_kw}
+
+    return PageResponse[ProductListItem](
         limit=pagination.limit,
         offset=pagination.offset,
         total=total,
         items=[
-            ProductSummary.model_validate(product).model_copy(
-                update={"media": media.get(product.id, [])}
+            ProductListItem.model_validate(product).model_copy(
+                update={"media": media.get(product.id, []), **highlights(specs)}
             )
-            for product in products
+            for product, specs in rows
         ],
     )
 
@@ -135,7 +146,7 @@ def _detail(
     )
 
 
-@router.get("/panels", response_model=PageResponse[ProductSummary])
+@router.get("/panels", response_model=PageResponse[ProductListItem])
 def list_panels(
     session: Annotated[Session, Depends(get_session)],
     pagination: Annotated[PanelQuery, Query()],
@@ -164,7 +175,7 @@ def panel_detail(
     return _detail("panel", product_id, session)
 
 
-@router.get("/inverters", response_model=PageResponse[ProductSummary])
+@router.get("/inverters", response_model=PageResponse[ProductListItem])
 def list_inverters(
     session: Annotated[Session, Depends(get_session)],
     pagination: Annotated[InverterQuery, Query()],

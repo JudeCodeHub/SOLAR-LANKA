@@ -127,8 +127,11 @@ def test_product_and_approved_company_responses_include_public_references(monkey
         def scalar(self, statement):
             return 1
 
-        def scalars(self, statement):
-            return [product]
+        def execute(self, statement):
+            return self
+
+        def all(self):
+            return [(product, panel)]
 
     listing = catalogue._list("panel", ProductListSession(), PanelQuery())
     assert listing.items[0].media == [media]

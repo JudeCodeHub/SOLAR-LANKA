@@ -120,3 +120,22 @@ def test_numeric_filters_match_known_specs(catalogue, database_session):
         client.get("/catalogue/inverters?min_capacity_kw=4&max_capacity_kw=6").json()["total"] == 1
     )
     assert client.get("/catalogue/inverters?max_capacity_kw=4").json()["total"] == 0
+
+
+def test_list_items_carry_the_specifications_people_filter_on(catalogue):
+    client, _ = catalogue
+    panels = {p["model"]: p for p in client.get("/catalogue/panels").json()["items"]}
+    assert panels["P1"]["wattage_w"] == "400.000"
+    # Unknown stays null; it is never reported as zero.
+    assert panels["P2"]["wattage_w"] is None
+    assert panels["P2"]["efficiency_percent"] is None
+    # Fields that belong to the other kind are never filled in.
+    assert panels["P1"]["category"] is None and panels["P1"]["capacity_kw"] is None
+    inverter = client.get("/catalogue/inverters").json()["items"][0]
+    assert inverter["category"] == "hybrid"
+    assert inverter["capacity_kw"] is None
+    assert inverter["wattage_w"] is None and inverter["efficiency_percent"] is None
+    # The list shape without highlights still validates and the filter still narrows results.
+    filtered = client.get("/catalogue/panels?min_wattage_w=300").json()
+    assert [i["model"] for i in filtered["items"]] == ["P1"]
+    assert filtered["total"] == 1

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { EmptyState } from "@/components/states/empty-state";
 import { SectionUnavailable } from "@/components/landing/section-unavailable";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,10 +15,13 @@ export function FeaturedProducts({
   id,
   title,
   section,
+  viewAll,
 }: {
   id: string;
   title: string;
   section: Section<Product>;
+  /** The full list, offered once the section has products to show. */
+  viewAll?: { href: string; noun: string };
 }) {
   const text = messages.landing.products;
   return (
@@ -50,6 +55,11 @@ export function FeaturedProducts({
           ))}
         </ul>
       )}
+      {viewAll && section.ok && section.items.length > 0 ? (
+        <Link href={viewAll.href} className="inline-block text-sm font-medium underline underline-offset-2">
+          {format(messages.catalogue.results.viewAll, { noun: viewAll.noun })}
+        </Link>
+      ) : null}
     </section>
   );
 }
