@@ -60,3 +60,55 @@ export function useSaveDraft(companyId: string, deliveryId: string, quotationId:
       ),
   });
 }
+
+export type Revision = components["schemas"]["QuotationRevisionView"];
+
+/** Every revision of the quotation, newest first, exactly as stored (sent revisions are frozen). */
+export function useRevisions(companyId: string, deliveryId: string, quotationId: string) {
+  return useQuery({
+    queryKey: queryKeys.quotationRevisions(companyId, deliveryId),
+    queryFn: () =>
+      unwrap(() =>
+        api.GET("/companies/{company_id}/request-deliveries/{delivery_id}/quotations/{quotation_id}/revisions", {
+          params: {
+            path: { company_id: companyId, delivery_id: deliveryId, quotation_id: quotationId },
+            query: { limit: 50, offset: 0 },
+          },
+        }),
+      ),
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+  });
+}
+
+/** The mutations that move a quotation between states; each leaves the reading of the new state to the caller. */
+export function useQuotationActions(companyId: string, deliveryId: string, quotationId: string) {
+  const path = { company_id: companyId, delivery_id: deliveryId, quotation_id: quotationId };
+  return {
+    send: useMutation({
+      mutationFn: () =>
+        unwrap(() =>
+          api.POST("/companies/{company_id}/request-deliveries/{delivery_id}/quotations/{quotation_id}/send", {
+            params: { path },
+          }),
+        ),
+    }),
+    startRevision: useMutation({
+      mutationFn: () =>
+        unwrap(() =>
+          api.POST("/companies/{company_id}/request-deliveries/{delivery_id}/quotations/{quotation_id}/revisions", {
+            params: { path },
+          }),
+        ),
+    }),
+    withdraw: useMutation({
+      mutationFn: (revisionId: string) =>
+        unwrap(() =>
+          api.POST(
+            "/companies/{company_id}/request-deliveries/{delivery_id}/quotations/{quotation_id}/revisions/{revision_id}/withdraw",
+            { params: { path: { ...path, revision_id: revisionId } } },
+          ),
+        ),
+    }),
+  };
+}

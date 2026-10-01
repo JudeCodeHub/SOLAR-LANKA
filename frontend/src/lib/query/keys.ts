@@ -25,6 +25,8 @@ export const queryKeys = {
   enquiryNotes: (companyId: string, id: string) => ["company", companyId, "enquiry", id, "notes"] as const,
   /** An enquiry's current quotation with its editable draft terms (staff only). */
   quotationCurrent: (companyId: string, deliveryId: string) => ["company", companyId, "enquiry", deliveryId, "quotation"] as const,
+  /** Every revision of an enquiry's quotation, newest first. */
+  quotationRevisions: (companyId: string, deliveryId: string) => ["company", companyId, "enquiry", deliveryId, "revisions"] as const,
   /** Sent quotation requests: one page of the list, and one request with its progress. */
   requestList: (page: number) => ["requests", "list", page] as const,
   requestListAll: ["requests", "list"] as const,
