@@ -14,6 +14,9 @@ export const queryKeys = {
   estimateChoices: ["estimates", "list", "choices"] as const,
   estimateListAll: ["estimates", "list"] as const,
   estimate: (id: string) => ["estimates", "detail", id] as const,
+  /** A company's private profile and its review history (staff only). */
+  companyProfile: (id: string) => ["company", id, "profile"] as const,
+  companyReviews: (id: string) => ["company", id, "reviews"] as const,
   /** Sent quotation requests: one page of the list, and one request with its progress. */
   requestList: (page: number) => ["requests", "list", page] as const,
   requestListAll: ["requests", "list"] as const,
