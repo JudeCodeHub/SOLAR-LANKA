@@ -44,6 +44,20 @@ class QuotationSent(BaseModel):
     lines: list[SentQuotationLine]
 
 
+class CustomerQuotationSummary(BaseModel):
+    """One company's offer on a request, as its latest sent revision; drafts are never included."""
+
+    quotation_id: UUID
+    company_id: UUID
+    revision_id: UUID
+    revision_number: int
+    status: Literal["sent", "revised", "accepted", "declined", "expired", "withdrawn"]
+    sent_at: datetime
+    valid_until: datetime | None
+    total: str | None
+    sent_revision_count: int
+
+
 class QuotationRevisionView(BaseModel):
     id: UUID
     quotation_id: UUID

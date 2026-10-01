@@ -18,7 +18,11 @@ from app.api.schemas.offer_comparison import (
     OfferComparison,
 )
 from app.api.schemas.pagination import PageResponse, PaginationParams
-from app.api.schemas.quotations import AcceptedInstallation, QuotationRevisionView
+from app.api.schemas.quotations import (
+    AcceptedInstallation,
+    CustomerQuotationSummary,
+    QuotationRevisionView,
+)
 from app.core.installation_milestones import SEQUENCE
 from app.core.permissions import Action, Scope, required_scopes
 from app.core.quotation_acceptance import AcceptanceFailure
@@ -87,6 +91,58 @@ def owned_quotation(
     if quotation is None:
         raise HTTPException(404)
     return quotation
+
+
+@router.get("", response_model=list[CustomerQuotationSummary])
+def list_request_offers(
+    request_id: UUID,
+    user: Annotated[AppUser, Depends(require_customer_quote_reader)],
+    session: Annotated[Session, Depends(get_session)],
+    response: Response,
+) -> list[CustomerQuotationSummary]:
+    """Every offer on the customer's own request, newest first, expired and declined included."""
+    response.headers["Cache-Control"] = "no-store"
+    request = session.scalars(
+        select(QuotationRequest).where(
+            QuotationRequest.id == request_id, QuotationRequest.customer_id == user.id
+        )
+    ).one_or_none()
+    if request is None:
+        raise HTTPException(404)
+    quotations = session.execute(
+        select(Quotation, RequestDelivery)
+        .join(RequestDelivery, Quotation.delivery_id == RequestDelivery.id)
+        .where(RequestDelivery.request_id == request.id)
+    )
+    summaries = []
+    for quotation, delivery in quotations:
+        sent = list(
+            session.scalars(
+                select(QuotationRevision)
+                .where(
+                    QuotationRevision.quotation_id == quotation.id,
+                    QuotationRevision.sent_at.is_not(None),
+                )
+                .order_by(QuotationRevision.revision_number.desc())
+            )
+        )
+        if not sent:
+            continue
+        latest = sent[0]
+        summaries.append(
+            CustomerQuotationSummary(
+                quotation_id=quotation.id,
+                company_id=delivery.company_id,
+                revision_id=latest.id,
+                revision_number=latest.revision_number,
+                status=latest.status,
+                sent_at=latest.sent_at,
+                valid_until=latest.valid_until,
+                total=format(latest.total, ".2f") if latest.total is not None else None,
+                sent_revision_count=len(sent),
+            )
+        )
+    return sorted(summaries, key=lambda item: item.sent_at, reverse=True)
 
 
 @router.get("/compare", response_model=OfferComparison)
