@@ -7,13 +7,14 @@ no password, token or sign-in bypass is created. Tests alone override identity.
 
 from datetime import UTC, datetime
 from decimal import Decimal
-from uuid import NAMESPACE_URL, UUID, uuid5
+from uuid import UUID
 
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
 from app.core.database_config import DatabaseSettings
 from app.core.installation_milestones import SEQUENCE
+from app.core.value_types import deterministic_entity_id
 from app.db.session import create_database_engine
 from app.models.company import Company, CompanyMembership
 from app.models.installation import Installation
@@ -37,7 +38,7 @@ DEMO_CUSTOMER = (UUID("f7b6a8b0-4091-42b0-9d36-000000000013"), "demo_seed_custom
 
 
 def demo_id(*parts: str) -> UUID:
-    return uuid5(NAMESPACE_URL, "solarlanka:demo-workflow:" + ":".join(parts))
+    return deterministic_entity_id("solarlanka:demo-workflow:" + ":".join(parts))
 
 
 def seed_workflow(session: Session) -> None:
@@ -62,7 +63,12 @@ def seed_workflow(session: Session) -> None:
             .values(
                 id=request_id,
                 customer_id=customer_id,
-                requirements={"demo_scenario": name, "note": "Fictional demonstration only"},
+                # Same shape as a real submission (QuotationRequestCreate without recipients).
+                requirements={
+                    "district": "Colombo",
+                    "details": f"Fictional demonstration request: {name} scenario",
+                    "monthly_consumption_kwh": "300.000",
+                },
             )
             .on_conflict_do_nothing(index_elements=[QuotationRequest.id])
         )

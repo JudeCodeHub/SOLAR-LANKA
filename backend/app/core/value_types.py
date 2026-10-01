@@ -13,6 +13,7 @@ model_dump(exclude_unset=True)) distinguishes omission from explicit null.
 
 from datetime import UTC, datetime
 from decimal import Decimal
+from hashlib import sha256
 from typing import Annotated
 from uuid import UUID, uuid4
 
@@ -35,6 +36,14 @@ EntityId = UUID4
 
 def new_entity_id() -> UUID:
     return uuid4()
+
+
+def deterministic_entity_id(name: str) -> UUID:
+    """Stable UUID4-format identifier for reproducible seeds.
+
+    uuid5 values fail the EntityId (UUID4) contract that every API schema enforces.
+    """
+    return UUID(bytes=sha256(name.encode()).digest()[:16], version=4)
 
 
 def utc_now() -> datetime:
