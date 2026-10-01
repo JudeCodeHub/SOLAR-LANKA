@@ -1,9 +1,13 @@
+"use client";
+
 import { TriangleAlert } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { type ApiError, describeError } from "@/lib/api/errors";
+import { signInHref } from "@/lib/redirect";
 import { messages } from "@/messages";
 
 /** Readable name for the field an issue points at, e.g. ["body", "district"] -> "district". */
@@ -29,6 +33,7 @@ export function ApiErrorMessage({
   className?: string;
 }) {
   const description = describeError(error);
+  const pathname = usePathname();
   return (
     <Alert variant="destructive" className={className}>
       <TriangleAlert aria-hidden />
@@ -50,7 +55,7 @@ export function ApiErrorMessage({
         )}
         {description.kind === "signed-out" && (
           <Button asChild variant="outline" size="sm" className="mt-3">
-            <Link href="/sign-in">{messages.auth.signIn}</Link>
+            <Link href={signInHref(pathname)}>{messages.auth.signIn}</Link>
           </Button>
         )}
         {description.retryable && onRetry && (
