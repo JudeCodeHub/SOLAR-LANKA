@@ -62,7 +62,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { id: "home", label: messages.nav.items.home, href: "/", group: "explore", access: PUBLIC, available: true },
   { id: "panels", label: messages.nav.items.panels, href: "/panels", group: "explore", access: PUBLIC, available: true },
   { id: "inverters", label: messages.nav.items.inverters, href: "/inverters", group: "explore", access: PUBLIC, available: true },
-  { id: "estimator", label: messages.nav.items.estimator, href: "/estimator", group: "explore", access: PUBLIC, available: false },
+  { id: "estimator", label: messages.nav.items.estimator, href: "/estimator", group: "explore", access: PUBLIC, available: true },
   { id: "companies", label: messages.nav.items.companies, href: "/companies", group: "explore", access: PUBLIC, available: true },
   { id: "learn", label: messages.nav.items.learn, href: "/learn", group: "explore", access: PUBLIC, available: false },
   { id: "troubleshooting", label: messages.nav.items.troubleshooting, href: "/troubleshooting", group: "explore", access: PUBLIC, available: false },
