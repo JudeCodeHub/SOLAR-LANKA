@@ -4,6 +4,7 @@ from typing import Annotated, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
 
+from app.api.schemas.pagination import PaginationParams
 from app.api.schemas.public_media import PublicMedia
 from app.core.value_types import EntityId, Timestamp
 
@@ -96,6 +97,17 @@ class CompanyReviewResponse(BaseModel):
     actor_id: EntityId
     outcome: Literal["submitted", "approved", "rejected", "returned_to_draft"]
     created_at: Timestamp
+
+
+class DirectoryQuery(PaginationParams):
+    """Public directory filters; unknown values are rejected rather than ignored."""
+
+    district: District | None = Field(
+        default=None, description="Only companies serving this district."
+    )
+    service: Service | None = Field(
+        default=None, description="Only companies offering this service."
+    )
 
 
 class CompanyReviewDecision(BaseModel):

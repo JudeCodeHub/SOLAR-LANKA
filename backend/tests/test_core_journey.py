@@ -26,8 +26,8 @@ from tests.test_estimator_finance import financial_config
 
 pytestmark = pytest.mark.database
 
-COMPANY_A, COMPANY_B = (company_id for company_id, _ in DEMO_COMPANIES)
-STAFF_A, STAFF_B = (subject for _, subject in DEMO_USERS)
+COMPANY_A, COMPANY_B, *_ = (company_id for company_id, _ in DEMO_COMPANIES)
+STAFF_A, STAFF_B, *_ = (subject for _, subject in DEMO_USERS)
 CUSTOMER = DEMO_CUSTOMER[1]
 OTHER_CUSTOMER = "journey_other_customer"
 

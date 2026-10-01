@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.api.routes import catalogue, companies
 from app.api.schemas.catalogue_filters import PanelQuery
-from app.api.schemas.pagination import PaginationParams
+from app.api.schemas.companies import DirectoryQuery
 from app.api.schemas.public_media import PublicMedia
 from app.models.company import Company
 from app.models.media_asset import MediaAsset
@@ -146,11 +146,15 @@ def test_product_and_approved_company_responses_include_public_references(monkey
     assert public.logo == logo
 
     class CompanyListSession:
+        def scalar(self, statement):
+            return 1
+
         def scalars(self, statement):
             return [company]
 
     public_list = companies.list_public_companies(
-        CompanyListSession(), PaginationParams(), Response()
+        CompanyListSession(), DirectoryQuery(), Response()
     )
-    assert public_list[0].logo == logo
+    assert public_list.items[0].logo == logo
+    assert public_list.total == 1
     assert "support_evidence" not in public.model_dump_json()

@@ -333,7 +333,7 @@ def test_technician_cannot_submit_or_read_reviews(company_access, database_sessi
 def test_admin_review_and_publication(company_access, database_session, outcome):
     client, user, _, own, _ = company_access
     assert client.get(f"/public/companies/{own}").status_code == 404
-    assert client.get("/public/companies").json() == []
+    assert client.get("/public/companies").json()["items"] == []
     assert client.post(f"/companies/{own}/submit").status_code == 201
     assert client.get(f"/public/companies/{own}").status_code == 404
     assert client.post(f"/companies/{own}/review", json={"outcome": outcome}).status_code == 403
@@ -364,7 +364,7 @@ def test_admin_review_and_publication(company_access, database_session, outcome)
     public = client.get(f"/public/companies/{own}")
     assert public.status_code == (200 if outcome == "approved" else 404)
     listing = client.get("/public/companies").json()
-    assert len(listing) == (1 if outcome == "approved" else 0)
+    assert len(listing["items"]) == listing["total"] == (1 if outcome == "approved" else 0)
     if outcome == "approved":
         assert set(public.json()) == {
             "id",
@@ -384,7 +384,7 @@ def test_profile_changes_require_new_approval(company_access, database_session):
     assert client.post(f"/companies/{own}/review", json={"outcome": "approved"}).status_code == 201
     assert client.patch(f"/companies/{own}", json={"name": "Edited"}).status_code == 200
     assert client.get(f"/public/companies/{own}").status_code == 404
-    assert client.get("/public/companies").json() == []
+    assert client.get("/public/companies").json()["items"] == []
     assert client.post(f"/companies/{own}/review", json={"outcome": "approved"}).status_code == 409
     history = client.get(f"/companies/{own}/reviews").json()
     assert len(history) == 3

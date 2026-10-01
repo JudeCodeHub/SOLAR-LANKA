@@ -2518,6 +2518,28 @@ export interface components {
              */
             total: number;
         };
+        /** PageResponse[PublicCompanyResponse] */
+        PageResponse_PublicCompanyResponse_: {
+            /** Items */
+            items: components["schemas"]["PublicCompanyResponse"][];
+            /**
+             * Limit
+             * @description Records per page: default 20, minimum 1, maximum 100.
+             * @default 20
+             */
+            limit: number;
+            /**
+             * Offset
+             * @description Records to skip: default 0, maximum 10000. Narrow filters beyond this limit.
+             * @default 0
+             */
+            offset: number;
+            /**
+             * Total
+             * @description Total matching records before pagination, including filters.
+             */
+            total: number;
+        };
         /** PageResponse[QuotationRevisionView] */
         PageResponse_QuotationRevisionView_: {
             /** Items */
@@ -8436,6 +8458,10 @@ export interface operations {
                 limit?: number;
                 /** @description Records to skip: default 0, maximum 10000. Narrow filters beyond this limit. */
                 offset?: number;
+                /** @description Only companies serving this district. */
+                district?: ("Ampara" | "Anuradhapura" | "Badulla" | "Batticaloa" | "Colombo" | "Galle" | "Gampaha" | "Hambantota" | "Jaffna" | "Kalutara" | "Kandy" | "Kegalle" | "Kilinochchi" | "Kurunegala" | "Mannar" | "Matale" | "Matara" | "Monaragala" | "Mullaitivu" | "Nuwara Eliya" | "Polonnaruwa" | "Puttalam" | "Ratnapura" | "Trincomalee" | "Vavuniya") | null;
+                /** @description Only companies offering this service. */
+                service?: ("installation" | "maintenance" | "repair" | "battery_installation" | "site_assessment") | null;
             };
             header?: never;
             path?: never;
@@ -8449,7 +8475,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PublicCompanyResponse"][];
+                    "application/json": components["schemas"]["PageResponse_PublicCompanyResponse_"];
                 };
             };
             /** @description Bad Request */

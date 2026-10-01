@@ -82,6 +82,63 @@ export const en = {
     note: "Portfolio demonstration under development. All companies, prices and estimates will be fictional samples.",
     catalogueSoon: "Catalogue coming soon",
   },
+  services: {
+    installation: "Installation",
+    maintenance: "Maintenance",
+    repair: "Repair",
+    battery_installation: "Battery installation",
+    site_assessment: "Site assessment",
+  },
+  landing: {
+    hero: {
+      title: "Solar Lanka",
+      tagline:
+        "Explore solar panels and inverters, estimate what a system could produce and cost, and compare quotations from solar companies in Sri Lanka.",
+      goToAccount: "Go to your account",
+    },
+    demoStatus: {
+      title: "Demo status",
+      body: "This is a portfolio demonstration, not a real marketplace. Every company, price and customer record is a fictional sample, and estimates are planning aids rather than installation designs or guaranteed savings.",
+    },
+    entry: {
+      title: "Start here",
+      comingSoon: "Coming soon",
+      descriptions: {
+        panels: "Browse sample panel specifications and compare up to three side by side.",
+        inverters: "Browse sample inverters by type and capacity.",
+        estimator: "Estimate system size, yearly generation and a cost range from your electricity use.",
+        companies: "Find fictional installers by district and service.",
+        learn: "Plain-language guides to solar basics, storage and maintenance.",
+        troubleshooting: "Look up manufacturer error codes for supported inverter models.",
+        support: "Ask for help with a system or an order.",
+      },
+    },
+    products: {
+      panelsTitle: "Solar panels",
+      invertersTitle: "Inverters",
+      sampleNote: "Sample catalogue entry",
+      kind: { panel: "Solar panel", inverter: "Inverter" },
+      showing: "Showing {shown} of {total}",
+      emptyTitle: "No products yet",
+      emptyDescription: "No products have been published to the catalogue yet.",
+    },
+    companies: {
+      title: "Solar companies",
+      intro:
+        "Fictional companies for this demonstration. A listing means the platform approved the profile; it does not verify registration or qualifications.",
+      districts: "Serves",
+      services: "Services",
+      credentials: "Declared credentials (not verified)",
+      credentialLine: "{name}, {issuer}",
+      emptyTitle: "No companies yet",
+      emptyDescription: "No company profiles have been published yet.",
+    },
+    unavailable: {
+      title: "This section could not be loaded",
+      message: "The data is temporarily unavailable. Try again in a moment.",
+      retry: "Try again",
+    },
+  },
   footer: {
     disclaimer:
       "Solar Lanka is a portfolio demonstration. Companies, prices and customer records are fictional samples, and estimates are planning aids, not installation designs or guaranteed savings.",

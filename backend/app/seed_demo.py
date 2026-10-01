@@ -27,11 +27,45 @@ from app.seed_catalogue import seed_catalogue
 DEMO_COMPANIES = (
     (UUID("f7b6a8b0-4091-42b0-9d36-000000000001"), "Demo Sunbird Solar (Fictional)"),
     (UUID("f7b6a8b0-4091-42b0-9d36-000000000002"), "Demo Moonleaf Energy (Fictional)"),
+    (UUID("f7b6a8b0-4091-42b0-9d36-000000000003"), "Demo Lotus Solar (Fictional)"),
 )
 DEMO_USERS = (
     (UUID("f7b6a8b0-4091-42b0-9d36-000000000011"), "demo_seed_company_a"),
     (UUID("f7b6a8b0-4091-42b0-9d36-000000000012"), "demo_seed_company_b"),
+    (UUID("f7b6a8b0-4091-42b0-9d36-000000000014"), "demo_seed_company_c"),
 )
+
+# Published directory profiles. Everything is fictional; credentials are declared by the company
+# and deliberately not verified, matching how real listings are labelled.
+DEMO_COMPANY_PROFILES = {
+    DEMO_COMPANIES[0][0]: {
+        "service_districts": ["Colombo", "Gampaha", "Kalutara"],
+        "services": ["installation", "maintenance", "site_assessment"],
+        "declared_credentials": [
+            {
+                "name": "Fictional Rooftop Installer Certificate",
+                "issuer": "Demo Standards Board (Fictional)",
+                "verification_status": "company_declared",
+            }
+        ],
+    },
+    DEMO_COMPANIES[1][0]: {
+        "service_districts": ["Kandy", "Matale", "Nuwara Eliya"],
+        "services": ["installation", "battery_installation", "repair"],
+        "declared_credentials": [],
+    },
+    DEMO_COMPANIES[2][0]: {
+        "service_districts": ["Galle", "Matara", "Hambantota"],
+        "services": ["installation", "maintenance"],
+        "declared_credentials": [
+            {
+                "name": "Fictional Quality Management Award",
+                "issuer": "Demo Standards Board (Fictional)",
+                "verification_status": "company_declared",
+            }
+        ],
+    },
+}
 
 
 DEMO_CUSTOMER = (UUID("f7b6a8b0-4091-42b0-9d36-000000000013"), "demo_seed_customer")
@@ -154,7 +188,12 @@ def seed_demo(session: Session, *, environment: str) -> None:
     for company_id, name in DEMO_COMPANIES:
         session.execute(
             insert(Company)
-            .values(id=company_id, name=name, publication_status="draft")
+            .values(
+                id=company_id,
+                name=name,
+                publication_status="approved",
+                **DEMO_COMPANY_PROFILES[company_id],
+            )
             .on_conflict_do_nothing(index_elements=[Company.id])
         )
     for (user_id, _), (company_id, _) in zip(DEMO_USERS, DEMO_COMPANIES, strict=True):
@@ -169,7 +208,8 @@ def seed_demo(session: Session, *, environment: str) -> None:
     seed_catalogue(
         session,
         environment=environment,
-        company_ids=tuple(company_id for company_id, _ in DEMO_COMPANIES),
+        # Sample offers exist for the first two companies only; the third is a directory listing.
+        company_ids=(DEMO_COMPANIES[0][0], DEMO_COMPANIES[1][0]),
     )
 
 
