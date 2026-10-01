@@ -10,8 +10,14 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session
 
 from app.api.company_access import require_company_membership
+from app.api.quotation_views import current_quotation_view
 from app.api.schemas.pagination import PageResponse, PaginationParams
-from app.api.schemas.quotation_edit import DraftTermsInput, DraftTermsSaved, SentOfferRequired
+from app.api.schemas.quotation_edit import (
+    CurrentQuotation,
+    DraftTermsInput,
+    DraftTermsSaved,
+    SentOfferRequired,
+)
 from app.api.schemas.quotations import (
     QuotationDraftCreated,
     QuotationSent,
@@ -59,6 +65,14 @@ def require_quotation_drafter(
     membership: Annotated[CompanyMembership, Depends(require_company_membership)],
 ) -> CompanyMembership:
     if Scope.DELIVERY_COMPANY not in required_scopes(Action.QUOTATION_DRAFT, membership.role):
+        raise HTTPException(403)
+    return membership
+
+
+def require_quotation_reader(
+    membership: Annotated[CompanyMembership, Depends(require_company_membership)],
+) -> CompanyMembership:
+    if Scope.DELIVERY_COMPANY not in required_scopes(Action.QUOTATION_READ, membership.role):
         raise HTTPException(403)
     return membership
 
@@ -201,6 +215,29 @@ def create_quotation_draft(
         revision_number=revision.revision_number,
         status="draft",
     )
+
+
+@router.get("/{delivery_id}/quotations/current", response_model=CurrentQuotation)
+def current_delivery_quotation(
+    delivery_id: UUID,
+    membership: Annotated[CompanyMembership, Depends(require_quotation_reader)],
+    session: Annotated[Session, Depends(get_session)],
+    response: Response,
+) -> CurrentQuotation:
+    response.headers["Cache-Control"] = "no-store"
+    scoped_delivery(session, delivery_id, membership.company_id)
+    quotation = session.scalars(
+        select(Quotation).where(Quotation.delivery_id == delivery_id)
+    ).one_or_none()
+    if quotation is None:
+        raise HTTPException(404)
+    revision = session.scalars(
+        select(QuotationRevision)
+        .where(QuotationRevision.quotation_id == quotation.id)
+        .order_by(QuotationRevision.revision_number.desc())
+        .limit(1)
+    ).one()
+    return current_quotation_view(session, quotation, revision)
 
 
 @router.put("/{delivery_id}/quotations/{quotation_id}/draft", response_model=DraftTermsSaved)

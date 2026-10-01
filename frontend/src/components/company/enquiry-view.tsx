@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
+import { QuotationSection } from "@/components/company/quotation-section";
 import { StaffGate } from "@/components/company/staff-gate";
 import { AppForm } from "@/components/forms/app-form";
 import { FormSubmitButton } from "@/components/forms/submit-button";
@@ -239,6 +240,13 @@ function Detail({
           </div>
         )}
       </section>
+
+      <QuotationSection
+        companyId={companyId}
+        deliveryId={enquiry.id}
+        active={actions.canAddNote}
+        onRefused={() => void refetch().then((fresh) => setNotice(staleMessage(fresh.data)))}
+      />
 
       <Notes companyId={companyId} id={enquiry.id} canAdd={actions.canAddNote} onStale={() => void refetch().then((fresh) => setNotice(staleMessage(fresh.data)))} />
     </>

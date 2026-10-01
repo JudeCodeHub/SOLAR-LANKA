@@ -3,8 +3,9 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.api.schemas.quotation_edit import CurrentQuotation, DraftLineView, DraftTermsView
 from app.api.schemas.quotations import QuotationRevisionView, SentQuotationLine
-from app.models.quotation import QuotationLineItem, QuotationRevision
+from app.models.quotation import Quotation, QuotationLineItem, QuotationRevision
 
 
 def money(value):
@@ -48,4 +49,47 @@ def revision_view(session: Session, revision: QuotationRevision) -> QuotationRev
             )
             for line in lines
         ],
+    )
+
+
+def current_quotation_view(
+    session: Session, quotation: Quotation, revision: QuotationRevision
+) -> CurrentQuotation:
+    lines = session.scalars(
+        select(QuotationLineItem)
+        .where(QuotationLineItem.revision_id == revision.id)
+        .order_by(QuotationLineItem.position)
+    )
+    capacity = revision.capacity_kwp
+    return CurrentQuotation(
+        quotation_id=quotation.id,
+        revision_id=revision.id,
+        revision_number=revision.revision_number,
+        status=revision.status,
+        terms=DraftTermsView(
+            lines=[
+                DraftLineView(
+                    position=line.position,
+                    kind=line.kind,
+                    product_id=line.product_id,
+                    description=line.description,
+                    quantity=format(line.quantity, ".3f"),
+                    unit_price=format(line.unit_price, ".2f"),
+                    line_total=money(line.line_total),
+                )
+                for line in lines
+            ],
+            discount_kind=revision.discount_kind,
+            discount_value=format(revision.discount_value, ".2f"),
+            tax_rate_percent=format(revision.tax_rate_percent, ".2f"),
+            capacity_kwp=format(capacity, ".3f") if capacity is not None else None,
+            warranty_terms=revision.warranty_terms,
+            exclusions=revision.exclusions,
+            validity_days=revision.validity_days,
+            notes=revision.notes,
+            subtotal=money(revision.subtotal),
+            discount=money(revision.discount),
+            tax=money(revision.tax),
+            total=money(revision.total),
+        ),
     )
