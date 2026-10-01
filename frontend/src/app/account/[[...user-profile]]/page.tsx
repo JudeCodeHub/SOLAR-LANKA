@@ -2,8 +2,9 @@ import { UserProfile } from "@clerk/nextjs";
 import type { Metadata } from "next";
 
 import { BackendProfile } from "@/components/backend-profile";
+import { messages } from "@/messages";
 
-export const metadata: Metadata = { title: "Account · Solar Lanka" };
+export const metadata: Metadata = { title: messages.titles.account };
 
 export default function AccountPage() {
   return (

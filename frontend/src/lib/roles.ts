@@ -1,9 +1,7 @@
-/** Display names for application roles. The backend decides roles; this only labels them. */
-export const ROLE_LABELS: Record<string, string> = {
-  customer: "Customer",
-  platform_admin: "Platform administrator",
-};
+import { messages } from "@/messages";
 
+/** Display names for application roles. The backend decides roles; this only labels them. */
 export function roleLabel(role: string): string {
-  return ROLE_LABELS[role] ?? role;
+  const labels: Record<string, string> = messages.roles;
+  return labels[role] ?? role;
 }

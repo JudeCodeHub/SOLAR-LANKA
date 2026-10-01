@@ -4,34 +4,32 @@ import type { UseQueryResult } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
-import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/states/empty-state";
+import { LoadingState } from "@/components/states/loading-state";
 import type { ApiError } from "@/lib/api/errors";
 
 /**
- * Renders a query in one of three consistent states: loading placeholder, the shared error
- * display with a retry, or the data. Empty-data presentation is added with the shared
- * empty-state convention (13.09).
+ * Renders a query in one consistent set of states: loading placeholder, the shared error
+ * display with a retry, an empty message, or the data. Pass `isEmpty` to treat some successful
+ * results (an empty list) as "nothing here yet", and `empty` to say what to show instead.
  */
 export function QueryState<T>({
   query,
   children,
   loading,
+  isEmpty,
+  empty,
   className,
 }: {
   query: UseQueryResult<T, ApiError>;
   children: (data: T) => ReactNode;
   loading?: ReactNode;
+  isEmpty?: (data: T) => boolean;
+  empty?: ReactNode;
   className?: string;
 }) {
   if (query.isPending) {
-    return (
-      loading ?? (
-        <div role="status" aria-busy="true" className={className}>
-          <span className="sr-only">Loading…</span>
-          <Skeleton className="h-16 w-full" />
-        </div>
-      )
-    );
+    return loading ?? <LoadingState className={className} />;
   }
   if (query.isError) {
     return (
@@ -42,6 +40,9 @@ export function QueryState<T>({
         className={className}
       />
     );
+  }
+  if (isEmpty?.(query.data)) {
+    return empty ?? <EmptyState className={className} />;
   }
   return <>{children(query.data)}</>;
 }

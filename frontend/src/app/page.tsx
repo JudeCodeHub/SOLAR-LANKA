@@ -8,6 +8,7 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
+import { messages } from "@/messages";
 
 export default function Home() {
   return (
@@ -16,18 +17,13 @@ export default function Home() {
         <CardHeader className="items-center">
           <Sun aria-hidden className="size-8 justify-self-center text-amber-600" />
           <h1 className="font-heading text-2xl font-semibold tracking-tight">
-            Solar Lanka
+            {messages.home.title}
           </h1>
-          <CardDescription>
-            Explore solar products, estimate your system and compare quotations.
-          </CardDescription>
+          <CardDescription>{messages.home.tagline}</CardDescription>
         </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          Portfolio demonstration under development. All companies, prices and
-          estimates will be fictional samples.
-        </CardContent>
+        <CardContent className="text-sm text-muted-foreground">{messages.home.note}</CardContent>
         <CardFooter className="justify-center">
-          <Button disabled>Catalogue coming soon</Button>
+          <Button disabled>{messages.home.catalogueSoon}</Button>
         </CardFooter>
       </Card>
     </div>

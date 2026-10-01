@@ -70,6 +70,20 @@ const eslintConfig = defineConfig([
     },
   },
   {
+    // User-facing text lives in src/messages so it can be translated. Inline text in JSX is
+    // an error; write {messages.section.key} instead. Attribute values (className, href) are
+    // not checked, but aria-label and similar text still belongs in the catalog by convention.
+    // The shadcn primitives in components/ui are generated and exempt.
+    files: ["src/app/**/*.tsx", "src/components/**/*.tsx"],
+    ignores: ["src/components/ui/**"],
+    rules: {
+      "react/jsx-no-literals": [
+        "error",
+        { noStrings: true, allowedStrings: ["·", "…", "|", "-", "/", ":"], ignoreProps: true },
+      ],
+    },
+  },
+  {
     // node:test registers tests when test() is called at the top level; the returned promise
     // is intentionally not awaited. Everywhere else the rule stays on.
     files: ["**/*.test.ts"],
