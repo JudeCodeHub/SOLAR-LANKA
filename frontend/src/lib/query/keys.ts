@@ -31,6 +31,7 @@ export const queryKeys = {
   requestOffers: (requestId: string) => ["requests", requestId, "offers"] as const,
   offerHistory: (requestId: string, quotationId: string) => ["requests", requestId, "offers", quotationId] as const,
   companyInstallationList: (companyId: string, page: number) => ["company", companyId, "installations", page] as const,
+  installationNotes: (companyId: string, id: string) => ["company", companyId, "installations", "notes", id] as const,
   companyInstallation: (companyId: string, id: string) => ["company", companyId, "installations", "detail", id] as const,
   installationList: (page: number) => ["installations", "list", page] as const,
   installation: (id: string) => ["installations", id] as const,
