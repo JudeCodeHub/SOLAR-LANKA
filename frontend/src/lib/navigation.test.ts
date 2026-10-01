@@ -13,8 +13,7 @@ import {
   toShellUser,
 } from "./navigation.ts";
 
-// The real registry marks unbuilt pages unavailable. These tests use a copy with everything
-// available to check the role rules themselves, independent of what is built today.
+// The real registry marks unbuilt pages unavailable.
 const everythingBuilt: NavItem[] = NAV_ITEMS.map((item) => ({ ...item, available: true }));
 const ids = (user: ShellUser | null, signedIn: boolean) =>
   navigationFor(user, signedIn, everythingBuilt).flatMap((group) =>

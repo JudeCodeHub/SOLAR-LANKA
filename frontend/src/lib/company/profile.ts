@@ -1,10 +1,4 @@
-/**
- * Rules for the company profile screen. Pure functions, so they are tested without a browser.
- *
- * Who may manage a profile mirrors the backend: only an active company administrator or sales member
- * of that company. Which company is shown is always decided from the signed-in user's own
- * memberships, never from the address, so staff can only ever reach their own company.
- */
+/** Rules for the company profile screen. */
 import { z } from "zod";
 
 import { messages } from "../../messages/index.ts";
@@ -69,11 +63,7 @@ export type ProfileUpdate = Partial<{
 const sameSet = (a: readonly string[], b: readonly string[]) =>
   a.length === b.length && a.every((value) => b.includes(value));
 
-/**
- * Only what really changed. The backend returns a profile to draft whenever a sent field differs
- * from what it holds (including a list in a different order), so unchanged fields are never sent
- * and a list is compared as a set: choosing the same districts again is not an edit.
- */
+/** Only what really changed. */
 export function profileChanges(server: ProfileLike, values: ProfileValues): ProfileUpdate {
   const changes: ProfileUpdate = {};
   if (values.name.trim() !== server.name) changes.name = values.name.trim();

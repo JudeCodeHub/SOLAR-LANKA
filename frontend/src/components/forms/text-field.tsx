@@ -9,14 +9,7 @@ import { Input } from "@/components/ui/input";
 import { fieldId } from "@/lib/forms/errors";
 import { messages } from "@/messages";
 
-/**
- * A labelled text input wired for accessibility: the label is bound to the input, the
- * description and any error are linked with aria-describedby, aria-invalid is set while there
- * is an error, and optional fields say so in words rather than relying on a symbol.
- *
- * Other field types (select, textarea, checkbox) follow the same wiring: reuse fieldId() and
- * register the label in the form context.
- */
+/** A labelled text input wired for accessibility. */
 export function TextField<TInput extends FieldValues, TOutput extends FieldValues = TInput>({
   form,
   name,

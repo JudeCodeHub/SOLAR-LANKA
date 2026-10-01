@@ -1,8 +1,4 @@
-"""Indicative capacity and generation ranges for the supported net-metering scenario.
-
-Only a published, sourced configuration may drive calculations. These values
-remain planning estimates, not an installation design or yield guarantee.
-"""
+"""Indicative capacity and generation ranges for the supported net-metering scenario."""
 
 from dataclasses import dataclass
 from decimal import ROUND_CEILING, ROUND_FLOOR, Decimal, InvalidOperation
@@ -61,8 +57,7 @@ def assumption_range(raw: object, name: str, *, factor: bool = False) -> ValueRa
 
 def calculate_sizing(inputs: EstimatorInputs, config: EstimatorConfigVersion) -> SizingEstimate:
     """Apply the hand-checkable 7.04 formulas without inventing missing values."""
-    # Revalidate at the engine boundary: internal callers can construct Pydantic
-    # models without validation, but unsupported systems must never be sized.
+    # Revalidate at the engine boundary.
     inputs = EstimatorInputs.model_validate(inputs.model_dump(mode="python"))
     if config.status != "published" or config.scenario != GRID_NET_METERING.identifier:
         raise ValueError("A published configuration for this scenario is required")

@@ -1,9 +1,4 @@
-"""Sourced panel specifications. None means unknown; zero is never an unknown sentinel.
-
-W = watts, V = volts, A = amperes, percent = 0..100. Warranty details preserve
-manufacturer conditions verbatim as sourced text; never infer a duration or origin.
-Media URLs belong to Product; uploaded-file associations follow in the media phase.
-"""
+"""Sourced panel specifications."""
 
 from decimal import Decimal
 from uuid import UUID

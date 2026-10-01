@@ -1,14 +1,4 @@
-/**
- * Turns the estimator's answer into what the results view shows. Pure functions.
- *
- * Rules the view relies on:
- * - A range is rounded outwards (low down, high up), so rounding never makes an estimate look
- *   narrower or more favourable than the server's numbers.
- * - A missing output (null) is never shown as 0 or hidden: the row stays and says what is missing,
- *   worked out from the answer and the inputs that were sent.
- * - Charts only exist when every number they need exists, and every chart has the same figures as
- *   a table.
- */
+/** Turns the estimator's answer into what the results view shows. */
 import type { components } from "../api/schema";
 import { messages } from "../../messages/index.ts";
 import { rangeText } from "./format.ts";

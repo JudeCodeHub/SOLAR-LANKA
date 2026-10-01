@@ -2,11 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { messages } from "@/messages";
 import { cn } from "@/lib/utils";
 
-/**
- * The loading convention: a status region (announced to screen readers, marked busy) containing
- * placeholder shapes. Pass `lines` to roughly match the content that will replace it, so the
- * page does not jump when data arrives.
- */
+/** The loading convention: a status region. */
 export function LoadingState({
   label = messages.states.loading,
   lines = 1,

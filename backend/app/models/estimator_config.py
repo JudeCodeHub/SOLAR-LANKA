@@ -42,8 +42,7 @@ class EstimatorConfigVersion(Base):
     status: Mapped[str] = mapped_column(String(16), nullable=False, default="draft")
     is_archived: Mapped[bool] = mapped_column(nullable=False, default=False, server_default=false())
     assumptions: Mapped[dict] = mapped_column(JSONB, nullable=False)
-    # Each topic snapshot carries URL, publisher, review/effective dates, unit,
-    # and limitations as applicable. Null numeric assumptions remain explicit.
+    # Each topic snapshot carries URL, publisher, review/effective dates, unit.
     source_metadata: Mapped[dict] = mapped_column(JSONB, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()

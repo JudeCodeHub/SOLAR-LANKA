@@ -3,11 +3,7 @@ import type { ReactNode } from "react";
 
 import { messages } from "@/messages";
 
-/**
- * A link to another site. It opens in a new tab, says so for screen readers, and does not pass
- * this site's address on (noopener noreferrer). Only addresses already checked by
- * safeExternalUrl should be given to it.
- */
+/** A link to another site. */
 export function ExternalLink({ href, children }: { href: string; children: ReactNode }) {
   return (
     <a

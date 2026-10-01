@@ -1,11 +1,4 @@
-/**
- * Company offers: the commercial side of a catalogue product (a price, a sample-price label and the
- * company's own claim). Pure functions, so the rules are tested without a browser.
- *
- * An offer holds only these commercial fields. The product's specifications belong to the catalogue
- * and never appear in an offer's form or in what is sent, so a company's price can never alter, or
- * be mistaken for, canonical product data.
- */
+/** Company offers: the commercial side of a catalogue product. */
 import { z } from "zod";
 
 import { format, messages } from "../../messages/index.ts";
@@ -77,11 +70,7 @@ export function valuesFromOffer(offer: OfferLike): OfferFormValues {
 
 export type OfferChanges = Partial<OfferValues>;
 
-/**
- * Only what really changed. The price and currency travel together (the backend requires both or
- * neither), and an unchanged price is not re-sent just because it was written as 1000 instead of
- * 1000.00.
- */
+/** Only what really changed. */
 export function offerChanges(server: OfferLike, values: OfferValues): OfferChanges {
   const changes: OfferChanges = {};
   const samePrice =
@@ -118,10 +107,7 @@ interface SpecSource {
 const card = messages.catalogue.card;
 const typeNames: Record<string, string> = messages.catalogue.filters.typeOptions;
 
-/**
- * A short, read-only line of the product's catalogue specifications (power and efficiency for a
- * panel, type and capacity for an inverter). An unknown value reads Not specified, never zero.
- */
+/** A short, read-only line of the product's catalogue specifications. */
 export function specLine(product: SpecSource): string {
   const specs = (product.specifications ?? {}) as Record<string, string | null | undefined>;
   const value = (key: string, unit: (v: string) => string) => {

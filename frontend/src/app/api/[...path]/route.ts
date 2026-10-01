@@ -11,15 +11,7 @@ import {
   UPSTREAM_TIMEOUT_MS,
 } from "@/lib/api/proxy";
 
-/**
- * Same-origin gateway to the FastAPI backend: /api/<path> is forwarded to <API_BASE_URL>/<path>.
- *
- * The browser authenticates with its Clerk session cookie. This handler verifies the session
- * server-side, asks Clerk for a short-lived token and sends it to the backend as a Bearer
- * token, so the token never reaches browser JavaScript. Signed-out requests are forwarded
- * without a token and the backend decides what they may do. Every authorisation decision
- * stays in FastAPI; nothing here grants access.
- */
+/** Same-origin gateway to the FastAPI backend: /api/<path> is forwarded to <API_BASE_URL>/<path>. */
 async function forward(request: Request, context: RouteContext<"/api/[...path]">) {
   let base: string;
   try {
@@ -50,8 +42,7 @@ async function forward(request: Request, context: RouteContext<"/api/[...path]">
     }
   }
 
-  // If Clerk cannot supply a token (session just ended, Clerk unreachable) forward without one:
-  // the backend then answers 401 and the interface offers sign-in, instead of the gateway failing.
+  // If Clerk cannot supply a token (session just ended, Clerk unreachable) forward without one.
   let token: string | null = null;
   try {
     const { getToken } = await auth();

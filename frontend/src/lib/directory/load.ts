@@ -42,11 +42,7 @@ export type CompanyResult =
   | { status: "not-found" }
   | { status: "error" };
 
-/**
- * One approved company. Cached per request so the page and its metadata share one fetch. A
- * company that is unknown, not approved (the backend answers 404 for both) or whose address is
- * malformed is "not-found".
- */
+/** One approved company. */
 export const loadCompany = cache(async (id: string): Promise<CompanyResult> => {
   if (!isCompanyId(id)) return { status: "not-found" };
   try {

@@ -1,15 +1,4 @@
-"""Shared value conventions for future API schemas and domain models.
-
-Identifiers are UUID4 values, never sequential public IDs. Timestamps require an
-explicit timezone and are normalised to UTC; render local time in the frontend.
-Monetary amounts use Decimal and JSON strings with two fractional digits. Keep
-currency explicit on each monetary record; higher-precision calculations and
-business rounding rules belong in their calculation services.
-
-Unknown values are None/JSON null, never zero or an empty string. Declare optional
-fields as `MoneyAmount | None = None`. For PATCH requests, model_fields_set (or
-model_dump(exclude_unset=True)) distinguishes omission from explicit null.
-"""
+"""Shared value conventions for future API schemas and domain models."""
 
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -39,10 +28,7 @@ def new_entity_id() -> UUID:
 
 
 def deterministic_entity_id(name: str) -> UUID:
-    """Stable UUID4-format identifier for reproducible seeds.
-
-    uuid5 values fail the EntityId (UUID4) contract that every API schema enforces.
-    """
+    """Stable UUID4-format identifier for reproducible seeds."""
     return UUID(bytes=sha256(name.encode()).digest()[:16], version=4)
 
 

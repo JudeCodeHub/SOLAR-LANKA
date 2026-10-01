@@ -1,10 +1,4 @@
-"""Comparable sent-offer fields with explicit unknown scope indicators.
-
-Amounts describe each company's own terms. They are not a ranking: a lower
-quoted total may omit work or equipment included by another company. Scope
-indicators must come from explicit quotation declarations. Never infer
-"included" from a low/high price, a free-text line, or a missing exclusion.
-"""
+"""Comparable sent-offer fields with explicit unknown scope indicators."""
 
 from decimal import Decimal
 from typing import Literal

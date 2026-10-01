@@ -44,8 +44,7 @@ def ids(client):
 def test_ids_lists_my_published_favourites_newest_first_with_the_limit(world):
     client, session, act_as, first, second, products = world
     assert ids(client) == {"product_ids": [], "max_favourites": MAX_FAVOURITES}
-    # Distinct timestamps: requests in production each have their own transaction, but this test
-    # runs inside one, where every default timestamp would be identical.
+    # Distinct timestamps: requests in production each have their own transaction.
     start = datetime(2026, 1, 1, tzinfo=UTC)
     session.add_all(
         Favourite(user_id=first.id, product_id=product.id, created_at=start + timedelta(minutes=i))

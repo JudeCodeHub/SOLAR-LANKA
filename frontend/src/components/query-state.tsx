@@ -8,11 +8,7 @@ import { EmptyState } from "@/components/states/empty-state";
 import { LoadingState } from "@/components/states/loading-state";
 import type { ApiError } from "@/lib/api/errors";
 
-/**
- * Renders a query in one consistent set of states: loading placeholder, the shared error
- * display with a retry, an empty message, or the data. Pass `isEmpty` to treat some successful
- * results (an empty list) as "nothing here yet", and `empty` to say what to show instead.
- */
+/** Renders a query in one consistent set of states. */
 export function QueryState<T>({
   query,
   children,

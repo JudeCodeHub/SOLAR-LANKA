@@ -1,12 +1,4 @@
-"""Local development storage for private documents and evidence.
-
-Public catalogue media uses ImageKit. Private files stay in an ignored backend
-folder that FastAPI never mounts. ImageKit can serve private files with signed
-URLs, but that requires a separate, verified delivery configuration. For
-production, replace this local adapter with private object storage or a fully
-configured private-file provider and authorize every download before delivery.
-Only opaque IDs leave this adapter; original filenames never choose paths.
-"""
+"""Local development storage for private documents and evidence."""
 
 import os
 import re

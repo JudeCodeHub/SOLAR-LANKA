@@ -1,8 +1,4 @@
-/**
- * The settings a saved estimate was calculated with, as readable rows. The backend stores them as
- * a nested object (ranges as {low, high}, tariff bands as arrays); this flattens them without
- * losing or rewriting any value, so what is shown is exactly what was stored. Pure functions.
- */
+/** The settings a saved estimate was calculated with, as readable rows. */
 import { messages } from "../../messages/index.ts";
 import { rangeText } from "../estimator/format.ts";
 

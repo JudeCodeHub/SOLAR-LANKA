@@ -30,8 +30,7 @@ function Choice({
 }) {
   const id = `filter-${name}`;
   const errorId = `${id}-error`;
-  // A value that is not an option (hand-edited address) is shown as the unselected choice, and
-  // the message below says it was not applied.
+  // A value that is not an option.
   const known = options.some((option) => option.value === value);
   return (
     <Field data-invalid={Boolean(error)}>

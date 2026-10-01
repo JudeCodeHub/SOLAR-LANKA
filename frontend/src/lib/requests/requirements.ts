@@ -1,9 +1,4 @@
-/**
- * Validation for a quotation request's requirements. The visitor types text; this turns it into
- * the fields the backend's request expects (district, details, optional monthly use, optional
- * saved estimate). Blank monthly use is unknown (null), never 0. The backend still validates
- * everything again and decides who owns an estimate.
- */
+/** Validation for a quotation request's requirements. */
 import { z } from "zod";
 
 import { messages } from "../../messages/index.ts";
@@ -52,10 +47,7 @@ export function valuesFromDraft(draft: Requirements): Record<keyof typeof requir
   };
 }
 
-/**
- * The district a request must have when it is based on an estimate: the estimate's own. The
- * backend refuses a request whose district differs from its estimate's, so the form fixes it.
- */
+/** The district a request must have when it is based on an estimate: the estimate's own. */
 export function lockedDistrict(estimate: { inputs: { district: string } } | undefined): string | null {
   return estimate ? estimate.inputs.district : null;
 }

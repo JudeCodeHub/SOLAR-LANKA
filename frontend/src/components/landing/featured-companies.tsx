@@ -10,10 +10,7 @@ import { format, messages } from "@/messages";
 
 type Company = components["schemas"]["PublicCompanyResponse"];
 
-/**
- * Directory listings. "Approved" means the platform published the profile; credentials are shown
- * as the company's own claim and are never presented as verified.
- */
+/** Directory listings. */
 export function FeaturedCompanies({ section }: { section: Section<Company> }) {
   const text = messages.landing.companies;
   return (

@@ -9,12 +9,7 @@ import { format, messages } from "@/messages";
 
 const text = messages.toggle;
 
-/**
- * "Compare" checkbox for a product. `name` is used only for the accessible label and the spoken
- * confirmation; it is not stored. When the comparison already has three products, the box for any
- * other product stays visible but refuses to tick, and says why, so keyboard and screen-reader
- * users are not left guessing.
- */
+/** "Compare" checkbox for a product. */
 export function ComparisonToggle({
   kind,
   id,

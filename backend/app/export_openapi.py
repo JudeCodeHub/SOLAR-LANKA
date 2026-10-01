@@ -1,8 +1,4 @@
-"""Write the API's OpenAPI document as JSON. Run: .venv/bin/python -m app.export_openapi [path]
-
-Needs no database or credentials. Without a path the document goes to standard output.
-The frontend generates its typed API client from this document (`pnpm api:types`).
-"""
+"""Write the API's OpenAPI document as JSON."""
 
 import json
 import sys

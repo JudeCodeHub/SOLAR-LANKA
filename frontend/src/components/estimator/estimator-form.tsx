@@ -29,11 +29,7 @@ type Request = components["schemas"]["EstimatorInputs-Input"];
 const options = (labels: Record<string, string>) =>
   Object.entries(labels).map(([value, label]) => ({ value, label }));
 
-/**
- * The estimator input form. Required and optional fields are told apart in words, the supported
- * scenario is pre-selected and spelled out, and choosing an unsupported scheme, system type or
- * backup explains it at once and refuses to submit, so an unsupported request is never sent.
- */
+/** The estimator input form. */
 export function EstimatorForm() {
   const form = useAppForm(estimatorSchema, { defaultValues: { ...estimatorDefaults } });
   const [result, setResult] = useState<{ preview: Preview; values: SubmittedValues; request: Request; run: number } | null>(null);

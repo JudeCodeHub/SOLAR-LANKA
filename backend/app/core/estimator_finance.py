@@ -1,10 +1,4 @@
-"""Indicative net-metering finances; absent evidence yields absent outputs.
-
-Tariff regimes model the full domestic bill, including consumption-dependent
-energy blocks and fixed charges. No export cash is counted. The scenario uses
-one representative month with zero opening energy credits, then annualises it;
-actual weather, credit carry-forward, fees, and future tariffs may differ.
-"""
+"""Indicative net-metering finances; absent evidence yields absent outputs."""
 
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
@@ -146,8 +140,7 @@ def calculate_financial(
     consumption = inputs.monthly_consumption_kwh
     baseline = monthly_bill(consumption, tariff)
     generation = sizing.average_monthly_generation_kwh
-    # Self-use + exported credits offset imports for net metering. Any excess
-    # becomes an energy credit, never a cash payment in this scenario.
+    # Self-use + exported credits offset imports for net metering.
     low_bill = monthly_bill(max(consumption - generation.maximum, Decimal(0)), tariff)
     high_bill = monthly_bill(max(consumption - generation.minimum, Decimal(0)), tariff)
     monthly = ValueRange(baseline - high_bill, baseline - low_bill)

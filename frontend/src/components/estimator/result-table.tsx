@@ -3,10 +3,7 @@ import { messages } from "@/messages";
 
 const text = messages.estimator.results;
 
-/**
- * Estimates as a captioned table. A figure that is not available keeps its row and says what is
- * missing, so an absent number is never mistaken for zero. Money rows carry the Indicative label.
- */
+/** Estimates as a captioned table. */
 export function ResultTable({ caption, rows }: { caption: string; rows: ResultRow[] }) {
   return (
     <div

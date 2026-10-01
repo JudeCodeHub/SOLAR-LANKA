@@ -1,12 +1,4 @@
-/**
- * What a product detail page shows, as pure functions with no React imports so every rule can be
- * unit tested: specification rows with explicit units, links that are safe to open, the source
- * and verification date, and price formatting.
- *
- * The central rule: a value the catalogue does not hold is reported as unspecified (null here,
- * "Not specified" on screen). It is never turned into zero, an empty cell, or a guess. A real zero
- * (for example a warranty of 0 years) stays a zero.
- */
+/** What a product detail page shows. */
 import { format, messages, plural } from "../../messages/index.ts";
 import type { components } from "../api/schema.d.ts";
 import { formatDecimal } from "./params.ts";

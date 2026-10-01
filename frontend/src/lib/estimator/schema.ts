@@ -1,9 +1,4 @@
-/**
- * Validation for the estimator form. Everything the visitor types is text; this turns it into the
- * exact request the backend expects. Optional fields left blank become null (unknown), never 0,
- * and a typed 0 stays 0. Numbers are sent as the text the visitor entered (trimmed), so no
- * precision is lost to floating point. The backend still validates everything again.
- */
+/** Validation for the estimator form. */
 import { z } from "zod";
 
 import { format, messages, plural } from "../../messages/index.ts";

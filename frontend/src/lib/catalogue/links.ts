@@ -1,9 +1,4 @@
-/**
- * Addresses between the catalogue list and a product's page. Opening a product from a filtered
- * list remembers that list's address in `from`, so "Back to results" returns to exactly the
- * view the visitor left, also after a reload or in a new tab. `from` is only ever followed when
- * it points back into the same catalogue list, so it cannot be used to redirect elsewhere.
- */
+/** Addresses between the catalogue list and a product's page. */
 import type { CatalogueKind } from "./params.ts";
 
 export const BASE_PATH: Record<CatalogueKind, string> = {

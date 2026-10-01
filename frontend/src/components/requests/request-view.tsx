@@ -26,12 +26,7 @@ const wd = messages.requests.withdraw;
 
 type Request = components["schemas"]["CustomerRequestDetail"];
 
-/**
- * One request and each company's progress, with withdrawal when it is still possible. When it is
- * not, the page says why. If the page offered withdrawal but the server refuses because things moved
- * on (a company started responding, or it was withdrawn elsewhere), the request is read again and
- * the customer is told what changed.
- */
+/** One request and each company's progress, with withdrawal when it is still possible. */
 export function RequestView({ id }: { id: string }) {
   const query = useRequest(id);
   return (

@@ -33,18 +33,13 @@ import { format, messages, plural } from "@/messages";
 
 const text = messages.requestPrep;
 
-/**
- * Preparing a quotation request: the requirements and the choice of a saved estimate to start from.
- * The estimates offered are only the customer's own (the API lists nobody else's), and an id in the
- * address that is not theirs is refused by the API and shown as unavailable rather than selected.
- */
+/** Preparing a quotation request. */
 export function PrepareView() {
   const param = parseEstimateParam(useSearchParams().get("estimate"));
   const draft = useRequestDraft((state) => state.draft);
   const setDraft = useRequestDraft((state) => state.setDraft);
   const sent = useRequestDraft((state) => state.sent);
-  // The store holds the confirmed requirements. Show the form instead when the address names a
-  // different estimate to start from, or while the customer is editing.
+  // The store holds the confirmed requirements.
   const [showForm, setShowForm] = useState(
     () => draft !== null && param.kind === "ok" && param.id !== draft.estimate_id,
   );
@@ -177,8 +172,7 @@ function RequirementsForm({
       : []),
   ];
 
-  // Only customers prepare requests. Anyone else (an administrator, a suspended account) is told so
-  // here rather than after filling in a form the backend would refuse.
+  // Only customers prepare requests.
   if (choices.isError && choices.error.status === 403) {
     return <ApiErrorMessage error={choices.error} />;
   }

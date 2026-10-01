@@ -1,10 +1,4 @@
-"""Phase 7 input contract for grid-connected net metering without backup.
-
-Monthly kWh is required; bill-only estimation waits for a verified tariff
-configuration. Optional null means unknown, while numeric zero is a supplied
-value. Frontend defaults below must be displayed and explicitly submitted for
-required scheme and backup choices; the API does not silently assume them.
-"""
+"""Phase 7 input contract for grid-connected net metering without backup."""
 
 from dataclasses import dataclass
 from decimal import Decimal

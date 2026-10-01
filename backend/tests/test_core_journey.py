@@ -1,10 +1,4 @@
-"""Backend completion gate: the whole core journey through the public API.
-
-visitor estimate -> saved estimate -> request to two companies -> itemised offers ->
-side-by-side comparison -> acceptance -> installation tracking -> notifications.
-State changes go through HTTP routes; the database is touched only for setup and to
-stand in for the file upload and Inngest delivery that happen outside the API.
-"""
+"""Backend completion gate: the whole core journey through the public API."""
 
 from datetime import UTC, datetime
 from uuid import uuid4
@@ -93,8 +87,7 @@ def test_core_journey_works_through_the_api(database_client, database_session):
             json={"service_districts": ["Colombo"], "services": ["installation"]},
         )
         assert profile.status_code == 200, profile.json()
-    # Approval follows the edit (an edited profile returns to review); the review flow
-    # itself is covered by the company administration tests.
+    # Approval follows the edit (an edited profile returns to review).
     session.expire_all()
     for company in session.scalars(select(Company)):
         company.publication_status = "approved"

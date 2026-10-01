@@ -1,9 +1,4 @@
-"""Shared list contracts; endpoint-specific filters must use explicit typed fields.
-
-Apply validated limit/offset and filters in the database query, not after fetching
-all rows. Each endpoint must use a stable ordering with a unique tie-breaker.
-Never pass client-supplied filter names directly into SQL.
-"""
+"""Shared list contracts; endpoint-specific filters must use explicit typed fields."""
 
 from typing import Annotated, Self
 

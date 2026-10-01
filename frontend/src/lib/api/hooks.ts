@@ -9,10 +9,7 @@ import { unwrap } from "./errors";
 
 const api = createBrowserApi();
 
-/**
- * The application's record of the signed-in user (role, creation date). Pass `enabled: false`
- * until Clerk reports a signed-in session, so signed-out visitors never trigger a request.
- */
+/** The application's record of the signed-in user (role, creation date). */
 export function useCurrentUser({ enabled = true }: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: queryKeys.currentUser,

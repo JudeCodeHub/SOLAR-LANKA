@@ -14,12 +14,7 @@ import { format, messages } from "@/messages";
 const text = messages.company.profile;
 const roleNames: Record<string, string> = text.choose.roles;
 
-/**
- * Decides which company a staff screen is about, from the signed-in person's own memberships as
- * company administrator or sales. The address can only choose among those; a company that is not
- * theirs is refused here before any request is made (and the backend refuses it too). Everyone
- * else is told there is nothing for them to manage. `children` receives the chosen company.
- */
+/** Decides which company a staff screen is about. */
 export function StaffGate({
   basePath,
   children,

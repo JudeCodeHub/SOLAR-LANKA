@@ -1,11 +1,4 @@
-/**
- * The rows of a side-by-side comparison, built from the same specification rules as a product's
- * own page (src/lib/catalogue/detail.ts), so a value reads identically in both places: same units,
- * same "Not specified" for an unknown value.
- *
- * A product that can no longer be loaded is a different thing from an unknown specification, and
- * is marked differently ("unavailable" versus "unspecified").
- */
+/** The rows of a side-by-side comparison. */
 import { messages } from "../../messages/index.ts";
 import {
   formatLongDate,

@@ -1,11 +1,4 @@
-/**
- * How a sent request is described to its customer, and when it can be withdrawn. Pure functions.
- *
- * The withdrawal rule mirrors the backend's (only a request that is still active and has no company
- * response can be withdrawn). The screen uses it to explain why the action is or is not offered; the
- * backend still decides, and a refusal after the page thought it was allowed is explained from the
- * request's fresh state, not guessed from the error text.
- */
+/** How a sent request is described to its customer, and when it can be withdrawn. */
 import { format, messages, plural } from "../../messages/index.ts";
 
 export interface DeliveryLike {

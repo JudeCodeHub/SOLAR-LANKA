@@ -1,11 +1,4 @@
-"""Error response contract used by shared HTTP exception handlers.
-
-Clients branch on `error.code`, not human-readable messages. A validation issue's
-location follows the request path, e.g. ["body", "items", 0, "quantity"]. Messages
-must be safe for public display: never include submitted values, SQL, credentials,
-tracebacks, or raw exception strings. Domain conflicts use code `conflict` and a
-safe actionable message. More specific conflict codes can be added when needed.
-"""
+"""Error response contract used by shared HTTP exception handlers."""
 
 from enum import StrEnum
 from types import MappingProxyType

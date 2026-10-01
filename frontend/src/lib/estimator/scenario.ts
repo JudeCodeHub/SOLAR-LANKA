@@ -1,8 +1,4 @@
-/**
- * The one situation the estimator calculates today: grid-connected net metering, on-grid, with no
- * battery backup (mirrors backend/app/core/estimator_scenario.py, which refuses everything else).
- * Pure functions, so the rules the form explains are tested and cannot drift from the form.
- */
+/** The one situation the estimator calculates today. */
 export const SCHEMES = ["net_metering", "net_accounting", "net_plus", "net_plus_plus"] as const;
 export const SYSTEM_TYPES = ["on_grid", "off_grid", "hybrid"] as const;
 export const BACKUP_CHOICES = ["no", "yes"] as const;

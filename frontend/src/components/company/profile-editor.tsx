@@ -91,8 +91,7 @@ function Editor({
   const status = profile.publication_status;
   const dirty = hasChanges(profileChanges(profile, current));
 
-  // A newer copy from the server (a reviewer decided, or a colleague saved) replaces the form only
-  // if there are no unsaved edits; unsaved typing is never overwritten.
+  // A newer copy from the server.
   const lastServer = useRef(profile);
   useEffect(() => {
     const previous = lastServer.current;
@@ -126,8 +125,7 @@ function Editor({
   };
 
   const submitForReview = () => {
-    // aria-disabled does not stop a click: refuse here when submitting is not allowed right now
-    // (not a draft or rejected profile, or unsaved edits the platform would not be reviewing).
+    // aria-disabled does not stop a click.
     if (inFlight.current || !canSubmit(status) || dirty) return;
     inFlight.current = true;
     setMessage(null);

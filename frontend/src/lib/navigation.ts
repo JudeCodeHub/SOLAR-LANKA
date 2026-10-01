@@ -1,16 +1,4 @@
-/**
- * What the application shell shows each kind of user.
- *
- * Pure data and functions with no framework imports, so the rules can be unit tested. The
- * registry lists every planned destination, but only items marked `available` are rendered,
- * so the menu never links to a page that does not exist or presents unfinished work as
- * finished. src/lib/navigation.test.ts fails if `available` disagrees with the real routes
- * under src/app, which forces this file to be updated in the same change as a new page.
- *
- * Visibility mirrors the backend permission matrix (backend/app/core/permissions.py) so users
- * are offered what they can actually do. It is a convenience only: hiding a link never
- * protects anything, and FastAPI re-checks every operation.
- */
+/** What the application shell shows each kind of user. */
 
 import { messages } from "../messages/index.ts";
 
@@ -54,8 +42,7 @@ const GROUP_LABELS: Record<NavGroupId, string> = messages.nav.groups;
 const PUBLIC: NavAccess = { kind: "public" };
 const CUSTOMER: NavAccess = { kind: "account-role", role: "customer" };
 const PLATFORM_ADMIN: NavAccess = { kind: "account-role", role: "platform_admin" };
-// Company administrators and sales staff. Technicians get their own area with the technician
-// workspace; until it exists they have no company links.
+// Company administrators and sales staff.
 const COMPANY_STAFF: NavAccess = { kind: "company-role", roles: ["company_admin", "sales"] };
 
 export const NAV_ITEMS: readonly NavItem[] = [
@@ -105,10 +92,7 @@ export function canSee(item: NavItem, user: ShellUser | null, signedIn: boolean)
   }
 }
 
-/**
- * The groups of links this user should see, in a fixed order, omitting empty groups and any
- * destination that is not built yet.
- */
+/** The groups of links this user should see, in a fixed order. */
 export function navigationFor(
   user: ShellUser | null,
   signedIn: boolean,
@@ -131,11 +115,7 @@ export interface EntryPoint {
   linkable: boolean;
 }
 
-/**
- * The public destinations to advertise on the landing page, in menu order. Unbuilt ones are
- * included with linkable: false so the page can say "Coming soon" without a dead link, and
- * they turn into real links on their own when the registry marks the page available.
- */
+/** The public destinations to advertise on the landing page, in menu order. */
 export function publicEntryPoints(items: readonly NavItem[] = NAV_ITEMS): EntryPoint[] {
   return items
     .filter((item) => item.group === "explore" && item.access.kind === "public" && item.id !== "home")

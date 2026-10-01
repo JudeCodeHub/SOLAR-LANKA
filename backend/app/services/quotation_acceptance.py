@@ -1,9 +1,4 @@
-"""Lock and recheck an exact quotation revision before accepting it.
-
-The caller owns the Session transaction. This function flushes the accepted
-status but never commits, so the installation can be inserted and committed
-atomically by the later acceptance endpoint.
-"""
+"""Lock and recheck an exact quotation revision before accepting it."""
 
 from datetime import UTC, datetime
 from uuid import UUID

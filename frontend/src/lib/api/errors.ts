@@ -1,11 +1,4 @@
-/**
- * One place that turns every API failure into the same typed error, so queries, mutations and
- * the UI all describe problems the same way. Pure functions with no React imports.
- *
- * The backend's error contract (docs in app/api/schemas/errors.py) guarantees stable `code`
- * values and messages that are safe to show, so business conflicts can display the server's
- * own wording. The gateway produces errors in the same shape when the backend is unreachable.
- */
+/** One place that turns every API failure into the same typed error, so queries. */
 import { format, messages, plural } from "../../messages/index.ts";
 import type { components } from "./schema";
 
@@ -195,11 +188,7 @@ export function describeError(error: ApiError): ErrorDescription {
 
 const MAX_AUTOMATIC_RETRIES = 2;
 
-/**
- * Automatic retry policy for queries. Only transient failures are retried: no response at all,
- * or the gateway/service reporting it is unavailable. Client mistakes, permission problems and
- * business conflicts never are, and neither are plain 500s, which would just repeat a bug.
- */
+/** Automatic retry policy for queries. */
 export function shouldRetry(failureCount: number, error: unknown): boolean {
   if (failureCount >= MAX_AUTOMATIC_RETRIES) return false;
   const apiError = ensureApiError(error);

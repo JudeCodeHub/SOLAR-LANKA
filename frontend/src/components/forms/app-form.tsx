@@ -34,13 +34,7 @@ export function useAppFormContext(): AppFormContextValue {
   return context;
 }
 
-/**
- * The shared form shell. It turns off the browser's own validation bubbles (messages come from
- * the schema), ignores a second submit while one is running, and after a failed submit moves
- * focus to a summary of what is wrong. Each summary entry links to its field. Errors thrown by
- * `onSubmit` are handled here: backend field issues land on the matching fields, anything else
- * is shown with the shared error display.
- */
+/** The shared form shell. */
 export function AppForm<TInput extends FieldValues, TOutput extends FieldValues = TInput>({
   form,
   onSubmit,
@@ -57,8 +51,7 @@ export function AppForm<TInput extends FieldValues, TOutput extends FieldValues 
   const [serverError, setServerError] = useState<ApiError | null>(null);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const noticeRef = useRef<HTMLDivElement>(null);
-  // Set when a submit fails; cleared once focus has moved. Focus is only moved for a failed
-  // submit, never because an error appeared while the user was filling in another field.
+  // Set when a submit fails; cleared once focus has moved.
   const focusRequested = useRef(false);
   // Synchronous guard: React state is too slow to stop two clicks in the same moment.
   const inFlight = useRef(false);
@@ -66,8 +59,7 @@ export function AppForm<TInput extends FieldValues, TOutput extends FieldValues 
   const problems = collectFieldProblems(errors);
   const showNotice = failedAttempts > 0 && (serverError !== null || problems.length > 0);
 
-  // The summary can appear a render after the failed attempt (the form's error state updates
-  // separately), so wait for it to exist before moving focus.
+  // The summary can appear a render after the failed attempt.
   useEffect(() => {
     if (focusRequested.current && noticeRef.current) {
       noticeRef.current.focus();

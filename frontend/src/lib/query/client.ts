@@ -2,8 +2,7 @@ import { isServer, QueryClient } from "@tanstack/react-query";
 
 import { type ApiError, shouldRetry } from "@/lib/api/errors";
 
-// Every query and mutation error is an ApiError (see unwrap in src/lib/api/errors.ts), so
-// `error` is typed that way everywhere without per-call generics.
+// Every query and mutation error is an ApiError.
 declare module "@tanstack/react-query" {
   interface Register {
     defaultError: ApiError;
@@ -18,8 +17,7 @@ export function makeQueryClient(): QueryClient {
         staleTime: 30_000,
         retry: shouldRetry,
       },
-      // Writes are never retried automatically: a retry could repeat a side effect. Safe
-      // retries are the user's explicit choice, using the same idempotency key.
+      // Writes are never retried automatically: a retry could repeat a side effect.
       mutations: { retry: false },
     },
   });

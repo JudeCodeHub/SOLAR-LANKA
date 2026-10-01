@@ -19,6 +19,5 @@ class CurrentUserResponse(BaseModel):
     id: EntityId
     role: Literal["customer", "platform_admin"]
     created_at: Timestamp
-    # Active memberships only. Lets the client choose navigation and build company URLs; it
-    # grants nothing, because the backend re-checks membership on every company operation.
+    # Active memberships only.
     memberships: list[CompanyMembershipSummary]

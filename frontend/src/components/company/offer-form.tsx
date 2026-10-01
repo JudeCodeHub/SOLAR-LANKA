@@ -12,10 +12,7 @@ import { messages } from "@/messages";
 
 const text = messages.company.offers.form;
 
-/**
- * The offer's commercial fields and nothing else: a price with its currency, the sample-price
- * label and the company's own claim. Product specifications are never editable here.
- */
+/** The offer's commercial fields and nothing else. */
 export function OfferForm({
   initial,
   submitLabel,

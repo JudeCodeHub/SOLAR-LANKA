@@ -16,10 +16,7 @@ function unit(template: string, value: string | null | undefined): string {
   return shown === null ? text.unspecified : format(template, { value: shown });
 }
 
-/**
- * A catalogue entry with the specifications that can be filtered on. A value the catalogue does
- * not know is labelled "Not specified"; it is never shown as zero.
- */
+/** A catalogue entry with the specifications that can be filtered on. */
 export function ProductCard({
   product,
   listHref,

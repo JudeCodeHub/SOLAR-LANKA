@@ -99,8 +99,7 @@ def add_favourite(
     ).one_or_none()
     if product is None:
         raise HTTPException(404)
-    # Serialise this customer's additions so two simultaneous requests cannot both slip under
-    # the limit.
+    # Serialise this customer's additions.
     session.execute(select(AppUser.id).where(AppUser.id == user.id).with_for_update())
     if session.get(Favourite, (user.id, product.id)) is None:
         saved = (

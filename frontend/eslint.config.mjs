@@ -27,8 +27,7 @@ const eslintConfig = defineConfig([
         { name: "localStorage", message: AUTH_STORAGE_MESSAGE },
         { name: "sessionStorage", message: AUTH_STORAGE_MESSAGE },
       ],
-      // @clerk/nextjs v7 still exports these removed components (so they type-check) but
-      // they throw when rendered. Use <Show when="signed-in"> and server-side checks instead.
+      // @clerk/nextjs v7 still exports these removed components.
       "no-restricted-imports": [
         "error",
         {
@@ -53,8 +52,7 @@ const eslintConfig = defineConfig([
     },
   },
   {
-    // Type-aware rules catch unawaited requests and async handlers passed where a
-    // synchronous callback is expected, which matter for the API-driven screens.
+    // Type-aware rules catch unawaited requests.
     files: ["**/*.{ts,tsx}"],
     languageOptions: {
       parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname },
@@ -70,10 +68,7 @@ const eslintConfig = defineConfig([
     },
   },
   {
-    // User-facing text lives in src/messages so it can be translated. Inline text in JSX is
-    // an error; write {messages.section.key} instead. Attribute values (className, href) are
-    // not checked, but aria-label and similar text still belongs in the catalog by convention.
-    // The shadcn primitives in components/ui are generated and exempt.
+    // User-facing text lives in src/messages so it can be translated.
     files: ["src/app/**/*.tsx", "src/components/**/*.tsx"],
     ignores: ["src/components/ui/**"],
     rules: {
@@ -84,8 +79,7 @@ const eslintConfig = defineConfig([
     },
   },
   {
-    // node:test registers tests when test() is called at the top level; the returned promise
-    // is intentionally not awaited. Everywhere else the rule stays on.
+    // node:test registers tests when test() is called at the top level.
     files: ["**/*.test.ts"],
     rules: { "@typescript-eslint/no-floating-promises": "off" },
   },

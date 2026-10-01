@@ -1,9 +1,4 @@
-"""Insert-only fictional fixtures. Run: .venv/bin/python -m app.seed_demo
-
-Requires migrated development PostgreSQL. Never changes existing account roles,
-suspensions or company edits. Synthetic demo subjects are not Clerk credentials;
-no password, token or sign-in bypass is created. Tests alone override identity.
-"""
+"""Insert-only fictional fixtures."""
 
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -35,8 +30,7 @@ DEMO_USERS = (
     (UUID("f7b6a8b0-4091-42b0-9d36-000000000014"), "demo_seed_company_c"),
 )
 
-# Published directory profiles. Everything is fictional; credentials are declared by the company
-# and deliberately not verified, matching how real listings are labelled.
+# Published directory profiles.
 DEMO_COMPANY_PROFILES = {
     DEMO_COMPANIES[0][0]: {
         "service_districts": ["Colombo", "Gampaha", "Kalutara"],

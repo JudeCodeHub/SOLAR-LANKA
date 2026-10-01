@@ -4,11 +4,7 @@ import type { ReactNode } from "react";
 import { messages } from "@/messages";
 import { cn } from "@/lib/utils";
 
-/**
- * The empty convention: say what is missing and, when there is something the user can do about
- * it, offer that as `action` (a link or button). An empty result is not an error, so it is not
- * announced as an alert.
- */
+/** The empty convention: say what is missing and. */
 export function EmptyState({
   title = messages.states.emptyTitle,
   description = messages.states.emptyDescription,

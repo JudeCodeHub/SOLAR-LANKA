@@ -1,26 +1,4 @@
-"""Quotation revision lifecycle policy (Phase 9.01).
-
-A quotation is addressed to one request delivery. Its first revision starts as
-DRAFT. Sending freezes that revision and makes it SENT. Editing after send
-requires a new DRAFT revision; the previous SENT revision becomes REVISED only
-when the replacement is sent. Abandoning a replacement draft leaves the sent
-revision active.
-
-Allowed transitions:
-    DRAFT -> SENT or WITHDRAWN (discard an unsent draft)
-    SENT -> REVISED, ACCEPTED, DECLINED, EXPIRED, or WITHDRAWN
-    REVISED, ACCEPTED, DECLINED, EXPIRED, WITHDRAWN -> none
-
-Only a SENT, unexpired revision can be revised or accepted. A company may start
-one replacement draft for its own active SENT revision while its request and
-recipient delivery are active. A customer may decline a SENT revision; the
-company may withdraw it. Expiry is determined from the sent revision's validity
-instant, not a browser clock. ACCEPTED is final; a later revision cannot replace
-it. Historical terminal revisions remain readable to authorised parties.
-
-The request/delivery ownership checks and any competing-offer acceptance lock
-are separate requirements enforced by the API/transaction layers.
-"""
+"""Quotation revision lifecycle policy (Phase 9.01)."""
 
 from datetime import datetime
 from enum import StrEnum

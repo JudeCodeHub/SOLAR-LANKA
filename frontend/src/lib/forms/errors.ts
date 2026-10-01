@@ -1,7 +1,4 @@
-/**
- * Pure helpers that connect validation errors to the form UI: the error summary, field ids,
- * and mapping the backend's per-field issues onto form fields. No React imports.
- */
+/** Pure helpers that connect validation errors to the form UI. */
 import type { FieldErrors, FieldValues } from "react-hook-form";
 
 export interface FieldProblem {
@@ -35,11 +32,7 @@ export function fieldId(formId: string, name: string): string {
   return `${formId}-${name.replaceAll(".", "-")}`;
 }
 
-/**
- * Map a backend validation issue location (["body", "items", 0, "quantity"]) to a form field
- * path ("items.0.quantity"). Returns null when the issue is not about a field this form has, so
- * the caller can show it as a general problem instead of silently dropping it.
- */
+/** Map a backend validation issue location. */
 export function issueFieldPath(
   location: readonly (string | number)[] | undefined,
   knownFields: ReadonlySet<string>,

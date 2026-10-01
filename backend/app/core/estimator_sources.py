@@ -1,9 +1,4 @@
-"""Reviewed references for the grid net-metering estimator (2026-09-28).
-
-References are not calculation inputs. Yield needs a location-specific extract,
-tariffs need transcribed rate bands, and costs need a dated installed-system quote
-before any financial result can be published. No value below is a guarantee.
-"""
+"""Reviewed references for the grid net-metering estimator (2026-09-28)."""
 
 from dataclasses import dataclass
 from datetime import date

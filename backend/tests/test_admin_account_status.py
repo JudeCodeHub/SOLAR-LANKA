@@ -86,8 +86,7 @@ def test_platform_account_status_is_authorized_and_audited(
     restored = database_client.patch(path, json={"is_suspended": False})
     assert restored.status_code == 200
     assert restored.json()["is_suspended"] is False
-    # The fixture shares one transaction, so both rows get the same now() timestamp and
-    # their order is not meaningful here; assert that both events were recorded.
+    # The fixture shares one transaction.
     assert sorted(database_session.scalars(select(AuditEvent.action))) == [
         "user.restored",
         "user.suspended",

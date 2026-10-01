@@ -9,10 +9,7 @@ import { messages } from "@/messages";
 
 const text = messages.detail.offers;
 
-/**
- * Sample offers from approved companies. Prices are labelled as demonstration samples and the
- * company's claim as the company's own, unverified statement. No price is not shown as zero.
- */
+/** Sample offers from approved companies. */
 export function OffersSection({ offers }: { offers: OffersResult }) {
   return (
     <section aria-labelledby="offers-title" className="space-y-3">

@@ -1,9 +1,4 @@
-/**
- * The rules of the comparison selection, as pure functions with no React or store imports so they
- * can be unit tested. The selection is only ever a list of product ids per kind: names and
- * specifications always come from the server (and TanStack Query's cache), never from here, so
- * there is no second copy of a product record to go stale.
- */
+/** The rules of the comparison selection. */
 import { isProductId } from "../catalogue/links.ts";
 import type { CatalogueKind } from "../catalogue/params.ts";
 
@@ -16,10 +11,7 @@ export const EMPTY_SELECTION: Selection = { panel: [], inverter: [] };
 
 export type ToggleOutcome = "added" | "removed" | "full";
 
-/**
- * Add the id if there is room, remove it if it is already selected. Never creates a duplicate and
- * never grows past `max`; when the list is full the original list is returned untouched.
- */
+/** Add the id if there is room, remove it if it is already selected. */
 export function toggleSelection(
   ids: readonly string[],
   id: string,
@@ -34,11 +26,7 @@ export function toggleSelection(
   return { ids: [...ids, id], outcome: "added" };
 }
 
-/**
- * Turn whatever was read back from browser storage into a valid selection: well-formed product
- * ids only, no duplicates, at most MAX_COMPARE per kind. Anything else (tampered, truncated or
- * from an older version) is dropped rather than trusted.
- */
+/** Turn whatever was read back from browser storage into a valid selection. */
 export function sanitizeSelection(raw: unknown): Selection {
   const result: Selection = { panel: [], inverter: [] };
   if (typeof raw !== "object" || raw === null) return result;
