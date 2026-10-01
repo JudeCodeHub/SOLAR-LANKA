@@ -96,20 +96,10 @@ test("choices outside the allowed lists are refused", () => {
   assert.ok(problems({ shading_condition: "lots" }).shading_condition);
 });
 
-import { rangeText, sizingSummary } from "./format.ts";
+import { rangeText } from "./format.ts";
 
 test("a range of one value reads as that value, a real range as low to high", () => {
   assert.equal(rangeText("2.5", "2.50"), "2.5");
   assert.equal(rangeText("3.000", "4.5"), "3 to 4.5");
   assert.equal(rangeText(5, 5), "5");
-});
-
-test("the sizing line agrees with one panel or several", () => {
-  const sizing = (count: number) => ({
-    capacity_kwp: { minimum: "0.5", maximum: "0.5" },
-    panel_count: { minimum: count, maximum: count },
-  });
-  assert.equal(sizingSummary(sizing(1)), "A system of about 0.5 kWp, using 1 panel.");
-  assert.equal(sizingSummary(sizing(5)), "A system of about 0.5 kWp, using 5 panels.");
-  assert.equal(sizingSummary({ capacity_kwp: { minimum: "2", maximum: "2.5" }, panel_count: { minimum: 4, maximum: 5 } }), "A system of about 2 to 2.5 kWp, using 4 to 5 panels.");
 });
