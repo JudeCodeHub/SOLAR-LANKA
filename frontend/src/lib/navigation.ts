@@ -72,7 +72,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { id: "admin-activity", label: messages.nav.items.adminActivity, href: "/admin/activity", group: "admin", access: PLATFORM_ADMIN, available: false },
 
   { id: "account", label: messages.nav.items.account, href: "/account", group: "account", access: { kind: "signed-in" }, available: true },
-  { id: "notifications", label: messages.nav.items.notifications, href: "/notifications", group: "account", access: { kind: "signed-in" }, available: false },
+  { id: "notifications", label: messages.nav.items.notifications, href: "/notifications", group: "account", access: { kind: "signed-in" }, available: true },
 ];
 
 /** `user` is null for a signed-out visitor, and also while a signed-in user's profile loads. */
