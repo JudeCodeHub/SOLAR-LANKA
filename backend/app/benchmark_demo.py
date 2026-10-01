@@ -25,8 +25,8 @@ from app.seed_demo import DEMO_COMPANIES, DEMO_CUSTOMER, DEMO_USERS, demo_id
 RUNS = 30
 WARMUPS = 3
 CUSTOMER = DEMO_CUSTOMER[1]
-COMPANY_A, COMPANY_B = (company_id for company_id, _ in DEMO_COMPANIES)
-STAFF_A, STAFF_B = (subject for _, subject in DEMO_USERS)
+COMPANY_A, COMPANY_B, *_ = (company_id for company_id, _ in DEMO_COMPANIES)
+STAFF_A, STAFF_B, *_ = (subject for _, subject in DEMO_USERS)
 
 
 def scenarios() -> list[tuple[str, str, str]]:

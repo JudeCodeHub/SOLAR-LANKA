@@ -4,7 +4,7 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.api.company_access import require_company_permission
@@ -15,9 +15,10 @@ from app.api.schemas.companies import (
     CompanyProfileUpdate,
     CompanyReviewDecision,
     CompanyReviewResponse,
+    DirectoryQuery,
     PublicCompanyResponse,
 )
-from app.api.schemas.pagination import PaginationParams
+from app.api.schemas.pagination import PageResponse, PaginationParams
 from app.core.permissions import Action
 from app.db.session import get_session
 from app.models.company import Company, CompanyMembership, CompanyReview
@@ -167,19 +168,25 @@ def review_company(
 public_router = APIRouter(prefix="/public/companies", tags=["public companies"])
 
 
-@public_router.get("", response_model=list[PublicCompanyResponse])
+@public_router.get("", response_model=PageResponse[PublicCompanyResponse])
 def list_public_companies(
     session: Annotated[Session, Depends(get_session)],
-    pagination: Annotated[PaginationParams, Query()],
+    query: Annotated[DirectoryQuery, Query()],
     response: Response,
-) -> list[PublicCompanyResponse]:
+) -> PageResponse[PublicCompanyResponse]:
+    conditions = [Company.publication_status == "approved"]
+    if query.district is not None:
+        conditions.append(Company.service_districts.contains([query.district]))
+    if query.service is not None:
+        conditions.append(Company.services.contains([query.service]))
+    total = session.scalar(select(func.count()).select_from(Company).where(*conditions)) or 0
     companies = list(
         session.scalars(
             select(Company)
-            .where(Company.publication_status == "approved")
+            .where(*conditions)
             .order_by(Company.name, Company.id)
-            .limit(pagination.limit)
-            .offset(pagination.offset)
+            .limit(query.limit)
+            .offset(query.offset)
         )
     )
     logos = public_media_for(
@@ -189,12 +196,17 @@ def list_public_companies(
         categories=("company_logo",),
     )
     response.headers["Cache-Control"] = "no-store"
-    return [
-        PublicCompanyResponse.model_validate(company).model_copy(
-            update={"logo": next(iter(logos.get(company.id, [])), None)}
-        )
-        for company in companies
-    ]
+    return PageResponse[PublicCompanyResponse](
+        items=[
+            PublicCompanyResponse.model_validate(company).model_copy(
+                update={"logo": next(iter(logos.get(company.id, [])), None)}
+            )
+            for company in companies
+        ],
+        total=total,
+        limit=query.limit,
+        offset=query.offset,
+    )
 
 
 @public_router.get("/{company_id}", response_model=PublicCompanyResponse)

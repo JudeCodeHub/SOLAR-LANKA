@@ -8,6 +8,7 @@ import {
   NAV_ITEMS,
   navigationFor,
   type NavItem,
+  publicEntryPoints,
   type ShellUser,
   toShellUser,
 } from "./navigation.ts";
@@ -158,4 +159,17 @@ test("an item is marked available exactly when a page exists at its address", ()
       `${item.id} (${item.href}): ${exists ? "a page exists, so set available: true" : "no page exists, so set available: false"}`,
     );
   }
+});
+
+test("landing entry points link only to pages that exist and exclude home", () => {
+  const entries = publicEntryPoints();
+  assert.ok(entries.length >= 5);
+  assert.ok(!entries.some((entry) => entry.id === "home"));
+  // Today none of these pages exist, so none may be a link.
+  assert.ok(entries.every((entry) => entry.linkable === NAV_ITEMS.find((i) => i.id === entry.id)?.available));
+  // Once a page is built, its entry becomes a real link without any other change.
+  const built = publicEntryPoints(everythingBuilt);
+  assert.ok(built.every((entry) => entry.linkable));
+  // Only public destinations are advertised, never role-specific ones.
+  assert.ok(!built.some((entry) => /^(my-|company-|admin-)/.test(entry.id)));
 });

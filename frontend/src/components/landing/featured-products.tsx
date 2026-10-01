@@ -1,0 +1,55 @@
+import { EmptyState } from "@/components/states/empty-state";
+import { SectionUnavailable } from "@/components/landing/section-unavailable";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import type { components } from "@/lib/api/schema";
+import { productName } from "@/lib/landing/format";
+import type { Section } from "@/lib/landing/load";
+import { format, messages } from "@/messages";
+
+type Product = components["schemas"]["ProductSummary"];
+
+/** A few catalogue entries. Detail pages and specifications arrive with the product screens. */
+export function FeaturedProducts({
+  id,
+  title,
+  section,
+}: {
+  id: string;
+  title: string;
+  section: Section<Product>;
+}) {
+  const text = messages.landing.products;
+  return (
+    <section aria-labelledby={`${id}-title`} className="space-y-4">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 id={`${id}-title`} className="font-heading text-2xl font-semibold tracking-tight">
+          {title}
+        </h2>
+        {section.ok && section.items.length > 0 ? (
+          <p className="text-sm text-muted-foreground">
+            {format(text.showing, { shown: section.items.length, total: section.total })}
+          </p>
+        ) : null}
+      </div>
+      {!section.ok ? (
+        <SectionUnavailable />
+      ) : section.items.length === 0 ? (
+        <EmptyState title={text.emptyTitle} description={text.emptyDescription} />
+      ) : (
+        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {section.items.map((product) => (
+            <li key={product.id}>
+              <Card className="h-full">
+                <CardHeader>
+                  <CardDescription>{text.kind[product.kind]}</CardDescription>
+                  <CardTitle>{productName(product)}</CardTitle>
+                  <CardDescription>{text.sampleNote}</CardDescription>
+                </CardHeader>
+              </Card>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}

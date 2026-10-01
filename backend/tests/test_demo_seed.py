@@ -55,8 +55,16 @@ def test_seed_repeatability_and_company_isolation(
     for _ in range(2):
         seed_demo(database_session, environment="test")
         database_session.commit()
-    for model, expected in ((AppUser, 3), (Company, 2), (CompanyMembership, 2)):
+    for model, expected in ((AppUser, 4), (Company, 3), (CompanyMembership, 3)):
         assert database_session.scalar(select(func.count()).select_from(model)) == expected
+    # The public directory must not be empty on a freshly seeded demo.
+    companies = list(database_session.scalars(select(Company)))
+    assert {company.publication_status for company in companies} == {"approved"}
+    for company in companies:
+        assert company.service_districts and company.services, company.name
+        assert company.name.endswith("(Fictional)")
+        for credential in company.declared_credentials:
+            assert credential["verification_status"] == "company_declared"
     assert len(PANELS) == len(INVERTERS) == 10
     for model, expected in (
         (Product, 20),

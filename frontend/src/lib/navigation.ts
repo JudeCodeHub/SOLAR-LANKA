@@ -123,6 +123,25 @@ export function navigationFor(
   })).filter((group) => group.items.length > 0);
 }
 
+export interface EntryPoint {
+  id: string;
+  label: string;
+  href: string;
+  /** False while the page is not built; such an entry is shown but is not a link. */
+  linkable: boolean;
+}
+
+/**
+ * The public destinations to advertise on the landing page, in menu order. Unbuilt ones are
+ * included with linkable: false so the page can say "Coming soon" without a dead link, and
+ * they turn into real links on their own when the registry marks the page available.
+ */
+export function publicEntryPoints(items: readonly NavItem[] = NAV_ITEMS): EntryPoint[] {
+  return items
+    .filter((item) => item.group === "explore" && item.access.kind === "public" && item.id !== "home")
+    .map((item) => ({ id: item.id, label: item.label, href: item.href, linkable: item.available }));
+}
+
 /** A link is active on its own page and anywhere below it; "/" matches only itself. */
 export function isActive(href: string, pathname: string): boolean {
   if (href === "/") {
