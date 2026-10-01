@@ -18,6 +18,11 @@ export const queryKeys = {
   companyOffers: (id: string) => ["company", id, "offers"] as const,
   productLookup: (id: string) => ["catalogue", "lookup", id] as const,
   catalogueSearch: (kind: string, search: string) => ["catalogue", "search", kind, search] as const,
+  /** A company's enquiry inbox, one enquiry, and its internal notes (staff only). */
+  inbox: (companyId: string, page: number) => ["company", companyId, "inbox", page] as const,
+  inboxAll: (companyId: string) => ["company", companyId, "inbox"] as const,
+  enquiry: (companyId: string, id: string) => ["company", companyId, "enquiry", id] as const,
+  enquiryNotes: (companyId: string, id: string) => ["company", companyId, "enquiry", id, "notes"] as const,
   /** Sent quotation requests: one page of the list, and one request with its progress. */
   requestList: (page: number) => ["requests", "list", page] as const,
   requestListAll: ["requests", "list"] as const,
