@@ -27,6 +27,7 @@ export const en = {
     inverters: "Inverters · Solar Lanka",
     companies: "Solar companies · Solar Lanka",
     company: "{name} · Solar Lanka",
+    estimator: "Estimate your system · Solar Lanka",
     notFound: "Page not found · Solar Lanka",
     error: "Something went wrong · Solar Lanka",
   },
@@ -495,6 +496,96 @@ export const en = {
     retrying: "Trying again…",
     emptyTitle: "Nothing here yet",
     emptyDescription: "There is nothing to show right now.",
+  },
+  estimator: {
+    title: "Estimate your solar system",
+    intro:
+      "Tell us about your electricity use and roof to see a planning estimate of system size, yearly generation and a cost range. Nothing is saved when you calculate.",
+    guidance: {
+      title: "What this estimate covers",
+      supported:
+        "Today the estimator calculates one situation only: a grid-connected rooftop system under net metering, with no battery backup.",
+      netMetering:
+        "Under net metering you pay for the net energy you import, and surplus energy you export is banked as credit rather than paid out in cash.",
+      deferred:
+        "Net accounting, net plus and net plus plus schemes, off-grid and hybrid systems, and battery backup are not calculated yet. Choosing one will not give you a different answer: the estimate is simply not offered, so a wrong number is never shown.",
+      planning:
+        "Results are planning estimates in ranges, not an installation design, a quotation or a guaranteed saving. Ask companies for quotations before deciding.",
+      defaultsTitle: "About the defaults",
+      defaults:
+        "Connection scheme, system type and backup start on the supported choices, shown in full so you can see what the estimate assumes. Optional fields start as Unknown.",
+      unknown:
+        "Leaving an optional field blank means unknown, which is different from entering 0. A 0 is used as the value you gave.",
+      source: "Scheme descriptions follow the Public Utilities Commission of Sri Lanka (reviewed 28 September 2026).",
+    },
+    sections: {
+      usage: "Your electricity use",
+      roof: "Your roof",
+      scenario: "Connection and system",
+    },
+    fields: {
+      consumption: "Monthly electricity use (kWh per month)",
+      consumptionHelp: "The average of your recent bills. Your bill shows this as units or kWh.",
+      district: "District",
+      districtHelp: "Where the system would be installed. Sunshine and costs vary by location.",
+      districtPlaceholder: "Choose a district",
+      roof: "Usable roof area (m²)",
+      roofHelp:
+        "Roof space that is flat enough and not shaded or blocked. Enter 0 if you have none; that is a value, not unknown.",
+      shading: "Shading on the roof",
+      unknown: "Unknown",
+      shadingHelp: "Trees or buildings that shade the panels. Choose Unknown if you are not sure.",
+      shadingOptions: { unknown: "Unknown", none: "None", partial: "Partial", heavy: "Heavy" },
+      daytime: "Share of electricity used in the daytime (%)",
+      daytimeHelp: "Roughly how much of your use happens while the sun is up. Leave blank if unknown.",
+      bill: "Monthly electricity bill (LKR per month)",
+      billHelp: "Used to estimate savings. Leave blank if unknown.",
+      scheme: "Connection scheme",
+      schemeHelp: "Default: Net metering, the only scheme calculated today.",
+      schemeOptions: {
+        net_metering: "Net metering (supported)",
+        net_accounting: "Net accounting (not supported yet)",
+        net_plus: "Net plus (not supported yet)",
+        net_plus_plus: "Net plus plus (not supported yet)",
+      },
+      systemType: "System type",
+      systemTypeHelp: "Default: On-grid, the only type calculated today.",
+      systemTypeOptions: {
+        on_grid: "On-grid (supported)",
+        off_grid: "Off-grid (not supported yet)",
+        hybrid: "Hybrid with battery (not supported yet)",
+      },
+      backup: "Battery backup during power cuts",
+      backupHelp: "Default: No backup, the only choice calculated today.",
+      backupOptions: { no: "No backup (supported)", yes: "I need backup (not supported yet)" },
+    },
+    unsupported: {
+      title: "This combination cannot be estimated yet",
+      lead: "The estimate would not be reliable, so it is not offered:",
+      scheme: "The {name} scheme is not calculated yet.",
+      systemType: "{name} systems are not calculated yet.",
+      backup: "Estimates that include battery backup are not calculated yet.",
+      fix: "Choose Net metering, On-grid and No backup to get an estimate.",
+      schemeField: "Choose Net metering to get an estimate.",
+      systemTypeField: "Choose On-grid to get an estimate.",
+      backupField: "Choose No backup to get an estimate.",
+    },
+    validation: {
+      decimal: "Enter a plain number such as 250 or 250.5.",
+      places: { one: "Use at most {max} decimal place.", other: "Use at most {max} decimal places." },
+      choose: "Choose one of the options.",
+    },
+    submit: "Calculate estimate",
+    calculating: "Calculating…",
+    received: {
+      title: "Your inputs were accepted",
+      range: "{low} to {high}",
+      sizing: {
+        one: "A system of about {capacity} kWp, using {panels} panel.",
+        other: "A system of about {capacity} kWp, using {panels} panels.",
+      },
+      note: "This is a planning range, not a quotation.",
+    },
   },
   forms: {
     errorSummaryTitle: "There is a problem",
