@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import type { Ref } from "react";
+import type { ReactNode, Ref } from "react";
 
 import { ExternalLink } from "@/components/catalogue/detail/external-link";
 import { ResultTable } from "@/components/estimator/result-table";
@@ -43,13 +43,16 @@ const SHADING_LABEL: Record<string, string> = messages.estimator.fields.shadingO
 export function EstimateResults({
   preview,
   values,
-  stale,
+  stale = false,
   headingRef,
+  actions,
 }: {
   preview: Preview;
   values: SubmittedValues;
-  stale: boolean;
-  headingRef: Ref<HTMLHeadingElement>;
+  stale?: boolean;
+  headingRef?: Ref<HTMLHeadingElement>;
+  /** Controls shown under the heading, such as saving the estimate. */
+  actions?: ReactNode;
 }) {
   const sent = {
     shading_condition: values.shading_condition === "" ? null : values.shading_condition,
@@ -80,6 +83,7 @@ export function EstimateResults({
           {text.title}
         </h2>
         <p className="max-w-3xl text-sm text-muted-foreground">{text.planning}</p>
+        {actions}
       </header>
 
       {stale ? (

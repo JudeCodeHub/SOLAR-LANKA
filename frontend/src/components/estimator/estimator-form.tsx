@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useWatch } from "react-hook-form";
 
+import { SaveEstimate } from "@/components/estimates/save-estimate";
 import { EstimateResults, type SubmittedValues } from "@/components/estimator/estimate-results";
 import { UnsupportedNotice } from "@/components/estimator/unsupported-notice";
 import { AppForm } from "@/components/forms/app-form";
@@ -23,6 +24,7 @@ const text = messages.estimator;
 const fields = text.fields;
 
 type Preview = components["schemas"]["EstimatePreviewResponse"];
+type Request = components["schemas"]["EstimatorInputs-Input"];
 
 const options = (labels: Record<string, string>) =>
   Object.entries(labels).map(([value, label]) => ({ value, label }));
@@ -34,8 +36,9 @@ const options = (labels: Record<string, string>) =>
  */
 export function EstimatorForm() {
   const form = useAppForm(estimatorSchema, { defaultValues: { ...estimatorDefaults } });
-  const [result, setResult] = useState<{ preview: Preview; values: SubmittedValues } | null>(null);
+  const [result, setResult] = useState<{ preview: Preview; values: SubmittedValues; request: Request; run: number } | null>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const runs = useRef(0);
   const current = useWatch({ control: form.control });
   const [scheme, systemType, backup] = useWatch({
     control: form.control,
@@ -65,8 +68,11 @@ export function EstimatorForm() {
       onSubmit={async (payload) => {
         const preview = await unwrap(() => api.POST("/estimates/preview", { body: payload }));
         const all = form.getValues();
+        runs.current += 1;
         setResult({
           preview,
+          run: runs.current,
+          request: payload,
           values: {
             monthly_consumption_kwh: all.monthly_consumption_kwh,
             district: all.district,
@@ -179,6 +185,7 @@ export function EstimatorForm() {
         values={result.values}
         stale={stale}
         headingRef={headingRef}
+        actions={<SaveEstimate key={result.run} request={result.request} shownVersion={result.preview.config_version} />}
       />
     ) : null}
     </div>
