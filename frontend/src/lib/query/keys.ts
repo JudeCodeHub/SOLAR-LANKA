@@ -27,6 +27,10 @@ export const queryKeys = {
   quotationCurrent: (companyId: string, deliveryId: string) => ["company", companyId, "enquiry", deliveryId, "quotation"] as const,
   /** Every revision of an enquiry's quotation, newest first. */
   quotationRevisions: (companyId: string, deliveryId: string) => ["company", companyId, "enquiry", deliveryId, "revisions"] as const,
+  /** A customer's offers on one request, one offer's sent revisions, and the open-offer comparison. */
+  requestOffers: (requestId: string) => ["requests", requestId, "offers"] as const,
+  offerHistory: (requestId: string, quotationId: string) => ["requests", requestId, "offers", quotationId] as const,
+  comparison: (requestId: string) => ["requests", requestId, "comparison"] as const,
   /** Sent quotation requests: one page of the list, and one request with its progress. */
   requestList: (page: number) => ["requests", "list", page] as const,
   requestListAll: ["requests", "list"] as const,

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
+import { OffersSection } from "@/components/requests/offers-section";
 import { QueryState } from "@/components/query-state";
 import { Button } from "@/components/ui/button";
 import type { components } from "@/lib/api/schema";
@@ -182,6 +183,8 @@ function Detail({
           </tbody>
         </table>
       </section>
+
+      <OffersSection requestId={request.id} />
 
       <section aria-labelledby="asked-title" className="space-y-2">
         <h2 id="asked-title" className="font-heading text-xl font-semibold tracking-tight">
