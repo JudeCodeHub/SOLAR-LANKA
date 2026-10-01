@@ -1,11 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-// Next.js 16 renamed middleware to proxy. clerkMiddleware verifies the session cookie and
-// makes the identity available to server code through auth().
-//
-// Only routes listed here are gated, and only for convenience: signed-out visitors are sent
-// to sign in instead of seeing an empty page. This is not authorisation. The FastAPI backend
-// enforces roles, company scope and ownership on every operation regardless.
+// Next.js 16 renamed middleware to proxy.
 const requiresSignIn = createRouteMatcher(["/account(.*)", "/my(.*)", "/company(.*)"]);
 
 export default clerkMiddleware(async (auth, request) => {

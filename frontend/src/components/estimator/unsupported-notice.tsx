@@ -6,11 +6,7 @@ import { format, messages } from "@/messages";
 
 const text = messages.estimator;
 
-/**
- * Appears as soon as an unsupported connection scheme, system type or backup is chosen, before
- * any submit, and says exactly which part is not calculated and how to get an estimate. It is a
- * polite status, so the explanation is announced without taking focus.
- */
+/** Appears as soon as an unsupported connection scheme, system type or backup is chosen. */
 export function UnsupportedNotice({
   problems,
   scheme,

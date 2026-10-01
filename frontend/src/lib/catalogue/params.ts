@@ -1,12 +1,4 @@
-/**
- * The catalogue list pages keep ALL of their state in the address: search words, filters and the
- * page number. That makes a filtered view shareable, bookmarkable, restorable with the browser's
- * back button and identical on reload. This module turns the raw address parameters into
- * validated values, and validated values back into a clean canonical address. Pure functions.
- *
- * Anything invalid is dropped from the request (never sent to the backend) and reported so the
- * page can explain it next to the field. A bad address never breaks the page.
- */
+/** The catalogue list pages keep ALL of their state in the address. */
 import { messages } from "../../messages/index.ts";
 
 export type CatalogueKind = "panel" | "inverter";
@@ -134,11 +126,7 @@ export function buildCatalogueHref(
   return query === "" ? path : `${path}?${query}`;
 }
 
-/**
- * True when the address carries parameters that do not change the view (blank fields from a
- * submitted form, a page number that is not the canonical one), so the page should send the
- * visitor to the clean address. Parameters this page does not use are left alone.
- */
+/** True when the address carries parameters that do not change the view. */
 export function needsCanonicalRedirect(
   kind: CatalogueKind,
   raw: RawParams,

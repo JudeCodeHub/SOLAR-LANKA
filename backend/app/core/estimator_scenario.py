@@ -1,14 +1,4 @@
-"""Phase 7 estimator boundary: one grid-connected net-metering scenario.
-
-PUCSL describes net metering as billing for net imported energy and banking
-excess generation, without cash payment for excess exports. Source reviewed on
-2026-09-28: https://www.pucsl.gov.lk/rooftop-solar-pv-connection-schemes/
-
-Net Accounting, Net Plus, Net Plus Plus, off-grid, hybrid, and battery-backup
-calculations are deferred. Their financial rules must not reuse this scenario.
-Tariff, yield, and cost values require separate dated configuration; this file
-provides no tariff or generation guarantee.
-"""
+"""Phase 7 estimator boundary: one grid-connected net-metering scenario."""
 
 from dataclasses import dataclass
 from enum import StrEnum

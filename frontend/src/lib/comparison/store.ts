@@ -17,14 +17,7 @@ interface ComparisonState {
   markHydrated: () => void;
 }
 
-/**
- * The comparison selection shared by every product card, product page and the tray.
- *
- * It is kept for the length of the browser tab so it survives reloads and the filter form, which
- * is an ordinary page load. It stores the ids only and every value read back is validated, so
- * nothing here can go stale or be used to smuggle data in. Loading is deferred (`skipHydration`)
- * so the first client render matches the server's; the tray triggers it once mounted.
- */
+/** The comparison selection shared by every product card, product page and the tray. */
 export const useComparison = create<ComparisonState>()(
   persist(
     (set, get) => ({

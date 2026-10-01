@@ -18,11 +18,7 @@ import {
 } from "@/lib/catalogue/params";
 import { format, messages } from "@/messages";
 
-/**
- * A catalogue list page. Everything the visitor chose is in the address, so this page is just a
- * function of it: the same address always shows the same view, it can be shared or bookmarked,
- * and the back button restores it.
- */
+/** A catalogue list page. */
 export async function CataloguePage({
   kind,
   basePath,
@@ -41,8 +37,7 @@ export async function CataloguePage({
   const copy = kind === "panel" ? messages.catalogue.panels : messages.catalogue.inverters;
   const text = messages.catalogue.results;
 
-  // An address that points past the last page (data changed, or a typed number) goes to the
-  // last page that exists, keeping the filters.
+  // An address that points past the last page.
   if (result.ok && result.total > 0 && offsetFor(state.page) >= result.total) {
     redirect(
       buildCatalogueHref(basePath, kind, {

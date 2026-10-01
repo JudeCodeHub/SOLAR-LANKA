@@ -34,12 +34,7 @@ export interface SubmittedValues {
 
 const SHADING_LABEL: Record<string, string> = messages.estimator.fields.shadingOptions;
 
-/**
- * The estimate: sizing and generation, indicative costs and savings (each with what is missing
- * when it cannot be given), charts with table alternatives, and the assumptions, inputs and
- * sources behind the numbers. The inputs shown are the ones the estimate was calculated from, even
- * if the form has been edited since.
- */
+/** The estimate: sizing and generation, indicative costs and savings. */
 export function EstimateResults({
   preview,
   values,

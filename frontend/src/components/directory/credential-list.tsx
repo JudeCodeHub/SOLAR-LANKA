@@ -3,11 +3,7 @@ import { format, messages } from "@/messages";
 
 const text = messages.directory.credentials;
 
-/**
- * A company's declared credentials. Every entry carries the same words in text, not colour: the
- * company said so and the platform has not checked it. This is deliberately different from the
- * platform approval shown elsewhere, which only means the profile was reviewed and published.
- */
+/** A company's declared credentials. */
 export function CredentialList({ credentials }: { credentials: PublicCompany["declared_credentials"] }) {
   if (credentials.length === 0) {
     return <p className="text-sm text-muted-foreground">{text.none}</p>;

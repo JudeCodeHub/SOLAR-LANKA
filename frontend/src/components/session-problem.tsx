@@ -7,14 +7,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { messages } from "@/messages";
 
-/**
- * What to show when Clerk says the user is signed in but the backend will not serve them.
- *
- * "inactive" (the account is suspended or no longer active): nothing the user can retry, so the
- * way out is to sign out. "rejected" (the session was not accepted, for example because it
- * expired): trying again can help, and signing out and in again always does.
- * This explains the situation; it never works around the backend's refusal.
- */
+/** What to show when Clerk says the user is signed in but the backend will not serve them. */
 export function SessionProblem({
   kind,
   onRetry,

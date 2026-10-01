@@ -1,10 +1,4 @@
-/**
- * Rules for the favourites hearts, as pure functions with no React imports.
- *
- * The server decides what is a favourite. These helpers only describe the immediate, expected
- * outcome of a click so the heart can respond at once (an optimistic update); if the server
- * disagrees the change is rolled back and the server's list wins.
- */
+/** Rules for the favourites hearts, as pure functions with no React imports. */
 
 /** Newest first, no duplicates: what the list looks like after saving or removing one product. */
 export function applyFavourite(ids: readonly string[], id: string, favourite: boolean): string[] {

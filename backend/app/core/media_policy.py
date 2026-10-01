@@ -1,11 +1,4 @@
-"""Asset ownership, visibility and upload limits for Phase 6.
-
-A listed grant permits a later endpoint to check the named parent record; it is
-never permission by itself. Upload and download handlers must verify the actor's
-persisted role, parent ownership/assignment, file bytes, and provider file ID.
-Private documents must use private storage and authorised delivery, never a
-public ImageKit URL. Unknown categories are denied.
-"""
+"""Asset ownership, visibility and upload limits for Phase 6."""
 
 from collections.abc import Mapping
 from dataclasses import dataclass

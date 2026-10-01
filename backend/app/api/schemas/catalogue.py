@@ -20,12 +20,7 @@ class ProductSummary(BaseModel):
 
 
 class ProductListItem(ProductSummary):
-    """A list entry with the few specifications people filter on, so results show why they match.
-
-    Panels fill `wattage_w` and `efficiency_percent`; inverters fill `category` and `capacity_kw`.
-    The fields that do not apply to the kind are always null. A null that does apply means the
-    value is unknown for this product, which is different from zero.
-    """
+    """A list entry with the few specifications people filter on, so results show why they match."""
 
     wattage_w: Decimal | None = None
     efficiency_percent: Decimal | None = None
@@ -34,12 +29,7 @@ class ProductListItem(ProductSummary):
 
 
 class PublicProductOffer(BaseModel):
-    """A company's offer for a product, as shown to the public.
-
-    Prices are indicative and, in the demonstration data, samples (`is_demo_price`). The company
-    claim is the company's own statement, labelled as such; the platform has not verified it.
-    A null price means the company gave none, which is different from a price of zero.
-    """
+    """A company's offer for a product, as shown to the public."""
 
     company_id: EntityId
     company_name: str

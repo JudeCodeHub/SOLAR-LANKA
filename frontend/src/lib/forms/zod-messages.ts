@@ -14,11 +14,7 @@ interface Issue {
   format?: string;
 }
 
-/**
- * Wording for Zod's built-in checks, taken from the message catalog so form errors are
- * translatable and read the same as the backend's. Returns undefined for anything not covered,
- * which keeps Zod's own message, and custom messages written in a schema always win.
- */
+/** Wording for Zod's built-in checks. */
 export function zodMessage(issue: Issue): string | undefined {
   switch (issue.code) {
     case "invalid_type":

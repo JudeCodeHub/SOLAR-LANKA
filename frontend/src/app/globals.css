@@ -128,11 +128,7 @@
     @apply font-sans;
   }
 
-  /*
-   * Touch targets. WCAG 2.2 requires 24 px; on touch screens the controls people use most are
-   * given the 44 px most guidance recommends. Only for coarse pointers, so desktop layouts stay
-   * compact. Links inside running text are left alone (they are exempt and would break lines).
-   */
+  /* Touch targets: a 44 px minimum for coarse pointers only. */
   @media (pointer: coarse) {
     button,
     [data-slot="button"],

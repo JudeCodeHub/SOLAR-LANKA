@@ -1,8 +1,4 @@
-/**
- * Addresses between the directory list and a company's profile. Opening a profile from a filtered
- * directory remembers that view in `from`, and "Back to the directory" only ever follows it when
- * it points back into the directory, so it cannot be used to redirect elsewhere.
- */
+/** Addresses between the directory list and a company's profile. */
 import { isProductId } from "../catalogue/links.ts";
 
 export const DIRECTORY_PATH = "/companies";

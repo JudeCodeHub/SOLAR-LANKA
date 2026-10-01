@@ -14,11 +14,7 @@ export type DetailResult =
   | { status: "not-found" }
   | { status: "error" };
 
-/**
- * A product and its public offers. Cached per request, so the page and its metadata share one
- * fetch. A missing product is "not-found"; a backend problem is "error" and offers failing alone
- * never hides the product.
- */
+/** A product and its public offers. */
 export const loadProductDetail = cache(
   async (kind: CatalogueKind, id: string): Promise<DetailResult> => {
     try {

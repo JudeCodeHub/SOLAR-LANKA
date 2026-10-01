@@ -8,11 +8,7 @@ const text = messages.catalogue.pagination;
 const itemClass =
   "inline-flex h-8 min-w-8 items-center justify-center rounded-md border px-2 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
 
-/**
- * Page links that keep every filter in the address. The current page is marked with
- * aria-current; unavailable Previous and Next stay in place as disabled text so the layout
- * does not shift.
- */
+/** Page links that keep every filter in the address. */
 export function Pagination({
   hrefFor,
   page,

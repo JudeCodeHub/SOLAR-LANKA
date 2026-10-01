@@ -17,11 +17,7 @@ const text = messages.estimator.saved.detail;
 const textOf = (value: string | number | null | undefined) =>
   value === null || value === undefined ? "" : String(value);
 
-/**
- * A saved estimate exactly as it was calculated: its stored inputs and result, the sources and
- * every setting value it used. Nothing here is recalculated, so a later update to the estimator
- * never changes it.
- */
+/** A saved estimate exactly as it was calculated. */
 export function SavedEstimateView({ id }: { id: string }) {
   const query = useSavedEstimate(id);
   return (

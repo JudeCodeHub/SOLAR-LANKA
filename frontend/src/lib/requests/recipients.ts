@@ -1,11 +1,4 @@
-/**
- * Choosing which companies receive a quotation request, and building the submission. Pure
- * functions, so the rules the screen explains are tested.
- *
- * The customer chooses every recipient by hand: nothing is preselected and there is no "send to
- * all". At most five. A company is offered only if it is approved, serves the request's district
- * and offers installation, which is exactly what the backend re-checks on submission.
- */
+/** Choosing which companies receive a quotation request, and building the submission. */
 import type { components } from "../api/schema";
 import type { Requirements } from "./requirements.ts";
 
@@ -60,11 +53,7 @@ export function buildRequestBody(requirements: Requirements, companyIds: readonl
   };
 }
 
-/**
- * Identifies the content of a submission. The same content always has the same fingerprint (the
- * order companies were chosen in does not matter), so a retry reuses its idempotency key and the
- * server returns the original request instead of creating a second one; any change gets a new key.
- */
+/** Identifies the content of a submission. */
 export function fingerprintOf(requirements: Requirements, companyIds: readonly string[]): string {
   return JSON.stringify({
     d: requirements.district,
@@ -75,10 +64,7 @@ export function fingerprintOf(requirements: Requirements, companyIds: readonly s
   });
 }
 
-/**
- * Whether a failed submission may have reached the server: no response at all, or a server-side
- * failure. Retrying is safe either way because of the idempotency key.
- */
+/** Whether a failed submission may have reached the server. */
 export function mayHaveBeenReceived(status: number): boolean {
   return status === 0 || status >= 500;
 }

@@ -1,17 +1,4 @@
-"""Exact-revision acceptance eligibility for the future atomic accept operation.
-
-The caller must load the requested revision by its supplied ID, join its
-quotation through the recipient delivery to the request, and check the
-request's customer ID against the authenticated user. A foreign request or
-revision returns NOT_FOUND without revealing whether an offer exists.
-
-An eligible revision is the current SENT revision for an active recipient
-on an active request. Its sent_at <= now < valid_until, with timezone-aware
-instants. Draft, superseded/revised, withdrawn, declined, expired, and already
-accepted revisions are ineligible. No other revision may have won the request.
-The accept operation must recheck these facts while holding its write locks;
-this pure policy alone does not protect against concurrent acceptance.
-"""
+"""Exact-revision acceptance eligibility for the future atomic accept operation."""
 
 from dataclasses import dataclass
 from datetime import datetime

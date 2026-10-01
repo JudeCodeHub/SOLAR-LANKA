@@ -5,10 +5,7 @@ import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { messages } from "@/messages";
 
-/**
- * The submit button for AppForm. While saving it stays focusable (aria-disabled, not disabled)
- * so keyboard focus is not thrown away mid-submit; AppForm ignores repeat submits.
- */
+/** The submit button for AppForm. */
 export function FormSubmitButton({
   children,
   pending,

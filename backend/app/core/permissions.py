@@ -1,11 +1,4 @@
-"""Explicit Phase 1 role/action policy; unknown actions and roles have no grants.
-
-This matrix is not an authorisation bypass: callers must resolve roles from the
-verified user and active company memberships, then enforce each returned scope
-against persisted ownership/recipient/assignment records. Never accept roles or
-scope identifiers from request data. Suspension, quotation eligibility, and other
-business-state rules remain mandatory independent checks.
-"""
+"""Explicit Phase 1 role/action policy; unknown actions and roles have no grants."""
 
 from collections.abc import Mapping
 from dataclasses import dataclass
@@ -104,7 +97,6 @@ FILE_ACCESS = (
 )
 
 # Company creation is controlled onboarding; it never grants public users staff roles.
-# Customers get shared installation updates only; internal notes have a separate action.
 PERMISSION_MATRIX: Mapping[Action, tuple[Grant, ...]] = MappingProxyType(
     {
         Action.ACCOUNT_READ: SELF_ACCESS,
@@ -157,12 +149,7 @@ PERMISSION_MATRIX: Mapping[Action, tuple[Grant, ...]] = MappingProxyType(
 
 
 def required_scopes(action: Action | str, role: Role | str) -> frozenset[Scope]:
-    """Return scopes that still need verification, not permission to access a record.
-
-    An empty result denies the action. Membership-management handlers must also
-    forbid granting platform roles or escalating the acting user's privileges.
-    Public catalogue browsing and unsaved estimation are not protected actions.
-    """
+    """Return scopes that still need verification, not permission to access a record."""
     return frozenset(
         grant.scope for grant in PERMISSION_MATRIX.get(action, ()) if grant.role == role
     )

@@ -2,10 +2,7 @@
 
 import { messages } from "@/messages";
 
-/**
- * Replaces the whole layout when the root layout itself fails, so it must supply its own html
- * and body and cannot rely on the app's styles. Kept deliberately plain.
- */
+/** Replaces the whole layout when the root layout itself fails. */
 export default function GlobalError({ retry }: { error: Error & { digest?: string }; retry: () => void }) {
   return (
     <html lang="en">

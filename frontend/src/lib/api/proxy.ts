@@ -1,13 +1,4 @@
-/**
- * Rules for forwarding browser requests from the Next.js origin to the FastAPI backend.
- *
- * Pure functions with no framework imports, so they can be unit tested on their own. The
- * route handler in src/app/api/[...path]/route.ts applies them and adds the session token.
- *
- * Why a proxy instead of a rewrite: the backend accepts only `Authorization: Bearer`. The
- * proxy reads the Clerk session on the server and attaches the token there, so the browser
- * never holds or sends the token itself.
- */
+/** Rules for forwarding browser requests from the Next.js origin to the FastAPI backend. */
 
 /** Request headers that may reach the backend. Everything else, including cookies, is dropped. */
 const FORWARDED_REQUEST_HEADERS = [
@@ -64,10 +55,7 @@ export function parseApiBaseUrl(raw: string | undefined): string {
   return `${url.origin}${url.pathname.replace(/\/+$/, "")}`;
 }
 
-/**
- * Build the backend URL for `/api/<segments>`. Returns null for anything that could escape
- * the intended path: empty, dot or encoded-separator segments and control characters.
- */
+/** Build the backend URL for `/api/<segments>`. */
 export function buildUpstreamUrl(
   base: string,
   segments: readonly string[],
@@ -117,11 +105,7 @@ export function filterResponseHeaders(upstream: Headers): Headers {
   return headers;
 }
 
-/**
- * The proxy authenticates with the browser's session cookie, so a state-changing request
- * from another site must be refused. Browsers always send Origin or Sec-Fetch-Site on such
- * requests; a request carrying neither cannot be a cross-site browser request.
- */
+/** The proxy authenticates with the browser's session cookie. */
 export function isCrossSiteWrite(method: string, headers: Headers, ownOrigin: string): boolean {
   if (!WRITE_METHODS.has(method.toUpperCase())) {
     return false;

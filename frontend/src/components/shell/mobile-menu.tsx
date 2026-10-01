@@ -18,10 +18,7 @@ import {
 import { useNavigation } from "@/lib/api/use-shell-user";
 import { messages } from "@/messages";
 
-/**
- * Navigation for narrow screens. The sheet is a modal dialog, so it traps keyboard focus,
- * closes on Escape and returns focus to the menu button. Choosing a link closes it.
- */
+/** Navigation for narrow screens. */
 export function MobileMenu({ signedIn }: { signedIn: boolean }) {
   const [open, setOpen] = useState(false);
   const groups = useNavigation(signedIn);

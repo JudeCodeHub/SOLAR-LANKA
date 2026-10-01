@@ -1,9 +1,6 @@
 import { messages } from "@/messages";
 
-/**
- * How an unknown value is shown everywhere: dashed, muted, in words. It must never look like a
- * real value and never read as zero or "no".
- */
+/** How an unknown value is shown everywhere: dashed, muted, in words. */
 export function UnspecifiedValue() {
   return (
     <span

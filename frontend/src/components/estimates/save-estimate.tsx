@@ -16,13 +16,7 @@ import { format, messages } from "@/messages";
 
 const text = messages.estimator.save;
 
-/**
- * Saving an estimate, for customers only. A signed-out visitor is offered sign-in (with a plain
- * note that the calculation is not carried across), and anyone who is not a customer sees nothing
- * because the backend would refuse them. Saving sends the inputs this result was calculated from;
- * the server recalculates and stores the snapshot, so if the estimator settings changed in the
- * meantime the saved figures can differ and the page says so.
- */
+/** Saving an estimate, for customers only. */
 export function SaveEstimate(props: SaveProps) {
   const { isSignedIn } = useAuth();
   return <SaveEstimateControl {...props} signedIn={isSignedIn} />;

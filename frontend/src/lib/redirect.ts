@@ -1,7 +1,4 @@
-/**
- * Where to send someone back to after they sign in again. Only paths on this site are allowed,
- * so a crafted address can never turn the sign-in page into an open redirect.
- */
+/** Where to send someone back to after they sign in again. */
 const AUTH_PATHS = ["/sign-in", "/sign-up"];
 
 /** A same-site path to return to, or "/" when the given one is missing or unsafe. */

@@ -1,9 +1,4 @@
-"""Inverter specifications; unknown values remain null, compatibility is never inferred.
-
-Capacity is in kW and warranty in years. Brand/model and general provenance live
-on Product. Compatibility notes require a source; manuals and error references
-are attached to this exact product, never guessed from its capacity or category.
-"""
+"""Inverter specifications; unknown values remain null, compatibility is never inferred."""
 
 from decimal import Decimal
 from uuid import UUID

@@ -40,11 +40,7 @@ const empty = (): Pick<DraftState, "draft" | "recipients" | "submission" | "sent
   sent: null,
 });
 
-/**
- * The request being prepared. It holds what the customer typed and chose, which is private, so it
- * lives only in this tab's memory (a reload starts again) and is cleared whenever the signed-in
- * person changes.
- */
+/** The request being prepared. */
 export const useRequestDraft = create<DraftState>()((set, get) => ({
   ...empty(),
   setDraft: (draft) =>

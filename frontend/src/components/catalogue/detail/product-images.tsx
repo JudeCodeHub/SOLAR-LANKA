@@ -3,10 +3,7 @@ import Image from "next/image";
 import type { DocumentLink } from "@/lib/catalogue/detail";
 import { format, messages } from "@/messages";
 
-/**
- * Photos attached through the verified upload path. Arbitrary image addresses stored on the
- * product are not shown. The images come from the media host, so they are used as given.
- */
+/** Photos attached through the verified upload path. */
 export function ProductImages({ images, name }: { images: DocumentLink[]; name: string }) {
   if (images.length === 0) {
     return null;

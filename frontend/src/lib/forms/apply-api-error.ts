@@ -4,10 +4,7 @@ import type { ApiError } from "@/lib/api/errors";
 
 import { issueFieldPath } from "./errors";
 
-/**
- * Put the backend's per-field validation issues onto the matching form fields. Issues that do
- * not belong to a field of this form are returned so they can still be shown, not dropped.
- */
+/** Put the backend's per-field validation issues onto the matching form fields. */
 export function applyApiIssues<TInput extends FieldValues, TOutput extends FieldValues>(
   form: UseFormReturn<TInput, unknown, TOutput>,
   error: ApiError,

@@ -80,11 +80,7 @@ def database_session(database_connection: Connection) -> Iterator[Session]:
 def database_client(
     database_settings: DatabaseSettings, database_connection: Connection
 ) -> Iterator[TestClient]:
-    """Route sessions share the outer test transaction, never a production connection.
-
-    Requests must be sequential. Concurrency tests need separate dedicated setup;
-    do not share this single connection across concurrently executing requests.
-    """
+    """Route sessions share the outer test transaction, never a production connection."""
     application = create_app(database_settings)
 
     def isolated_request_session() -> Iterator[Session]:

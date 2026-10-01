@@ -1,8 +1,4 @@
-"""Establish the migration baseline before domain tables are implemented.
-
-Alembic creates its version table and records this revision. Domain tables are
-introduced by their feature migrations; this baseline deliberately creates none.
-"""
+"""Establish the migration baseline before domain tables are implemented."""
 
 revision: str = "0001_initial_baseline"
 down_revision: str | None = None

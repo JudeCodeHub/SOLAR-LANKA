@@ -16,11 +16,7 @@ function fieldName(location: readonly (string | number)[] | undefined): string |
   return typeof last === "string" ? last.replaceAll("_", " ") : null;
 }
 
-/**
- * The one way every screen shows an API failure: a titled alert in consistent wording, field
- * problems listed when there are any, a sign-in link when the session ended, and a retry
- * button only when trying again could help.
- */
+/** The one way every screen shows an API failure. */
 export function ApiErrorMessage({
   error,
   onRetry,

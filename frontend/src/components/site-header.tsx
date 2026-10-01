@@ -8,10 +8,7 @@ import { Button } from "@/components/ui/button";
 import { getCurrentIdentity } from "@/lib/auth/server";
 import { messages } from "@/messages";
 
-/**
- * Application header. Whether the visitor is signed in is known on the server, so the first
- * paint is already correct; the links that depend on role arrive with the user's profile.
- */
+/** Application header. */
 export async function SiteHeader() {
   const { isSignedIn } = await getCurrentIdentity();
   return (

@@ -15,11 +15,7 @@ type FavouriteIds = components["schemas"]["FavouriteIds"];
 
 export const FAVOURITES_PAGE_SIZE = 12;
 
-/**
- * Every product the customer has saved, as ids. This is the one place hearts read from, so a heart
- * on a card, on a product page and in the favourites view always agree. Pass `enabled: false`
- * unless the visitor is a signed-in customer, so nobody else triggers the request.
- */
+/** Every product the customer has saved, as ids. */
 export function useFavouriteIds(enabled: boolean) {
   return useQuery({
     queryKey: queryKeys.favouriteIds,
@@ -41,11 +37,7 @@ export function useFavouritesPage(page: number) {
   });
 }
 
-/**
- * Save or remove a favourite. The heart responds at once; if the server refuses (the limit, a
- * product that was retired, a lost session) the previous state is restored and the error is
- * shown. Either way the server's list is fetched again afterwards, so it always has the last word.
- */
+/** Save or remove a favourite. */
 export function useSetFavourite() {
   const client = useQueryClient();
   return useMutation({

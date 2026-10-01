@@ -9,10 +9,7 @@ import { messages } from "@/messages";
 
 const text = messages.directory;
 
-/**
- * A directory entry. The approved-listing badge (platform review) and the credential list
- * (company's own claims) are separate on purpose, so one is never read as the other.
- */
+/** A directory entry. */
 export function CompanyCard({ company, listHref }: { company: PublicCompany; listHref: string }) {
   return (
     <Card className="h-full">

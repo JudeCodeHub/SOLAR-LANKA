@@ -8,12 +8,7 @@ import { useEffect, useRef } from "react";
 import { useRequestDraft } from "@/lib/requests/draft-store";
 import { shouldResetClientState } from "@/lib/session";
 
-/**
- * Notices when the person using the browser changes (sign out, sign in, switched account,
- * or a session that ends in another tab). It then discards every cached API response, so one
- * user's data is never shown to the next, and refreshes the server-rendered parts of the page
- * (such as the header) so they match. Renders nothing.
- */
+/** Notices when the person using the browser changes. */
 export function SessionWatcher() {
   const { isLoaded, userId } = useAuth();
   const queryClient = useQueryClient();

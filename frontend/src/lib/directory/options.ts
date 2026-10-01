@@ -1,8 +1,4 @@
-/**
- * The values the directory can be filtered by. They mirror the backend's allowed districts and
- * services (the generated API types fail to compile here if the backend list changes), so a
- * filter the backend would refuse can never be offered.
- */
+/** The values the directory can be filtered by. */
 import type { components } from "../api/schema";
 
 type Company = components["schemas"]["PublicCompanyResponse"];

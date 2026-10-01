@@ -1,8 +1,4 @@
-/**
- * The company directory keeps its state in the address, like the catalogue lists: a district, a
- * service and the page number. Invalid values are dropped from the backend request, kept visible
- * with a message, and never break the page. Pure functions.
- */
+/** The company directory keeps its state in the address, like the catalogue lists. */
 import { messages } from "../../messages/index.ts";
 import { PAGE_SIZE, parsePageParam } from "../catalogue/params.ts";
 import { DISTRICTS, SERVICES } from "./options.ts";

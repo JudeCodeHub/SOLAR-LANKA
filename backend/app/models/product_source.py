@@ -1,10 +1,4 @@
-"""Specification provenance retained independently for each source retrieval.
-
-specifications records the sourced field/value pairs (including unit-bearing field
-names), so a later product edit does not erase what the source supported. Retrieval
-is explicit; verification remains null until actually reviewed. Add a new reference
-for subsequent retrievals instead of overwriting the historical reference.
-"""
+"""Specification provenance retained independently for each source retrieval."""
 
 from datetime import datetime
 from uuid import UUID

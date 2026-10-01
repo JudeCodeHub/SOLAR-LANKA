@@ -7,10 +7,7 @@ import { useAppFormContext } from "@/components/forms/app-form";
 import { FieldDescription, FieldError } from "@/components/ui/field";
 import { fieldId } from "@/lib/forms/errors";
 
-/**
- * A group of checkboxes for choosing several values, as one labelled fieldset: the legend is the
- * group's name, the description and any error are linked with aria-describedby.
- */
+/** A group of checkboxes for choosing several values, as one labelled fieldset. */
 export function CheckboxGroupField<TInput extends FieldValues, TOutput extends FieldValues = TInput>({
   form,
   name,

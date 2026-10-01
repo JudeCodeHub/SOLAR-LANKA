@@ -9,11 +9,7 @@ import { format, messages } from "@/messages";
 
 const text = messages.directory;
 
-/**
- * A company's public profile. Two different kinds of statement are kept in separate, labelled
- * sections: platform approval (the platform reviewed and published the profile) and declared
- * credentials (the company's own claims, never verified by the platform).
- */
+/** A company's public profile. */
 export function CompanyProfile({ company, backHref }: { company: PublicCompany; backHref: string }) {
   return (
     <div className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-8">

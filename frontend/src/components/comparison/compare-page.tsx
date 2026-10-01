@@ -29,11 +29,7 @@ function Cell({ cell }: { cell: CompareCell }) {
   }
 }
 
-/**
- * A side-by-side comparison of up to three products. The products are in the address
- * (?ids=a,b,c), so the page is a function of it: shareable, bookmarkable, and independent of
- * what this browser has selected. Each product is read from the server; none of it is stored.
- */
+/** A side-by-side comparison of up to three products. */
 export async function ComparePage({
   kind,
   searchParams,

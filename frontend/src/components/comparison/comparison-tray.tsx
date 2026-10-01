@@ -87,11 +87,7 @@ function TrayGroup({ kind, ids }: { kind: CatalogueKind; ids: string[] }) {
   );
 }
 
-/**
- * The comparison tray, shown whenever something is selected. It keeps the page's own scroll
- * position (sticky, not covering the end of the content) and is the only place the selection is
- * turned into names.
- */
+/** The comparison tray, shown whenever something is selected. */
 export function ComparisonTray() {
   const selection = useComparison((state) => state.selection);
   const hydrated = useComparison((state) => state.hydrated);

@@ -7,10 +7,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { messages } from "@/messages";
 
-/**
- * Last-resort boundary for errors thrown while rendering a page (not API failures, which the
- * query components handle). Shows a safe message; the error text itself is never displayed.
- */
+/** Last-resort boundary for errors thrown while rendering a page. */
 export default function ErrorPage({
   error,
   retry,

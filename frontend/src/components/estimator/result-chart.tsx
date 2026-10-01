@@ -7,11 +7,7 @@ import { format, messages } from "@/messages";
 
 const text = messages.estimator.results.charts;
 
-/**
- * A horizontal bar chart with the same figures as a table directly beneath it. The picture is one
- * labelled image for assistive technology (its summary is the text), every bar carries its value
- * so colour is never the only cue, and there is no animation.
- */
+/** A horizontal bar chart with the same figures as a table directly beneath it. */
 export default function ResultChart({ spec }: { spec: ChartSpec }) {
   return (
     <figure className="space-y-3">

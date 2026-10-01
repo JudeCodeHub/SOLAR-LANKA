@@ -22,12 +22,7 @@ import { format, messages, plural } from "@/messages";
 const rec = messages.requestPrep.recipients;
 const review = messages.requestPrep.review;
 
-/**
- * Choosing who receives the request, and sending it. Every recipient is chosen by hand (nothing is
- * preselected), the chosen companies are listed by name before sending, and sending is safe to
- * repeat: the same content reuses one idempotency key, so a retry after a lost response returns the
- * original request instead of creating a second.
- */
+/** Choosing who receives the request, and sending it. */
 export function RecipientsStep({ requirements }: { requirements: Requirements }) {
   const companies = useEligibleCompanies(requirements.district);
   const recipients = useRequestDraft((state) => state.recipients);

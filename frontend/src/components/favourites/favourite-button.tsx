@@ -18,11 +18,7 @@ const text = messages.favourites;
 const buttonClass =
   "inline-flex size-8 items-center justify-center rounded-full border bg-background outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50";
 
-/**
- * The heart on a product. Who sees what: a signed-out visitor gets a link to sign in (and come
- * back here), a customer gets the working toggle, and everyone else (administrators, suspended
- * accounts, a session still loading) gets nothing, because the backend would refuse them anyway.
- */
+/** The heart on a product. */
 export function FavouriteButton({ id, name }: { id: string; name: string }) {
   const { isSignedIn } = useAuth();
   return <FavouriteControl id={id} name={name} signedIn={isSignedIn} />;

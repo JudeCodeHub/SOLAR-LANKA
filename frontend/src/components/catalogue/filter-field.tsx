@@ -1,11 +1,7 @@
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
-/**
- * One filter input for a plain GET form. The field value comes from the address, and an invalid
- * value stays visible next to its message so the visitor can correct it. The label, the error and
- * aria-invalid are wired the same way as in the form components.
- */
+/** One filter input for a plain GET form. */
 export function FilterField({
   name,
   label,

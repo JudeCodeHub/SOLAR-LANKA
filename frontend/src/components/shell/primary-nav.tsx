@@ -4,11 +4,7 @@ import { NavLink } from "@/components/shell/nav-link";
 import { useNavigation } from "@/lib/api/use-shell-user";
 import { messages } from "@/messages";
 
-/**
- * Desktop page navigation, shown as its own row under the header bar so it can grow to a dozen
- * links and wrap instead of overflowing. Hidden while "Home" is the only destination, since the
- * brand link already goes there.
- */
+/** Desktop page navigation, shown as its own row under the header bar. */
 export function PrimaryNav({ signedIn }: { signedIn: boolean }) {
   const items = useNavigation(signedIn)
     .filter((group) => group.id !== "account")

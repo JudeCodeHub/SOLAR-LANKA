@@ -1,18 +1,4 @@
-"""Initial installation workflow policy (Phase 11.01).
-
-Milestones are created in SEQUENCE after quotation acceptance. Only the first
-milestone starts in progress; later milestones stay pending. A milestone may
-move pending -> in_progress -> completed, or in_progress -> pending when work
-is reset with a reason. Completed milestones are immutable. A later milestone
-cannot start until its predecessor is completed; steps cannot be skipped.
-
-Completion requires the evidence categories listed in REQUIRED_EVIDENCE. An
-uploaded file alone does not complete work: the authorised actor must submit
-the transition, and the backend must verify that each evidence record belongs
-to this installation and is accessible under its private-document policy.
-Commissioning and handover are separate: a photo of installed equipment does
-not establish electrical commissioning or customer handover.
-"""
+"""Initial installation workflow policy (Phase 11.01)."""
 
 from enum import StrEnum
 
@@ -36,8 +22,7 @@ class MilestoneStatus(StrEnum):
 
 SEQUENCE: tuple[InstallationMilestone, ...] = tuple(InstallationMilestone)
 
-# Evidence is private to the installation; a reference must be verified before
-# it can satisfy a completion requirement.
+# Evidence is private to the installation.
 REQUIRED_EVIDENCE: dict[InstallationMilestone, frozenset[str]] = {
     InstallationMilestone.SITE_SURVEY: frozenset({"site_survey_record"}),
     InstallationMilestone.SYSTEM_DESIGN: frozenset({"approved_system_design"}),

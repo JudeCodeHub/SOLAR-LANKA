@@ -1,14 +1,4 @@
-"""Time common read endpoints against the demo seed. Run: .venv/bin/python -m app.benchmark_demo
-
-Requires a migrated, seeded development PostgreSQL (see app.seed_demo). Point
-SOLAR_DATABASE_URL at a disposable database to avoid touching real development data.
-Requests run in-process through the real application with the verified identity
-replaced, so timings exclude network and Clerk verification. They describe this tiny
-demo dataset only and say nothing about production capacity.
-
-Each statement a request issues is also re-planned with sequential scans disabled. A
-table that still needs a sequential scan then has no usable index for that filter.
-"""
+"""Time common read endpoints against the demo seed."""
 
 import statistics
 import time

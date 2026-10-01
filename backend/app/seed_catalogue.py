@@ -1,8 +1,4 @@
-"""Insert-only demo catalogue from manufacturer datasheets reviewed 2026-09-27.
-
-Sources establish model identities and stored specifications. Prices and companies
-are fictional illustrations, never manufacturer prices or verified seller offers.
-"""
+"""Insert-only demo catalogue from manufacturer datasheets reviewed 2026-09-27."""
 
 from datetime import UTC, datetime
 from decimal import Decimal

@@ -59,10 +59,7 @@ export function useUpdateOffer(companyId: string) {
   });
 }
 
-/**
- * A catalogue product by id, for showing what an offer is for. The offer holds only the product's
- * id, so this asks the panels and then the inverters; null means it is no longer in the catalogue.
- */
+/** A catalogue product by id, for showing what an offer is for. */
 export function useProduct(id: string) {
   return useQuery({
     queryKey: queryKeys.productLookup(id),

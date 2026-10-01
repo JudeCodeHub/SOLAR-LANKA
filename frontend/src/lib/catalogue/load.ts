@@ -15,10 +15,7 @@ type InverterCategory = NonNullable<
   components["schemas"]["InverterSpecifications"]["category"]
 >;
 
-/**
- * One page of the catalogue for validated filters. A backend problem is reported as `ok: false`
- * so the page can show a retry instead of failing; it never reaches the visitor as an exception.
- */
+/** One page of the catalogue for validated filters. */
 export async function loadCatalogue(
   kind: CatalogueKind,
   apiQuery: Record<string, string>,

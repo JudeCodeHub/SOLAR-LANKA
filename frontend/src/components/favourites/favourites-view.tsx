@@ -19,10 +19,7 @@ import { format, messages } from "@/messages";
 const text = messages.favourites.page;
 const hrefFor = (page: number) => (page > 1 ? `/my/favourites?page=${page}` : "/my/favourites");
 
-/**
- * The customer's saved products, straight from the API. The page number is in the address, the
- * list is the server's (nothing is kept locally), and removing a product here updates it at once.
- */
+/** The customer's saved products, straight from the API. */
 export function FavouritesView() {
   const router = useRouter();
   const page = parsePageParam(useSearchParams().get("page") ?? undefined);

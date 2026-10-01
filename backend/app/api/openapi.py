@@ -1,9 +1,4 @@
-"""Keep the generated OpenAPI document accurate about which errors each route can return.
-
-Every route inherits the full shared error list from the application factory. Trim the
-entries a route cannot produce so clients are not told a public route needs a token or
-that an unlimited route may answer 429.
-"""
+"""Keep the generated OpenAPI document accurate about which errors each route can return."""
 
 from fastapi import FastAPI
 
