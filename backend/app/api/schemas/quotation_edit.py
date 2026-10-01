@@ -96,6 +96,43 @@ class DraftTermsSaved(BaseModel):
     status: Literal["draft"]
 
 
+class DraftLineView(BaseModel):
+    position: int
+    kind: Literal["equipment", "charge"]
+    product_id: UUID | None
+    description: str
+    quantity: str
+    unit_price: str
+    # Calculated by the server when the draft is saved; never supplied by the client.
+    line_total: str | None
+
+
+class DraftTermsView(BaseModel):
+    """The editable terms of one revision exactly as stored, so a draft can be reopened."""
+
+    lines: list[DraftLineView]
+    discount_kind: Literal["none", "fixed", "percent"]
+    discount_value: str
+    tax_rate_percent: str
+    capacity_kwp: str | None
+    warranty_terms: str | None
+    exclusions: str | None
+    validity_days: int | None
+    notes: str | None
+    subtotal: str | None
+    discount: str | None
+    tax: str | None
+    total: str | None
+
+
+class CurrentQuotation(BaseModel):
+    quotation_id: UUID
+    revision_id: UUID
+    revision_number: int
+    status: Literal["draft", "sent", "revised", "accepted", "declined", "expired", "withdrawn"]
+    terms: DraftTermsView
+
+
 class SentOfferRequired(BaseModel):
     """Validate required fields before a later send operation freezes a revision."""
 

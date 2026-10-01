@@ -637,6 +637,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/companies/{company_id}/request-deliveries/{delivery_id}/quotations/current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Current Delivery Quotation */
+        get: operations["current_delivery_quotation_companies__company_id__request_deliveries__delivery_id__quotations_current_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/companies/{company_id}/request-deliveries/{delivery_id}/quotations/{quotation_id}/draft": {
         parameters: {
             query?: never;
@@ -1725,6 +1742,27 @@ export interface components {
          * @enum {string}
          */
         ConnectionScheme: "net_metering" | "net_accounting" | "net_plus" | "net_plus_plus";
+        /** CurrentQuotation */
+        CurrentQuotation: {
+            /**
+             * Quotation Id
+             * Format: uuid
+             */
+            quotation_id: string;
+            /**
+             * Revision Id
+             * Format: uuid
+             */
+            revision_id: string;
+            /** Revision Number */
+            revision_number: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "draft" | "sent" | "revised" | "accepted" | "declined" | "expired" | "withdrawn";
+            terms: components["schemas"]["DraftTermsView"];
+        };
         /** CurrentUserResponse */
         CurrentUserResponse: {
             /**
@@ -1869,6 +1907,26 @@ export interface components {
             /** Unit Price */
             unit_price: number | string;
         };
+        /** DraftLineView */
+        DraftLineView: {
+            /** Description */
+            description: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "equipment" | "charge";
+            /** Line Total */
+            line_total: string | null;
+            /** Position */
+            position: number;
+            /** Product Id */
+            product_id: string | null;
+            /** Quantity */
+            quantity: string;
+            /** Unit Price */
+            unit_price: string;
+        };
         /** DraftTermsInput */
         DraftTermsInput: {
             /** Capacity Kwp */
@@ -1927,6 +1985,41 @@ export interface components {
             tax: string;
             /** Total */
             total: string;
+        };
+        /**
+         * DraftTermsView
+         * @description The editable terms of one revision exactly as stored, so a draft can be reopened.
+         */
+        DraftTermsView: {
+            /** Capacity Kwp */
+            capacity_kwp: string | null;
+            /** Discount */
+            discount: string | null;
+            /**
+             * Discount Kind
+             * @enum {string}
+             */
+            discount_kind: "none" | "fixed" | "percent";
+            /** Discount Value */
+            discount_value: string;
+            /** Exclusions */
+            exclusions: string | null;
+            /** Lines */
+            lines: components["schemas"]["DraftLineView"][];
+            /** Notes */
+            notes: string | null;
+            /** Subtotal */
+            subtotal: string | null;
+            /** Tax */
+            tax: string | null;
+            /** Tax Rate Percent */
+            tax_rate_percent: string;
+            /** Total */
+            total: string | null;
+            /** Validity Days */
+            validity_days: number | null;
+            /** Warranty Terms */
+            warranty_terms: string | null;
         };
         /**
          * ErrorCode
@@ -2802,10 +2895,6 @@ export interface components {
         /**
          * ProductListItem
          * @description A list entry with the few specifications people filter on, so results show why they match.
-         *
-         *     Panels fill `wattage_w` and `efficiency_percent`; inverters fill `category` and `capacity_kw`.
-         *     The fields that do not apply to the kind are always null. A null that does apply means the
-         *     value is unknown for this product, which is different from zero.
          */
         ProductListItem: {
             /** Brand */
@@ -2890,10 +2979,6 @@ export interface components {
         /**
          * PublicProductOffer
          * @description A company's offer for a product, as shown to the public.
-         *
-         *     Prices are indicative and, in the demonstration data, samples (`is_demo_price`). The company
-         *     claim is the company's own statement, labelled as such; the platform has not verified it.
-         *     A null price means the company gave none, which is different from a price of zero.
          */
         PublicProductOffer: {
             /**
@@ -7087,6 +7172,101 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["QuotationDraftCreated"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    current_delivery_quotation_companies__company_id__request_deliveries__delivery_id__quotations_current_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                delivery_id: string;
+                company_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CurrentQuotation"];
                 };
             };
             /** @description Bad Request */
