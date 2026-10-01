@@ -14,3 +14,7 @@ minimumReleaseAgeExclude:
   - '@next/swc-win32-x64-msvc@16.3.8'
   - eslint-config-next@16.3.8
   - next@16.3.8
+  - '@clerk/backend@3.21.1'
+  - '@clerk/nextjs@7.9.9'
+  - '@clerk/react@6.17.4'
+  - '@clerk/shared@4.37.1'
