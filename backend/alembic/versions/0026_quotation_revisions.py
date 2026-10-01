@@ -15,11 +15,15 @@ def upgrade() -> None:
         "quotations",
         sa.Column("id", UUID(as_uuid=True), primary_key=True),
         sa.Column(
-            "delivery_id", UUID(as_uuid=True),
-            sa.ForeignKey("request_deliveries.id", ondelete="RESTRICT"), nullable=False,
+            "delivery_id",
+            UUID(as_uuid=True),
+            sa.ForeignKey("request_deliveries.id", ondelete="RESTRICT"),
+            nullable=False,
         ),
         sa.Column(
-            "created_at", sa.DateTime(timezone=True), nullable=False,
+            "created_at",
+            sa.DateTime(timezone=True),
+            nullable=False,
             server_default=sa.func.now(),
         ),
         sa.UniqueConstraint("delivery_id", name="uq_quotations_delivery"),
@@ -28,8 +32,10 @@ def upgrade() -> None:
         "quotation_revisions",
         sa.Column("id", UUID(as_uuid=True), primary_key=True),
         sa.Column(
-            "quotation_id", UUID(as_uuid=True),
-            sa.ForeignKey("quotations.id", ondelete="RESTRICT"), nullable=False,
+            "quotation_id",
+            UUID(as_uuid=True),
+            sa.ForeignKey("quotations.id", ondelete="RESTRICT"),
+            nullable=False,
         ),
         sa.Column("revision_number", sa.Integer(), nullable=False),
         sa.Column("status", sa.String(16), nullable=False),
@@ -41,14 +47,17 @@ def upgrade() -> None:
         sa.Column("sent_at", sa.DateTime(timezone=True)),
         sa.Column("valid_until", sa.DateTime(timezone=True)),
         sa.Column(
-            "created_at", sa.DateTime(timezone=True), nullable=False,
+            "created_at",
+            sa.DateTime(timezone=True),
+            nullable=False,
             server_default=sa.func.now(),
         ),
         sa.UniqueConstraint("quotation_id", "revision_number", name="uq_quotation_revision_number"),
         sa.CheckConstraint("revision_number > 0", name="ck_quotation_revision_number"),
         sa.CheckConstraint(
             "status IN ('draft', 'sent', 'revised', 'accepted', 'declined', "
-            "'expired', 'withdrawn')", name="ck_quotation_revision_status",
+            "'expired', 'withdrawn')",
+            name="ck_quotation_revision_status",
         ),
         sa.CheckConstraint(
             "(sent_at IS NULL AND valid_until IS NULL) OR "
@@ -58,15 +67,18 @@ def upgrade() -> None:
         ),
     )
     op.create_index(
-        "ix_quotation_revisions_quotation_created", "quotation_revisions",
+        "ix_quotation_revisions_quotation_created",
+        "quotation_revisions",
         ["quotation_id", "created_at"],
     )
     op.create_table(
         "quotation_line_items",
         sa.Column("id", UUID(as_uuid=True), primary_key=True),
         sa.Column(
-            "revision_id", UUID(as_uuid=True),
-            sa.ForeignKey("quotation_revisions.id", ondelete="RESTRICT"), nullable=False,
+            "revision_id",
+            UUID(as_uuid=True),
+            sa.ForeignKey("quotation_revisions.id", ondelete="RESTRICT"),
+            nullable=False,
         ),
         sa.Column("position", sa.Integer(), nullable=False),
         sa.Column("description", sa.Text(), nullable=False),
@@ -79,16 +91,12 @@ def upgrade() -> None:
         sa.CheckConstraint("unit_price >= 0", name="ck_quotation_line_unit_price"),
         sa.CheckConstraint("line_total >= 0", name="ck_quotation_line_total"),
     )
-    op.create_index(
-        "ix_quotation_line_items_revision", "quotation_line_items", ["revision_id"]
-    )
+    op.create_index("ix_quotation_line_items_revision", "quotation_line_items", ["revision_id"])
 
 
 def downgrade() -> None:
     op.drop_index("ix_quotation_line_items_revision", table_name="quotation_line_items")
     op.drop_table("quotation_line_items")
-    op.drop_index(
-        "ix_quotation_revisions_quotation_created", table_name="quotation_revisions"
-    )
+    op.drop_index("ix_quotation_revisions_quotation_created", table_name="quotation_revisions")
     op.drop_table("quotation_revisions")
     op.drop_table("quotations")

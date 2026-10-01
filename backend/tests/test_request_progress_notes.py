@@ -23,8 +23,14 @@ def test_progress_and_notes_are_scoped_to_recipient(
     database_connection.execute(text(f'CREATE SCHEMA "{schema}"'))
     database_connection.execute(text(f'SET LOCAL search_path TO "{schema}"'))
     for model in (
-        AppUser, Company, EstimatorConfigVersion, SavedEstimate,
-        CompanyMembership, QuotationRequest, RequestDelivery, RequestDeliveryNote,
+        AppUser,
+        Company,
+        EstimatorConfigVersion,
+        SavedEstimate,
+        CompanyMembership,
+        QuotationRequest,
+        RequestDelivery,
+        RequestDeliveryNote,
     ):
         model.__table__.create(database_connection)
     customer = AppUser(clerk_subject="user_notes_customer")
@@ -34,10 +40,12 @@ def test_progress_and_notes_are_scoped_to_recipient(
     company_b = Company(name="Fictional B", publication_status="approved")
     database_session.add_all([customer, staff_a, staff_b, company_a, company_b])
     database_session.flush()
-    database_session.add_all([
-        CompanyMembership(user_id=staff_a.id, company_id=company_a.id, role="sales"),
-        CompanyMembership(user_id=staff_b.id, company_id=company_b.id, role="sales"),
-    ])
+    database_session.add_all(
+        [
+            CompanyMembership(user_id=staff_a.id, company_id=company_a.id, role="sales"),
+            CompanyMembership(user_id=staff_b.id, company_id=company_b.id, role="sales"),
+        ]
+    )
     request = QuotationRequest(
         customer_id=customer.id,
         requirements={"district": "Colombo", "details": "Please quote solar panels"},
@@ -82,9 +90,7 @@ def test_progress_and_notes_are_scoped_to_recipient(
     subject["value"] = customer.clerk_subject
     progress = database_client.get(f"/users/me/requests/{request.id}")
     assert progress.status_code == 200
-    assert {item["status"] for item in progress.json()["deliveries"]} == {
-        "responding", "submitted"
-    }
+    assert {item["status"] for item in progress.json()["deliveries"]} == {"responding", "submitted"}
     assert "Call after 5 PM" not in str(progress.json())
     assert database_client.get(f"{path_a}/notes").status_code == 403
     assert database_client.post(f"{path_a}/notes", json={"body": "No"}).status_code == 403

@@ -32,8 +32,7 @@ YIELD_SOURCE = EstimatorSource(
     reviewed_on=date(2026, 9, 28),
     dataset_metadata_updated_on=date(2023, 1, 24),
     limitation=(
-        "Long-term potential for a reference PV system; "
-        "no district or roof-specific yield loaded."
+        "Long-term potential for a reference PV system; no district or roof-specific yield loaded."
     ),
 )
 
@@ -46,8 +45,7 @@ TARIFF_SOURCE = EstimatorSource(
     reviewed_on=date(2026, 9, 28),
     effective_from=date(2026, 5, 11),
     limitation=(
-        "Applies until the next revision; rate bands are not configured yet "
-        "and must be rechecked."
+        "Applies until the next revision; rate bands are not configured yet and must be rechecked."
     ),
 )
 

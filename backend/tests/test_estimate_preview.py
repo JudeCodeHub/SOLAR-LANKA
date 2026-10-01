@@ -44,12 +44,14 @@ def test_public_preview_uses_published_version_without_storing_inputs(
 
     published = financial_config()
     published.published_at = datetime.now(UTC)
-    published.source_metadata["yield"].update({
-        "publisher": "Fictional test source",
-        "title": "Fictional yield",
-        "unit": "kWh/kWp/year",
-        "reviewed_on": "2026-09-28",
-    })
+    published.source_metadata["yield"].update(
+        {
+            "publisher": "Fictional test source",
+            "title": "Fictional yield",
+            "unit": "kWh/kWp/year",
+            "reviewed_on": "2026-09-28",
+        }
+    )
     database_session.add(published)
     database_session.commit()
     result = database_client.post(route, json=request_body())
@@ -58,9 +60,7 @@ def test_public_preview_uses_published_version_without_storing_inputs(
     assert result.headers["cache-control"] == "no-store"
     assert body["config_version"] == 1
     assert body["sizing"]["panel_count"] == {"minimum": 5, "maximum": 5}
-    assert body["financial"]["installed_cost_lkr"] == {
-        "minimum": "250000.0", "maximum": "300000.0"
-    }
+    assert body["financial"]["installed_cost_lkr"] == {"minimum": "250000.0", "maximum": "300000.0"}
     assert body["sources"]["yield"]["publisher"] == "Fictional test source"
     assert body["sources"]["cost"]["url"] is None
     assert "assumptions" not in body

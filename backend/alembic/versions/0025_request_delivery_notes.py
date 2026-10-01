@@ -15,12 +15,16 @@ def upgrade() -> None:
         "request_delivery_notes",
         sa.Column("id", UUID(as_uuid=True), primary_key=True),
         sa.Column(
-            "delivery_id", UUID(as_uuid=True),
-            sa.ForeignKey("request_deliveries.id", ondelete="RESTRICT"), nullable=False,
+            "delivery_id",
+            UUID(as_uuid=True),
+            sa.ForeignKey("request_deliveries.id", ondelete="RESTRICT"),
+            nullable=False,
         ),
         sa.Column(
-            "author_id", UUID(as_uuid=True),
-            sa.ForeignKey("app_users.id", ondelete="RESTRICT"), nullable=False,
+            "author_id",
+            UUID(as_uuid=True),
+            sa.ForeignKey("app_users.id", ondelete="RESTRICT"),
+            nullable=False,
         ),
         sa.Column("body", sa.Text(), nullable=False),
         sa.Column(
@@ -31,7 +35,8 @@ def upgrade() -> None:
         ),
     )
     op.create_index(
-        "ix_request_delivery_notes_order", "request_delivery_notes",
+        "ix_request_delivery_notes_order",
+        "request_delivery_notes",
         ["delivery_id", "created_at", "id"],
     )
 

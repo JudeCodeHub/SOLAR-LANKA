@@ -25,39 +25,62 @@ def test_customer_submission_rejects_foreign_estimates_and_ineligible_companies(
     database_connection.execute(text(f'CREATE SCHEMA "{schema}"'))
     database_connection.execute(text(f'SET LOCAL search_path TO "{schema}"'))
     for model in (
-        AppUser, Company, EstimatorConfigVersion, SavedEstimate,
-        QuotationRequest, RequestDelivery,
+        AppUser,
+        Company,
+        EstimatorConfigVersion,
+        SavedEstimate,
+        QuotationRequest,
+        RequestDelivery,
     ):
         model.__table__.create(database_connection)
     customer = AppUser(clerk_subject="user_request_owner")
     other = AppUser(clerk_subject="user_request_other")
     admin = AppUser(clerk_subject="user_request_admin", role="platform_admin")
     eligible_a = Company(
-        name="Fictional installer A", publication_status="approved",
-        service_districts=["Colombo"], services=["installation"],
+        name="Fictional installer A",
+        publication_status="approved",
+        service_districts=["Colombo"],
+        services=["installation"],
     )
     eligible_b = Company(
-        name="Fictional installer B", publication_status="approved",
-        service_districts=["Colombo"], services=["installation"],
+        name="Fictional installer B",
+        publication_status="approved",
+        service_districts=["Colombo"],
+        services=["installation"],
     )
     unpublished = Company(
-        name="Unpublished installer", publication_status="draft",
-        service_districts=["Colombo"], services=["installation"],
+        name="Unpublished installer",
+        publication_status="draft",
+        service_districts=["Colombo"],
+        services=["installation"],
     )
     wrong_district = Company(
-        name="Out of district", publication_status="approved",
-        service_districts=["Galle"], services=["installation"],
+        name="Out of district",
+        publication_status="approved",
+        service_districts=["Galle"],
+        services=["installation"],
     )
     wrong_service = Company(
-        name="Repair only", publication_status="approved",
-        service_districts=["Colombo"], services=["repair"],
+        name="Repair only",
+        publication_status="approved",
+        service_districts=["Colombo"],
+        services=["repair"],
     )
     config = financial_config()
     config.published_at = datetime.now(UTC)
-    database_session.add_all([
-        customer, other, admin, eligible_a, eligible_b, unpublished,
-        wrong_district, wrong_service, config,
-    ])
+    database_session.add_all(
+        [
+            customer,
+            other,
+            admin,
+            eligible_a,
+            eligible_b,
+            unpublished,
+            wrong_district,
+            wrong_service,
+            config,
+        ]
+    )
     database_session.commit()
 
     current_subject = {"value": customer.clerk_subject}
@@ -71,10 +94,9 @@ def test_customer_submission_rejects_foreign_estimates_and_ineligible_companies(
     current_subject["value"] = customer.clerk_subject
 
     route = "/users/me/requests"
+
     def submit(payload):
-        return database_client.post(
-            route, json=payload, headers={"Idempotency-Key": str(uuid4())}
-        )
+        return database_client.post(route, json=payload, headers={"Idempotency-Key": str(uuid4())})
 
     body = {
         "district": "Colombo",
@@ -89,18 +111,22 @@ def test_customer_submission_rejects_foreign_estimates_and_ineligible_companies(
     assert created.headers["cache-control"] == "no-store"
     assert result["status"] == "submitted"
     assert {delivery["company_id"] for delivery in result["deliveries"]} == {
-        str(eligible_a.id), str(eligible_b.id)
+        str(eligible_a.id),
+        str(eligible_b.id),
     }
     assert len({delivery["id"] for delivery in result["deliveries"]}) == 2
     request = database_session.get(QuotationRequest, result["id"])
     assert request.customer_id == customer.id
     assert str(request.saved_estimate_id) == owned_estimate
     assert request.requirements["monthly_consumption_kwh"] == "0"
-    assert database_session.scalar(
-        select(func.count()).select_from(RequestDelivery).where(
-            RequestDelivery.request_id == request.id
+    assert (
+        database_session.scalar(
+            select(func.count())
+            .select_from(RequestDelivery)
+            .where(RequestDelivery.request_id == request.id)
         )
-    ) == 2
+        == 2
+    )
 
     cases = [
         ({"saved_estimate_id": foreign_estimate}, 404),

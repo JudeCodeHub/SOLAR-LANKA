@@ -20,8 +20,13 @@ def test_withdrawal_and_closure_rules(database_client, database_connection, data
     database_connection.execute(text(f'CREATE SCHEMA "{schema}"'))
     database_connection.execute(text(f'SET LOCAL search_path TO "{schema}"'))
     for model in (
-        AppUser, Company, EstimatorConfigVersion, SavedEstimate,
-        CompanyMembership, QuotationRequest, RequestDelivery,
+        AppUser,
+        Company,
+        EstimatorConfigVersion,
+        SavedEstimate,
+        CompanyMembership,
+        QuotationRequest,
+        RequestDelivery,
     ):
         model.__table__.create(database_connection)
     customer = AppUser(clerk_subject="user_closure_customer")
@@ -32,10 +37,12 @@ def test_withdrawal_and_closure_rules(database_client, database_connection, data
     company_b = Company(name="Fictional B", publication_status="approved")
     database_session.add_all([customer, stranger, staff_a, staff_b, company_a, company_b])
     database_session.flush()
-    database_session.add_all([
-        CompanyMembership(user_id=staff_a.id, company_id=company_a.id, role="sales"),
-        CompanyMembership(user_id=staff_b.id, company_id=company_b.id, role="sales"),
-    ])
+    database_session.add_all(
+        [
+            CompanyMembership(user_id=staff_a.id, company_id=company_a.id, role="sales"),
+            CompanyMembership(user_id=staff_b.id, company_id=company_b.id, role="sales"),
+        ]
+    )
     requests = [
         QuotationRequest(
             customer_id=customer.id,
@@ -46,8 +53,10 @@ def test_withdrawal_and_closure_rules(database_client, database_connection, data
     database_session.add_all(requests)
     database_session.flush()
     deliveries = [
-        [RequestDelivery(request_id=request.id, company_id=company.id)
-         for company in (company_a, company_b)]
+        [
+            RequestDelivery(request_id=request.id, company_id=company.id)
+            for company in (company_a, company_b)
+        ]
         for request in requests
     ]
     database_session.add_all(item for pair in deliveries for item in pair)
@@ -56,6 +65,7 @@ def test_withdrawal_and_closure_rules(database_client, database_connection, data
     database_client.app.dependency_overrides[require_identity] = lambda: VerifiedIdentity(
         subject["value"], "session_test"
     )
+
     def withdraw(request):
         return database_client.post(f"/users/me/requests/{request.id}/withdraw")
 
@@ -77,9 +87,12 @@ def test_withdrawal_and_closure_rules(database_client, database_connection, data
     subject["value"] = staff_a.clerk_subject
     cancelled_close = database_client.post(delivery_path(company_a, deliveries[0][0]) + "/close")
     assert cancelled_close.status_code == 409
-    assert database_client.patch(
-        delivery_path(company_a, deliveries[0][0]) + "/progress", json={"status": "viewed"}
-    ).status_code == 409
+    assert (
+        database_client.patch(
+            delivery_path(company_a, deliveries[0][0]) + "/progress", json={"status": "viewed"}
+        ).status_code
+        == 409
+    )
 
     first = database_client.post(delivery_path(company_a, deliveries[1][0]) + "/close")
     assert first.status_code == 200
@@ -98,10 +111,13 @@ def test_withdrawal_and_closure_rules(database_client, database_connection, data
     assert withdraw(requests[1]).status_code == 409
 
     subject["value"] = staff_a.clerk_subject
-    assert database_client.patch(
-        delivery_path(company_a, deliveries[2][0]) + "/progress",
-        json={"status": "responding"},
-    ).status_code == 200
+    assert (
+        database_client.patch(
+            delivery_path(company_a, deliveries[2][0]) + "/progress",
+            json={"status": "responding"},
+        ).status_code
+        == 200
+    )
     subject["value"] = customer.clerk_subject
     assert withdraw(requests[2]).status_code == 409
     database_session.refresh(requests[2])

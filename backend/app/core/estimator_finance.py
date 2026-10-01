@@ -43,9 +43,7 @@ def installed_cost(
     sizing: SizingEstimate, config: EstimatorConfigVersion
 ) -> ValueRange[Decimal] | None:
     source = (
-        config.source_metadata.get("cost")
-        if isinstance(config.source_metadata, dict)
-        else None
+        config.source_metadata.get("cost") if isinstance(config.source_metadata, dict) else None
     )
     assumptions = config.assumptions
     if (

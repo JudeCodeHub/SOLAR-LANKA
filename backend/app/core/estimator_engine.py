@@ -59,9 +59,7 @@ def assumption_range(raw: object, name: str, *, factor: bool = False) -> ValueRa
     return ValueRange(low, high)
 
 
-def calculate_sizing(
-    inputs: EstimatorInputs, config: EstimatorConfigVersion
-) -> SizingEstimate:
+def calculate_sizing(inputs: EstimatorInputs, config: EstimatorConfigVersion) -> SizingEstimate:
     """Apply the hand-checkable 7.04 formulas without inventing missing values."""
     # Revalidate at the engine boundary: internal callers can construct Pydantic
     # models without validation, but unsupported systems must never be sized.
@@ -75,13 +73,11 @@ def calculate_sizing(
         raise ValueError("Invalid assumptions")
     panel_watts = positive_decimal(assumptions.get("panel_wattage_w"), "panel wattage")
     panel_area = positive_decimal(assumptions.get("panel_area_m2"), "panel area")
-    yield_range = assumption_range(
-        assumptions.get("annual_yield_kwh_per_kwp"), "annual yield"
-    )
+    yield_range = assumption_range(assumptions.get("annual_yield_kwh_per_kwp"), "annual yield")
     panel_kwp = panel_watts / 1000
-    roof_count = int((inputs.usable_roof_area_m2 / panel_area).to_integral_value(
-        rounding=ROUND_FLOOR
-    ))
+    roof_count = int(
+        (inputs.usable_roof_area_m2 / panel_area).to_integral_value(rounding=ROUND_FLOOR)
+    )
 
     def target_count(yield_value: Decimal) -> int:
         target_kwp = 12 * inputs.monthly_consumption_kwh / yield_value

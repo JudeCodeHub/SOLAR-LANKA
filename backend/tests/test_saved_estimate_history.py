@@ -23,14 +23,16 @@ def complete_sources(config: EstimatorConfigVersion) -> None:
         ("tariff", "LKR/kWh"),
         ("cost", "LKR/kWp"),
     ):
-        config.source_metadata[topic].update({
-            "publisher": "Fictional test publisher",
-            "title": f"Fictional {topic} reference",
-            "unit": unit,
-            "reviewed_on": "2026-09-28",
-            "effective_from": "2026-09-28",
-            "limitation": "Test scenario only, not a real market estimate",
-        })
+        config.source_metadata[topic].update(
+            {
+                "publisher": "Fictional test publisher",
+                "title": f"Fictional {topic} reference",
+                "unit": unit,
+                "reviewed_on": "2026-09-28",
+                "effective_from": "2026-09-28",
+                "limitation": "Test scenario only, not a real market estimate",
+            }
+        )
 
 
 def test_saved_snapshot_survives_new_publication(

@@ -13,9 +13,7 @@ from app.core.account_lifecycle import (
 @pytest.mark.parametrize("local_suspension", [False, True])
 def test_access_requires_both_provider_and_local_approval(state, local_suspension):
     account = AccountAccessState(state, local_suspension)
-    assert account.access_allowed == (
-        state == ProviderAccountState.ACTIVE and not local_suspension
-    )
+    assert account.access_allowed == (state == ProviderAccountState.ACTIVE and not local_suspension)
 
 
 @pytest.mark.parametrize("incoming", list(ProviderAccountState))

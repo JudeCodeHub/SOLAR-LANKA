@@ -31,9 +31,7 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.drop_constraint("ck_quotation_request_idempotency", "quotation_requests", type_="check")
-    op.drop_constraint(
-        "uq_quotation_request_customer_key", "quotation_requests", type_="unique"
-    )
+    op.drop_constraint("uq_quotation_request_customer_key", "quotation_requests", type_="unique")
     op.drop_column("quotation_requests", "submission_response")
     op.drop_column("quotation_requests", "submission_fingerprint")
     op.drop_column("quotation_requests", "idempotency_key")

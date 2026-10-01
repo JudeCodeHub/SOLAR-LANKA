@@ -1,5 +1,7 @@
 """Exercise migration lifecycle on an empty database owned solely by this test."""
 
+import importlib
+import pkgutil
 from datetime import UTC, datetime, timedelta
 from io import StringIO
 from uuid import uuid4
@@ -8,13 +10,16 @@ import pytest
 from alembic import command
 from alembic.config import Config
 from alembic.migration import MigrationContext
+from alembic.script import ScriptDirectory
 from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.exc import IntegrityError, ProgrammingError
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import NullPool
 
+import app.models
 from app.core.config import BACKEND_DIR
 from app.core.database_config import DatabaseSettings
+from app.db.base import Base
 from app.db.session import create_database_engine
 from app.models.company import Company, CompanyMembership
 from app.models.estimator_config import EstimatorConfigVersion
@@ -27,6 +32,13 @@ from app.models.product_source import ProductSource
 from app.models.quotation import Quotation, QuotationLineItem, QuotationRevision
 from app.models.quotation_request import QuotationRequest, RequestDelivery
 from app.models.user import AppUser
+
+
+def model_tables() -> list[str]:
+    """Import every model module so Base.metadata is complete, then list expected tables."""
+    for module in pkgutil.iter_modules(app.models.__path__):
+        importlib.import_module(f"app.models.{module.name}")
+    return sorted([*Base.metadata.tables, "alembic_version"])
 
 
 def migration_config() -> Config:
@@ -76,7 +88,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             config.attributes["connection"] = connection
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0031_one_winner_per_request"
+                ScriptDirectory.from_config(config).get_current_head()
             )
 
         with Session(temporary_engine) as session:
@@ -378,31 +390,8 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
         # Verify the revision was persisted, repeated upgrades are safe, and rollback works.
         with temporary_engine.begin() as connection:
             config.attributes["connection"] = connection
-            assert sorted(inspect(connection).get_table_names()) == [
-                "alembic_version",
-                "app_users",
-                "audit_events",
-                "clerk_lifecycle_events",
-                "companies",
-                "company_memberships",
-                "company_reviews",
-                "estimator_config_versions",
-                "favourites",
-                "installations",
-                "inverters",
-                "media_assets",
-                "panels",
-                "product_offers",
-                "product_sources",
-                "products",
-                "quotation_line_items",
-                "quotation_requests",
-                "quotation_revisions",
-                "quotations",
-                "request_deliveries",
-                "request_delivery_notes",
-                "saved_estimates",
-            ]
+            # Every ORM table, and nothing else, exists after migrating to head.
+            assert sorted(inspect(connection).get_table_names()) == model_tables()
             assert any(
                 fk["referred_table"] == "request_deliveries"
                 and fk["constrained_columns"] == ["delivery_id"]
@@ -413,7 +402,7 @@ def test_initial_migration_on_empty_database(database_settings: DatabaseSettings
             assert MigrationContext.configure(connection).get_current_revision() is None
             command.upgrade(config, "head")
             assert MigrationContext.configure(connection).get_current_revision() == (
-                "0031_one_winner_per_request"
+                ScriptDirectory.from_config(config).get_current_head()
             )
     finally:
         if temporary_engine is not None:

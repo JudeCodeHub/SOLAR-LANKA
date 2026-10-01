@@ -25,15 +25,17 @@ def example_config() -> EstimatorConfigVersion:
 
 
 def example_inputs(area: str, *, shading: str | None = "partial") -> EstimatorInputs:
-    return EstimatorInputs.model_validate({
-        "monthly_consumption_kwh": "300",
-        "district": "Colombo",
-        "usable_roof_area_m2": area,
-        "shading_condition": shading,
-        "connection_scheme": "net_metering",
-        "system_type": "on_grid",
-        "backup_required": False,
-    })
+    return EstimatorInputs.model_validate(
+        {
+            "monthly_consumption_kwh": "300",
+            "district": "Colombo",
+            "usable_roof_area_m2": area,
+            "shading_condition": shading,
+            "connection_scheme": "net_metering",
+            "system_type": "on_grid",
+            "backup_required": False,
+        }
+    )
 
 
 @pytest.mark.parametrize(
@@ -50,9 +52,7 @@ def test_written_examples(area, roof_count, count, capacity, installed_area, ann
     assert result.capacity_kwp == ValueRange(Decimal(capacity), Decimal(capacity))
     assert result.installed_area_m2 == ValueRange(Decimal(installed_area), Decimal(installed_area))
     assert result.annual_generation_kwh == ValueRange(Decimal(annual), Decimal(annual))
-    assert result.average_monthly_generation_kwh == ValueRange(
-        Decimal(monthly), Decimal(monthly)
-    )
+    assert result.average_monthly_generation_kwh == ValueRange(Decimal(monthly), Decimal(monthly))
 
 
 def test_unknown_shading_is_not_assumed_zero_or_unshaded():

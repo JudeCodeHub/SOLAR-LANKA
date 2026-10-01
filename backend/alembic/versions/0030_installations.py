@@ -15,16 +15,18 @@ def upgrade() -> None:
         "installations",
         sa.Column("id", UUID(as_uuid=True), primary_key=True),
         sa.Column(
-            "accepted_revision_id", UUID(as_uuid=True),
-            sa.ForeignKey("quotation_revisions.id", ondelete="RESTRICT"), nullable=False,
+            "accepted_revision_id",
+            UUID(as_uuid=True),
+            sa.ForeignKey("quotation_revisions.id", ondelete="RESTRICT"),
+            nullable=False,
         ),
         sa.Column(
-            "created_at", sa.DateTime(timezone=True), nullable=False,
+            "created_at",
+            sa.DateTime(timezone=True),
+            nullable=False,
             server_default=sa.func.now(),
         ),
-        sa.UniqueConstraint(
-            "accepted_revision_id", name="uq_installations_accepted_revision"
-        ),
+        sa.UniqueConstraint("accepted_revision_id", name="uq_installations_accepted_revision"),
     )
 
 

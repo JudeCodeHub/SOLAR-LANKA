@@ -72,9 +72,12 @@ def list_saved_estimates(
     response: Response,
 ) -> PageResponse[SavedEstimateSummary]:
     response.headers["Cache-Control"] = "no-store"
-    total = session.scalar(
-        select(func.count()).select_from(SavedEstimate).where(SavedEstimate.user_id == user.id)
-    ) or 0
+    total = (
+        session.scalar(
+            select(func.count()).select_from(SavedEstimate).where(SavedEstimate.user_id == user.id)
+        )
+        or 0
+    )
     rows = session.scalars(
         select(SavedEstimate)
         .where(SavedEstimate.user_id == user.id)
