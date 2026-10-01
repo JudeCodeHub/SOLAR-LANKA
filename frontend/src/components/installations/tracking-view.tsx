@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 
 import { QueryState } from "@/components/query-state";
+import { currentStepText, progressText } from "@/lib/installations/progress";
 import { useInstallation } from "@/lib/quotation/customer-hooks";
 import { messages } from "@/messages";
 
@@ -18,7 +19,7 @@ export function TrackingView({ id, justAccepted }: { id: string; justAccepted: b
   }, [justAccepted]);
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
-      <Link href="/my/requests" className="text-sm underline underline-offset-2">
+      <Link href="/my/installations" className="text-sm underline underline-offset-2">
         {text.back}
       </Link>
       <h1 ref={heading} tabIndex={-1} className="font-heading text-3xl font-semibold tracking-tight outline-none">
@@ -32,6 +33,10 @@ export function TrackingView({ id, justAccepted }: { id: string; justAccepted: b
       <QueryState query={query}>
         {(installation) => (
           <section aria-labelledby="steps-title" className="space-y-2">
+            <p className="text-sm font-medium" data-progress>
+              <span className="block">{progressText(installation.milestones.filter((m) => m.status === "completed").length, installation.milestones.length)}</span>
+              <span className="block">{currentStepText(installation.milestones)}</span>
+            </p>
             <h2 id="steps-title" className="font-heading text-xl font-semibold tracking-tight">
               {text.steps}
             </h2>

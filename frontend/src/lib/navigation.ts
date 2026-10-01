@@ -57,7 +57,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
 
   { id: "my-estimates", label: messages.nav.items.myEstimates, href: "/my/estimates", group: "customer", access: CUSTOMER, available: true },
   { id: "my-requests", label: messages.nav.items.myRequests, href: "/my/requests", group: "customer", access: CUSTOMER, available: true },
-  { id: "my-installations", label: messages.nav.items.myInstallations, href: "/my/installations", group: "customer", access: CUSTOMER, available: false },
+  { id: "my-installations", label: messages.nav.items.myInstallations, href: "/my/installations", group: "customer", access: CUSTOMER, available: true },
   { id: "my-favourites", label: messages.nav.items.myFavourites, href: "/my/favourites", group: "customer", access: CUSTOMER, available: true },
 
   { id: "company-inbox", label: messages.nav.items.companyInbox, href: "/company/inbox", group: "company", access: COMPANY_STAFF, available: true },

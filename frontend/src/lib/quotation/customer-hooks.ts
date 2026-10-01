@@ -83,3 +83,20 @@ export function useInstallation(id: string) {
     refetchOnWindowFocus: true,
   });
 }
+
+export const INSTALLATIONS_PAGE_SIZE = 12;
+
+/** One page of the customer's accepted installations, newest first. */
+export function useInstallations(page: number) {
+  return useQuery({
+    queryKey: queryKeys.installationList(page),
+    queryFn: () =>
+      unwrap(() =>
+        api.GET("/users/me/installations", {
+          params: { query: { limit: INSTALLATIONS_PAGE_SIZE, offset: (page - 1) * INSTALLATIONS_PAGE_SIZE } },
+        }),
+      ),
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+  });
+}
