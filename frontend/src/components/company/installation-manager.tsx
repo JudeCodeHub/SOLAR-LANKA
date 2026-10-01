@@ -78,7 +78,7 @@ function Manager({ companyId, id }: { companyId: string; id: string }) {
 
   return (
     <>
-      <Link href={`/company/installations?company=${companyId}`} className="text-sm underline underline-offset-2">
+      <Link href={`/company/installations?company=${companyId}`} className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">
         {text.back}
       </Link>
       {done ? (

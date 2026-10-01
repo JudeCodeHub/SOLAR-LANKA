@@ -47,7 +47,7 @@ export function SummaryCard({ id, title, children, link }: { id: string; title: 
       </h2>
       {children}
       {link ? (
-        <Link href={link.href} className="inline-block font-medium underline underline-offset-2">
+        <Link href={link.href} className="inline-flex min-h-11 items-center font-medium underline underline-offset-2">
           {link.label}
         </Link>
       ) : null}

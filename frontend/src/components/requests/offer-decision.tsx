@@ -17,21 +17,40 @@ import { format, messages } from "@/messages";
 const text = messages.customerOffers.decide;
 
 /** Accept or decline exactly the revision on screen, asking first and explaining any refusal from the fresh state. */
-export function OfferDecision({ requestId, quotationId, revision, companyName, now }: { requestId: string; quotationId: string; revision: SentRevision; companyName: string; now: number }) {
+export function OfferDecision({
+  requestId,
+  quotationId,
+  revision,
+  companyName,
+  now,
+  refusedFor,
+  setRefusedFor,
+}: {
+  requestId: string;
+  quotationId: string;
+  revision: SentRevision;
+  companyName: string;
+  now: number;
+  /** The revision a refused attempt was about; held by the parent because a newer revision remounts this component. */
+  refusedFor: string | null;
+  setRefusedFor: (revisionId: string | null) => void;
+}) {
   const router = useRouter();
   const request = useRequest(requestId);
   const offers = useRequestOffers(requestId);
   const { accept, decline } = useDecision(requestId, quotationId, revision.id);
   const busy = useRef(false);
-  const [refused, setRefused] = useState(false);
+  const refused = refusedFor !== null;
   const [error, setError] = useState<ApiError | null>(null);
   const statusRef = useRef<HTMLParagraphElement>(null);
 
   const fresh = Math.max(now, offers.dataUpdatedAt);
-  const blocker =
-    request.data && offers.data
-      ? decisionBlocker({ requestStatus: request.data.status, offers: offers.data, quotationId, revisionId: revision.id, now: fresh })
-      : null;
+  const ready = request.data && offers.data;
+  const check = (revisionId: string) =>
+    ready ? decisionBlocker({ requestStatus: request.data.status, offers: offers.data, quotationId, revisionId, now: fresh }) : null;
+  // What can be done now is about the revision on screen; a refusal is explained for the revision that was attempted.
+  const blocker = check(revision.id);
+  const refusal = check(refusedFor ?? revision.id);
   const state = offerState(revision, fresh);
   const declined = state === "declined";
   const open = state === "active" && blocker === null;
@@ -40,11 +59,11 @@ export function OfferDecision({ requestId, quotationId, revision, companyName, n
     // A synchronous guard: state updates are too slow to stop a rapid second click.
     if (busy.current) return;
     busy.current = true;
-    setRefused(false);
+    setRefusedFor(null);
     setError(null);
     const fail = (failure: ApiError) => {
       busy.current = false;
-      if ((failure.status === 409 || failure.status === 404)) setRefused(true);
+      if ((failure.status === 409 || failure.status === 404)) setRefusedFor(revision.id);
       else setError(failure);
     };
     if (kind === "accept") {
@@ -79,7 +98,7 @@ export function OfferDecision({ requestId, quotationId, revision, companyName, n
       ) : null}
       {refused ? (
         <p role="alert" className="text-sm font-medium" data-refused>
-          {blockerText(blocker)} {text.noteStale}
+          {blockerText(refusal)} {text.noteStale}
         </p>
       ) : null}
       {error ? <ApiErrorMessage error={error} /> : null}

@@ -55,7 +55,7 @@ function Offers({ requestId, items, now }: { requestId: string; items: OfferSumm
                 </p>
               ) : null}
               <p className="text-muted-foreground">{format(plural(text.list.revisions, item.sent_revision_count), { count: item.sent_revision_count })}</p>
-              <Link href={`/my/requests/${requestId}/offers/${item.quotation_id}`} className="underline underline-offset-2">
+              <Link href={`/my/requests/${requestId}/offers/${item.quotation_id}`} className="inline-flex min-h-11 items-center underline underline-offset-2">
                 {text.list.view}
               </Link>
             </li>
@@ -63,7 +63,7 @@ function Offers({ requestId, items, now }: { requestId: string; items: OfferSumm
         })}
       </ul>
       {open.length >= 2 ? (
-        <Link href={`/my/requests/${requestId}/compare`} className="inline-block text-sm font-medium underline underline-offset-2" data-compare-link>
+        <Link href={`/my/requests/${requestId}/compare`} className="inline-flex min-h-11 items-center text-sm font-medium underline underline-offset-2" data-compare-link>
           {text.list.compare}
         </Link>
       ) : (

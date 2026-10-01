@@ -37,7 +37,7 @@ export function TrackingView({
     <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
       <Link
         href="/my/installations"
-        className="text-sm underline underline-offset-2"
+        className="inline-flex min-h-11 items-center text-sm underline underline-offset-2"
       >
         {text.back}
       </Link>
