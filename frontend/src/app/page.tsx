@@ -1,6 +1,5 @@
 import { Sun } from "lucide-react";
 
-import { AuthStatus } from "@/components/auth-status";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -27,9 +26,8 @@ export default function Home() {
           Portfolio demonstration under development. All companies, prices and
           estimates will be fictional samples.
         </CardContent>
-        <CardFooter className="flex-col justify-center gap-3">
+        <CardFooter className="justify-center">
           <Button disabled>Catalogue coming soon</Button>
-          <AuthStatus />
         </CardFooter>
       </Card>
     </main>

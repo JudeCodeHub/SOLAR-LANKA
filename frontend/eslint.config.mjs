@@ -27,6 +27,18 @@ const eslintConfig = defineConfig([
         { name: "localStorage", message: AUTH_STORAGE_MESSAGE },
         { name: "sessionStorage", message: AUTH_STORAGE_MESSAGE },
       ],
+      // @clerk/nextjs v7 still exports these removed components (so they type-check) but
+      // they throw when rendered. Use <Show when="signed-in"> and server-side checks instead.
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: ["SignedIn", "SignedOut", "Protect"].map((name) => ({
+            name: "@clerk/nextjs",
+            importNames: [name],
+            message: `<${name}> was removed in @clerk/nextjs v7 and throws at runtime. Use <Show> instead.`,
+          })),
+        },
+      ],
       "no-restricted-properties": [
         "error",
         ...["window", "globalThis", "self"].flatMap((object) =>
