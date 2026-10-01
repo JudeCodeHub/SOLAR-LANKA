@@ -2496,6 +2496,28 @@ export interface components {
              */
             total: number;
         };
+        /** PageResponse[ProductListItem] */
+        PageResponse_ProductListItem_: {
+            /** Items */
+            items: components["schemas"]["ProductListItem"][];
+            /**
+             * Limit
+             * @description Records per page: default 20, minimum 1, maximum 100.
+             * @default 20
+             */
+            limit: number;
+            /**
+             * Offset
+             * @description Records to skip: default 0, maximum 10000. Narrow filters beyond this limit.
+             * @default 0
+             */
+            offset: number;
+            /**
+             * Total
+             * @description Total matching records before pagination, including filters.
+             */
+            total: number;
+        };
         /** PageResponse[ProductSummary] */
         PageResponse_ProductSummary_: {
             /** Items */
@@ -2693,6 +2715,40 @@ export interface components {
             brand?: string | null;
             /** Model */
             model?: string | null;
+        };
+        /**
+         * ProductListItem
+         * @description A list entry with the few specifications people filter on, so results show why they match.
+         *
+         *     Panels fill `wattage_w` and `efficiency_percent`; inverters fill `category` and `capacity_kw`.
+         *     The fields that do not apply to the kind are always null. A null that does apply means the
+         *     value is unknown for this product, which is different from zero.
+         */
+        ProductListItem: {
+            /** Brand */
+            brand: string;
+            /** Capacity Kw */
+            capacity_kw?: string | null;
+            /** Category */
+            category?: ("on_grid" | "off_grid" | "hybrid") | null;
+            /** Efficiency Percent */
+            efficiency_percent?: string | null;
+            /**
+             * Id
+             * Format: uuid4
+             */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "panel" | "inverter";
+            /** Media */
+            media?: components["schemas"]["PublicMedia"][];
+            /** Model */
+            model: string;
+            /** Wattage W */
+            wattage_w?: string | null;
         };
         /** ProductSummary */
         ProductSummary: {
@@ -4601,7 +4657,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PageResponse_ProductSummary_"];
+                    "application/json": components["schemas"]["PageResponse_ProductListItem_"];
                 };
             };
             /** @description Bad Request */
@@ -4761,7 +4817,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PageResponse_ProductSummary_"];
+                    "application/json": components["schemas"]["PageResponse_ProductListItem_"];
                 };
             };
             /** @description Bad Request */

@@ -19,6 +19,20 @@ class ProductSummary(BaseModel):
     media: list[PublicMedia] = Field(default_factory=list)
 
 
+class ProductListItem(ProductSummary):
+    """A list entry with the few specifications people filter on, so results show why they match.
+
+    Panels fill `wattage_w` and `efficiency_percent`; inverters fill `category` and `capacity_kw`.
+    The fields that do not apply to the kind are always null. A null that does apply means the
+    value is unknown for this product, which is different from zero.
+    """
+
+    wattage_w: Decimal | None = None
+    efficiency_percent: Decimal | None = None
+    category: Literal["on_grid", "off_grid", "hybrid"] | None = None
+    capacity_kw: Decimal | None = None
+
+
 class PanelSpecifications(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
