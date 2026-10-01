@@ -25,6 +25,7 @@ export interface StepRow {
   kind: string;
   position: number;
   status: string;
+  evidence?: readonly { kind: string; asset_id: string }[];
 }
 
 export interface Actions {

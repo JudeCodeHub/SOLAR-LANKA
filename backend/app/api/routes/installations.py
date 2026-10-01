@@ -3,7 +3,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, Response, UploadFile
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -27,7 +27,10 @@ from app.core.installation_milestones import (
     MilestoneStatus,
     can_transition,
 )
+from app.core.media_policy import AssetCategory, Visibility, policy_for
 from app.core.permissions import Action, Scope, required_scopes
+from app.core.private_storage import LocalPrivateStorage
+from app.core.request_protection import UPLOAD_REQUEST, protect_user
 from app.db.session import get_session
 from app.models.company import CompanyMembership
 from app.models.installation import Installation
@@ -413,3 +416,112 @@ def list_internal_notes(
         .limit(limit)
     ).all()
     return [InternalNoteView.model_validate(note, from_attributes=True) for note in notes]
+
+
+EVIDENCE = AssetCategory.INSTALLATION_EVIDENCE
+_IMAGE_SIGNATURES = (
+    (b"\xff\xd8\xff", "image/jpeg", "jpg"),
+    (b"\x89PNG\r\n\x1a\n", "image/png", "png"),
+)
+
+
+def _evidence_storage(request: Request) -> LocalPrivateStorage:
+    try:
+        return LocalPrivateStorage(environment=request.app.state.settings.environment)
+    except RuntimeError:
+        raise HTTPException(503, "Private storage is not configured") from None
+
+
+def _image_type(content: bytes) -> tuple[str, str]:
+    for signature, mime, extension in _IMAGE_SIGNATURES:
+        if content.startswith(signature):
+            return mime, extension
+    if content.startswith(b"RIFF") and content[8:12] == b"WEBP":
+        return "image/webp", "webp"
+    raise HTTPException(404)
+
+
+@company_router.post(
+    "/{installation_id}/evidence",
+    status_code=201,
+    dependencies=[Depends(protect_user(UPLOAD_REQUEST))],
+)
+def upload_installation_evidence(
+    installation_id: UUID,
+    file: Annotated[UploadFile, File()],
+    membership: Annotated[
+        CompanyMembership, Depends(require_company_permission(Action.INSTALLATION_UPDATE))
+    ],
+    session: Annotated[Session, Depends(get_session)],
+    storage: Annotated[LocalPrivateStorage, Depends(_evidence_storage)],
+    response: Response,
+) -> dict[str, str]:
+    """Store a private evidence image for this company's installation and return its reference."""
+    response.headers["Cache-Control"] = "no-store"
+    _installation_for_scope(session, installation_id, company_id=membership.company_id)
+    max_bytes = policy_for(EVIDENCE).max_bytes
+    content = file.file.read(max_bytes + 1)
+    try:
+        file_id = storage.save(
+            category=EVIDENCE, content=content, mime_type=file.content_type or ""
+        )
+    except ValueError:
+        raise HTTPException(422, "Unsupported evidence file") from None
+    asset = MediaAsset(
+        provider="local_private",
+        provider_file_id=file_id,
+        owner_user_id=membership.user_id,
+        category=EVIDENCE.value,
+        parent_kind="installation",
+        parent_id=installation_id,
+        visibility=Visibility.PRIVATE.value,
+    )
+    session.add(asset)
+    try:
+        session.commit()
+    except Exception:
+        session.rollback()
+        storage.delete(file_id)
+        raise
+    return {"id": str(asset.id)}
+
+
+@company_router.get("/{installation_id}/evidence/{asset_id}")
+def download_installation_evidence(
+    installation_id: UUID,
+    asset_id: UUID,
+    membership: Annotated[
+        CompanyMembership, Depends(require_company_permission(Action.INSTALLATION_READ))
+    ],
+    session: Annotated[Session, Depends(get_session)],
+    storage: Annotated[LocalPrivateStorage, Depends(_evidence_storage)],
+) -> Response:
+    """Return one evidence file only to staff of the company that owns the installation."""
+    _installation_for_scope(session, installation_id, company_id=membership.company_id)
+    asset = session.scalars(
+        select(MediaAsset).where(
+            MediaAsset.id == asset_id,
+            MediaAsset.category == EVIDENCE.value,
+            MediaAsset.parent_kind == "installation",
+            MediaAsset.parent_id == installation_id,
+            MediaAsset.visibility == Visibility.PRIVATE.value,
+            MediaAsset.provider == "local_private",
+            MediaAsset.public_url.is_(None),
+        )
+    ).one_or_none()
+    if asset is None:
+        raise HTTPException(404)
+    try:
+        content = storage.read(asset.provider_file_id)
+    except FileNotFoundError, ValueError:
+        raise HTTPException(404) from None
+    mime, extension = _image_type(content)
+    return Response(
+        content=content,
+        media_type=mime,
+        headers={
+            "Cache-Control": "no-store",
+            "X-Content-Type-Options": "nosniff",
+            "Content-Disposition": f'attachment; filename="evidence.{extension}"',
+        },
+    )
