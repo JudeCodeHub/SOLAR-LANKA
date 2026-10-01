@@ -10,6 +10,10 @@ if (!jsxA11y) {
   throw new Error("eslint-config-next no longer registers jsx-a11y; update eslint.config.mjs");
 }
 
+const AUTH_STORAGE_MESSAGE =
+  "Do not use browser storage: Clerk owns the session and tokens must never be persisted. " +
+  "For a non-auth preference, disable this rule on that line with a justification.";
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
@@ -17,6 +21,22 @@ const eslintConfig = defineConfig([
     rules: {
       ...jsxA11y.configs.recommended.rules,
       eqeqeq: ["error", "always"],
+      // Clerk owns the session. Tokens must never be copied into browser storage.
+      "no-restricted-globals": [
+        "error",
+        { name: "localStorage", message: AUTH_STORAGE_MESSAGE },
+        { name: "sessionStorage", message: AUTH_STORAGE_MESSAGE },
+      ],
+      "no-restricted-properties": [
+        "error",
+        ...["window", "globalThis", "self"].flatMap((object) =>
+          ["localStorage", "sessionStorage"].map((property) => ({
+            object,
+            property,
+            message: AUTH_STORAGE_MESSAGE,
+          })),
+        ),
+      ],
       "no-console": ["warn", { allow: ["warn", "error"] }],
     },
   },
