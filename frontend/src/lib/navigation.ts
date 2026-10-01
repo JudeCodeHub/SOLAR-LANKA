@@ -55,11 +55,13 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { id: "troubleshooting", label: messages.nav.items.troubleshooting, href: "/troubleshooting", group: "explore", access: PUBLIC, available: false },
   { id: "support", label: messages.nav.items.support, href: "/support", group: "explore", access: PUBLIC, available: false },
 
+  { id: "my-dashboard", label: messages.nav.items.myDashboard, href: "/my", group: "customer", access: CUSTOMER, available: true },
   { id: "my-estimates", label: messages.nav.items.myEstimates, href: "/my/estimates", group: "customer", access: CUSTOMER, available: true },
   { id: "my-requests", label: messages.nav.items.myRequests, href: "/my/requests", group: "customer", access: CUSTOMER, available: true },
   { id: "my-installations", label: messages.nav.items.myInstallations, href: "/my/installations", group: "customer", access: CUSTOMER, available: true },
   { id: "my-favourites", label: messages.nav.items.myFavourites, href: "/my/favourites", group: "customer", access: CUSTOMER, available: true },
 
+  { id: "company-dashboard", label: messages.nav.items.companyDashboard, href: "/company", group: "company", access: COMPANY_STAFF, available: true },
   { id: "company-inbox", label: messages.nav.items.companyInbox, href: "/company/inbox", group: "company", access: COMPANY_STAFF, available: true },
   { id: "company-offers", label: messages.nav.items.companyOffers, href: "/company/offers", group: "company", access: COMPANY_STAFF, available: true },
   { id: "company-installations", label: messages.nav.items.companyInstallations, href: "/company/installations", group: "company", access: COMPANY_STAFF, available: true },
