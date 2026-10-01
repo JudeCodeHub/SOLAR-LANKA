@@ -1,8 +1,10 @@
+import Link from "next/link";
+
+import { CompanyCard } from "@/components/directory/company-card";
 import { SectionUnavailable } from "@/components/landing/section-unavailable";
 import { EmptyState } from "@/components/states/empty-state";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { components } from "@/lib/api/schema";
-import { formatList, serviceLabel } from "@/lib/landing/format";
+import { DIRECTORY_PATH } from "@/lib/directory/links";
 import type { Section } from "@/lib/landing/load";
 import { format, messages } from "@/messages";
 
@@ -38,40 +40,16 @@ export function FeaturedCompanies({ section }: { section: Section<Company> }) {
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {section.items.map((company) => (
             <li key={company.id}>
-              <Card className="h-full">
-                <CardHeader>
-                  <CardTitle>{company.name}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  <p>
-                    <span className="font-medium">{text.districts}: </span>
-                    {formatList(company.service_districts)}
-                  </p>
-                  <p>
-                    <span className="font-medium">{text.services}: </span>
-                    {formatList(company.services.map(serviceLabel))}
-                  </p>
-                  {company.declared_credentials.length > 0 ? (
-                    <div>
-                      <p className="font-medium">{text.credentials}</p>
-                      <ul className="list-disc pl-5 text-muted-foreground">
-                        {company.declared_credentials.map((credential) => (
-                          <li key={`${credential.name}-${credential.issuer}`}>
-                            {format(text.credentialLine, {
-                              name: credential.name,
-                              issuer: credential.issuer,
-                            })}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                </CardContent>
-              </Card>
+              <CompanyCard company={company} listHref={DIRECTORY_PATH} />
             </li>
           ))}
         </ul>
       )}
+      {section.ok && section.items.length > 0 ? (
+        <Link href={DIRECTORY_PATH} className="inline-block text-sm font-medium underline underline-offset-2">
+          {text.viewAll}
+        </Link>
+      ) : null}
     </section>
   );
 }
