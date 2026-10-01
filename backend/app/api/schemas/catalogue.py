@@ -33,6 +33,23 @@ class ProductListItem(ProductSummary):
     capacity_kw: Decimal | None = None
 
 
+class PublicProductOffer(BaseModel):
+    """A company's offer for a product, as shown to the public.
+
+    Prices are indicative and, in the demonstration data, samples (`is_demo_price`). The company
+    claim is the company's own statement, labelled as such; the platform has not verified it.
+    A null price means the company gave none, which is different from a price of zero.
+    """
+
+    company_id: EntityId
+    company_name: str
+    indicative_price: Decimal | None
+    currency: str | None
+    is_demo_price: bool
+    company_claim: str | None
+    claim_label: Literal["company_declared"]
+
+
 class PanelSpecifications(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

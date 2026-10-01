@@ -52,6 +52,7 @@ export async function CataloguePage({
     );
   }
 
+  const listHref = buildCatalogueHref(basePath, kind, state);
   const filtered = Object.keys(state.apiQuery).length > 0;
   const hasInvalid = Object.keys(state.errors).length > 0;
   const info = result.ok ? pageInfo(result.total, state.page) : null;
@@ -105,7 +106,7 @@ export async function CataloguePage({
             <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {result.items.map((product) => (
                 <li key={product.id}>
-                  <ProductCard product={product} />
+                  <ProductCard product={product} listHref={listHref} />
                 </li>
               ))}
             </ul>

@@ -293,6 +293,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/catalogue/inverters/{product_id}/offers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Inverter Offers */
+        get: operations["inverter_offers_catalogue_inverters__product_id__offers_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/catalogue/panels": {
         parameters: {
             query?: never;
@@ -336,6 +353,23 @@ export interface paths {
         };
         /** Panel Detail */
         get: operations["panel_detail_catalogue_panels__product_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/catalogue/panels/{product_id}/offers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Panel Offers */
+        get: operations["panel_offers_catalogue_panels__product_id__offers_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2562,6 +2596,28 @@ export interface components {
              */
             total: number;
         };
+        /** PageResponse[PublicProductOffer] */
+        PageResponse_PublicProductOffer_: {
+            /** Items */
+            items: components["schemas"]["PublicProductOffer"][];
+            /**
+             * Limit
+             * @description Records per page: default 20, minimum 1, maximum 100.
+             * @default 20
+             */
+            limit: number;
+            /**
+             * Offset
+             * @description Records to skip: default 0, maximum 10000. Narrow filters beyond this limit.
+             * @default 0
+             */
+            offset: number;
+            /**
+             * Total
+             * @description Total matching records before pagination, including filters.
+             */
+            total: number;
+        };
         /** PageResponse[QuotationRevisionView] */
         PageResponse_QuotationRevisionView_: {
             /** Items */
@@ -2803,6 +2859,36 @@ export interface components {
              * Format: uri
              */
             url: string;
+        };
+        /**
+         * PublicProductOffer
+         * @description A company's offer for a product, as shown to the public.
+         *
+         *     Prices are indicative and, in the demonstration data, samples (`is_demo_price`). The company
+         *     claim is the company's own statement, labelled as such; the platform has not verified it.
+         *     A null price means the company gave none, which is different from a price of zero.
+         */
+        PublicProductOffer: {
+            /**
+             * Claim Label
+             * @constant
+             */
+            claim_label: "company_declared";
+            /** Company Claim */
+            company_claim: string | null;
+            /**
+             * Company Id
+             * Format: uuid4
+             */
+            company_id: string;
+            /** Company Name */
+            company_name: string;
+            /** Currency */
+            currency: string | null;
+            /** Indicative Price */
+            indicative_price: string | null;
+            /** Is Demo Price */
+            is_demo_price: boolean;
         };
         /** PublicSource */
         PublicSource: {
@@ -4792,6 +4878,87 @@ export interface operations {
             };
         };
     };
+    inverter_offers_catalogue_inverters__product_id__offers_get: {
+        parameters: {
+            query?: {
+                /** @description Records per page: default 20, minimum 1, maximum 100. */
+                limit?: number;
+                /** @description Records to skip: default 0, maximum 10000. Narrow filters beyond this limit. */
+                offset?: number;
+            };
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PageResponse_PublicProductOffer_"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     list_panels_catalogue_panels_get: {
         parameters: {
             query?: {
@@ -4972,6 +5139,87 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProductDetail"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    panel_offers_catalogue_panels__product_id__offers_get: {
+        parameters: {
+            query?: {
+                /** @description Records per page: default 20, minimum 1, maximum 100. */
+                limit?: number;
+                /** @description Records to skip: default 0, maximum 10000. Narrow filters beyond this limit. */
+                offset?: number;
+            };
+            header?: never;
+            path: {
+                product_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PageResponse_PublicProductOffer_"];
                 };
             };
             /** @description Bad Request */

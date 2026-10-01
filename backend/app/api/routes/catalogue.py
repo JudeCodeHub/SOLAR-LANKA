@@ -13,6 +13,7 @@ from app.api.schemas.catalogue import (
     ProductDetail,
     ProductListItem,
     ProductSummary,
+    PublicProductOffer,
 )
 from app.api.schemas.catalogue_filters import InverterQuery, PanelQuery
 from app.api.schemas.comparison import (
@@ -20,11 +21,13 @@ from app.api.schemas.comparison import (
     PanelComparisonRequest,
     PanelComparisonResponse,
 )
-from app.api.schemas.pagination import PageResponse
+from app.api.schemas.pagination import PageResponse, PaginationParams
 from app.db.session import get_session
+from app.models.company import Company
 from app.models.inverter import Inverter
 from app.models.panel import Panel
 from app.models.product import Product
+from app.models.product_offer import ProductOffer
 from app.services.public_media import public_media_for
 
 router = APIRouter(prefix="/catalogue", tags=["catalogue"])
@@ -146,6 +149,58 @@ def _detail(
     )
 
 
+def _offers(
+    kind: Literal["panel", "inverter"],
+    product_id: UUID,
+    session: Session,
+    pagination: PaginationParams,
+) -> PageResponse[PublicProductOffer]:
+    """Offers for one published product, from approved companies only."""
+    product = session.scalars(
+        select(Product).where(
+            Product.id == product_id, Product.kind == kind, Product.is_archived.is_(False)
+        )
+    ).one_or_none()
+    if product is None:
+        raise HTTPException(404)
+    conditions = [
+        ProductOffer.product_id == product.id,
+        Company.publication_status == "approved",
+    ]
+    join = ProductOffer.company_id == Company.id
+    total = (
+        session.scalar(
+            select(func.count()).select_from(ProductOffer).join(Company, join).where(*conditions)
+        )
+        or 0
+    )
+    rows = session.execute(
+        select(ProductOffer, Company.name)
+        .join(Company, join)
+        .where(*conditions)
+        .order_by(Company.name, ProductOffer.id)
+        .limit(pagination.limit)
+        .offset(pagination.offset)
+    ).all()
+    return PageResponse[PublicProductOffer](
+        limit=pagination.limit,
+        offset=pagination.offset,
+        total=total,
+        items=[
+            PublicProductOffer(
+                company_id=offer.company_id,
+                company_name=company_name,
+                indicative_price=offer.indicative_price,
+                currency=offer.currency,
+                is_demo_price=offer.is_demo_price,
+                company_claim=offer.company_claim,
+                claim_label=offer.claim_label,
+            )
+            for offer, company_name in rows
+        ],
+    )
+
+
 @router.get("/panels", response_model=PageResponse[ProductListItem])
 def list_panels(
     session: Annotated[Session, Depends(get_session)],
@@ -191,3 +246,25 @@ def inverter_detail(
 ) -> ProductDetail:
     response.headers["Cache-Control"] = "no-store"
     return _detail("inverter", product_id, session)
+
+
+@router.get("/panels/{product_id}/offers", response_model=PageResponse[PublicProductOffer])
+def panel_offers(
+    product_id: UUID,
+    session: Annotated[Session, Depends(get_session)],
+    pagination: Annotated[PaginationParams, Query()],
+    response: Response,
+) -> PageResponse[PublicProductOffer]:
+    response.headers["Cache-Control"] = "no-store"
+    return _offers("panel", product_id, session, pagination)
+
+
+@router.get("/inverters/{product_id}/offers", response_model=PageResponse[PublicProductOffer])
+def inverter_offers(
+    product_id: UUID,
+    session: Annotated[Session, Depends(get_session)],
+    pagination: Annotated[PaginationParams, Query()],
+    response: Response,
+) -> PageResponse[PublicProductOffer]:
+    response.headers["Cache-Control"] = "no-store"
+    return _offers("inverter", product_id, session, pagination)
