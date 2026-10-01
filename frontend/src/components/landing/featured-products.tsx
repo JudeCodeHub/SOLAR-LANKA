@@ -4,6 +4,7 @@ import { EmptyState } from "@/components/states/empty-state";
 import { SectionUnavailable } from "@/components/landing/section-unavailable";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { components } from "@/lib/api/schema";
+import { BASE_PATH, detailHref } from "@/lib/catalogue/links";
 import { productName } from "@/lib/landing/format";
 import type { Section } from "@/lib/landing/load";
 import { format, messages } from "@/messages";
@@ -44,10 +45,17 @@ export function FeaturedProducts({
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {section.items.map((product) => (
             <li key={product.id}>
-              <Card className="h-full">
+              <Card className="relative h-full transition-colors hover:bg-muted/40">
                 <CardHeader>
                   <CardDescription>{text.kind[product.kind]}</CardDescription>
-                  <CardTitle>{productName(product)}</CardTitle>
+                  <CardTitle>
+                    <Link
+                      href={detailHref(product.kind, product.id, BASE_PATH[product.kind])}
+                      className="underline-offset-2 outline-none after:absolute after:inset-0 hover:underline focus-visible:underline"
+                    >
+                      {productName(product)}
+                    </Link>
+                  </CardTitle>
                   <CardDescription>{text.sampleNote}</CardDescription>
                 </CardHeader>
               </Card>
