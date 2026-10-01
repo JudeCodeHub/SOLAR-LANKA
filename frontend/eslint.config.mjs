@@ -79,7 +79,7 @@ const eslintConfig = defineConfig([
     rules: {
       "react/jsx-no-literals": [
         "error",
-        { noStrings: true, allowedStrings: ["·", "…", "|", "-", "/", ":"], ignoreProps: true },
+        { noStrings: true, allowedStrings: ["·", "…", "|", "-", "/", ":", " "], ignoreProps: true },
       ],
     },
   },

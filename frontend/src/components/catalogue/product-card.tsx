@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ComparisonToggle } from "@/components/comparison/comparison-toggle";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ProductListItem } from "@/lib/catalogue/load";
 import { formatDecimal } from "@/lib/catalogue/params";
@@ -64,9 +65,12 @@ export function ProductCard({
           </div>
         ))}
       </dl>
-      <p className="px-4 pb-4 text-xs text-muted-foreground">
+      <p className="px-4 pb-2 text-xs text-muted-foreground">
         {messages.landing.products.sampleNote}
       </p>
+      <div className="px-4 pb-4">
+        <ComparisonToggle kind={product.kind} id={product.id} name={productName(product)} />
+      </div>
     </Card>
   );
 }
