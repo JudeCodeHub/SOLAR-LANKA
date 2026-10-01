@@ -6,7 +6,7 @@ import {
   buildUpstreamUrl,
   filterResponseHeaders,
   isCrossSiteWrite,
-  MAX_BODY_BYTES,
+  maxBodyBytes,
   proxyError,
   UPSTREAM_TIMEOUT_MS,
 } from "@/lib/api/proxy";
@@ -32,12 +32,13 @@ async function forward(request: Request, context: RouteContext<"/api/[...path]">
 
   let body: ArrayBuffer | undefined;
   if (request.method !== "GET" && request.method !== "HEAD") {
+    const limit = maxBodyBytes(path);
     const declared = Number(request.headers.get("content-length") ?? 0);
-    if (declared > MAX_BODY_BYTES) {
+    if (declared > limit) {
       return proxyError(413, "bad_request", "The request body is too large.");
     }
     body = await request.arrayBuffer();
-    if (body.byteLength > MAX_BODY_BYTES) {
+    if (body.byteLength > limit) {
       return proxyError(413, "bad_request", "The request body is too large.");
     }
   }

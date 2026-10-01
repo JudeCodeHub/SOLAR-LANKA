@@ -6,7 +6,9 @@ from uuid import uuid4
 import pytest
 from sqlalchemy import func, select
 
+from app.api.routes.installations import _evidence_storage
 from app.core.auth import VerifiedIdentity, require_identity
+from app.core.private_storage import LocalPrivateStorage
 from app.models.company import Company
 from app.models.media_asset import MediaAsset
 from app.models.notification import Notification
@@ -53,7 +55,7 @@ def terms(product_id, *, panels: str, panel_price: str, charge: str, discount: s
     }
 
 
-def test_core_journey_works_through_the_api(database_client, database_session):
+def test_core_journey_works_through_the_api(database_client, database_session, tmp_path):
     client = database_client
     session = database_session
 
@@ -240,6 +242,30 @@ def test_core_journey_works_through_the_api(database_client, database_session):
         json={"reason": "Awaiting roof access", "next_action": "Reschedule survey"},
     )
     assert update.status_code == 200
+    # Private evidence is uploaded and downloaded only by the owning company's staff.
+    client.app.dependency_overrides[_evidence_storage] = lambda: LocalPrivateStorage(
+        tmp_path / "private", environment="test"
+    )
+    png = b"\x89PNG\r\n\x1a\n" + b"0" * 32
+    uploaded = client.post(f"{base}/evidence", files={"file": ("a.png", png, "image/png")})
+    assert uploaded.status_code == 201
+    evidence_url = f"{base}/evidence/{uploaded.json()['id']}"
+    fake = client.post(f"{base}/evidence", files={"file": ("a.png", b"not an image", "image/png")})
+    assert fake.status_code == 422
+    pdf = client.post(f"{base}/evidence", files={"file": ("a.pdf", b"%PDF-1", "application/pdf")})
+    assert pdf.status_code == 422
+    downloaded = client.get(evidence_url)
+    assert downloaded.status_code == 200 and downloaded.content == png
+    assert downloaded.headers["cache-control"] == "no-store"
+    assert downloaded.headers["content-disposition"] == 'attachment; filename="evidence.png"'
+    assert client.get(f"{base}/evidence/{uuid4()}").status_code == 404
+    act_as(STAFF_B)
+    other = f"/companies/{COMPANY_A}/installations/{installation_id}/evidence"
+    assert client.post(other, files={"file": ("a.png", png, "image/png")}).status_code == 403
+    assert client.get(evidence_url).status_code == 403
+    act_as(CUSTOMER)
+    assert client.get(evidence_url).status_code in {403, 404}
+    act_as(STAFF_A)
     staff_user = session.scalars(select(AppUser).where(AppUser.clerk_subject == STAFF_A)).one()
     evidence = MediaAsset(
         provider="imagekit",

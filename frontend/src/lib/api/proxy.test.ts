@@ -4,8 +4,11 @@ import { test } from "node:test";
 import {
   buildUpstreamHeaders,
   buildUpstreamUrl,
+  EVIDENCE_BODY_BYTES,
   filterResponseHeaders,
   isCrossSiteWrite,
+  MAX_BODY_BYTES,
+  maxBodyBytes,
   parseApiBaseUrl,
   proxyError,
 } from "./proxy.ts";
@@ -110,4 +113,11 @@ test("proxy errors use the backend error contract", async () => {
   assert.deepEqual(await response.json(), {
     error: { code: "service_unavailable", message: "Backend unavailable.", issues: [] },
   });
+});
+
+test("only the evidence upload path may carry more than the default body size", () => {
+  const evidence = ["companies", "c1", "installations", "i1", "evidence"];
+  assert.equal(maxBodyBytes(evidence), EVIDENCE_BODY_BYTES);
+  assert.equal(maxBodyBytes(["companies", "c1", "installations", "i1", "evidence", "a1"]), MAX_BODY_BYTES);
+  assert.equal(maxBodyBytes(["users", "me", "requests"]), MAX_BODY_BYTES);
 });

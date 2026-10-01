@@ -59,3 +59,41 @@ export function useMoveMilestone(companyId: string, installationId: string) {
     onSettled: () => client.invalidateQueries({ queryKey: queryKeys.companyInstallation(companyId, installationId) }),
   });
 }
+
+/** Upload one private evidence photo; the result is the reference completing a step needs. */
+export function useUploadEvidence(companyId: string, installationId: string) {
+  return useMutation({
+    mutationFn: (file: File) => {
+      const form = new FormData();
+      form.append("file", file);
+      return unwrap(() =>
+        api.POST("/companies/{company_id}/installations/{installation_id}/evidence", {
+          params: { path: { company_id: companyId, installation_id: installationId } },
+          body: { file: "" },
+          // The browser builds the multipart body and its boundary.
+          bodySerializer: () => form,
+        }),
+      );
+    },
+  });
+}
+
+/** Fetch one evidence file through the access-checked route and hand it to the browser as a download. */
+export function useDownloadEvidence(companyId: string, installationId: string) {
+  return useMutation({
+    mutationFn: async (assetId: string) => {
+      const blob = await unwrap(() =>
+        api.GET("/companies/{company_id}/installations/{installation_id}/evidence/{asset_id}", {
+          params: { path: { company_id: companyId, installation_id: installationId, asset_id: assetId } },
+          parseAs: "blob",
+        }),
+      );
+      const url = URL.createObjectURL(blob as Blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "evidence";
+      link.click();
+      URL.revokeObjectURL(url);
+    },
+  });
+}

@@ -7,9 +7,9 @@ import { ApiErrorMessage } from "@/components/api-error-message";
 import { StaffGate } from "@/components/company/staff-gate";
 import { QueryState } from "@/components/query-state";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import type { ApiError } from "@/lib/api/errors";
-import { useCompanyInstallation, useMoveMilestone } from "@/lib/installations/hooks";
+import { useCompanyInstallation, useDownloadEvidence, useMoveMilestone, useUploadEvidence } from "@/lib/installations/hooks";
+import { evidenceProblem } from "@/lib/installations/evidence";
 import { currentStepText, progressText, stepName } from "@/lib/installations/progress";
 import {
   type Attempt,
@@ -107,7 +107,8 @@ function Manager({ companyId, id }: { companyId: string; id: string }) {
                       {refusalText(refused.attempt, step, steps)}
                     </p>
                   ) : null}
-                  <StepForms step={step} steps={steps} pending={move.isPending} run={run} />
+                  <StepForms companyId={companyId} installationId={id} step={step} steps={steps} pending={move.isPending} run={run} />
+                  {step.evidence && step.evidence.length > 0 ? <EvidenceList companyId={companyId} installationId={id} items={[...step.evidence]} /> : null}
                 </li>
               ))}
             </ol>
@@ -118,9 +119,12 @@ function Manager({ companyId, id }: { companyId: string; id: string }) {
   );
 }
 
-function StepForms({ step, steps, pending, run }: { step: StepRow; steps: StepRow[]; pending: boolean; run: (attempt: Attempt, step: StepRow, body: { status: "pending" | "in_progress" | "completed"; evidence?: { kind: string; asset_id: string }[]; reason?: string }) => void }) {
+function StepForms({ companyId, installationId, step, steps, pending, run }: { companyId: string; installationId: string; step: StepRow; steps: StepRow[]; pending: boolean; run: (attempt: Attempt, step: StepRow, body: { status: "pending" | "in_progress" | "completed"; evidence?: { kind: string; asset_id: string }[]; reason?: string }) => void }) {
   const actions = stepActions(step, steps);
+  const upload = useUploadEvidence(companyId, installationId);
   const [assetId, setAssetId] = useState("");
+  const [fileName, setFileName] = useState("");
+  const [uploadProblem, setUploadProblem] = useState<string | null>(null);
   const [note, setNote] = useState("");
   const [reason, setReason] = useState("");
   const [completeErrors, setCompleteErrors] = useState<Record<string, string>>({});
@@ -166,7 +170,7 @@ function StepForms({ step, steps, pending, run }: { step: StepRow; steps: StepRo
         className="space-y-2"
         onSubmit={(event) => {
           event.preventDefault();
-          if (pending) return;
+          if (pending || upload.isPending) return;
           const errors = validateComplete({ assetId, note });
           setCompleteErrors(errors);
           if (Object.keys(errors).length > 0) return;
@@ -181,21 +185,46 @@ function StepForms({ step, steps, pending, run }: { step: StepRow; steps: StepRo
           <label htmlFor={`${id}-asset`} className="block font-medium">
             {format(text.evidenceField, { kind: evidenceLabel(evidenceKind) })}
           </label>
-          <Input
+          <input
             id={`${id}-asset`}
-            value={assetId}
-            onChange={(event) => setAssetId(event.target.value)}
-            aria-invalid={Boolean(completeErrors.assetId)}
-            aria-describedby={`${id}-asset-help${completeErrors.assetId ? ` ${id}-asset-error` : ""}`}
-            autoComplete="off"
-            spellCheck={false}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            disabled={upload.isPending}
+            aria-invalid={Boolean(completeErrors.assetId || uploadProblem)}
+            aria-describedby={`${id}-asset-help${completeErrors.assetId || uploadProblem ? ` ${id}-asset-error` : ""}`}
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              event.target.value = "";
+              if (!file) return;
+              setUploadProblem(evidenceProblem(file));
+              if (evidenceProblem(file)) return;
+              setCompleteErrors({});
+              upload.mutate(file, {
+                onSuccess: (result) => {
+                  setAssetId(result.id ?? "");
+                  setFileName(file.name);
+                  setUploadProblem(null);
+                },
+                onError: (failure) => setUploadProblem(failure.status === 422 || failure.status === 409 ? text.upload.refused : failure.message),
+              });
+            }}
           />
           <p id={`${id}-asset-help`} className="text-muted-foreground">
             {text.evidenceHelp}
           </p>
-          {completeErrors.assetId ? (
+          {upload.isPending ? (
+            <p role="status" data-uploading>
+              {text.upload.working}
+            </p>
+          ) : null}
+          {assetId && fileName ? (
+            <p role="status" className="font-medium" data-uploaded>
+              {format(text.upload.done, { name: fileName })}
+            </p>
+          ) : null}
+          {completeErrors.assetId || uploadProblem ? (
             <p id={`${id}-asset-error`} className="font-medium text-destructive" data-error="asset">
-              {completeErrors.assetId}
+              {uploadProblem ?? completeErrors.assetId}
             </p>
           ) : null}
         </div>
@@ -220,7 +249,7 @@ function StepForms({ step, steps, pending, run }: { step: StepRow; steps: StepRo
             </p>
           ) : null}
         </div>
-        <Button type="submit" aria-disabled={pending} data-action="complete">
+        <Button type="submit" aria-disabled={pending || upload.isPending} data-action="complete">
           {pending ? text.completeWorking : text.complete}
         </Button>
       </form>
@@ -264,6 +293,27 @@ function StepForms({ step, steps, pending, run }: { step: StepRow; steps: StepRo
           {pending ? text.resetWorking : text.reset}
         </Button>
       </form>
+    </div>
+  );
+}
+
+/** Evidence already on file for a completed step, each one opened only through the access-checked download. */
+function EvidenceList({ companyId, installationId, items }: { companyId: string; installationId: string; items: { kind: string; asset_id: string }[] }) {
+  const download = useDownloadEvidence(companyId, installationId);
+  return (
+    <div className="space-y-1" data-evidence-list>
+      <h4 className="font-medium">{text.upload.attached}</h4>
+      <p className="text-muted-foreground">{text.upload.privateNote}</p>
+      <ul className="space-y-1">
+        {items.map((item) => (
+          <li key={item.asset_id}>
+            <Button type="button" variant="outline" size="sm" aria-disabled={download.isPending} data-download={item.kind} onClick={() => !download.isPending && download.mutate(item.asset_id)}>
+              {download.isPending && download.variables === item.asset_id ? text.upload.downloading : format(text.upload.download, { kind: evidenceLabel(item.kind) })}
+            </Button>
+          </li>
+        ))}
+      </ul>
+      {download.error ? <ApiErrorMessage error={download.error} /> : null}
     </div>
   );
 }
