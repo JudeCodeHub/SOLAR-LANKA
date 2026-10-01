@@ -1417,6 +1417,24 @@ export interface components {
             /** Status */
             status: string;
         };
+        /**
+         * CompanyMembershipSummary
+         * @description One active company the user belongs to. Names the company only; no private details.
+         */
+        CompanyMembershipSummary: {
+            /**
+             * Company Id
+             * Format: uuid4
+             */
+            company_id: string;
+            /** Company Name */
+            company_name: string;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "company_admin" | "sales" | "technician";
+        };
         /** CompanyNoteCreate */
         CompanyNoteCreate: {
             /** Body */
@@ -1668,6 +1686,8 @@ export interface components {
              * Format: uuid4
              */
             id: string;
+            /** Memberships */
+            memberships: components["schemas"]["CompanyMembershipSummary"][];
             /**
              * Role
              * @enum {string}

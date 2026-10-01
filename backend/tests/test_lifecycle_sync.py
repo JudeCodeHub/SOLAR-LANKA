@@ -11,6 +11,7 @@ from sqlalchemy import func, select, text
 from svix.webhooks import Webhook
 
 from app.core.auth import VerifiedIdentity, require_identity
+from app.models.company import Company, CompanyMembership
 from app.models.lifecycle_event import LifecycleEvent
 from app.models.user import AppUser
 
@@ -23,8 +24,8 @@ def webhook_client(database_client, database_connection):
     schema = f"lifecycle_{uuid4().hex}"
     database_connection.execute(text(f'CREATE SCHEMA "{schema}"'))
     database_connection.execute(text(f'SET LOCAL search_path TO "{schema}"'))
-    AppUser.__table__.create(database_connection)
-    LifecycleEvent.__table__.create(database_connection)
+    for model in (AppUser, Company, CompanyMembership, LifecycleEvent):
+        model.__table__.create(database_connection)
     settings = database_client.app.state.settings
     database_client.app.state.settings = settings.model_copy(
         update={"clerk_webhook_signing_secret": SecretStr(SECRET), "clerk_instance_id": "ins_test"}

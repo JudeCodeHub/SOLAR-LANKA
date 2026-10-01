@@ -11,10 +11,10 @@ import {
 
 export default function Home() {
   return (
-    <main className="flex flex-1 items-center justify-center px-4 py-12">
+    <div className="flex flex-1 items-center justify-center px-4 py-12">
       <Card className="w-full max-w-md text-center">
         <CardHeader className="items-center">
-          <Sun aria-hidden className="size-8 text-amber-600" />
+          <Sun aria-hidden className="size-8 justify-self-center text-amber-600" />
           <h1 className="font-heading text-2xl font-semibold tracking-tight">
             Solar Lanka
           </h1>
@@ -30,6 +30,6 @@ export default function Home() {
           <Button disabled>Catalogue coming soon</Button>
         </CardFooter>
       </Card>
-    </main>
+    </div>
   );
 }

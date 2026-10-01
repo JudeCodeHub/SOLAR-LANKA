@@ -5,8 +5,8 @@ export const metadata: Metadata = { title: "Sign in · Solar Lanka" };
 
 export default function SignInPage() {
   return (
-    <main className="flex flex-1 items-center justify-center px-4 py-12">
+    <div className="flex flex-1 items-center justify-center px-4 py-12">
       <SignIn />
-    </main>
+    </div>
   );
 }
