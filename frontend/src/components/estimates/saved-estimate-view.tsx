@@ -7,6 +7,8 @@ import { QueryState } from "@/components/query-state";
 import { formatLongDate } from "@/lib/catalogue/detail";
 import { settingRows } from "@/lib/estimates/assumptions";
 import { useSavedEstimate } from "@/lib/estimates/hooks";
+import { prepareHref } from "@/lib/requests/prepare";
+import { Button } from "@/components/ui/button";
 import { format, messages } from "@/messages";
 
 const text = messages.estimator.saved.detail;
@@ -47,7 +49,18 @@ export function SavedEstimateView({ id }: { id: string }) {
                   {format(text.savedOn, { date: formatLongDate(saved.created_at) ?? saved.created_at })}
                 </p>
               </header>
-              <EstimateResults preview={saved.estimate} values={values} />
+              <EstimateResults
+                preview={saved.estimate}
+                values={values}
+                actions={
+                  <div className="space-y-1">
+                    <Button asChild>
+                      <Link href={prepareHref(saved.id)}>{text.prepare}</Link>
+                    </Button>
+                    <p className="text-sm text-muted-foreground">{text.prepareHint}</p>
+                  </div>
+                }
+              />
               <section aria-labelledby="settings-title" className="space-y-3">
                 <h2 id="settings-title" className="font-heading text-2xl font-semibold tracking-tight">
                   {text.settingsTitle}

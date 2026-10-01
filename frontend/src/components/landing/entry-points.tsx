@@ -25,7 +25,7 @@ function Entry({ entry }: { entry: EntryPoint }) {
   }
   // Not built yet: shown so visitors see what is planned, but never a link.
   return (
-    <div className={`${cardClass} opacity-80`}>
+    <div className={`${cardClass} border-dashed`}>
       {body}
       <span className="mt-1 w-fit rounded-full border px-2 py-0.5 text-xs text-muted-foreground">
         {messages.landing.entry.comingSoon}

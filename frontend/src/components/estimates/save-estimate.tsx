@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import type { components } from "@/lib/api/schema";
 import { useSessionState } from "@/lib/api/use-session";
 import { useSaveEstimate } from "@/lib/estimates/hooks";
+import { prepareHref } from "@/lib/requests/prepare";
 import { signInHref } from "@/lib/redirect";
 import { useReturnPath } from "@/lib/use-return-path";
 import { format, messages } from "@/messages";
@@ -76,6 +77,9 @@ export function SaveEstimateControl({
           <p className="font-medium">{text.saved}</p>
           <Link href={`/my/estimates/${saved.id}`} className="underline underline-offset-2">
             {text.open}
+          </Link>
+          <Link href={prepareHref(saved.id)} className="block underline underline-offset-2">
+            {text.prepare}
           </Link>
           {saved.estimate.config_version !== shownVersion ? (
             <p className="text-muted-foreground">
