@@ -43,6 +43,9 @@ export function SentConfirmation({ sent }: { sent: SentRequest }) {
       <p className="text-sm text-muted-foreground">{format(text.reference, { id: sent.id })}</p>
       <p className="text-sm text-muted-foreground">{text.next}</p>
       <div className="flex flex-wrap gap-2">
+        <Button asChild size="sm">
+          <Link href={`/my/requests/${sent.id}`}>{text.follow}</Link>
+        </Button>
         <Button type="button" variant="outline" size="sm" onClick={reset}>
           {text.another}
         </Button>
