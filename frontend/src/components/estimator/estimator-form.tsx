@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useWatch } from "react-hook-form";
 
+import { EstimateResults, type SubmittedValues } from "@/components/estimator/estimate-results";
 import { UnsupportedNotice } from "@/components/estimator/unsupported-notice";
 import { AppForm } from "@/components/forms/app-form";
 import { SelectField } from "@/components/forms/select-field";
@@ -12,7 +13,6 @@ import { createBrowserApi } from "@/lib/api/client";
 import { unwrap } from "@/lib/api/errors";
 import type { components } from "@/lib/api/schema";
 import { DISTRICTS } from "@/lib/directory/options";
-import { sizingSummary } from "@/lib/estimator/format";
 import { unsupportedParts } from "@/lib/estimator/scenario";
 import { estimatorDefaults, estimatorSchema } from "@/lib/estimator/schema";
 import { useAppForm } from "@/lib/forms/use-app-form";
@@ -34,7 +34,9 @@ const options = (labels: Record<string, string>) =>
  */
 export function EstimatorForm() {
   const form = useAppForm(estimatorSchema, { defaultValues: { ...estimatorDefaults } });
-  const [preview, setPreview] = useState<Preview | null>(null);
+  const [result, setResult] = useState<{ preview: Preview; values: SubmittedValues } | null>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const current = useWatch({ control: form.control });
   const [scheme, systemType, backup] = useWatch({
     control: form.control,
     name: ["connection_scheme", "system_type", "backup"],
@@ -45,15 +47,35 @@ export function EstimatorForm() {
     backup,
   });
 
+  // Move focus to the new estimate so keyboard and screen reader users land on it.
+  useEffect(() => {
+    if (result) headingRef.current?.focus();
+  }, [result]);
+  const stale =
+    result !== null &&
+    (Object.keys(result.values) as (keyof SubmittedValues)[]).some(
+      (key) => (current as Record<string, unknown>)[key] !== result.values[key],
+    );
+
   return (
+    <div className="space-y-10">
     <AppForm
       form={form}
       className="space-y-8"
       onSubmit={async (payload) => {
-        setPreview(null);
-        setPreview(
-          await unwrap(() => api.POST("/estimates/preview", { body: payload })),
-        );
+        const preview = await unwrap(() => api.POST("/estimates/preview", { body: payload }));
+        const all = form.getValues();
+        setResult({
+          preview,
+          values: {
+            monthly_consumption_kwh: all.monthly_consumption_kwh,
+            district: all.district,
+            usable_roof_area_m2: all.usable_roof_area_m2,
+            shading_condition: all.shading_condition,
+            daytime_consumption_percent: all.daytime_consumption_percent,
+            monthly_bill_lkr: all.monthly_bill_lkr,
+          },
+        });
       }}
     >
       <fieldset className="space-y-4">
@@ -150,16 +172,15 @@ export function EstimatorForm() {
       </fieldset>
 
       <FormSubmitButton pending={form.formState.isSubmitting}>{text.submit}</FormSubmitButton>
-
-      {preview ? (
-        <section aria-labelledby="received-title" role="status" className="space-y-1 rounded-lg border p-4 text-sm">
-          <h2 id="received-title" className="font-medium">
-            {text.received.title}
-          </h2>
-          <p>{sizingSummary(preview.sizing)}</p>
-          <p className="text-muted-foreground">{text.received.note}</p>
-        </section>
-      ) : null}
     </AppForm>
+    {result ? (
+      <EstimateResults
+        preview={result.preview}
+        values={result.values}
+        stale={stale}
+        headingRef={headingRef}
+      />
+    ) : null}
+    </div>
   );
 }
