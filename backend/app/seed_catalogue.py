@@ -6,11 +6,12 @@ are fictional illustrations, never manufacturer prices or verified seller offers
 
 from datetime import UTC, datetime
 from decimal import Decimal
-from uuid import NAMESPACE_URL, UUID, uuid5
+from uuid import UUID
 
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
+from app.core.value_types import deterministic_entity_id
 from app.models.inverter import Inverter
 from app.models.panel import Panel
 from app.models.product import Product
@@ -45,7 +46,7 @@ INVERTERS = (
 
 
 def _id(kind: str, model: str) -> UUID:
-    return uuid5(NAMESPACE_URL, f"solarlanka:demo-catalogue:{kind}:{model}")
+    return deterministic_entity_id(f"solarlanka:demo-catalogue:{kind}:{model}")
 
 
 def seed_catalogue(session: Session, *, environment: str, company_ids: tuple[UUID, UUID]) -> None:

@@ -3,13 +3,18 @@
 from dataclasses import dataclass
 from math import isfinite
 from types import SimpleNamespace
+from typing import Annotated
 
 from clerk_backend_api.security import authenticate_request
 from clerk_backend_api.security.types import AuthenticateRequestOptions
-from fastapi import HTTPException, Request
+from fastapi import Depends, HTTPException, Request
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.core.clerk_policy import CLERK_MAX_CLOCK_SKEW_MS, CLERK_REQUIRED_CLAIMS
 from app.core.config import Settings
+
+# Declares the bearer scheme in OpenAPI only; require_identity does the real verification.
+bearer_scheme = HTTPBearer(auto_error=False, description="Clerk session token")
 
 
 @dataclass(frozen=True)
@@ -18,7 +23,12 @@ class VerifiedIdentity:
     session_id: str
 
 
-def require_identity(request: Request) -> VerifiedIdentity:
+def require_identity(
+    request: Request,
+    _documented_scheme: Annotated[
+        HTTPAuthorizationCredentials | None, Depends(bearer_scheme)
+    ] = None,
+) -> VerifiedIdentity:
     """Only return identity from verified claims; never trust submitted user IDs."""
     headers = request.headers.getlist("authorization")
     parts = headers[0].split() if len(headers) == 1 else []

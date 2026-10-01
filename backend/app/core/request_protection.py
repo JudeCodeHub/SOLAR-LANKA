@@ -13,12 +13,13 @@ the protected routers is neither protected nor explicitly exempt.
 """
 
 import logging
-from collections.abc import Awaitable, Callable, Mapping
+from collections.abc import Awaitable, Callable, Iterable, Mapping
 from dataclasses import dataclass
 from typing import Annotated, Any, Literal
 
 from arcjet import Arcjet, Mode, arcjet, detect_bot, sliding_window
-from fastapi import Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.routing import APIRoute
 
 from app.core.auth import VerifiedIdentity, require_identity
 from app.core.config import Settings
@@ -131,3 +132,15 @@ def protect_user(policy: ProtectionPolicy) -> Callable[..., Awaitable[None]]:
 
     dependency.protection_policy = policy  # type: ignore[attr-defined]
     return dependency
+
+
+def protected_operations(routers: Iterable[APIRouter]) -> frozenset[tuple[str, str]]:
+    """(METHOD, path) pairs whose route carries a request-protection dependency."""
+    return frozenset(
+        (method, route.path)
+        for router in routers
+        for route in router.routes
+        if isinstance(route, APIRoute)
+        and any(hasattr(dep.call, "protection_policy") for dep in route.dependant.dependencies)
+        for method in route.methods - {"HEAD", "OPTIONS"}
+    )

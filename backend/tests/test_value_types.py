@@ -62,3 +62,15 @@ def test_negative_adjustments_and_maximum_amount_are_preserved() -> None:
     adapter = TypeAdapter(MoneyAmount)
     assert adapter.validate_python("-10.25") == Decimal("-10.25")
     assert adapter.validate_python("9999999999999999.99") == Decimal("9999999999999999.99")
+
+
+def test_seed_identifiers_are_stable_uuid4_values() -> None:
+    from app.core.value_types import deterministic_entity_id
+    from app.seed_catalogue import _id
+    from app.seed_demo import demo_id
+
+    first = deterministic_entity_id("example")
+    assert first == deterministic_entity_id("example") != deterministic_entity_id("other")
+    for identifier in (first, demo_id("accepted", "request"), _id("panel", "any-model")):
+        assert identifier.version == 4
+        assert ExampleRecord(id=identifier).id == identifier  # accepted by the API schema

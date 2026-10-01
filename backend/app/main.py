@@ -8,6 +8,7 @@ from fastapi import FastAPI
 from pydantic import ValidationError
 
 from app.api.errors import register_error_handlers
+from app.api.openapi import install_openapi_cleanup
 from app.api.routes.admin_activity import router as admin_activity_router
 from app.api.routes.admin_users import router as admin_users_router
 from app.api.routes.audit import router as audit_router
@@ -38,7 +39,11 @@ from app.api.routes.webhooks import router as webhooks_router
 from app.api.schemas.errors import ERROR_STATUS_CODES, ErrorResponse
 from app.core.config import Settings
 from app.core.database_config import DatabaseSettings
-from app.core.request_protection import close_protection_clients, create_protection_clients
+from app.core.request_protection import (
+    close_protection_clients,
+    create_protection_clients,
+    protected_operations,
+)
 from app.db.session import create_database_engine, create_session_factory
 from app.services.inngest_workflow import create_inngest_client, create_notification_function
 
@@ -126,4 +131,19 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         inngest_client, lambda: application.state.session_factory()
     )
     inngest.fast_api.serve(application, inngest_client, [process_notification])
+    for route in application.routes:
+        # The Inngest callback is signed machine traffic, not part of the public API.
+        if getattr(route, "path", None) == "/api/inngest":
+            route.include_in_schema = False
+    install_openapi_cleanup(
+        application,
+        rate_limited=protected_operations(
+            [
+                estimates_router,
+                saved_estimates_router,
+                quotation_requests_router,
+                media_uploads_router,
+            ]
+        ),
+    )
     return application

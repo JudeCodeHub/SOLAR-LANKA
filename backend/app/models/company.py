@@ -3,7 +3,16 @@
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, String, UniqueConstraint, func, text
+from sqlalchemy import (
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    Index,
+    String,
+    UniqueConstraint,
+    func,
+    text,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -19,6 +28,8 @@ class Company(Base):
             "publication_status IN ('draft', 'pending', 'approved', 'rejected')",
             name="ck_companies_publication_status",
         ),
+        Index("ix_companies_status_name", "publication_status", "name", "id"),
+        Index("ix_companies_status_created", "publication_status", "created_at", "id"),
     )
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=new_entity_id)
