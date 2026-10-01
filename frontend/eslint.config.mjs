@@ -2,17 +2,43 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 
+// eslint-config-next already registers the jsx-a11y plugin but enables only a few rules
+// as warnings. Reuse that plugin instance (a second copy would clash) and enforce its
+// full recommended set, because keyboard and screen-reader support is a requirement.
+const jsxA11y = nextVitals.find((config) => config.plugins?.["jsx-a11y"])?.plugins["jsx-a11y"];
+if (!jsxA11y) {
+  throw new Error("eslint-config-next no longer registers jsx-a11y; update eslint.config.mjs");
+}
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  {
+    rules: {
+      ...jsxA11y.configs.recommended.rules,
+      eqeqeq: ["error", "always"],
+      "no-console": ["warn", { allow: ["warn", "error"] }],
+    },
+  },
+  {
+    // Type-aware rules catch unawaited requests and async handlers passed where a
+    // synchronous callback is expected, which matter for the API-driven screens.
+    files: ["**/*.{ts,tsx}"],
+    languageOptions: {
+      parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname },
+    },
+    rules: {
+      "@typescript-eslint/await-thenable": "error",
+      "@typescript-eslint/consistent-type-imports": [
+        "error",
+        { fixStyle: "inline-type-imports" },
+      ],
+      "@typescript-eslint/no-floating-promises": "error",
+      "@typescript-eslint/no-misused-promises": "error",
+    },
+  },
   // Override default ignores of eslint-config-next.
-  globalIgnores([
-    // Default ignores of eslint-config-next:
-    ".next/**",
-    "out/**",
-    "build/**",
-    "next-env.d.ts",
-  ]),
+  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
 ]);
 
 export default eslintConfig;
