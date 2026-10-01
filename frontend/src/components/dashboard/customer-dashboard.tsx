@@ -66,7 +66,7 @@ export function CustomerDashboard() {
               <ul className="space-y-1">
                 {open.slice(0, 3).map(({ offer, requestId }) => (
                   <li key={offer.quotation_id}>
-                    <Link href={`/my/requests/${requestId}/offers/${offer.quotation_id}`} className="underline underline-offset-2">
+                    <Link href={`/my/requests/${requestId}/offers/${offer.quotation_id}`} className="inline-flex min-h-11 items-center underline underline-offset-2">
                       {expiryText(offer, now)}
                     </Link>
                   </li>
@@ -82,7 +82,7 @@ export function CustomerDashboard() {
               <ul className="space-y-1">
                 {result.items.slice(0, 3).map((item) => (
                   <li key={item.id}>
-                    <Link href={`/my/installations/${item.id}`} className="underline underline-offset-2">
+                    <Link href={`/my/installations/${item.id}`} className="inline-flex min-h-11 items-center underline underline-offset-2">
                       {progressText(item.completed_milestones, item.total_milestones)}
                     </Link>
                   </li>

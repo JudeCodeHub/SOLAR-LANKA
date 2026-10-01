@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 
 import { OfferDecision } from "@/components/requests/offer-decision";
 import { QueryState } from "@/components/query-state";
@@ -31,7 +32,7 @@ export function OfferView({ requestId, quotationId }: { requestId: string; quota
   const name = summary ? names.get(summary.company_id) : undefined;
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
-      <Link href={`/my/requests/${requestId}`} className="text-sm underline underline-offset-2">
+      <Link href={`/my/requests/${requestId}`} className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">
         {detail.back}
       </Link>
       <QueryState query={history} isEmpty={(page) => page.items.length === 0} empty={<p className="text-sm">{detail.notFound}</p>}>
@@ -42,6 +43,7 @@ export function OfferView({ requestId, quotationId }: { requestId: string; quota
 }
 
 function Offer({ requestId, quotationId, revisions, companyName, now }: { requestId: string; quotationId: string; revisions: SentRevision[]; companyName: string | null | undefined; now: number }) {
+  const [refusedFor, setRefusedFor] = useState<string | null>(null);
   const [current, ...earlier] = revisions as [SentRevision, ...SentRevision[]];
   const state = offerState(current, now);
   const soon = isExpiringSoon(current, now);
@@ -206,8 +208,8 @@ function Offer({ requestId, quotationId, revisions, companyName, now }: { reques
       </section>
 
       {/* Keyed by the revision so a newer one arriving closes any open confirmation instead of changing what it accepts. */}
-      <OfferDecision key={current.id} requestId={requestId} quotationId={quotationId} revision={current} companyName={companyName ?? messages.customerOffers.list.notListed} now={now} />
-      <Link href={`/my/requests/${requestId}/compare`} className="inline-block text-sm font-medium underline underline-offset-2">
+      <OfferDecision key={current.id} refusedFor={refusedFor} setRefusedFor={setRefusedFor} requestId={requestId} quotationId={quotationId} revision={current} companyName={companyName ?? messages.customerOffers.list.notListed} now={now} />
+      <Link href={`/my/requests/${requestId}/compare`} className="inline-flex min-h-11 items-center text-sm font-medium underline underline-offset-2">
         {detail.comparePrompt}
       </Link>
     </>

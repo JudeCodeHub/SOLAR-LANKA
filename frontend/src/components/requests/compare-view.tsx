@@ -33,7 +33,7 @@ export function CompareView({ requestId }: { requestId: string }) {
   const offers = useRequestOffers(requestId);
   return (
     <div className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 py-8">
-      <Link href={`/my/requests/${requestId}`} className="text-sm underline underline-offset-2">
+      <Link href={`/my/requests/${requestId}`} className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">
         {text.back}
       </Link>
       <header className="space-y-2">
@@ -82,7 +82,7 @@ function Table({ requestId, offers, note, now }: { requestId: string; offers: Co
                 const name = names.get(offer.company_id);
                 return (
                   <th key={offer.quotation_id} scope="col" className="p-3 font-medium" data-offer-column={offer.quotation_id}>
-                    <Link href={`/my/requests/${requestId}/offers/${offer.quotation_id}`} className="underline underline-offset-2">
+                    <Link href={`/my/requests/${requestId}/offers/${offer.quotation_id}`} className="inline-flex min-h-11 items-center underline underline-offset-2">
                       {name === undefined ? "…" : (name ?? messages.customerOffers.list.notListed)}
                     </Link>
                   </th>
