@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { buildCatalogueHref, type CatalogueKind, pageWindow } from "@/lib/catalogue/params";
+import { pageWindow } from "@/lib/catalogue/params";
 import { cn } from "@/lib/utils";
 import { format, messages } from "@/messages";
 
@@ -14,22 +14,19 @@ const itemClass =
  * does not shift.
  */
 export function Pagination({
-  basePath,
-  kind,
-  values,
+  hrefFor,
   page,
   pageCount,
 }: {
-  basePath: string;
-  kind: CatalogueKind;
-  values: Record<string, string>;
+  /** The address of a given page, keeping whatever else the list's address carries. */
+  hrefFor: (page: number) => string;
   page: number;
   pageCount: number;
 }) {
   if (pageCount <= 1) {
     return null;
   }
-  const href = (target: number) => buildCatalogueHref(basePath, kind, { values, page: target });
+  const href = hrefFor;
   return (
     <nav aria-label={text.label}>
       <ul className="flex flex-wrap items-center justify-center gap-1">

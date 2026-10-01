@@ -167,3 +167,11 @@ test("addresses with no-op parameters are redirected to the clean form, clean on
   const [, query = ""] = buildCatalogueHref("/panels", "panel", state).split("?");
   assert.equal(needsCanonicalRedirect("panel", Object.fromEntries(new URLSearchParams(query)), parseCatalogueParams("panel", Object.fromEntries(new URLSearchParams(query)))), false);
 });
+
+test("the page parser accepts whole numbers in range and falls back to 1", async () => {
+  const { parsePageParam } = await import("./params.ts");
+  assert.equal(parsePageParam(undefined), 1);
+  assert.equal(parsePageParam("3"), 3);
+  assert.equal(parsePageParam(["4", "9"]), 4);
+  for (const bad of ["", "0", "-2", "2.5", "x", "99999"]) assert.equal(parsePageParam(bad), 1, bad);
+});

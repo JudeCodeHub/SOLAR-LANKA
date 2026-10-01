@@ -6,7 +6,7 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 // Only routes listed here are gated, and only for convenience: signed-out visitors are sent
 // to sign in instead of seeing an empty page. This is not authorisation. The FastAPI backend
 // enforces roles, company scope and ownership on every operation regardless.
-const requiresSignIn = createRouteMatcher(["/account(.*)"]);
+const requiresSignIn = createRouteMatcher(["/account(.*)", "/my(.*)"]);
 
 export default clerkMiddleware(async (auth, request) => {
   if (requiresSignIn(request)) {
