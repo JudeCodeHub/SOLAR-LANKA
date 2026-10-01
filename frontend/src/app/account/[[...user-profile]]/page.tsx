@@ -7,9 +7,9 @@ export const metadata: Metadata = { title: "Account · Solar Lanka" };
 
 export default function AccountPage() {
   return (
-    <main className="flex flex-1 flex-col items-center gap-8 px-4 py-12">
+    <div className="flex flex-1 flex-col items-center gap-8 px-4 py-12">
       <BackendProfile />
       <UserProfile path="/account" />
-    </main>
+    </div>
   );
 }

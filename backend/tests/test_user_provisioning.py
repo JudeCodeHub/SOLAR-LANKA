@@ -10,6 +10,7 @@ from sqlalchemy import func, select, text
 from app.api.dependencies import require_local_user
 from app.core.auth import VerifiedIdentity, require_identity
 from app.core.permissions import Action, required_scopes
+from app.models.company import Company, CompanyMembership
 from app.models.user import AppUser
 from app.services.users import provision_user
 
@@ -19,7 +20,8 @@ def user_table(database_connection):
     schema = f"provisioning_{uuid4().hex}"
     database_connection.execute(text(f'CREATE SCHEMA "{schema}"'))
     database_connection.execute(text(f'SET LOCAL search_path TO "{schema}"'))
-    AppUser.__table__.create(database_connection)
+    for model in (AppUser, Company, CompanyMembership):
+        model.__table__.create(database_connection)
 
 
 @pytest.mark.database
@@ -94,7 +96,8 @@ def test_current_user_returns_only_own_profile(database_client, database_session
     )
     assert response.status_code == 200
     profile = response.json()
-    assert set(profile) == {"id", "role", "created_at"}
+    assert set(profile) == {"id", "role", "created_at", "memberships"}
+    assert profile["memberships"] == []
     assert profile["id"] != other_id
     assert profile["role"] == "customer"
     assert profile["created_at"].endswith("Z")
@@ -140,3 +143,44 @@ def test_suspended_accounts_cannot_use_protected_routes(
     user.is_suspended = False
     database_session.commit()
     assert database_client.get("/users/me").status_code == 200
+
+
+@pytest.mark.database
+def test_current_user_lists_only_own_active_memberships(
+    database_client, database_session, user_table
+):
+    me = provision_user(database_session, VerifiedIdentity("user_member", "session_member"))
+    other = provision_user(database_session, VerifiedIdentity("user_not_me", "session_other"))
+    zeta, alpha, closed, foreign = (
+        Company(name="Zeta Solar (Fictional)"),
+        Company(name="Alpha Energy (Fictional)"),
+        Company(name="Former Employer (Fictional)"),
+        Company(name="Someone Else's (Fictional)"),
+    )
+    database_session.add_all([zeta, alpha, closed, foreign])
+    database_session.flush()
+    database_session.add_all(
+        [
+            CompanyMembership(user_id=me.id, company_id=zeta.id, role="sales"),
+            CompanyMembership(user_id=me.id, company_id=alpha.id, role="company_admin"),
+            CompanyMembership(
+                user_id=me.id, company_id=closed.id, role="technician", status="suspended"
+            ),
+            CompanyMembership(user_id=other.id, company_id=foreign.id, role="company_admin"),
+        ]
+    )
+    database_session.commit()
+    database_client.app.dependency_overrides[require_identity] = lambda: VerifiedIdentity(
+        "user_member", "session_member"
+    )
+    profile = database_client.get("/users/me").json()
+    # Own active memberships only, ordered by company name; no suspended or foreign ones.
+    assert profile["memberships"] == [
+        {
+            "company_id": str(alpha.id),
+            "company_name": "Alpha Energy (Fictional)",
+            "role": "company_admin",
+        },
+        {"company_id": str(zeta.id), "company_name": "Zeta Solar (Fictional)", "role": "sales"},
+    ]
+    assert profile["role"] == "customer"  # a membership never changes the account role
