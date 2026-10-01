@@ -4,11 +4,13 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
+import { InternalNotes, SharedNow, ShareForm } from "@/components/company/installation-share";
 import { StaffGate } from "@/components/company/staff-gate";
 import { QueryState } from "@/components/query-state";
 import { Button } from "@/components/ui/button";
 import type { ApiError } from "@/lib/api/errors";
 import { useCompanyInstallation, useDownloadEvidence, useMoveMilestone, useUploadEvidence } from "@/lib/installations/hooks";
+import { updatesFor } from "@/lib/installations/timeline";
 import { evidenceProblem } from "@/lib/installations/evidence";
 import { currentStepText, progressText, stepName } from "@/lib/installations/progress";
 import {
@@ -107,7 +109,9 @@ function Manager({ companyId, id }: { companyId: string; id: string }) {
                       {refusalText(refused.attempt, step, steps)}
                     </p>
                   ) : null}
+                  <SharedNow updates={updatesFor(installation.history, step.id)} now={query.dataUpdatedAt} />
                   <StepForms companyId={companyId} installationId={id} step={step} steps={steps} pending={move.isPending} run={run} />
+                  {step.status !== "completed" ? <ShareForm companyId={companyId} installationId={id} milestoneId={step.id} now={query.dataUpdatedAt} /> : null}
                   {step.evidence && step.evidence.length > 0 ? <EvidenceList companyId={companyId} installationId={id} items={[...step.evidence]} /> : null}
                 </li>
               ))}
@@ -115,6 +119,7 @@ function Manager({ companyId, id }: { companyId: string; id: string }) {
           </section>
         )}
       </QueryState>
+      <InternalNotes companyId={companyId} installationId={id} />
     </>
   );
 }

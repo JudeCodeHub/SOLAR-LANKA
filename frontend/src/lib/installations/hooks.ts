@@ -97,3 +97,46 @@ export function useDownloadEvidence(companyId: string, installationId: string) {
     },
   });
 }
+
+/** Share a delay or next action with the customer; the installation is read again so the history shows it. */
+export function useShareUpdate(companyId: string, installationId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (input: { milestoneId: string; body: components["schemas"]["MilestoneScheduleUpdate"] }) =>
+      unwrap(() =>
+        api.POST("/companies/{company_id}/installations/{installation_id}/milestones/{milestone_id}/updates", {
+          params: { path: { company_id: companyId, installation_id: installationId, milestone_id: input.milestoneId } },
+          body: input.body,
+        }),
+      ),
+    onSettled: () => client.invalidateQueries({ queryKey: queryKeys.companyInstallation(companyId, installationId) }),
+  });
+}
+
+/** The company's internal notes on an installation, newest first. The customer's endpoint never returns them. */
+export function useInstallationNotes(companyId: string, id: string) {
+  return useQuery({
+    queryKey: queryKeys.installationNotes(companyId, id),
+    queryFn: () =>
+      unwrap(() =>
+        api.GET("/companies/{company_id}/installations/{installation_id}/internal-notes", {
+          params: { path: { company_id: companyId, installation_id: id } },
+        }),
+      ),
+    staleTime: 0,
+  });
+}
+
+export function useAddInstallationNote(companyId: string, id: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (body: string) =>
+      unwrap(() =>
+        api.POST("/companies/{company_id}/installations/{installation_id}/internal-notes", {
+          params: { path: { company_id: companyId, installation_id: id } },
+          body: { body },
+        }),
+      ),
+    onSettled: () => client.invalidateQueries({ queryKey: queryKeys.installationNotes(companyId, id) }),
+  });
+}
