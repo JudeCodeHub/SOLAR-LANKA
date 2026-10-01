@@ -30,6 +30,8 @@ export const queryKeys = {
   /** A customer's offers on one request, one offer's sent revisions, and the open-offer comparison. */
   requestOffers: (requestId: string) => ["requests", requestId, "offers"] as const,
   offerHistory: (requestId: string, quotationId: string) => ["requests", requestId, "offers", quotationId] as const,
+  companyInstallationList: (companyId: string, page: number) => ["company", companyId, "installations", page] as const,
+  companyInstallation: (companyId: string, id: string) => ["company", companyId, "installations", "detail", id] as const,
   installationList: (page: number) => ["installations", "list", page] as const,
   installation: (id: string) => ["installations", id] as const,
   comparison: (requestId: string) => ["requests", requestId, "comparison"] as const,
