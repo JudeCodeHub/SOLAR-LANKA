@@ -1,7 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 // Next.js 16 renamed middleware to proxy.
-const requiresSignIn = createRouteMatcher(["/account(.*)", "/my(.*)", "/company(.*)"]);
+const requiresSignIn = createRouteMatcher(["/account(.*)", "/my(.*)", "/company(.*)", "/notifications(.*)"]);
 
 export default clerkMiddleware(async (auth, request) => {
   if (requiresSignIn(request)) {
