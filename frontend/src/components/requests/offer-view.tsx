@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { OfferDecision } from "@/components/requests/offer-decision";
 import { QueryState } from "@/components/query-state";
 import { formatLongDate } from "@/lib/catalogue/detail";
 import { expiryText, inclusionLabel, INCLUSION_KEYS, inclusionsFromLines, isExpiringSoon, offerState, stateLabel } from "@/lib/quotation/customer";
@@ -34,13 +35,13 @@ export function OfferView({ requestId, quotationId }: { requestId: string; quota
         {detail.back}
       </Link>
       <QueryState query={history} isEmpty={(page) => page.items.length === 0} empty={<p className="text-sm">{detail.notFound}</p>}>
-        {(page) => <Offer requestId={requestId} revisions={page.items} companyName={name} now={history.dataUpdatedAt} />}
+        {(page) => <Offer requestId={requestId} quotationId={quotationId} revisions={page.items} companyName={name} now={history.dataUpdatedAt} />}
       </QueryState>
     </div>
   );
 }
 
-function Offer({ requestId, revisions, companyName, now }: { requestId: string; revisions: SentRevision[]; companyName: string | null | undefined; now: number }) {
+function Offer({ requestId, quotationId, revisions, companyName, now }: { requestId: string; quotationId: string; revisions: SentRevision[]; companyName: string | null | undefined; now: number }) {
   const [current, ...earlier] = revisions as [SentRevision, ...SentRevision[]];
   const state = offerState(current, now);
   const soon = isExpiringSoon(current, now);
@@ -204,9 +205,8 @@ function Offer({ requestId, revisions, companyName, now }: { requestId: string; 
         )}
       </section>
 
-      <p className="text-sm text-muted-foreground" data-decide-note>
-        {detail.decideNote}
-      </p>
+      {/* Keyed by the revision so a newer one arriving closes any open confirmation instead of changing what it accepts. */}
+      <OfferDecision key={current.id} requestId={requestId} quotationId={quotationId} revision={current} companyName={companyName ?? messages.customerOffers.list.notListed} now={now} />
       <Link href={`/my/requests/${requestId}/compare`} className="inline-block text-sm font-medium underline underline-offset-2">
         {detail.comparePrompt}
       </Link>
