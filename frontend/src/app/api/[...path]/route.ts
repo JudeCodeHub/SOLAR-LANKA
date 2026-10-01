@@ -50,8 +50,15 @@ async function forward(request: Request, context: RouteContext<"/api/[...path]">
     }
   }
 
-  const { getToken } = await auth();
-  const token = await getToken();
+  // If Clerk cannot supply a token (session just ended, Clerk unreachable) forward without one:
+  // the backend then answers 401 and the interface offers sign-in, instead of the gateway failing.
+  let token: string | null = null;
+  try {
+    const { getToken } = await auth();
+    token = await getToken();
+  } catch {
+    console.error("API gateway: could not obtain a session token");
+  }
   const headers = buildUpstreamHeaders(request.headers, token);
 
   let upstream: Response;

@@ -132,6 +132,25 @@ export const en = {
       unknown: "Something went wrong.",
     },
   },
+  session: {
+    inactive: {
+      title: "Account unavailable",
+      message:
+        "Your account is suspended or no longer active. If you think this is a mistake, contact the platform administrator.",
+      signOut: "Sign out",
+    },
+    rejected: {
+      title: "We could not verify your session",
+      message:
+        "The application did not accept your sign-in. Try again, or sign out and sign in again.",
+      retry: "Try again",
+      signInAgain: "Sign out and sign in again",
+    },
+    chip: {
+      inactive: "Account unavailable",
+      rejected: "Session problem",
+    },
+  },
   states: {
     loading: "Loading…",
     retry: "Try again",
