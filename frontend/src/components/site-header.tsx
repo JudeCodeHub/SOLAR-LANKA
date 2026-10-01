@@ -1,6 +1,7 @@
 import { Show, SignOutButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 
+import { AccountRole } from "@/components/account-role";
 import { Button } from "@/components/ui/button";
 
 /** Minimal header with account controls; the full role-aware shell arrives in 13.08. */
@@ -27,6 +28,7 @@ export function SiteHeader() {
             <SignOutButton>
               <Button variant="outline">Sign out</Button>
             </SignOutButton>
+            <AccountRole />
             <UserButton />
           </Show>
         </nav>
