@@ -1,11 +1,35 @@
+import { Sun } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+
 export default function Home() {
   return (
-    <main className="flex flex-1 flex-col items-center justify-center gap-4 px-4 text-center">
-      <h1 className="text-3xl font-semibold tracking-tight">Solar Lanka</h1>
-      <p className="max-w-md text-zinc-600">
-        Portfolio demonstration of a solar products, estimates and quotations platform. The
-        interface is under development; all companies and prices will be fictional samples.
-      </p>
+    <main className="flex flex-1 items-center justify-center px-4 py-12">
+      <Card className="w-full max-w-md text-center">
+        <CardHeader className="items-center">
+          <Sun aria-hidden className="size-8 text-amber-600" />
+          <h1 className="font-heading text-2xl font-semibold tracking-tight">
+            Solar Lanka
+          </h1>
+          <CardDescription>
+            Explore solar products, estimate your system and compare quotations.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="text-sm text-muted-foreground">
+          Portfolio demonstration under development. All companies, prices and
+          estimates will be fictional samples.
+        </CardContent>
+        <CardFooter className="justify-center">
+          <Button disabled>Catalogue coming soon</Button>
+        </CardFooter>
+      </Card>
     </main>
   );
 }
