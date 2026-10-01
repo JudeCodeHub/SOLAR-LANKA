@@ -1003,6 +1003,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/me/favourites/ids": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Favourite Ids */
+        get: operations["list_favourite_ids_users_me_favourites_ids_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/me/favourites/{product_id}": {
         parameters: {
             query?: never;
@@ -2026,6 +2043,16 @@ export interface components {
             system_type: "on_grid" | "off_grid" | "hybrid";
             /** Usable Roof Area M2 */
             usable_roof_area_m2: string;
+        };
+        /**
+         * FavouriteIds
+         * @description Every published product the customer has saved, newest first, plus the allowed maximum.
+         */
+        FavouriteIds: {
+            /** Max Favourites */
+            max_favourites: number;
+            /** Product Ids */
+            product_ids: string[];
         };
         /** FinancialPreview */
         FinancialPreview: {
@@ -9323,6 +9350,98 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PageResponse_ProductSummary_"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_favourite_ids_users_me_favourites_ids_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavouriteIds"];
                 };
             };
             /** @description Bad Request */

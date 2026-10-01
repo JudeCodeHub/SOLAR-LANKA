@@ -87,6 +87,13 @@ function validate(spec: FieldSpec, value: string): string | null {
   }
 }
 
+/** A page number from the address: a whole number in range, otherwise page 1. */
+export function parsePageParam(raw: string | string[] | undefined): number {
+  const text = first(raw);
+  const parsed = /^\d{1,5}$/.test(text) ? Number(text) : 1;
+  return parsed >= 1 && parsed <= MAX_PAGE ? parsed : 1;
+}
+
 export function parseCatalogueParams(kind: CatalogueKind, raw: RawParams): CatalogueState {
   const values: Record<string, string> = {};
   const apiQuery: Record<string, string> = {};
@@ -108,10 +115,7 @@ export function parseCatalogueParams(kind: CatalogueKind, raw: RawParams): Catal
       if (spec) delete apiQuery[spec.api];
     }
   }
-  const pageText = first(raw.page);
-  const parsed = /^\d{1,5}$/.test(pageText) ? Number(pageText) : 1;
-  const page = parsed >= 1 && parsed <= MAX_PAGE ? parsed : 1;
-  return { values, apiQuery, errors, page };
+  return { values, apiQuery, errors, page: parsePageParam(raw.page) };
 }
 
 /** The canonical address for a state: only meaningful values, page 1 omitted, stable order. */

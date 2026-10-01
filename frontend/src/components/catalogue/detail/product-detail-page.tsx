@@ -2,6 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { FavouriteButton } from "@/components/favourites/favourite-button";
 import { ComparisonToggle } from "@/components/comparison/comparison-toggle";
 import { DocumentsSection } from "@/components/catalogue/detail/documents-section";
 import { OffersSection } from "@/components/catalogue/detail/offers-section";
@@ -59,7 +60,10 @@ export async function ProductDetailPage({
         <p className="text-sm text-muted-foreground">{messages.landing.products.kind[product.kind]}</p>
         <h1 className="font-heading text-3xl font-semibold tracking-tight">{name}</h1>
         <p className="text-sm text-muted-foreground">{messages.detail.sampleEntry}</p>
-        <ComparisonToggle kind={product.kind} id={product.id} name={name} />
+        <div className="flex flex-wrap items-center gap-4">
+          <FavouriteButton id={product.id} name={name} />
+          <ComparisonToggle kind={product.kind} id={product.id} name={name} />
+        </div>
       </header>
       <ProductImages images={productImages(product)} name={name} />
       <SpecificationTable groups={specificationGroups(product)} />

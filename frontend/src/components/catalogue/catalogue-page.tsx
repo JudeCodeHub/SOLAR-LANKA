@@ -111,9 +111,9 @@ export async function CataloguePage({
               ))}
             </ul>
             <Pagination
-              basePath={basePath}
-              kind={kind}
-              values={state.values}
+              hrefFor={(target) =>
+                buildCatalogueHref(basePath, kind, { values: state.values, page: target })
+              }
               page={info?.page ?? 1}
               pageCount={info?.pageCount ?? 1}
             />

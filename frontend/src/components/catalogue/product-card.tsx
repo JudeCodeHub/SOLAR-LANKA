@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { FavouriteButton } from "@/components/favourites/favourite-button";
 import { ComparisonToggle } from "@/components/comparison/comparison-toggle";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ProductListItem } from "@/lib/catalogue/load";
@@ -44,6 +45,9 @@ export function ProductCard({
         ];
   return (
     <Card className="relative h-full transition-colors hover:bg-muted/40">
+      <div className="absolute top-3 right-3 z-10">
+        <FavouriteButton id={product.id} name={productName(product)} />
+      </div>
       <CardHeader>
         <CardDescription>{messages.landing.products.kind[product.kind]}</CardDescription>
         <CardTitle>
