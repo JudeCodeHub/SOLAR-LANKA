@@ -20,7 +20,7 @@ const text = messages.estimator;
 const SHADING = ["none", "partial", "heavy"] as const;
 
 /** A plain non-negative decimal within a maximum and a number of decimal places. */
-function decimal(maxValue: number, places: number) {
+export function decimal(maxValue: number, places: number) {
   return z
     .string()
     .trim()
@@ -51,7 +51,7 @@ function decimal(maxValue: number, places: number) {
 }
 
 /** Blank means unknown (null); anything else must be a valid value. */
-function optionalDecimal(maxValue: number, places: number) {
+export function optionalDecimal(maxValue: number, places: number) {
   const inner = decimal(maxValue, places);
   return z
     .string()

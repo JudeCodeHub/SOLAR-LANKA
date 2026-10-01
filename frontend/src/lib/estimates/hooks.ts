@@ -26,10 +26,22 @@ export function useSavedEstimates(page: number) {
   });
 }
 
+export const CHOICES_LIMIT = 50;
+
+/** The customer's own most recent saved estimates, for choosing one. Only theirs are ever returned. */
+export function useEstimateChoices() {
+  return useQuery({
+    queryKey: queryKeys.estimateChoices,
+    queryFn: () =>
+      unwrap(() => api.GET("/users/me/estimates", { params: { query: { limit: CHOICES_LIMIT, offset: 0 } } })),
+  });
+}
+
 /** One saved estimate with its inputs, result and the settings it was calculated with. */
-export function useSavedEstimate(id: string) {
+export function useSavedEstimate(id: string, enabled = true) {
   return useQuery({
     queryKey: queryKeys.estimate(id),
+    enabled,
     queryFn: () => unwrap(() => api.GET("/users/me/estimates/{estimate_id}", { params: { path: { estimate_id: id } } })),
     // A saved estimate never changes, so there is nothing to refetch in the background.
     staleTime: Infinity,
