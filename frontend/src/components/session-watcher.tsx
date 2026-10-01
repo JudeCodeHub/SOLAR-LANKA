@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 
+import { useRequestDraft } from "@/lib/requests/draft-store";
 import { shouldResetClientState } from "@/lib/session";
 
 /**
@@ -26,6 +27,8 @@ export function SessionWatcher() {
     const current = userId ?? null;
     if (shouldResetClientState(previousUserId.current, current)) {
       queryClient.clear();
+      // A request being prepared holds what the last person typed; never show it to the next.
+      useRequestDraft.getState().clear();
       router.refresh();
     }
     previousUserId.current = current;

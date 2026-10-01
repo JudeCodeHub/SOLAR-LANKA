@@ -503,42 +503,56 @@ export const en = {
   requestPrep: {
     title: "Prepare a quotation request",
     intro:
-      "A quotation request asks companies you choose to quote for your system. Your saved estimate is the starting point, so you do not have to enter your details again.",
-    empty: {
-      title: "Start from a saved estimate",
-      description:
-        "Choose one of your saved estimates to prepare a request from, or calculate and save a new one.",
-      mine: "My saved estimates",
-      estimate: "Estimate your system",
-    },
-    invalid: {
-      title: "That estimate link is not valid",
-      description: "Open your saved estimates and choose the estimate to use.",
-    },
+      "A quotation request asks companies you choose to quote for your system. Tell us what you need, and start from one of your saved estimates if you have one.",
     estimate: {
-      title: "Your starting point",
+      legend: "Start from a saved estimate",
+      help: "Optional. Only estimates saved in your account are listed. Choosing one fills in your district and monthly use and attaches the estimate exactly as saved.",
+      none: "No estimate, I will enter the details myself",
+      option: "{size}, saved {date}, settings version {version}",
       size: {
         one: "{capacity} kWp system, {panels} panel",
         other: "{capacity} kWp system, {panels} panels",
       },
-      saved: "Saved {date}, settings version {version}.",
-      view: "View the saved estimate",
-      other: "Choose a different estimate",
+      emptyList: "You have no saved estimates yet.",
+      calculate: "Calculate and save an estimate",
+      more: "Showing your {max} most recent saved estimates.",
+      loading: "Loading your saved estimates…",
+      loadingDetails: "Loading the details of this estimate…",
+      unavailable:
+        "That estimate is not available. It may not be one of yours, or it no longer exists. Choose one from the list or continue without one.",
+      view: "View the estimate",
+      filledFrom: "Filled in from your estimate: district {district}, {consumption} kWh per month.",
     },
-    carries: {
-      title: "What the request will include",
-      intro: "These come from your saved estimate. You will be able to check them before anything is sent.",
+    fields: {
+      title: "Your requirements",
+      district: "District",
+      districtHelp: "Where the system would be installed. Companies are matched to this district.",
+      districtPlaceholder: "Choose a district",
+      districtLocked: "{district}, taken from your saved estimate. A request must be for the same district as its estimate. To ask for another district, choose no estimate above.",
+      consumption: "Monthly electricity use (kWh per month)",
+      consumptionHelp: "Optional. Leave blank if you do not know. A 0 means you use none.",
+      details: "What do you need quoted?",
+      detailsHelp:
+        "Describe the system, your roof, timing and anything companies should know. Do not include passwords or payment details.",
+    },
+    continue: "Continue",
+    ready: {
+      title: "Your requirements are ready",
+      intro: "Check them before the next step. They are kept only in this browser tab until you send a request.",
       district: "District",
       consumption: "Monthly electricity use",
       consumptionValue: "{value} kWh per month",
-      attached: "Estimate",
-      attachedValue: "Your saved estimate, exactly as saved (settings version {version})",
+      unknown: "Not given",
+      estimate: "Estimate",
+      estimateNone: "None",
+      estimateValue: "Your saved estimate, attached exactly as saved",
+      details: "Details",
+      edit: "Edit requirements",
     },
     next: {
       title: "What happens next",
       companies:
         "You will choose up to 5 companies to receive the request, and see exactly which ones before you send it.",
-      details: "You will describe what you need in your own words.",
       status:
         "Nothing has been sent to any company. Choosing companies and sending a request is not available in this build yet.",
       browse: "Browse companies",
@@ -801,6 +815,7 @@ export const en = {
     errorSummaryTitle: "There is a problem",
     errorSummaryIntro: "Fix the following before continuing:",
     optionalMarker: "(optional)",
+    characterCount: "{count} of {max} characters",
     saving: "Saving…",
     validation: {
       required: "This field is required.",

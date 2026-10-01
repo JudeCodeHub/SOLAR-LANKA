@@ -11,6 +11,7 @@ export const queryKeys = {
   favouriteListAll: ["favourites", "list"] as const,
   /** Saved estimates: one page of the list, and one estimate in full. */
   estimateList: (page: number) => ["estimates", "list", page] as const,
+  estimateChoices: ["estimates", "list", "choices"] as const,
   estimateListAll: ["estimates", "list"] as const,
   estimate: (id: string) => ["estimates", "detail", id] as const,
   /** One product's full record. The single cache entry for it, shared by everything that needs it. */

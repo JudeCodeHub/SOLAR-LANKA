@@ -162,7 +162,8 @@
       align-items: center;
       justify-content: center;
     }
-    label:has(> input[type="checkbox"]) {
+    label:has(> input[type="checkbox"]),
+    label:has(> input[type="radio"]) {
       min-height: 2.75rem;
     }
   }
