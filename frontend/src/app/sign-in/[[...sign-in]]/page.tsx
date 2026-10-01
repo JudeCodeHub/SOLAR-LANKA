@@ -1,7 +1,9 @@
 import { SignIn } from "@clerk/nextjs";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = { title: "Sign in · Solar Lanka" };
+import { messages } from "@/messages";
+
+export const metadata: Metadata = { title: messages.titles.signIn };
 
 export default function SignInPage() {
   return (

@@ -6,6 +6,7 @@
  * values and messages that are safe to show, so business conflicts can display the server's
  * own wording. The gateway produces errors in the same shape when the backend is unreachable.
  */
+import { format, messages, plural } from "../../messages/index.ts";
 import type { components } from "./schema";
 
 export type ErrorCode = components["schemas"]["ErrorCode"];
@@ -93,7 +94,7 @@ export function toApiError(response: Response | undefined, body: unknown): ApiEr
   const message =
     payload && typeof payload.message === "string" && payload.message.trim()
       ? payload.message
-      : "The request could not be completed.";
+      : messages.errors.technical.requestFailed;
   const issues =
     payload && Array.isArray(payload.issues)
       ? payload.issues.filter(
@@ -109,7 +110,7 @@ export function networkError(): ApiError {
   return new ApiError({
     status: 0,
     code: "network",
-    message: "The server could not be reached.",
+    message: messages.errors.technical.network,
   });
 }
 
@@ -117,7 +118,7 @@ export function networkError(): ApiError {
 export function ensureApiError(error: unknown): ApiError {
   if (error instanceof ApiError) return error;
   if (error instanceof TypeError) return networkError();
-  return new ApiError({ status: 0, code: "unknown", message: "Something went wrong." });
+  return new ApiError({ status: 0, code: "unknown", message: messages.errors.technical.unknown });
 }
 
 export function errorKind(error: ApiError): ErrorKind {
@@ -151,68 +152,44 @@ export interface ErrorDescription {
   retryable: boolean;
 }
 
-/** The wording every screen uses. Titles are short; messages say what to do next. */
+/** The wording every screen uses (see src/messages/en.ts). Titles are short; messages say what to do next. */
 export function describeError(error: ApiError): ErrorDescription {
   const kind = errorKind(error);
+  const text = messages.errors;
   switch (kind) {
     case "signed-out":
-      return {
-        kind,
-        title: "Sign in required",
-        message: "Your session has ended or you are not signed in. Sign in and try again.",
-        retryable: false,
-      };
+      return { kind, ...text.signedOut, retryable: false };
     case "forbidden":
-      return {
-        kind,
-        title: "Not allowed",
-        message: "You do not have permission to do this.",
-        retryable: false,
-      };
+      return { kind, ...text.forbidden, retryable: false };
     case "not-found":
-      return {
-        kind,
-        title: "Not found",
-        message: "This item does not exist or is not available to you.",
-        retryable: false,
-      };
+      return { kind, ...text.notFound, retryable: false };
     case "conflict":
       // Business conflicts carry a safe, specific explanation from the server.
-      return { kind, title: "Cannot be done now", message: error.message, retryable: false };
+      return { kind, title: text.conflict.title, message: error.message, retryable: false };
     case "invalid-input":
       return {
         kind,
-        title: "Check your input",
+        title: text.invalidInput.title,
         message:
-          error.issues.length > 0
-            ? "Some details need attention:"
-            : "The request was not accepted. Check what you entered and try again.",
+          error.issues.length > 0 ? text.invalidInput.withIssues : text.invalidInput.withoutIssues,
         retryable: false,
       };
     case "rate-limited":
       return {
         kind,
-        title: "Too many requests",
+        title: text.rateLimited.title,
         message:
           error.retryAfterSeconds !== null
-            ? `Please wait ${error.retryAfterSeconds} seconds and try again.`
-            : "Please wait a moment and try again.",
+            ? format(plural(text.rateLimited.waitSeconds, error.retryAfterSeconds), {
+                seconds: error.retryAfterSeconds,
+              })
+            : text.rateLimited.wait,
         retryable: true,
       };
     case "unavailable":
-      return {
-        kind,
-        title: "Service unavailable",
-        message: "The service is temporarily unavailable. Try again in a moment.",
-        retryable: true,
-      };
+      return { kind, ...text.unavailable, retryable: true };
     default:
-      return {
-        kind,
-        title: "Something went wrong",
-        message: "An unexpected error occurred. Try again, and contact support if it continues.",
-        retryable: true,
-      };
+      return { kind, ...text.unexpected, retryable: true };
   }
 }
 

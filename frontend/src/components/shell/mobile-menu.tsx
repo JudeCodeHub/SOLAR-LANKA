@@ -16,6 +16,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useNavigation } from "@/lib/api/use-shell-user";
+import { messages } from "@/messages";
 
 /**
  * Navigation for narrow screens. The sheet is a modal dialog, so it traps keyboard focus,
@@ -28,16 +29,16 @@ export function MobileMenu({ signedIn }: { signedIn: boolean }) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="md:hidden" aria-label="Open menu">
+        <Button variant="outline" size="icon" className="md:hidden" aria-label={messages.nav.openMenu}>
           <Menu aria-hidden />
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>Menu</SheetTitle>
-          <SheetDescription className="sr-only">Site navigation and account links</SheetDescription>
+          <SheetTitle>{messages.nav.menuTitle}</SheetTitle>
+          <SheetDescription className="sr-only">{messages.nav.menuDescription}</SheetDescription>
         </SheetHeader>
-        <nav aria-label="Mobile" className="flex flex-col gap-5 px-4 pb-6">
+        <nav aria-label={messages.nav.mobileLabel} className="flex flex-col gap-5 px-4 pb-6">
           {groups.map((group) => (
             <section key={group.id} aria-labelledby={`menu-${group.id}`}>
               <h2
@@ -58,18 +59,18 @@ export function MobileMenu({ signedIn }: { signedIn: boolean }) {
           <div className="flex flex-col gap-2 border-t pt-4">
             {signedIn ? (
               <SignOutButton>
-                <Button variant="outline">Sign out</Button>
+                <Button variant="outline">{messages.auth.signOut}</Button>
               </SignOutButton>
             ) : (
               <>
                 <Button asChild variant="outline">
                   <Link href="/sign-in" onClick={close}>
-                    Sign in
+                    {messages.auth.signIn}
                   </Link>
                 </Button>
                 <Button asChild>
                   <Link href="/sign-up" onClick={close}>
-                    Create account
+                    {messages.auth.createAccount}
                   </Link>
                 </Button>
               </>

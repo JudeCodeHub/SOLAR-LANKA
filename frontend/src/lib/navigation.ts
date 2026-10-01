@@ -12,6 +12,8 @@
  * protects anything, and FastAPI re-checks every operation.
  */
 
+import { messages } from "../messages/index.ts";
+
 export type AccountRole = "customer" | "platform_admin";
 export type CompanyRole = "company_admin" | "sales" | "technician";
 
@@ -47,13 +49,7 @@ export interface NavGroup {
 
 const GROUP_ORDER: readonly NavGroupId[] = ["explore", "customer", "company", "admin", "account"];
 
-const GROUP_LABELS: Record<NavGroupId, string> = {
-  explore: "Explore",
-  customer: "My activity",
-  company: "Company workspace",
-  admin: "Administration",
-  account: "Account",
-};
+const GROUP_LABELS: Record<NavGroupId, string> = messages.nav.groups;
 
 const PUBLIC: NavAccess = { kind: "public" };
 const CUSTOMER: NavAccess = { kind: "account-role", role: "customer" };
@@ -63,33 +59,33 @@ const PLATFORM_ADMIN: NavAccess = { kind: "account-role", role: "platform_admin"
 const COMPANY_STAFF: NavAccess = { kind: "company-role", roles: ["company_admin", "sales"] };
 
 export const NAV_ITEMS: readonly NavItem[] = [
-  { id: "home", label: "Home", href: "/", group: "explore", access: PUBLIC, available: true },
-  { id: "panels", label: "Solar panels", href: "/panels", group: "explore", access: PUBLIC, available: false },
-  { id: "inverters", label: "Inverters", href: "/inverters", group: "explore", access: PUBLIC, available: false },
-  { id: "estimator", label: "Estimator", href: "/estimator", group: "explore", access: PUBLIC, available: false },
-  { id: "companies", label: "Companies", href: "/companies", group: "explore", access: PUBLIC, available: false },
-  { id: "learn", label: "Learning centre", href: "/learn", group: "explore", access: PUBLIC, available: false },
-  { id: "troubleshooting", label: "Troubleshooting", href: "/troubleshooting", group: "explore", access: PUBLIC, available: false },
-  { id: "support", label: "Support", href: "/support", group: "explore", access: PUBLIC, available: false },
+  { id: "home", label: messages.nav.items.home, href: "/", group: "explore", access: PUBLIC, available: true },
+  { id: "panels", label: messages.nav.items.panels, href: "/panels", group: "explore", access: PUBLIC, available: false },
+  { id: "inverters", label: messages.nav.items.inverters, href: "/inverters", group: "explore", access: PUBLIC, available: false },
+  { id: "estimator", label: messages.nav.items.estimator, href: "/estimator", group: "explore", access: PUBLIC, available: false },
+  { id: "companies", label: messages.nav.items.companies, href: "/companies", group: "explore", access: PUBLIC, available: false },
+  { id: "learn", label: messages.nav.items.learn, href: "/learn", group: "explore", access: PUBLIC, available: false },
+  { id: "troubleshooting", label: messages.nav.items.troubleshooting, href: "/troubleshooting", group: "explore", access: PUBLIC, available: false },
+  { id: "support", label: messages.nav.items.support, href: "/support", group: "explore", access: PUBLIC, available: false },
 
-  { id: "my-estimates", label: "My estimates", href: "/my/estimates", group: "customer", access: CUSTOMER, available: false },
-  { id: "my-requests", label: "My requests", href: "/my/requests", group: "customer", access: CUSTOMER, available: false },
-  { id: "my-installations", label: "My installations", href: "/my/installations", group: "customer", access: CUSTOMER, available: false },
-  { id: "my-favourites", label: "Favourites", href: "/my/favourites", group: "customer", access: CUSTOMER, available: false },
+  { id: "my-estimates", label: messages.nav.items.myEstimates, href: "/my/estimates", group: "customer", access: CUSTOMER, available: false },
+  { id: "my-requests", label: messages.nav.items.myRequests, href: "/my/requests", group: "customer", access: CUSTOMER, available: false },
+  { id: "my-installations", label: messages.nav.items.myInstallations, href: "/my/installations", group: "customer", access: CUSTOMER, available: false },
+  { id: "my-favourites", label: messages.nav.items.myFavourites, href: "/my/favourites", group: "customer", access: CUSTOMER, available: false },
 
-  { id: "company-inbox", label: "Request inbox", href: "/company/inbox", group: "company", access: COMPANY_STAFF, available: false },
-  { id: "company-offers", label: "Product offers", href: "/company/offers", group: "company", access: COMPANY_STAFF, available: false },
-  { id: "company-installations", label: "Installations", href: "/company/installations", group: "company", access: COMPANY_STAFF, available: false },
-  { id: "company-profile", label: "Company profile", href: "/company/profile", group: "company", access: COMPANY_STAFF, available: false },
+  { id: "company-inbox", label: messages.nav.items.companyInbox, href: "/company/inbox", group: "company", access: COMPANY_STAFF, available: false },
+  { id: "company-offers", label: messages.nav.items.companyOffers, href: "/company/offers", group: "company", access: COMPANY_STAFF, available: false },
+  { id: "company-installations", label: messages.nav.items.companyInstallations, href: "/company/installations", group: "company", access: COMPANY_STAFF, available: false },
+  { id: "company-profile", label: messages.nav.items.companyProfile, href: "/company/profile", group: "company", access: COMPANY_STAFF, available: false },
 
-  { id: "admin-companies", label: "Company reviews", href: "/admin/companies", group: "admin", access: PLATFORM_ADMIN, available: false },
-  { id: "admin-catalogue", label: "Catalogue", href: "/admin/catalogue", group: "admin", access: PLATFORM_ADMIN, available: false },
-  { id: "admin-estimator", label: "Estimator settings", href: "/admin/estimator", group: "admin", access: PLATFORM_ADMIN, available: false },
-  { id: "admin-users", label: "Users", href: "/admin/users", group: "admin", access: PLATFORM_ADMIN, available: false },
-  { id: "admin-activity", label: "Activity and audit", href: "/admin/activity", group: "admin", access: PLATFORM_ADMIN, available: false },
+  { id: "admin-companies", label: messages.nav.items.adminCompanies, href: "/admin/companies", group: "admin", access: PLATFORM_ADMIN, available: false },
+  { id: "admin-catalogue", label: messages.nav.items.adminCatalogue, href: "/admin/catalogue", group: "admin", access: PLATFORM_ADMIN, available: false },
+  { id: "admin-estimator", label: messages.nav.items.adminEstimator, href: "/admin/estimator", group: "admin", access: PLATFORM_ADMIN, available: false },
+  { id: "admin-users", label: messages.nav.items.adminUsers, href: "/admin/users", group: "admin", access: PLATFORM_ADMIN, available: false },
+  { id: "admin-activity", label: messages.nav.items.adminActivity, href: "/admin/activity", group: "admin", access: PLATFORM_ADMIN, available: false },
 
-  { id: "account", label: "Account", href: "/account", group: "account", access: { kind: "signed-in" }, available: true },
-  { id: "notifications", label: "Notifications", href: "/notifications", group: "account", access: { kind: "signed-in" }, available: false },
+  { id: "account", label: messages.nav.items.account, href: "/account", group: "account", access: { kind: "signed-in" }, available: true },
+  { id: "notifications", label: messages.nav.items.notifications, href: "/notifications", group: "account", access: { kind: "signed-in" }, available: false },
 ];
 
 /** `user` is null for a signed-out visitor, and also while a signed-in user's profile loads. */

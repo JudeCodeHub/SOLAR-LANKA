@@ -5,6 +5,7 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { messages } from "@/messages";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,9 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Solar Lanka",
-  description:
-    "Explore solar products, estimate your system, compare quotations and track installation. Portfolio demonstration with fictional data.",
+  title: messages.app.name,
+  description: messages.app.description,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -39,7 +39,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               href="#main-content"
               className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:shadow-md focus:ring-3 focus:ring-ring/50 focus:outline-none"
             >
-              Skip to main content
+              {messages.a11y.skipToContent}
             </a>
             <SiteHeader />
             <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col outline-none">

@@ -2,6 +2,7 @@
 
 import { NavLink } from "@/components/shell/nav-link";
 import { useNavigation } from "@/lib/api/use-shell-user";
+import { messages } from "@/messages";
 
 /**
  * Desktop page navigation, shown as its own row under the header bar so it can grow to a dozen
@@ -17,7 +18,7 @@ export function PrimaryNav({ signedIn }: { signedIn: boolean }) {
   }
   return (
     <div className="hidden border-t md:block">
-      <nav aria-label="Primary" className="mx-auto w-full max-w-6xl px-4 py-1">
+      <nav aria-label={messages.nav.primaryLabel} className="mx-auto w-full max-w-6xl px-4 py-1">
         <ul className="flex flex-wrap items-center gap-1">
           {items.map((item) => (
             <li key={item.id}>
@@ -37,7 +38,7 @@ export function AccountLinks({ signedIn }: { signedIn: boolean }) {
     return null;
   }
   return (
-    <nav aria-label="Account" className="hidden md:block">
+    <nav aria-label={messages.nav.accountLabel} className="hidden md:block">
       <ul className="flex items-center gap-1">
         {items.map((item) => (
           <li key={item.id}>

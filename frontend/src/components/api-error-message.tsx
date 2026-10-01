@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { type ApiError, describeError } from "@/lib/api/errors";
+import { messages } from "@/messages";
 
 /** Readable name for the field an issue points at, e.g. ["body", "district"] -> "district". */
 function fieldName(location: readonly (string | number)[] | undefined): string | null {
@@ -49,7 +50,7 @@ export function ApiErrorMessage({
         )}
         {description.kind === "signed-out" && (
           <Button asChild variant="outline" size="sm" className="mt-3">
-            <Link href="/sign-in">Sign in</Link>
+            <Link href="/sign-in">{messages.auth.signIn}</Link>
           </Button>
         )}
         {description.retryable && onRetry && (
@@ -60,7 +61,7 @@ export function ApiErrorMessage({
             onClick={onRetry}
             disabled={retrying}
           >
-            {retrying ? "Trying again…" : "Try again"}
+            {retrying ? messages.states.retrying : messages.states.retry}
           </Button>
         )}
       </AlertDescription>
