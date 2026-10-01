@@ -1,5 +1,8 @@
+import Link from "next/link";
+
 import { SectionUnavailable } from "@/components/landing/section-unavailable";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DIRECTORY_PATH, profileHref } from "@/lib/directory/links";
 import { formatOfferPrice } from "@/lib/catalogue/detail";
 import type { OffersResult } from "@/lib/catalogue/load-detail";
 import { messages } from "@/messages";
@@ -32,7 +35,14 @@ export function OffersSection({ offers }: { offers: OffersResult }) {
                 <Card className="h-full">
                   <CardHeader>
                     <CardTitle>
-                      <h3>{offer.company_name}</h3>
+                      <h3>
+                        <Link
+                          href={profileHref(offer.company_id, DIRECTORY_PATH)}
+                          className="underline-offset-2 hover:underline focus-visible:underline"
+                        >
+                          {offer.company_name}
+                        </Link>
+                      </h3>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2 text-sm">

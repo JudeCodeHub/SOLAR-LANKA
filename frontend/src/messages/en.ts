@@ -25,6 +25,8 @@ export const en = {
     compareInverters: "Compare inverters · Solar Lanka",
     panels: "Solar panels · Solar Lanka",
     inverters: "Inverters · Solar Lanka",
+    companies: "Solar companies · Solar Lanka",
+    company: "{name} · Solar Lanka",
     notFound: "Page not found · Solar Lanka",
     error: "Something went wrong · Solar Lanka",
   },
@@ -313,6 +315,64 @@ export const en = {
     images: { alt: "Photo of {name}" },
     sampleEntry: "Sample catalogue entry",
   },
+  directory: {
+    title: "Solar companies",
+    intro:
+      "Fictional companies for this demonstration. Find installers by the district they serve and the service you need. A listing means the platform approved the profile; it does not verify registration or qualifications.",
+    filters: {
+      heading: "Filters",
+      label: "Filter companies",
+      district: "District",
+      districtAny: "Any district",
+      service: "Service",
+      serviceAny: "Any service",
+      apply: "Apply filters",
+      clear: "Clear all filters",
+    },
+    invalidIgnored: "A filter value was not valid and has not been applied.",
+    results: {
+      heading: "Companies",
+      showing: "Showing {from} to {to} of {total} companies",
+      noneTitle: "No matching companies",
+      none: "No approved company matches these filters. Try another district or service.",
+      emptyTitle: "No companies yet",
+      empty: "No company profiles have been published yet.",
+    },
+    card: {
+      view: "View profile",
+      districts: "Serves",
+      services: "Services",
+      noDistricts: "No districts listed",
+      noServices: "No services listed",
+    },
+    approval: {
+      badge: "Approved listing",
+      title: "Platform approval",
+      body: "The platform reviewed and published this profile. Approval does not mean the company's registration, licences or qualifications have been checked.",
+    },
+    credentials: {
+      title: "Declared credentials",
+      intro:
+        "These are the company's own statements. The platform has not verified them, so ask the company for evidence before relying on them.",
+      badge: "Company declared, not verified",
+      issuedBy: "Issued by {issuer}",
+      none: "This company has not declared any credentials. That says nothing about whether it holds any.",
+      cardLabel: "Declared, not verified",
+    },
+    profile: {
+      logoAlt: "Logo of {name}",
+      districts: "Districts served",
+      districtsNone: "This company has not listed any districts.",
+      services: "Services offered",
+      servicesNone: "This company has not listed any services.",
+      back: "Back to the directory",
+    },
+    notFound: {
+      title: "Company not found",
+      message:
+        "This company does not exist, is not currently listed, or the address is not valid.",
+    },
+  },
   landing: {
     hero: {
       title: "Solar Lanka",
@@ -350,12 +410,9 @@ export const en = {
       title: "Solar companies",
       intro:
         "Fictional companies for this demonstration. A listing means the platform approved the profile; it does not verify registration or qualifications.",
-      districts: "Serves",
-      services: "Services",
-      credentials: "Declared credentials (not verified)",
-      credentialLine: "{name}, {issuer}",
       emptyTitle: "No companies yet",
       emptyDescription: "No company profiles have been published yet.",
+      viewAll: "View all companies",
     },
     unavailable: {
       title: "This section could not be loaded",
