@@ -17,6 +17,8 @@ import { formatLongDate } from "@/lib/catalogue/detail";
 import { DISTRICTS } from "@/lib/directory/options";
 import { rangeText } from "@/lib/estimator/format";
 import { CHOICES_LIMIT, useEstimateChoices, useSavedEstimate } from "@/lib/estimates/hooks";
+import { RecipientsStep } from "@/components/requests/recipients-step";
+import { SentConfirmation } from "@/components/requests/sent-confirmation";
 import { useAppForm } from "@/lib/forms/use-app-form";
 import { useRequestDraft } from "@/lib/requests/draft-store";
 import { parseEstimateParam } from "@/lib/requests/prepare";
@@ -40,9 +42,12 @@ export function PrepareView() {
   const param = parseEstimateParam(useSearchParams().get("estimate"));
   const draft = useRequestDraft((state) => state.draft);
   const setDraft = useRequestDraft((state) => state.setDraft);
-  // Start from the confirmed draft, unless the address names a different estimate to start from.
-  const reuse = draft !== null && (param.kind === "none" || (param.kind === "ok" && param.id === draft.estimate_id));
-  const [confirmed, setConfirmed] = useState<Requirements | null>(reuse ? draft : null);
+  const sent = useRequestDraft((state) => state.sent);
+  // The store holds the confirmed requirements. Show the form instead when the address names a
+  // different estimate to start from, or while the customer is editing.
+  const [showForm, setShowForm] = useState(
+    () => draft !== null && param.kind === "ok" && param.id !== draft.estimate_id,
+  );
   const [editing, setEditing] = useState<Requirements | null>(null);
 
   return (
@@ -51,12 +56,14 @@ export function PrepareView() {
         <h1 className="font-heading text-3xl font-semibold tracking-tight">{text.title}</h1>
         <p className="max-w-3xl text-muted-foreground">{text.intro}</p>
       </header>
-      {confirmed ? (
+      {sent ? (
+        <SentConfirmation sent={sent} />
+      ) : draft && !showForm ? (
         <Ready
-          draft={confirmed}
+          draft={draft}
           onEdit={() => {
-            setEditing(confirmed);
-            setConfirmed(null);
+            setEditing(draft);
+            setShowForm(true);
           }}
         />
       ) : (
@@ -65,7 +72,8 @@ export function PrepareView() {
           initialEstimateId={param.kind === "ok" ? param.id : ""}
           onConfirm={(requirements) => {
             setDraft(requirements);
-            setConfirmed(requirements);
+            setEditing(null);
+            setShowForm(false);
           }}
         />
       )}
@@ -335,18 +343,10 @@ function Ready({ draft, onEdit }: { draft: Requirements; onEdit: () => void }) {
           {ready.edit}
         </Button>
       </section>
-      <section aria-labelledby="next-title" className="space-y-2">
-        <h2 id="next-title" className="font-heading text-xl font-semibold tracking-tight">
-          {text.next.title}
-        </h2>
-        <p className="text-sm">{text.next.companies}</p>
-        <p className="text-sm font-medium" data-nothing-sent>
-          {text.next.status}
-        </p>
-        <Button asChild variant="outline" size="sm">
-          <Link href="/companies">{text.next.browse}</Link>
-        </Button>
-      </section>
+      <p className="text-sm font-medium" data-nothing-sent>
+        {text.nothingSent}
+      </p>
+      <RecipientsStep requirements={draft} />
     </>
   );
 }

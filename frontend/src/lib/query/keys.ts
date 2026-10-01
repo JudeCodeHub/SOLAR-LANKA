@@ -14,6 +14,8 @@ export const queryKeys = {
   estimateChoices: ["estimates", "list", "choices"] as const,
   estimateListAll: ["estimates", "list"] as const,
   estimate: (id: string) => ["estimates", "detail", id] as const,
+  /** Companies that can receive a request for a district. */
+  eligibleCompanies: (district: string) => ["companies", "eligible", district] as const,
   /** One product's full record. The single cache entry for it, shared by everything that needs it. */
   product: (kind: "panel" | "inverter", id: string) => ["catalogue", kind, id] as const,
 };

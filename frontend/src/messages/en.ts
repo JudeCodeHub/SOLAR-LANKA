@@ -549,14 +549,61 @@ export const en = {
       details: "Details",
       edit: "Edit requirements",
     },
-    next: {
-      title: "What happens next",
-      companies:
-        "You will choose up to 5 companies to receive the request, and see exactly which ones before you send it.",
-      status:
-        "Nothing has been sent to any company. Choosing companies and sending a request is not available in this build yet.",
+    recipients: {
+      title: "Choose the companies",
+      intro:
+        "Only companies you choose will receive your request. Nothing is chosen for you. These companies are approved, serve {district} and offer installation.",
+      count: "{count} of {max} chosen",
+      full: "You can choose up to {max} companies. Remove one to choose another.",
+      added: "{name} chosen. {count} of {max}.",
+      removed: "{name} removed. {count} of {max}.",
+      loading: "Loading companies…",
+      none: "No approved company offers installation in {district} at the moment.",
+      noneHelp: "You can edit the district, or browse all companies.",
+      more: "Showing {shown} of {total} companies. Narrow the district to see others.",
+      services: "Services",
+      credentials: "Declared credentials (not verified)",
+      credentialLine: "{name}, {issuer}",
+      profile: "View profile",
+      choose: "Choose {name}",
+      approved: "Approved listing",
+    },
+    review: {
+      title: "Who will receive your request",
+      none: "No company chosen yet. Nothing is sent to a company you have not chosen.",
+      lead: "Only these {count} will receive it. No other company will see it:",
+      lead_one: "Only this company will receive it. No other company will see it:",
+      remove: "Remove {name}",
+      removeShort: "Remove",
+      unavailable:
+        "{count} of the companies you chose can no longer receive this request. Remove them to continue.",
+      unavailableName: "No longer available",
+      sees:
+        "Each company will see your district, monthly use (if you gave it) and your description. Your saved estimate stays in your account.",
+      send: {
+        one: "Send request to {count} company",
+        other: "Send request to {count} companies",
+      },
+      sending: "Sending…",
+      safe: "If anything goes wrong while sending, you can safely try again: your request will be sent once, never twice.",
+      uncertain:
+        "We could not confirm whether your request was received. It is safe to press send again: if it did arrive, it will not be created a second time.",
+      changed: "The companies could not accept this request. The list below has been refreshed; check your choices and send again.",
+    },
+    sent: {
+      title: "Your request was sent",
+      replayed: "This request had already been sent, so nothing new was created. Here is what was sent.",
+      intro: "These companies received your request:",
+      reference: "Request reference: {id}",
+      status: "Status: {status}",
+      companyStatus: "{name}, {status}",
+      statuses: { submitted: "Sent" },
+      next:
+        "Companies reply with quotations. Following your request and comparing their offers is not available in this build yet.",
+      another: "Prepare another request",
       browse: "Browse companies",
     },
+    nothingSent: "Nothing has been sent yet. A company receives your request only when you send it, and only the companies you choose.",
   },
   estimator: {
     title: "Estimate your solar system",
