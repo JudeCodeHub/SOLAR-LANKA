@@ -17,6 +17,10 @@ export const queryKeys = {
   /** A company's private profile and its review history (staff only). */
   companyProfile: (id: string) => ["company", id, "profile"] as const,
   companyReviews: (id: string) => ["company", id, "reviews"] as const,
+  /** A company's own offers, a product looked up by id, and a catalogue search for adding an offer. */
+  companyOffers: (id: string) => ["company", id, "offers"] as const,
+  productLookup: (id: string) => ["catalogue", "lookup", id] as const,
+  catalogueSearch: (kind: string, search: string) => ["catalogue", "search", kind, search] as const,
   /** Sent quotation requests: one page of the list, and one request with its progress. */
   requestList: (page: number) => ["requests", "list", page] as const,
   requestListAll: ["requests", "list"] as const,
