@@ -4,13 +4,14 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.api.company_access import require_company_permission
 from app.api.dependencies import require_local_user
 from app.api.schemas.installations import (
     InstallationProgress,
+    InstallationSummary,
     InternalNoteCreate,
     InternalNoteView,
     MilestoneEvidence,
@@ -19,6 +20,7 @@ from app.api.schemas.installations import (
     MilestoneScheduleUpdate,
     MilestoneTransition,
 )
+from app.api.schemas.pagination import PageResponse, PaginationParams
 from app.core.installation_milestones import (
     REQUIRED_EVIDENCE,
     InstallationMilestone,
@@ -84,6 +86,7 @@ def _progress(session: Session, installation: Installation) -> InstallationProgr
         created_at=installation.created_at,
         milestones=[
             MilestoneProgress(
+                id=row.id,
                 position=row.position,
                 kind=row.kind,
                 status=row.status,
@@ -121,6 +124,86 @@ def _installation_for_scope(
     if installation is None:
         raise HTTPException(404)
     return installation
+
+
+def _installation_page(
+    session: Session,
+    pagination: PaginationParams,
+    *,
+    customer_id: UUID | None = None,
+    company_id: UUID | None = None,
+) -> PageResponse[InstallationSummary]:
+    """Newest first, limited to the caller's own installations in the database query."""
+    scope = (
+        select(Installation.id)
+        .join(QuotationRevision, Installation.accepted_revision_id == QuotationRevision.id)
+        .join(Quotation, QuotationRevision.quotation_id == Quotation.id)
+        .join(RequestDelivery, Quotation.delivery_id == RequestDelivery.id)
+        .join(QuotationRequest, RequestDelivery.request_id == QuotationRequest.id)
+    )
+    if customer_id is not None:
+        scope = scope.where(QuotationRequest.customer_id == customer_id)
+    if company_id is not None:
+        scope = scope.where(RequestDelivery.company_id == company_id)
+    total = session.scalar(select(func.count()).select_from(scope.subquery())) or 0
+    installations = session.scalars(
+        select(Installation)
+        .where(Installation.id.in_(scope))
+        .order_by(Installation.created_at.desc(), Installation.id.desc())
+        .limit(pagination.limit)
+        .offset(pagination.offset)
+    ).all()
+    totals = {
+        installation_id: (completed, count)
+        for installation_id, completed, count in session.execute(
+            select(
+                InstallationMilestoneRecord.installation_id,
+                func.count().filter(InstallationMilestoneRecord.status == "completed"),
+                func.count(),
+            )
+            .where(InstallationMilestoneRecord.installation_id.in_([i.id for i in installations]))
+            .group_by(InstallationMilestoneRecord.installation_id)
+        )
+    }
+    return PageResponse[InstallationSummary](
+        items=[
+            InstallationSummary(
+                id=installation.id,
+                accepted_revision_id=installation.accepted_revision_id,
+                created_at=installation.created_at,
+                completed_milestones=totals.get(installation.id, (0, 0))[0],
+                total_milestones=totals.get(installation.id, (0, 0))[1],
+            )
+            for installation in installations
+        ],
+        total=total,
+        limit=pagination.limit,
+        offset=pagination.offset,
+    )
+
+
+@customer_router.get("", response_model=PageResponse[InstallationSummary])
+def list_customer_installations(
+    user: Annotated[AppUser, Depends(require_customer_reader)],
+    session: Annotated[Session, Depends(get_session)],
+    pagination: Annotated[PaginationParams, Query()],
+    response: Response,
+) -> PageResponse[InstallationSummary]:
+    response.headers["Cache-Control"] = "no-store"
+    return _installation_page(session, pagination, customer_id=user.id)
+
+
+@company_router.get("", response_model=PageResponse[InstallationSummary])
+def list_company_installations(
+    membership: Annotated[
+        CompanyMembership, Depends(require_company_permission(Action.INSTALLATION_READ))
+    ],
+    session: Annotated[Session, Depends(get_session)],
+    pagination: Annotated[PaginationParams, Query()],
+    response: Response,
+) -> PageResponse[InstallationSummary]:
+    response.headers["Cache-Control"] = "no-store"
+    return _installation_page(session, pagination, company_id=membership.company_id)
 
 
 @customer_router.get("/{installation_id}", response_model=InstallationProgress)
@@ -239,7 +322,10 @@ def transition_milestone(
     session.add(_milestone_outbox(event, installation_id))
     session.commit()
     return MilestoneProgress(
-        position=milestone.position, kind=milestone.kind, status=milestone.status
+        id=milestone.id,
+        position=milestone.position,
+        kind=milestone.kind,
+        status=milestone.status,
     )
 
 

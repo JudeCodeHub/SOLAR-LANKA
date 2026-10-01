@@ -15,10 +15,19 @@ class MilestoneEvidence(BaseModel):
 
 
 class MilestoneProgress(BaseModel):
+    id: UUID
     position: int
     kind: str
     status: Literal["pending", "in_progress", "completed"]
     evidence: list[MilestoneEvidence] = Field(default_factory=list)
+
+
+class InstallationSummary(BaseModel):
+    id: UUID
+    accepted_revision_id: UUID
+    created_at: datetime
+    completed_milestones: int
+    total_milestones: int
 
 
 class MilestoneHistory(BaseModel):
