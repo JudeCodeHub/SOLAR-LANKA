@@ -15,6 +15,5 @@ def test_estimator_version_schema_requires_source_snapshot() -> None:
     }
     assert "ck_estimator_config_sources" in constraints
     assert all(
-        topic in constraints["ck_estimator_config_sources"]
-        for topic in ("yield", "tariff", "cost")
+        topic in constraints["ck_estimator_config_sources"] for topic in ("yield", "tariff", "cost")
     )

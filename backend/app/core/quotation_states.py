@@ -38,13 +38,15 @@ class QuotationState(StrEnum):
 
 ALLOWED_TRANSITIONS: dict[QuotationState, frozenset[QuotationState]] = {
     QuotationState.DRAFT: frozenset({QuotationState.SENT, QuotationState.WITHDRAWN}),
-    QuotationState.SENT: frozenset({
-        QuotationState.REVISED,
-        QuotationState.ACCEPTED,
-        QuotationState.DECLINED,
-        QuotationState.EXPIRED,
-        QuotationState.WITHDRAWN,
-    }),
+    QuotationState.SENT: frozenset(
+        {
+            QuotationState.REVISED,
+            QuotationState.ACCEPTED,
+            QuotationState.DECLINED,
+            QuotationState.EXPIRED,
+            QuotationState.WITHDRAWN,
+        }
+    ),
     QuotationState.REVISED: frozenset(),
     QuotationState.ACCEPTED: frozenset(),
     QuotationState.DECLINED: frozenset(),

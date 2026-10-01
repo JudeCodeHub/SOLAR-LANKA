@@ -19,8 +19,14 @@ def test_request_has_separate_company_deliveries(database_connection, database_s
     schema = f"request_delivery_{uuid4().hex}"
     database_connection.execute(text(f'CREATE SCHEMA "{schema}"'))
     database_connection.execute(text(f'SET LOCAL search_path TO "{schema}"'))
-    for model in (AppUser, Company, EstimatorConfigVersion, SavedEstimate, QuotationRequest,
-                  RequestDelivery):
+    for model in (
+        AppUser,
+        Company,
+        EstimatorConfigVersion,
+        SavedEstimate,
+        QuotationRequest,
+        RequestDelivery,
+    ):
         model.__table__.create(database_connection)
     customer = AppUser(clerk_subject="user_request_customer")
     company_a = Company(name="Fictional company A", publication_status="approved")
@@ -38,9 +44,11 @@ def test_request_has_separate_company_deliveries(database_connection, database_s
     database_session.add_all([delivery_a, delivery_b])
     database_session.commit()
 
-    deliveries = list(database_session.scalars(
-        select(RequestDelivery).where(RequestDelivery.request_id == request.id)
-    ))
+    deliveries = list(
+        database_session.scalars(
+            select(RequestDelivery).where(RequestDelivery.request_id == request.id)
+        )
+    )
     assert len(deliveries) == 2
     assert {delivery.company_id for delivery in deliveries} == {company_a.id, company_b.id}
     assert delivery_a.id != delivery_b.id

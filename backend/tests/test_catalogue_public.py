@@ -6,8 +6,10 @@ import pytest
 from sqlalchemy import text
 
 from app.models.inverter import Inverter
+from app.models.media_asset import MediaAsset
 from app.models.panel import Panel
 from app.models.product import Product
+from app.models.user import AppUser
 
 pytestmark = pytest.mark.database
 
@@ -17,7 +19,7 @@ def catalogue(database_client, database_connection, database_session):
     schema = f"catalogue_public_{uuid4().hex}"
     database_connection.execute(text(f'CREATE SCHEMA "{schema}"'))
     database_connection.execute(text(f'SET LOCAL search_path TO "{schema}"'))
-    for model in (Product, Panel, Inverter):
+    for model in (AppUser, MediaAsset, Product, Panel, Inverter):
         model.__table__.create(database_connection)
     products = [
         Product(kind="panel", brand="Alpha", model="P1"),

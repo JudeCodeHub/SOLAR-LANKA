@@ -21,8 +21,15 @@ def test_customer_and_company_reads_are_isolated(
     schema = f"request_reads_{uuid4().hex}"
     database_connection.execute(text(f'CREATE SCHEMA "{schema}"'))
     database_connection.execute(text(f'SET LOCAL search_path TO "{schema}"'))
-    for model in (AppUser, Company, EstimatorConfigVersion, SavedEstimate,
-                  CompanyMembership, QuotationRequest, RequestDelivery):
+    for model in (
+        AppUser,
+        Company,
+        EstimatorConfigVersion,
+        SavedEstimate,
+        CompanyMembership,
+        QuotationRequest,
+        RequestDelivery,
+    ):
         model.__table__.create(database_connection)
     customer = AppUser(clerk_subject="user_customer_reads")
     other = AppUser(clerk_subject="user_other_reads")
@@ -33,11 +40,13 @@ def test_customer_and_company_reads_are_isolated(
     company_b = Company(name="Fictional installer B", publication_status="approved")
     database_session.add_all([customer, other, staff_a, staff_b, technician, company_a, company_b])
     database_session.flush()
-    database_session.add_all([
-        CompanyMembership(user_id=staff_a.id, company_id=company_a.id, role="sales"),
-        CompanyMembership(user_id=staff_b.id, company_id=company_b.id, role="company_admin"),
-        CompanyMembership(user_id=technician.id, company_id=company_a.id, role="technician"),
-    ])
+    database_session.add_all(
+        [
+            CompanyMembership(user_id=staff_a.id, company_id=company_a.id, role="sales"),
+            CompanyMembership(user_id=staff_b.id, company_id=company_b.id, role="company_admin"),
+            CompanyMembership(user_id=technician.id, company_id=company_a.id, role="technician"),
+        ]
+    )
     request = QuotationRequest(
         customer_id=customer.id,
         requirements={"district": "Colombo", "details": "Rooftop solar quotation"},
@@ -66,7 +75,8 @@ def test_customer_and_company_reads_are_isolated(
     assert own.headers["cache-control"] == "no-store"
     assert own.json()["total"] == 1
     assert {row["company_id"] for row in own.json()["items"][0]["deliveries"]} == {
-        str(company_a.id), str(company_b.id)
+        str(company_a.id),
+        str(company_b.id),
     }
     customer_detail = database_client.get(f"{customer_path}/{request.id}")
     assert customer_detail.json()["requirements"]["district"] == "Colombo"
@@ -92,7 +102,8 @@ def test_customer_and_company_reads_are_isolated(
     inbox_b = database_client.get(b_path)
     assert inbox_b.status_code == 200
     assert {row["id"] for row in inbox_b.json()["items"]} == {
-        str(delivery_b.id), str(other_delivery.id)
+        str(delivery_b.id),
+        str(other_delivery.id),
     }
     assert database_client.get(f"{b_path}/{delivery_a.id}").status_code == 404
     subject["value"] = technician.clerk_subject

@@ -8,6 +8,7 @@ from sqlalchemy import func, select, text
 from app.core.auth import VerifiedIdentity, require_identity
 from app.models.favourite import Favourite
 from app.models.inverter import Inverter
+from app.models.media_asset import MediaAsset
 from app.models.panel import Panel
 from app.models.product import Product
 from app.models.user import AppUser
@@ -20,7 +21,7 @@ def catalogue(database_client, database_connection, database_session):
     schema = f"compare_{uuid4().hex}"
     database_connection.execute(text(f'CREATE SCHEMA "{schema}"'))
     database_connection.execute(text(f'SET LOCAL search_path TO "{schema}"'))
-    for model in (AppUser, Product, Panel, Inverter, Favourite):
+    for model in (AppUser, MediaAsset, Product, Panel, Inverter, Favourite):
         model.__table__.create(database_connection)
     first_user = AppUser(clerk_subject="user_first")
     second_user = AppUser(clerk_subject="user_second")

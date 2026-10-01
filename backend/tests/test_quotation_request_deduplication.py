@@ -22,15 +22,21 @@ def test_retries_replay_original_response_without_duplicate_deliveries(
     database_connection.execute(text(f'CREATE SCHEMA "{schema}"'))
     database_connection.execute(text(f'SET LOCAL search_path TO "{schema}"'))
     for model in (
-        AppUser, Company, EstimatorConfigVersion, SavedEstimate,
-        QuotationRequest, RequestDelivery,
+        AppUser,
+        Company,
+        EstimatorConfigVersion,
+        SavedEstimate,
+        QuotationRequest,
+        RequestDelivery,
     ):
         model.__table__.create(database_connection)
     customer = AppUser(clerk_subject="user_retry_customer")
     other = AppUser(clerk_subject="user_retry_other")
     company = Company(
-        name="Fictional installer", publication_status="approved",
-        service_districts=["Colombo"], services=["installation"],
+        name="Fictional installer",
+        publication_status="approved",
+        service_districts=["Colombo"],
+        services=["installation"],
     )
     database_session.add_all([customer, other, company])
     database_session.commit()

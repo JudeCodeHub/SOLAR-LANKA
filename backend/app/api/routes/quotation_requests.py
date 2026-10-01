@@ -77,12 +77,14 @@ def withdraw_request(
         raise HTTPException(404)
     if request.status != "submitted":
         raise BusinessConflict("Only an active request can be withdrawn.")
-    deliveries = list(session.scalars(
-        select(RequestDelivery)
-        .where(RequestDelivery.request_id == request.id)
-        .order_by(RequestDelivery.id)
-        .with_for_update()
-    ))
+    deliveries = list(
+        session.scalars(
+            select(RequestDelivery)
+            .where(RequestDelivery.request_id == request.id)
+            .order_by(RequestDelivery.id)
+            .with_for_update()
+        )
+    )
     if any(delivery.status in {"responding", "closed"} for delivery in deliveries):
         raise BusinessConflict("A request with a company response cannot be withdrawn.")
     request.status = "cancelled"
@@ -110,17 +112,23 @@ def list_requests(
     response: Response,
 ) -> PageResponse[CustomerRequestSummary]:
     response.headers["Cache-Control"] = "no-store"
-    total = session.scalar(
-        select(func.count()).select_from(QuotationRequest)
-        .where(QuotationRequest.customer_id == user.id)
-    ) or 0
-    requests = list(session.scalars(
-        select(QuotationRequest)
-        .where(QuotationRequest.customer_id == user.id)
-        .order_by(QuotationRequest.created_at.desc(), QuotationRequest.id.desc())
-        .limit(pagination.limit)
-        .offset(pagination.offset)
-    ))
+    total = (
+        session.scalar(
+            select(func.count())
+            .select_from(QuotationRequest)
+            .where(QuotationRequest.customer_id == user.id)
+        )
+        or 0
+    )
+    requests = list(
+        session.scalars(
+            select(QuotationRequest)
+            .where(QuotationRequest.customer_id == user.id)
+            .order_by(QuotationRequest.created_at.desc(), QuotationRequest.id.desc())
+            .limit(pagination.limit)
+            .offset(pagination.offset)
+        )
+    )
     deliveries_by_request: dict[UUID, list[DeliveryProgress]] = {
         request.id: [] for request in requests
     }
@@ -264,9 +272,7 @@ def submit_request(
             id=request_id,
             customer_id=user.id,
             saved_estimate_id=body.saved_estimate_id,
-            requirements=body.model_dump(
-                mode="json", exclude={"saved_estimate_id", "company_ids"}
-            ),
+            requirements=body.model_dump(mode="json", exclude={"saved_estimate_id", "company_ids"}),
             status="submitted",
             idempotency_key=key,
             submission_fingerprint=fingerprint,
