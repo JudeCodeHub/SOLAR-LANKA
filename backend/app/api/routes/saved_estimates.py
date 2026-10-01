@@ -20,6 +20,7 @@ from app.api.schemas.saved_estimates import (
     SavedEstimateSummary,
 )
 from app.core.permissions import Action, Scope, required_scopes
+from app.core.request_protection import SAVED_ESTIMATE_WRITE, protect_user
 from app.db.session import get_session
 from app.models.saved_estimate import SavedEstimate
 from app.models.user import AppUser
@@ -123,7 +124,12 @@ def saved_estimate_detail(
     )
 
 
-@router.post("", status_code=201, response_model=SavedEstimateCreated)
+@router.post(
+    "",
+    status_code=201,
+    response_model=SavedEstimateCreated,
+    dependencies=[Depends(protect_user(SAVED_ESTIMATE_WRITE))],
+)
 def save_estimate(
     body: EstimatorInputs,
     user: Annotated[AppUser, Depends(require_estimate_owner)],

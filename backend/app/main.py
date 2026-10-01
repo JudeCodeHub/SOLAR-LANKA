@@ -38,6 +38,7 @@ from app.api.routes.webhooks import router as webhooks_router
 from app.api.schemas.errors import ERROR_STATUS_CODES, ErrorResponse
 from app.core.config import Settings
 from app.core.database_config import DatabaseSettings
+from app.core.request_protection import close_protection_clients, create_protection_clients
 from app.db.session import create_database_engine, create_session_factory
 from app.services.inngest_workflow import create_inngest_client, create_notification_function
 
@@ -62,6 +63,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         engine = None
         application.state.database_engine = None
         application.state.session_factory = None
+        application.state.arcjet_clients = create_protection_clients(settings)
         try:
             if settings.database_url is not None or settings.test_database_url is not None:
                 database_settings = DatabaseSettings(_env_file=None, **settings.model_dump())
@@ -70,6 +72,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 application.state.session_factory = create_session_factory(engine)
             yield
         finally:
+            await close_protection_clients(application.state.arcjet_clients)
+            application.state.arcjet_clients = None
             if engine is not None:
                 engine.dispose()
             application.state.database_engine = None
@@ -82,6 +86,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         responses={code: {"model": ErrorResponse} for code in ERROR_STATUS_CODES.values()},
     )
     application.state.settings = settings
+    application.state.arcjet_clients = None
     register_error_handlers(application)
     application.include_router(health_router)
     application.include_router(readiness_router)
@@ -110,6 +115,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(audit_router)
     application.include_router(public_companies_router)
     application.include_router(webhooks_router)
+    if settings.environment == "production" and settings.arcjet_key is None:
+        raise RuntimeError("An Arcjet key is required in production")
     if settings.environment == "production" and (
         settings.inngest_event_key is None or settings.inngest_signing_key is None
     ):
