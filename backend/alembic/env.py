@@ -36,6 +36,7 @@ from app.models.site_visit import (  # noqa: F401
     SiteVisitNote,
     SiteVisitSlot,
 )
+from app.models.troubleshooting import TroubleshootingReference  # noqa: F401
 from app.models.user import AppUser  # noqa: F401 -- register model metadata
 
 config = context.config
