@@ -123,3 +123,8 @@ Desktop.ini
 
 # Keep source, migrations, public assets, and reproducible lockfiles tracked.
 # Do not ignore uv.lock, pnpm-lock.yaml, Alembic migrations, or .gitignore.
+
+# Browser test output and throwaway keys
+/frontend/e2e/.tmp/
+/frontend/test-results/
+/frontend/playwright-report/
