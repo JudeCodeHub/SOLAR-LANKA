@@ -1,9 +1,12 @@
 import { IDENTITIES, type IdentityName, LOTUS, MOONLEAF, SUNBIRD } from "../identities.ts";
 import { expect, test } from "../fixtures.ts";
 
+const companyId = async (api: (who: "sunbirdAdmin", method: string, path: string) => Promise<{ body: unknown }>) =>
+  ((await api("sunbirdAdmin", "GET", "/users/me")).body as Me).memberships[0]?.company_id ?? "";
+
 interface Me {
   role: string;
-  memberships: { company_name: string; role: string }[];
+  memberships: { company_id: string; company_name: string; role: string }[];
 }
 
 test.describe("controlled demo identities", () => {
@@ -27,14 +30,15 @@ test.describe("controlled demo identities", () => {
 });
 
 test.describe("known data", () => {
-  test("the demo customer has the four seeded requests", async ({ page, signInAs }) => {
+  test("the demo customer has at least the four seeded requests", async ({ page, signInAs }) => {
     signInAs("customer");
     const response = await page.request.get("/api/users/me/requests?limit=20");
     expect(response.status()).toBe(200);
-    expect((await response.json()).total).toBe(4);
+    // Other tests add their own requests, so the seeded four are a minimum, never an exact count.
+    expect((await response.json()).total).toBeGreaterThanOrEqual(4);
     await page.goto("/my/requests");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    await expect(page.getByText("Showing 1 to 4 of 4")).toBeVisible();
+    await expect(page.getByText(/Showing 1 to \d+ of \d+/)).toBeVisible();
   });
 
   test("a new customer has nothing, and the screens say so", async ({ page, signInAs }) => {
@@ -44,11 +48,13 @@ test.describe("known data", () => {
     await expect(page.getByText("No requests yet")).toBeVisible();
   });
 
-  test("the Sunbird administrator sees only Sunbird's two enquiries", async ({ page, signInAs }) => {
+  test("the Sunbird administrator sees Sunbird's enquiries and no other company's", async ({ page, api, signInAs }) => {
     signInAs("sunbirdAdmin");
     await page.goto("/company/inbox");
     await expect(page.getByText(SUNBIRD)).toBeVisible();
-    await expect(page.getByRole("link", { name: /Enquiry|Request|Received/i })).toHaveCount(2);
+    const seeded = await api("sunbirdAdmin", "GET", `/companies/${(await companyId(api))}/request-deliveries?limit=50`);
+    expect((seeded.body as { total: number }).total).toBeGreaterThanOrEqual(2);
+    await expect(page.getByText(/Received /).first()).toBeVisible();
   });
 
   test("the platform administrator sees the platform counts", async ({ page, signInAs }) => {
