@@ -158,6 +158,21 @@ Measured on one developer laptop (Linux, PostgreSQL 16 in Docker, Python 3.14, N
 - Measurements cover the demo dataset on one machine; nothing was load-tested, and no real device or screen reader was used.
 - Not yet built: deployment, CI, backups and monitoring (the later DevOps phase).
 
+## Local release gate (17.10)
+
+Run on one machine with a disposable database, before Phase 18 (deployment). All of these pass:
+
+| Check | Command | Result |
+|---|---|---|
+| Backend lint and format | `ruff check .` and `ruff format --check .` | clean (239 files) |
+| Backend tests, real PostgreSQL | `pytest --database` | 461 passed |
+| Frontend lint and types | `pnpm check` | clean |
+| Frontend unit tests | `pnpm test` | 302 passed |
+| Frontend production build | `next build` | compiles, every route generated |
+| Browser tests (desktop, tablet, mobile) | `playwright test` | 126 passed (in three runs of the same specs: layout 12, the four workflow specs 84, accessibility 30) |
+
+Not part of this gate: CI, deployment, load testing and real-device checks (see Known limitations).
+
 ## Browser tests (Phase 17)
 
 Playwright runs the real web app against the real API and a known database. No Clerk account or password is needed: a test-only gateway signs a token for the demo person each test chooses, and the API still verifies it (the sign-in bypass works only when `E2E_AUTH=1` outside production).
