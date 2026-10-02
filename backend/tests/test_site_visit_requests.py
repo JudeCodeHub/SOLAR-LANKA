@@ -77,7 +77,9 @@ def test_visit_requests(database_client, database_session):
     # The company's staff read it; nobody else does.
     act_as(STAFF_B)
     assert [v["id"] for v in client.get(theirs).json()] == [visit["id"]]
-    assert client.post(theirs, json=body()).status_code == 405
+    assert (
+        client.post(theirs, json=body()).status_code == 405
+    )  # staff cannot request on a customer's behalf
     act_as(STAFF_A)
     assert client.get(theirs).status_code == 403
     for subject in (STAFF_A, STAFF_B):
