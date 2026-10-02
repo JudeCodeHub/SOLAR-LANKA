@@ -64,6 +64,12 @@ class SiteVisit(Base):
     )
     confirmed_starts_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     confirmed_ends_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    completed_by: Mapped[UUID | None] = mapped_column(
+        ForeignKey("app_users.id", ondelete="RESTRICT")
+    )
+    # What the customer is told when the visit is done.
+    completion_summary: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
@@ -105,6 +111,45 @@ class SiteVisitEvent(Base):
     from_status: Mapped[str | None] = mapped_column(String(24))
     to_status: Mapped[str] = mapped_column(String(24), nullable=False)
     reason: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.clock_timestamp()
+    )
+
+
+class SiteVisitNote(Base):
+    """Working notes on a visit, for the company and its technician only."""
+
+    __tablename__ = "site_visit_notes"
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=new_entity_id)
+    visit_id: Mapped[UUID] = mapped_column(
+        ForeignKey("site_visits.id", ondelete="RESTRICT"), nullable=False, index=True
+    )
+    actor_id: Mapped[UUID] = mapped_column(
+        ForeignKey("app_users.id", ondelete="RESTRICT"), nullable=False
+    )
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.clock_timestamp()
+    )
+
+
+class SiteVisitEvidence(Base):
+    """A private photo taken on a visit; the file itself is a private media asset."""
+
+    __tablename__ = "site_visit_evidence"
+    __table_args__ = (UniqueConstraint("asset_id", name="uq_site_visit_evidence_asset"),)
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=new_entity_id)
+    visit_id: Mapped[UUID] = mapped_column(
+        ForeignKey("site_visits.id", ondelete="RESTRICT"), nullable=False, index=True
+    )
+    asset_id: Mapped[UUID] = mapped_column(
+        ForeignKey("media_assets.id", ondelete="RESTRICT"), nullable=False
+    )
+    actor_id: Mapped[UUID] = mapped_column(
+        ForeignKey("app_users.id", ondelete="RESTRICT"), nullable=False
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.clock_timestamp()
     )

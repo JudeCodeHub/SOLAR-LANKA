@@ -29,7 +29,13 @@ from app.models.quotation import Quotation, QuotationLineItem, QuotationRevision
 from app.models.quotation_request import QuotationRequest, RequestDelivery  # noqa: F401
 from app.models.request_delivery_note import RequestDeliveryNote  # noqa: F401
 from app.models.saved_estimate import SavedEstimate  # noqa: F401
-from app.models.site_visit import SiteVisit, SiteVisitEvent, SiteVisitSlot  # noqa: F401
+from app.models.site_visit import (  # noqa: F401
+    SiteVisit,
+    SiteVisitEvent,
+    SiteVisitEvidence,
+    SiteVisitNote,
+    SiteVisitSlot,
+)
 from app.models.user import AppUser  # noqa: F401 -- register model metadata
 
 config = context.config
