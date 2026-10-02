@@ -14,6 +14,7 @@ from app.models.notification import Notification
 from app.models.outbox_event import OutboxEvent
 from app.models.quotation import Quotation, QuotationRevision
 from app.models.quotation_request import QuotationRequest, RequestDelivery
+from app.models.support_case import SupportCase, SupportCaseAssignment, SupportCaseUpdate
 from app.models.user import AppUser
 
 
@@ -75,6 +76,76 @@ def _recipients(session: Session, event: OutboxEvent):
     return list(dict.fromkeys(([customer_active] if customer_active else []) + staff))
 
 
+SUPPORT_EVENT = "support.case_updated"
+
+
+def _active(session: Session, user_ids) -> list[UUID]:
+    """Only people whose accounts are still active are ever notified."""
+    ids = list(dict.fromkeys(user_ids))
+    if not ids:
+        return []
+    live = set(
+        session.scalars(
+            select(AppUser.id).where(
+                AppUser.id.in_(ids),
+                AppUser.is_suspended.is_(False),
+                AppUser.provider_state == "active",
+            )
+        )
+    )
+    return [user_id for user_id in ids if user_id in live]
+
+
+def _support_plan(session: Session, event: OutboxEvent):
+    """Who hears about a support update and what they are told, decided from stored facts only."""
+    update = session.get(SupportCaseUpdate, UUID(str(event.payload.get("update_id"))))
+    case = session.get(SupportCase, event.aggregate_id)
+    if update is None or case is None or update.case_id != case.id:
+        raise ValueError("Support outbox reference is invalid")
+    staff = session.scalars(
+        select(CompanyMembership.user_id).where(
+            CompanyMembership.company_id == case.company_id,
+            CompanyMembership.status == "active",
+            CompanyMembership.role.in_(("company_admin", "sales")),
+        )
+    ).all()
+    technicians = session.scalars(
+        select(SupportCaseAssignment.technician_id)
+        .join(
+            CompanyMembership,
+            (CompanyMembership.user_id == SupportCaseAssignment.technician_id)
+            & (CompanyMembership.company_id == case.company_id),
+        )
+        .where(
+            SupportCaseAssignment.case_id == case.id,
+            CompanyMembership.status == "active",
+            CompanyMembership.role == "technician",
+        )
+    ).all()
+    if update.kind in {"assigned", "unassigned"}:
+        # Only the technician concerned is told about their own assignment.
+        recipients = [update.subject_id] if update.subject_id else []
+        title = (
+            "Support request assigned to you"
+            if update.kind == "assigned"
+            else "Removed from a support request"
+        )
+        body = "Open it to see the problem reported."
+    else:
+        recipients = list(staff) + list(technicians)
+        if update.shared:
+            recipients.append(case.customer_id)
+        title = (
+            "Support request status changed"
+            if update.kind == "status"
+            else "New update on a support request"
+        )
+        body = "Open the support request to read it."
+    # The person who made the change already knows.
+    recipients = [user_id for user_id in recipients if user_id != update.actor_id]
+    return _active(session, recipients), title, body, "support_case", case.id
+
+
 def process_workflow_event(session: Session, event_key: str) -> bool:
     """Return False for replay; store failure state and let Inngest retry errors."""
     event = session.scalars(
@@ -85,12 +156,16 @@ def process_workflow_event(session: Session, event_key: str) -> bool:
     if event.status == "delivered":
         return False
     try:
-        recipient_ids = _recipients(session, event)
-        title, body = (
-            ("Quotation accepted", "A quotation was accepted for your installation.")
-            if event.event_type == "quotation.accepted"
-            else ("Installation progress updated", "An installation milestone was updated.")
-        )
+        if event.event_type == SUPPORT_EVENT:
+            recipient_ids, title, body, target_kind, target_id = _support_plan(session, event)
+        else:
+            recipient_ids = _recipients(session, event)
+            title, body = (
+                ("Quotation accepted", "A quotation was accepted for your installation.")
+                if event.event_type == "quotation.accepted"
+                else ("Installation progress updated", "An installation milestone was updated.")
+            )
+            target_kind, target_id = "installation", event.aggregate_id
         for recipient_id in recipient_ids:
             session.execute(
                 insert(Notification)
@@ -100,8 +175,8 @@ def process_workflow_event(session: Session, event_key: str) -> bool:
                     kind=event.event_type,
                     title=title,
                     body=body,
-                    target_kind="installation",
-                    target_id=event.aggregate_id,
+                    target_kind=target_kind,
+                    target_id=target_id,
                 )
                 .on_conflict_do_nothing(index_elements=["dedupe_key"])
             )
