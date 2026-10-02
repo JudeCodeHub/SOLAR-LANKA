@@ -42,7 +42,7 @@ export function EnquiryView({ id }: { id: string }) {
       <StaffGate basePath={`/company/inbox/${id}`}>
         {(company) => (
           <>
-            <Link href={`/company/inbox?company=${company.company_id}`} className="text-sm underline underline-offset-2">
+            <Link href={`/company/inbox?company=${company.company_id}`} className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">
               {text.detail.back}
             </Link>
             <Enquiry companyId={company.company_id} id={id} />

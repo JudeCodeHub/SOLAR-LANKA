@@ -48,7 +48,7 @@ export function QuotationDraftView({ id }: { id: string }) {
       <StaffGate basePath={`/company/inbox/${id}/quotation`}>
         {(company) => (
           <>
-            <Link href={`/company/inbox/${id}?company=${company.company_id}`} className="text-sm underline underline-offset-2">
+            <Link href={`/company/inbox/${id}?company=${company.company_id}`} className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">
               {text.editor.back}
             </Link>
             <Quotation companyId={company.company_id} deliveryId={id} />

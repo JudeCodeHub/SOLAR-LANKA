@@ -34,8 +34,8 @@ export function OfferForm({
         <TextField form={form} name="currency" label={text.currency} description={text.currencyHelp} />
       </div>
       <div className="space-y-1">
-        <label className="flex cursor-pointer items-center gap-2 text-sm">
-          <input type="checkbox" {...form.register("is_demo_price")} />
+        <label className="flex min-h-11 cursor-pointer items-center gap-2 text-sm">
+          <input type="checkbox" className="size-6 shrink-0" {...form.register("is_demo_price")} />
           <span>{text.demo}</span>
         </label>
         <FieldDescription>{text.demoHelp}</FieldDescription>

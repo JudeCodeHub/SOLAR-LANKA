@@ -123,7 +123,7 @@ export function RecipientsStep({ requirements }: { requirements: Requirements })
                     <label className="flex cursor-pointer items-start gap-3 text-sm">
                       <input
                         type="checkbox"
-                        className="mt-1"
+                        className="mt-1 size-6 shrink-0"
                         checked={chosen}
                         aria-disabled={blocked}
                         aria-label={format(rec.choose, { name: company.name })}

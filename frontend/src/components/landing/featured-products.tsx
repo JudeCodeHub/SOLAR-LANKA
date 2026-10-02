@@ -64,7 +64,7 @@ export function FeaturedProducts({
         </ul>
       )}
       {viewAll && section.ok && section.items.length > 0 ? (
-        <Link href={viewAll.href} className="inline-block text-sm font-medium underline underline-offset-2">
+        <Link href={viewAll.href} className="inline-flex min-h-11 items-center text-sm font-medium underline underline-offset-2">
           {format(messages.catalogue.results.viewAll, { noun: viewAll.noun })}
         </Link>
       ) : null}
