@@ -95,7 +95,7 @@ export function DirectoryFilters({ basePath, state }: { basePath: string; state:
         <div className="flex flex-wrap items-center gap-3">
           <Button type="submit">{text.apply}</Button>
           {Object.keys(values).length > 0 ? (
-            <Link href={basePath} className="text-sm underline underline-offset-2">
+            <Link href={basePath} className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">
               {text.clear}
             </Link>
           ) : null}

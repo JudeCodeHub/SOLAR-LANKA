@@ -43,7 +43,7 @@ export function FeaturedCompanies({ section }: { section: Section<Company> }) {
         </ul>
       )}
       {section.ok && section.items.length > 0 ? (
-        <Link href={DIRECTORY_PATH} className="inline-block text-sm font-medium underline underline-offset-2">
+        <Link href={DIRECTORY_PATH} className="inline-flex min-h-11 items-center text-sm font-medium underline underline-offset-2">
           {text.viewAll}
         </Link>
       ) : null}

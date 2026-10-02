@@ -64,7 +64,7 @@ export async function DirectoryPage({ searchParams }: { searchParams: RawParams 
             description={filtered ? text.results.none : text.results.empty}
             action={
               filtered ? (
-                <Link href={DIRECTORY_PATH} className="text-sm underline underline-offset-2">
+                <Link href={DIRECTORY_PATH} className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">
                   {text.filters.clear}
                 </Link>
               ) : undefined

@@ -9,7 +9,8 @@ export default defineConfig({
   testDir: "./e2e/specs",
   fullyParallel: false,
   workers: 1,
-  retries: 0,
+  // One retry: the development server compiles pages on first use, which now and then makes the first load of a page time out.
+  retries: 1,
   timeout: 45_000,
   reporter: [["list"]],
   outputDir: "./e2e/.tmp/results",

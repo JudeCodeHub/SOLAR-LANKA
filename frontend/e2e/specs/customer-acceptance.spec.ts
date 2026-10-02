@@ -20,6 +20,10 @@ interface Installation {
 test("a customer goes from an estimate to an accepted, trackable installation", async ({ page, api, signInAs }) => {
   const sunbird = ((await api("sunbirdAdmin", "GET", "/users/me")).body as { memberships: { company_id: string }[] }).memberships[0]?.company_id ?? "";
 
+  // The development server compiles each route on first use; warming the two this test leans on avoids a cold-start timeout that says nothing about the app.
+  await page.request.get("/api/public/companies?limit=1");
+  await page.request.get("/api/users/me/estimates?limit=1");
+
   // 1. Anyone can calculate an estimate in the browser.
   signInAs(null);
   await page.goto("/estimator");

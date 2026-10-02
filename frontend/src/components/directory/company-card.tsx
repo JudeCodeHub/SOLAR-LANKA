@@ -18,7 +18,7 @@ export function CompanyCard({ company, listHref }: { company: PublicCompany; lis
           <h3>
             <Link
               href={profileHref(company.id, listHref)}
-              className="underline-offset-2 hover:underline focus-visible:underline"
+              className="inline-flex min-h-11 items-center underline-offset-2 hover:underline focus-visible:underline"
             >
               {company.name}
             </Link>

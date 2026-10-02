@@ -35,7 +35,7 @@ export function OffersSection({ offers }: { offers: OffersResult }) {
                       <h3>
                         <Link
                           href={profileHref(offer.company_id, DIRECTORY_PATH)}
-                          className="underline-offset-2 hover:underline focus-visible:underline"
+                          className="inline-flex min-h-11 items-center underline-offset-2 hover:underline focus-visible:underline"
                         >
                           {offer.company_name}
                         </Link>

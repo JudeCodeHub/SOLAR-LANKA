@@ -193,6 +193,7 @@ function StepForms({ companyId, installationId, step, steps, pending, run }: { c
           <input
             id={`${id}-asset`}
             type="file"
+            className="block min-h-11 w-full min-w-0 text-sm"
             accept="image/jpeg,image/png,image/webp"
             disabled={upload.isPending}
             aria-invalid={Boolean(completeErrors.assetId || uploadProblem)}

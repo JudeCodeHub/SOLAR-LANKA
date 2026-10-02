@@ -45,8 +45,8 @@ export function CheckboxGroupField<TInput extends FieldValues, TOutput extends F
       <ul className={`grid gap-x-4 gap-y-1 ${columns}`}>
         {options.map((option) => (
           <li key={option.value}>
-            <label className="flex cursor-pointer items-center gap-2 text-sm">
-              <input type="checkbox" value={option.value} {...form.register(name)} />
+            <label className="flex min-h-11 cursor-pointer items-center gap-2 text-sm">
+              <input type="checkbox" className="size-6 shrink-0" value={option.value} {...form.register(name)} />
               <span>{option.label}</span>
             </label>
           </li>

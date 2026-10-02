@@ -39,14 +39,14 @@ export function ComparisonToggle({
 
   return (
     <div className="relative z-10 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-      <label className="inline-flex cursor-pointer items-center gap-2">
+      <label className="inline-flex min-h-11 cursor-pointer items-center gap-2">
         <input
           type="checkbox"
           checked={ready && selected}
           onChange={change}
           aria-disabled={blocked}
           aria-label={format(text.labelFor, { name })}
-          className="size-4 rounded border-input accent-primary outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+          className="size-6 rounded border-input accent-primary outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
         />
         <span aria-hidden="true">{text.label}</span>
       </label>

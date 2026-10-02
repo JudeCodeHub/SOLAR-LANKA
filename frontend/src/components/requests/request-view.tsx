@@ -32,7 +32,7 @@ export function RequestView({ id }: { id: string }) {
   const query = useRequest(id);
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
-      <Link href="/my/requests" className="text-sm underline underline-offset-2">
+      <Link href="/my/requests" className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">
         {text.back}
       </Link>
       <QueryState query={query}>
@@ -168,7 +168,7 @@ function Detail({
                     ) : name === null ? (
                       <span className="text-muted-foreground">{text.notListed}</span>
                     ) : (
-                      <Link href={`/companies/${entry.company_id}`} className="underline underline-offset-2">
+                      <Link href={`/companies/${entry.company_id}`} className="inline-flex min-h-11 items-center underline underline-offset-2">
                         {name}
                       </Link>
                     )}
@@ -202,7 +202,7 @@ function Detail({
           <dt className="text-muted-foreground">{text.estimate}</dt>
           <dd>
             {request.saved_estimate_id ? (
-              <Link href={`/my/estimates/${request.saved_estimate_id}`} className="underline underline-offset-2">
+              <Link href={`/my/estimates/${request.saved_estimate_id}`} className="inline-flex min-h-11 items-center underline underline-offset-2">
                 {text.estimateView}
               </Link>
             ) : (
