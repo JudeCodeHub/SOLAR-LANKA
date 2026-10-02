@@ -4,12 +4,16 @@ from datetime import UTC, datetime
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import require_local_user
-from app.api.schemas.estimator_config import EstimatorConfigDraft
+from app.api.schemas.estimator_config import (
+    EstimatorConfigDetail,
+    EstimatorConfigDraft,
+    EstimatorConfigSummary,
+)
 from app.core.estimator_scenario import GRID_NET_METERING
 from app.core.permissions import Action, Scope, required_scopes
 from app.db.session import get_session
@@ -38,6 +42,36 @@ def locked_draft(session: Session, version_id: UUID) -> EstimatorConfigVersion:
     if version.status != "draft" or version.is_archived:
         raise HTTPException(409)
     return version
+
+
+@router.get("", response_model=list[EstimatorConfigSummary])
+def list_versions(
+    admin: Annotated[AppUser, Depends(require_config_admin)],
+    session: Annotated[Session, Depends(get_session)],
+    response: Response,
+) -> list[EstimatorConfigSummary]:
+    """Every stored version, newest first, so administrators can see what customers get."""
+    response.headers["Cache-Control"] = "no-store"
+    rows = session.scalars(
+        select(EstimatorConfigVersion).order_by(
+            EstimatorConfigVersion.version.desc(), EstimatorConfigVersion.id
+        )
+    ).all()
+    return [EstimatorConfigSummary.model_validate(row) for row in rows]
+
+
+@router.get("/{version_id}", response_model=EstimatorConfigDetail)
+def read_version(
+    version_id: UUID,
+    admin: Annotated[AppUser, Depends(require_config_admin)],
+    session: Annotated[Session, Depends(get_session)],
+    response: Response,
+) -> EstimatorConfigDetail:
+    response.headers["Cache-Control"] = "no-store"
+    version = session.get(EstimatorConfigVersion, version_id)
+    if version is None:
+        raise HTTPException(404)
+    return EstimatorConfigDetail.model_validate(version)
 
 
 @router.post("/drafts", status_code=201)
