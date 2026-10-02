@@ -34,6 +34,8 @@ from app.api.routes.private_media import router as private_media_router
 from app.api.routes.quotation_requests import router as quotation_requests_router
 from app.api.routes.readiness import router as readiness_router
 from app.api.routes.saved_estimates import router as saved_estimates_router
+from app.api.routes.site_visits import company_router as site_visit_company_router
+from app.api.routes.site_visits import customer_router as site_visit_customer_router
 from app.api.routes.technician import company_router as technician_assignment_router
 from app.api.routes.technician import technician_router
 from app.api.routes.users import router as users_router
@@ -118,6 +120,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(customer_installations_router)
     application.include_router(company_installations_router)
     application.include_router(technician_assignment_router)
+    application.include_router(site_visit_customer_router)
+    application.include_router(site_visit_company_router)
     application.include_router(technician_router)
     application.include_router(catalogue_router)
     application.include_router(favourites_router)

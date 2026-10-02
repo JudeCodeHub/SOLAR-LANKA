@@ -46,6 +46,8 @@ test("a customer goes from an estimate to an accepted, trackable installation", 
   await page.getByRole("radio", { name: /kWp system/ }).first().check();
   const details = `E2E acceptance ${randomUUID()}`;
   await page.getByLabel("What do you need quoted?").fill(details);
+  // Continue is refused with a message while the estimate's details are still loading, so wait for them as a person would.
+  await expect(page.getByText(/Filled in from your estimate/)).toBeVisible();
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByRole("checkbox", { name: `Choose ${SUNBIRD}` }).check();
   await page.getByRole("button", { name: "Send request to 1 company" }).click();
