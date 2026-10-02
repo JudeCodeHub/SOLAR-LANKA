@@ -12,8 +12,10 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     func,
+    literal_column,
     text,
 )
+from sqlalchemy.dialects.postgresql import ExcludeConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.value_types import new_entity_id
@@ -27,6 +29,15 @@ class SiteVisit(Base):
             "status IN ('requested', 'alternatives_offered', 'confirmed', "
             "'cancelled', 'completed')",
             name="ck_site_visits_status",
+        ),
+        # A technician cannot hold two confirmed visits whose times overlap, whatever writes them.
+        # The range is half open, so a visit may start the moment another one ends.
+        ExcludeConstraint(
+            ("technician_id", "="),
+            (literal_column("tstzrange(confirmed_starts_at, confirmed_ends_at)"), "&&"),
+            using="gist",
+            where=text("status = 'confirmed'"),
+            name="ex_site_visits_technician_overlap",
         ),
         # One visit waiting for an answer per installation.
         Index(

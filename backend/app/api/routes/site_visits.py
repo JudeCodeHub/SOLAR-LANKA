@@ -122,6 +122,17 @@ def _record(
     )
 
 
+def _flush_or_clash(session: Session, message: str) -> None:
+    """Write the confirmation; the database refuses a technician double-booking, even in a race."""
+    try:
+        session.flush()
+    except IntegrityError as error:
+        session.rollback()
+        if "ex_site_visits_technician_overlap" not in str(error.orig):
+            raise
+        raise BusinessConflict(message) from None
+
+
 def _locked_visit(session: Session, installation_id: UUID, visit_id: UUID) -> SiteVisit:
     visit = session.scalars(
         select(SiteVisit)
@@ -238,7 +249,9 @@ def accept_alternative(
     visit.status = "confirmed"
     visit.confirmed_starts_at, visit.confirmed_ends_at = slot.starts_at, slot.ends_at
     _record(session, visit, user.id, "accepted_alternative", before)
-    session.flush()
+    _flush_or_clash(
+        session, "That time is no longer available. Ask for new slots or wait for new offers."
+    )
     view = _view(session, visit, staff=False)
     session.commit()
     return view
@@ -351,6 +364,9 @@ def confirm_visit(
     visit.status = "confirmed"
     visit.technician_id = technician.id
     visit.confirmed_starts_at, visit.confirmed_ends_at = slot.starts_at, slot.ends_at
+    _flush_or_clash(
+        session, "That technician already has a confirmed visit at that time. Choose another."
+    )
     _assign(session, installation_id, technician, membership.user_id)
     _record(session, visit, membership.user_id, "confirmed", before)
     session.flush()
