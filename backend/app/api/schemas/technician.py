@@ -40,3 +40,9 @@ class AssignedJobSummary(BaseModel):
 
 class AssignedJob(AssignedJobSummary):
     steps: list[JobStep]
+
+
+class TechnicianView(BaseModel):
+    """The accounts keep no names, so a technician is identified by their account id."""
+
+    user_id: UUID

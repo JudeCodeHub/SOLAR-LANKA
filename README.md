@@ -113,7 +113,7 @@ cd backend
 | `demo_seed_company_b` | company administrator | Demo Moonleaf Energy | see another company's separate data |
 | `demo_seed_company_c` | company administrator | Demo Lotus Solar | directory listing only |
 | `e2e_sunbird_sales` | sales | Demo Sunbird Solar | same screens as the administrator, as sales |
-| `e2e_sunbird_technician` | technician | Demo Sunbird Solar | see that technicians have no workspace yet (Phase 2) |
+| `e2e_sunbird_technician` | technician | Demo Sunbird Solar | open My visits (`/technician`) to see assigned site visits, add notes and photos, and complete a visit |
 | `e2e_customer_new` | customer | none | every empty state |
 | `e2e_customer_estimate`, `e2e_customer_two` | customer | none | run the whole workflow yourself without touching the seeded customer |
 | `e2e_platform_admin` | platform administrator | none | review companies, edit the catalogue and estimator settings, read the audit log |
@@ -132,7 +132,7 @@ Use two browser profiles (or a private window) so a customer and a company can b
 5. **Track**: open the installation, then as the company start the first step, upload evidence and complete it, share a delay, and add an internal note. As the customer, see exactly what is shared, and that internal notes and evidence files are not.
 6. **Notifications**: the customer sees each change under Notifications (the Inngest worker produces them; locally run it, or use the local processor `python -m app.jobs.process_outbox_locally`).
 7. **As `e2e_platform_admin`**: review a company submission, edit a specification, publish a new estimator draft, and read the audit log.
-8. **As `e2e_sunbird_technician`**: notice there is nothing for technicians yet, which the scope defers to Phase 2.
+8. **Site visit**: as `e2e_customer_estimate`, open the installation and request a visit with a time; as the company, confirm it with the technician (or offer other times); as `e2e_sunbird_technician`, open My visits, add a note and a photo and complete the visit once its time has come (the app refuses to complete a visit that has not started; for a demonstration, a visit scheduled for the past can only be made by editing its time in the database, which the browser tests do for you).
 
 ### Measured demo performance (17.09)
 

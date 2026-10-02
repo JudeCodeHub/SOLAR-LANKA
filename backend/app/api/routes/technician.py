@@ -17,6 +17,7 @@ from app.api.schemas.technician import (
     AssignmentCreate,
     AssignmentView,
     JobStep,
+    TechnicianView,
 )
 from app.core.permissions import Action
 from app.db.session import get_session
@@ -34,6 +35,9 @@ company_router = APIRouter(
     tags=["technician assignment"],
 )
 technician_router = APIRouter(prefix="/technician/installations", tags=["technician"])
+roster_router = APIRouter(
+    prefix="/companies/{company_id}/technicians", tags=["technician assignment"]
+)
 
 
 def _eligible_technician(session: Session, company_id: UUID, user_id: UUID) -> AppUser:
@@ -226,3 +230,28 @@ def my_assigned_job(
         total_steps=len(steps),
         steps=[JobStep(position=s.position, kind=s.kind, status=s.status) for s in steps],
     )
+
+
+@roster_router.get("", response_model=list[TechnicianView])
+def company_technicians(
+    membership: Annotated[
+        CompanyMembership, Depends(require_company_permission(Action.INSTALLATION_ASSIGN))
+    ],
+    session: Annotated[Session, Depends(get_session)],
+    response: Response,
+) -> list[TechnicianView]:
+    """The people who can be booked: active technicians of this company with active accounts."""
+    response.headers["Cache-Control"] = "no-store"
+    rows = session.scalars(
+        select(AppUser)
+        .join(CompanyMembership, CompanyMembership.user_id == AppUser.id)
+        .where(
+            CompanyMembership.company_id == membership.company_id,
+            CompanyMembership.status == "active",
+            CompanyMembership.role == "technician",
+            AppUser.is_suspended.is_(False),
+            AppUser.provider_state == "active",
+        )
+        .order_by(AppUser.created_at, AppUser.id)
+    ).all()
+    return [TechnicianView(user_id=row.id) for row in rows]

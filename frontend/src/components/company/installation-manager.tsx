@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
 import { InternalNotes, SharedNow, ShareForm } from "@/components/company/installation-share";
+import { StaffVisits } from "@/components/visits/staff-visits";
 import { StaffGate } from "@/components/company/staff-gate";
 import { QueryState } from "@/components/query-state";
 import { Button } from "@/components/ui/button";
@@ -119,6 +120,7 @@ function Manager({ companyId, id }: { companyId: string; id: string }) {
           </section>
         )}
       </QueryState>
+      <StaffVisits companyId={companyId} installationId={id} />
       <InternalNotes companyId={companyId} installationId={id} />
     </>
   );

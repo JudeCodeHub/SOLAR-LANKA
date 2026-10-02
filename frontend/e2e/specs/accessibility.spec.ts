@@ -19,6 +19,7 @@ const PUBLIC = ["/", "/panels", "/inverters", "/estimator", "/companies", "/sign
 const BY_ROLE: [IdentityName, string[]][] = [
   ["customer", ["/my", "/my/requests", "/my/estimates", "/my/installations", "/my/requests/new", "/notifications"]],
   ["sunbirdAdmin", ["/company", "/company/inbox", "/company/offers", "/company/installations", "/company/profile"]],
+  ["sunbirdTechnician", ["/technician"]],
   ["platformAdmin", ["/admin/companies", "/admin/catalogue", "/admin/estimator", "/admin/estimator/new", "/admin/users", "/admin/activity"]],
 ];
 
@@ -112,4 +113,22 @@ test.describe("keyboard and focus", () => {
     await expect(page.locator("[data-confirm='suspend']")).toHaveCount(0);
     await expect(page.getByLabel("Account id")).toHaveAttribute("aria-invalid", "true");
   });
+});
+
+test("visit screens with a confirmed visit pass axe for customer, company and technician", async ({ page, api, signInAs }) => {
+  const s = await acceptedInstallation(api);
+  const when = new Date(Date.now() + (3 + Math.floor(Math.random() * 80)) * 86_400_000).toISOString().slice(0, 10);
+  const made = (await api("estimateCustomer", "POST", `/users/me/installations/${s.installationId}/site-visits`, { timezone: "Asia/Colombo", slots: [{ starts_at: `${when}T14:00:00+05:30`, ends_at: `${when}T16:00:00+05:30` }] })).body as { id: string; slots: { id: string }[] };
+  const tech = ((await api("sunbirdAdmin", "GET", `/companies/${s.sunbird}/technicians`)).body as { user_id: string }[])[0]?.user_id;
+  await api("sunbirdAdmin", "POST", `/companies/${s.sunbird}/installations/${s.installationId}/site-visits/${made.id}/confirm`, { slot_id: made.slots[0]?.id, technician_id: tech });
+  const visits: [IdentityName, string][] = [
+    ["estimateCustomer", `/my/installations/${s.installationId}`],
+    ["sunbirdAdmin", `/company/installations/${s.installationId}`],
+    ["sunbirdTechnician", `/technician/visits/${made.id}`],
+  ];
+  for (const [who, path] of visits) {
+    signInAs(who);
+    await page.goto(path);
+    await audit(page, `${who} ${path}`);
+  }
 });

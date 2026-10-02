@@ -34,7 +34,7 @@ const WRITE_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 export const MAX_BODY_BYTES = 1_048_576;
 /** Evidence images may be up to 8 MiB (the backend's limit) plus the multipart envelope; only that path may exceed the default. */
 export const EVIDENCE_BODY_BYTES = 8 * 1_048_576 + 65_536;
-const EVIDENCE_PATH = /^companies\/[^/]+\/installations\/[^/]+\/evidence$/;
+const EVIDENCE_PATH = /^(companies\/[^/]+\/installations\/[^/]+|technician\/site-visits\/[^/]+)\/evidence$/;
 
 export function maxBodyBytes(path: readonly string[]): number {
   return EVIDENCE_PATH.test(path.join("/")) ? EVIDENCE_BODY_BYTES : MAX_BODY_BYTES;

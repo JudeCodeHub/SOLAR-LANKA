@@ -118,6 +118,8 @@ test("proxy errors use the backend error contract", async () => {
 test("only the evidence upload path may carry more than the default body size", () => {
   const evidence = ["companies", "c1", "installations", "i1", "evidence"];
   assert.equal(maxBodyBytes(evidence), EVIDENCE_BODY_BYTES);
+  assert.equal(maxBodyBytes(["technician", "site-visits", "v1", "evidence"]), EVIDENCE_BODY_BYTES);
+  assert.equal(maxBodyBytes(["technician", "site-visits", "v1", "evidence", "a1"]), MAX_BODY_BYTES);
   assert.equal(maxBodyBytes(["companies", "c1", "installations", "i1", "evidence", "a1"]), MAX_BODY_BYTES);
   assert.equal(maxBodyBytes(["users", "me", "requests"]), MAX_BODY_BYTES);
 });

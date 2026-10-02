@@ -6,7 +6,7 @@ import { test as base } from "@playwright/test";
 
 import { type IdentityName, IDENTITIES } from "./identities.ts";
 import { ensureKeys, signToken } from "./support/jwt.ts";
-import { API_PORT, BACKEND_DIR, FAIL_FILE, IDENTITY_FILE, TMP_DIR } from "./support/paths.ts";
+import { API_PORT, BACKEND_DIR, E2E_DIR, FAIL_FILE, IDENTITY_FILE, TMP_DIR } from "./support/paths.ts";
 
 export interface ApiResult {
   status: number;
@@ -22,6 +22,8 @@ interface Fixtures {
   api: (who: IdentityName, method: string, path: string, body?: unknown, headers?: Record<string, string>) => Promise<ApiResult>;
   /** Make every write fail for the rest of the test, to see how screens recover. */
   failWrites: () => void;
+  /** Move a confirmed visit into the past so it can be completed (the API refuses past slots). */
+  startVisit: (visitId: string) => void;
   /** Do what the background worker would: turn pending events into notifications (there is no Inngest in these tests). */
   processOutbox: () => void;
 }
@@ -49,6 +51,15 @@ export const test = base.extend<Fixtures>({
       }
       const text = await response.text();
       return { status: response.status, body: text ? JSON.parse(text) : null };
+    });
+  },
+  startVisit: async ({}, provide) => {
+    await provide((visitId) => {
+      const result = spawnSync(join(BACKEND_DIR, ".venv", "bin", "python"), [join(E2E_DIR, "support", "backdate.py"), visitId], {
+        env: { ...process.env, PYTHONPATH: BACKEND_DIR },
+        encoding: "utf8",
+      });
+      if (result.status !== 0) throw new Error(`Could not start the visit: ${result.stderr}`);
     });
   },
   processOutbox: async ({}, provide) => {
