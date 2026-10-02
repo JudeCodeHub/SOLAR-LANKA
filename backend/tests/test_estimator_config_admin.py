@@ -44,12 +44,21 @@ def test_admin_draft_publish_and_immutable_api(
     }
     base = "/admin/estimator-configs"
     assert database_client.post(f"{base}/drafts", json=body).status_code == 403
+    assert database_client.get(base).status_code == 403
     user.role = "platform_admin"
     database_session.commit()
     created = database_client.post(f"{base}/drafts", json=body)
     assert created.status_code == 201
     version_id = created.json()["id"]
     assert created.json()["version"] == 1
+    listed = database_client.get(base)
+    assert [(v["version"], v["status"]) for v in listed.json()] == [(1, "draft")]
+    detail = database_client.get(f"{base}/{version_id}")
+    assert (
+        detail.status_code == 200
+        and detail.json()["source_metadata"]["yield"]["publisher"] == "Test source"
+    )
+    assert database_client.get(f"{base}/{uuid4()}").status_code == 404
     changed = {**body, "assumptions": {"yield_kwh_per_kwp_year": 1500}}
     assert database_client.put(f"{base}/drafts/{version_id}", json=changed).status_code == 200
     published = database_client.post(f"{base}/drafts/{version_id}/publish")

@@ -1,7 +1,8 @@
 """Admin input for versioned estimator assumptions and their source snapshots."""
 
-from datetime import date
+from datetime import date, datetime
 from typing import Any, Literal
+from uuid import UUID
 
 from pydantic import AnyHttpUrl, BaseModel, ConfigDict, Field
 
@@ -32,3 +33,21 @@ class EstimatorConfigDraft(BaseModel):
 
     assumptions: dict[str, Any] = Field(min_length=1)
     source_metadata: SourceSnapshots
+
+
+class EstimatorConfigSummary(BaseModel):
+    """One stored version of the estimator assumptions, without their content."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    version: int
+    status: Literal["draft", "published"]
+    is_archived: bool
+    created_at: datetime
+    published_at: datetime | None
+
+
+class EstimatorConfigDetail(EstimatorConfigSummary):
+    assumptions: dict[str, Any]
+    source_metadata: dict[str, Any]
