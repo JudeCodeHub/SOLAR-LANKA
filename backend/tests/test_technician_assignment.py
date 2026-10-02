@@ -66,6 +66,9 @@ def test_assignment_controls_what_a_technician_can_see(database_client, database
         str(people["tech_other_company"].id)
     ]
 
+    roster = client.get(f"/companies/{MOONLEAF}/technicians")
+    assert [t["user_id"] for t in roster.json()] == [str(people["tech_other_company"].id)]
+
     # Who may assign: not the technician, not the customer, not another company's staff.
     for subject in ("tech_other_company", CUSTOMER, STAFF_A):
         act_as(subject)

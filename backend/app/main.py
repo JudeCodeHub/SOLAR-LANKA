@@ -38,7 +38,7 @@ from app.api.routes.saved_estimates import router as saved_estimates_router
 from app.api.routes.site_visits import company_router as site_visit_company_router
 from app.api.routes.site_visits import customer_router as site_visit_customer_router
 from app.api.routes.technician import company_router as technician_assignment_router
-from app.api.routes.technician import technician_router
+from app.api.routes.technician import roster_router, technician_router
 from app.api.routes.users import router as users_router
 from app.api.routes.webhooks import router as webhooks_router
 from app.api.schemas.errors import ERROR_STATUS_CODES, ErrorResponse
@@ -127,6 +127,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(site_visit_work.company_router)
     application.include_router(site_visit_work.customer_router)
     application.include_router(technician_router)
+    application.include_router(roster_router)
     application.include_router(catalogue_router)
     application.include_router(favourites_router)
     application.include_router(audit_router)

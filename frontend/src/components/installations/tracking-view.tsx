@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 
+import { CustomerVisits } from "@/components/visits/customer-visits";
 import { QueryState } from "@/components/query-state";
 import {
   currentStepText,
@@ -116,6 +117,7 @@ export function TrackingView({
                   </tbody>
                 </table>
               </section>
+              <CustomerVisits installationId={id} />
               <section
                 aria-labelledby="timeline-title"
                 className="space-y-3"

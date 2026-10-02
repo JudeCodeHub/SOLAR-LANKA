@@ -50,6 +50,7 @@ const PAGES: [IdentityName | null, string][] = [
   ["sunbirdAdmin", "/company"],
   ["sunbirdAdmin", "/company/inbox"],
   ["sunbirdAdmin", "/company/profile"],
+  ["sunbirdTechnician", "/technician"],
   ["platformAdmin", "/admin/catalogue"],
   ["platformAdmin", "/admin/estimator/new"],
   ["platformAdmin", "/admin/activity"],

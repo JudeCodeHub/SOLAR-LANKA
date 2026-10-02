@@ -63,8 +63,10 @@ test("company administrators and sales staff get the company workspace", () => {
   }
 });
 
-test("technicians have no company links until their workspace exists", () => {
-  assert.ok(!groupIds(staff("technician"), true).includes("company"));
+test("technicians get their own visits page and no company links", () => {
+  const shown = ids(staff("technician"), true);
+  assert.ok(shown.includes("technician-visits"));
+  assert.ok(!shown.some((id) => id.startsWith("company-")));
 });
 
 test("a suspended or absent membership grants nothing", () => {
@@ -187,8 +189,9 @@ test("each role sees exactly its own finished destinations", () => {
   assert.deepEqual(real(admin, true), ["home", "panels", "inverters", "estimator", "companies", "admin-companies", "admin-catalogue", "admin-estimator", "admin-users", "admin-activity", "account", "notifications"]);
 });
 
-test("technicians are shown no company, administration or support destinations", () => {
+test("technicians are shown only their visits, never company, administration or support destinations", () => {
   const shown = real(staff("technician"), true);
+  assert.ok(shown.includes("technician-visits"));
   assert.ok(!shown.some((id) => /^(company-|admin-|support|troubleshooting|learn)/.test(id)), shown.join(","));
 });
 

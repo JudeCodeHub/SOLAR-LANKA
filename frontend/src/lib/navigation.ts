@@ -43,6 +43,8 @@ const PUBLIC: NavAccess = { kind: "public" };
 const CUSTOMER: NavAccess = { kind: "account-role", role: "customer" };
 const PLATFORM_ADMIN: NavAccess = { kind: "account-role", role: "platform_admin" };
 // Company administrators and sales staff.
+// Technicians have their own, smaller workspace.
+const TECHNICIAN: NavAccess = { kind: "company-role", roles: ["technician"] };
 const COMPANY_STAFF: NavAccess = { kind: "company-role", roles: ["company_admin", "sales"] };
 
 export const NAV_ITEMS: readonly NavItem[] = [
@@ -61,6 +63,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { id: "my-installations", label: messages.nav.items.myInstallations, href: "/my/installations", group: "customer", access: CUSTOMER, available: true },
   { id: "my-favourites", label: messages.nav.items.myFavourites, href: "/my/favourites", group: "customer", access: CUSTOMER, available: true },
 
+  { id: "technician-visits", label: messages.nav.items.technicianVisits, href: "/technician", group: "company", access: TECHNICIAN, available: true },
   { id: "company-dashboard", label: messages.nav.items.companyDashboard, href: "/company", group: "company", access: COMPANY_STAFF, available: true },
   { id: "company-inbox", label: messages.nav.items.companyInbox, href: "/company/inbox", group: "company", access: COMPANY_STAFF, available: true },
   { id: "company-offers", label: messages.nav.items.companyOffers, href: "/company/offers", group: "company", access: COMPANY_STAFF, available: true },
