@@ -16,6 +16,8 @@ class AuditAction(StrEnum):
     COMPANY_REJECTED = "company.rejected"
     USER_SUSPENDED = "user.suspended"
     USER_RESTORED = "user.restored"
+    INSTALLATION_TECHNICIAN_ASSIGNED = "installation.technician_assigned"
+    INSTALLATION_TECHNICIAN_UNASSIGNED = "installation.technician_unassigned"
 
 
 def record_audit(

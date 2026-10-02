@@ -858,6 +858,8 @@ export const en = {
       "company.rejected": "Company not approved",
       "user.suspended": "Account suspended",
       "user.restored": "Account restored",
+      "installation.technician_assigned": "Technician assigned to an installation",
+      "installation.technician_unassigned": "Technician removed from an installation",
     } as Record<string, string>,
   },
   adminCatalogue: {
