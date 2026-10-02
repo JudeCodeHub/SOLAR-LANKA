@@ -2,7 +2,7 @@
 
 Solar Lanka is a solar energy portfolio web application for exploring solar products, estimating system requirements, comparing company quotations, and tracking installation progress.
 
-**Status: Under development.**
+**Status: Phase 1 (core release) is built and tested; deployment is a later phase.** Everything uses fictional companies and sample prices. Contents: [setup](#setup-from-a-fresh-checkout), [architecture](#architecture), [database diagram](#database-relationships), [API documentation](#api-documentation), [demo accounts](#demo-accounts), [walkthrough](#guided-walkthrough), [browser tests](#browser-tests-phase-17), [scope acceptance](#core-scope-acceptance-phase-1).
 
 ## Backend (Phase 1 API) — status: complete
 
@@ -31,6 +31,108 @@ All integration settings are backend-only and documented with dummy values in `b
 - **ImageKit** (public media): upload authorisation and verification; private documents use local private storage in development.
 - **Inngest** (background work): notifications are produced from a database outbox. Use the Inngest Dev Server locally; production needs both keys.
 - **Arcjet** (abuse protection): rate limits on public and write routes. Unset `SOLAR_ARCJET_KEY` disables it in development; production requires it.
+
+## Setup from a fresh checkout
+
+Needs Docker (PostgreSQL only), Python with `uv`, Node with `pnpm`, and a free [Clerk](https://clerk.com) development instance for sign-in.
+
+1. **Database and backend**: follow "Run it" above (root `.env` with two database passwords, `backend/.env` from `.env.example`, `uv sync --locked --group dev`, `docker compose up -d postgres`, `make migrate`, `.venv/bin/python -m app.seed_demo`, then `.venv/bin/python -m app.seed_e2e` for the extra demo people and a fictional estimator version). Both seeds can be repeated safely. Set the Clerk values in `backend/.env` (names are in `backend/.env.example`).
+2. **Frontend**: in `frontend/`, copy `.env.example` to `.env`, fill the four Clerk values from the same Clerk instance and set `API_BASE_URL` to the backend address (for example `http://127.0.0.1:8000`), then `pnpm install` and `pnpm dev` (http://localhost:3000). The browser only ever calls this site's `/api` gateway, which adds the session token and forwards to the backend.
+3. **Check it**: backend `.venv/bin/ruff check . && .venv/bin/python -m pytest --database` (needs `make migrate-test` and the test container); frontend `pnpm check`, `pnpm test`, `pnpm build`; browser tests as described below.
+
+## Architecture
+
+```mermaid
+flowchart LR
+  B[Browser] -->|same-origin /api| N[Next.js 16 app<br/>pages, TanStack Query, Clerk session]
+  N -->|bearer token added server-side| A[FastAPI<br/>verifies Clerk token, applies roles and company membership]
+  A --> P[(PostgreSQL<br/>constraints and triggers keep sent quotations frozen)]
+  A -->|outbox rows| O[Inngest worker<br/>writes notifications]
+  O --> P
+  A -.->|private evidence| F[Local private storage<br/>development only]
+  A -.->|public images| I[ImageKit]
+  N --> C[Clerk<br/>sign-in only]
+```
+
+Roles: an account is a customer or a platform administrator; company administrators, sales and technicians are explicit memberships. Every company route checks the membership, every customer route checks ownership, and the frontend only hides what the backend would refuse anyway. Quotation totals, state changes and acceptance are decided by the backend in one transaction; the pages re-read after every refusal and explain from fresh state.
+
+## Database relationships
+
+```mermaid
+erDiagram
+  app_users ||--o{ company_memberships : "belongs through"
+  companies ||--o{ company_memberships : has
+  companies ||--o{ company_reviews : "review history"
+  companies ||--o{ product_offers : "sells (price and claim)"
+  products ||--o{ product_offers : "offered as"
+  products ||--o| panels : "kind panel"
+  products ||--o| inverters : "kind inverter"
+  products ||--o{ product_sources : "cited by"
+  app_users ||--o{ favourites : saves
+  products ||--o{ favourites : "saved as"
+  estimator_config_versions ||--o{ saved_estimates : "snapshot of"
+  app_users ||--o{ saved_estimates : owns
+  app_users ||--o{ quotation_requests : sends
+  saved_estimates ||--o{ quotation_requests : "may start"
+  quotation_requests ||--o{ request_deliveries : "sent to"
+  companies ||--o{ request_deliveries : receives
+  request_deliveries ||--o| quotations : "answered by"
+  quotations ||--o{ quotation_revisions : "versions"
+  quotation_revisions ||--o{ quotation_lines : "itemised by"
+  products ||--o{ quotation_lines : "snapshot of"
+  quotation_revisions ||--o| installations : "accepted creates"
+  installations ||--o{ installation_milestones : "8 ordered steps"
+  installation_milestones ||--o{ milestone_events : "history"
+  installations ||--o{ installation_internal_notes : "company only"
+  request_deliveries ||--o{ request_delivery_notes : "company only"
+  app_users ||--o{ notifications : receives
+  app_users ||--o{ media_assets : uploads
+  app_users ||--o{ audit_events : "acts in"
+  outbox_events }o--|| installations : "announces"
+```
+
+The diagram shows the relationships that matter; the full column lists are in `backend/app/models/`. Table names follow the models (a few above are shortened). Companies' prices live in `product_offers`, never on the canonical `products`, and sent quotation revisions and their lines are made immutable by database triggers (migration 0029).
+
+## API documentation
+
+The API documents itself. With the backend running, interactive docs are at `/docs` (Swagger) and `/redoc`, and the machine-readable schema is `GET /openapi.json`. `.venv/bin/python -m app.export_openapi FILE` writes it to a file, and `pnpm api:types` in `frontend/` turns it into the typed client (`src/lib/api/schema.d.ts`), so the frontend cannot drift from the backend without a type error. Errors always look like `{"error": {"code", "message", "issues"}}`. Route groups: public catalogue, directory and estimate preview; `/users/me/...` (customer: estimates, requests, offers, installations, notifications); `/companies/{id}/...` (company staff); `/admin/...` and `/audit-events` (platform administrators); `/media/...` (uploads and private downloads).
+
+## Demo accounts
+
+The seeds create the people below with the roles and companies shown, but **no passwords exist**: sign-in is Clerk's. To sign in as one, create a user in your Clerk development instance, copy its user id (starts with `user_`) from the Clerk dashboard, and link it **before that user's first sign-in**:
+
+```
+cd backend
+.venv/bin/python -m app.link_demo_account demo_seed_customer user_2abc...
+```
+
+| Demo subject | Role | Company | Use it to |
+|---|---|---|---|
+| `demo_seed_customer` | customer | none | follow the four seeded requests (draft, revised, expired and accepted offers) and the accepted installation |
+| `demo_seed_company_a` | company administrator | Demo Sunbird Solar | answer enquiries, quote, manage installations |
+| `demo_seed_company_b` | company administrator | Demo Moonleaf Energy | see another company's separate data |
+| `demo_seed_company_c` | company administrator | Demo Lotus Solar | directory listing only |
+| `e2e_sunbird_sales` | sales | Demo Sunbird Solar | same screens as the administrator, as sales |
+| `e2e_sunbird_technician` | technician | Demo Sunbird Solar | see that technicians have no workspace yet (Phase 2) |
+| `e2e_customer_new` | customer | none | every empty state |
+| `e2e_customer_estimate`, `e2e_customer_two` | customer | none | run the whole workflow yourself without touching the seeded customer |
+| `e2e_platform_admin` | platform administrator | none | review companies, edit the catalogue and estimator settings, read the audit log |
+| `e2e_rival_admin` | company administrator | E2E Rival Solar | a second approved Colombo company, so offers can compete |
+
+Anyone who signs in with a Clerk user that is not linked becomes an ordinary customer with no data.
+
+## Guided walkthrough
+
+Use two browser profiles (or a private window) so a customer and a company can be signed in at once.
+
+1. **Browse without signing in**: Solar panels, Inverters (filters, then compare up to three; unknown values read "Not specified"), Companies, and Estimator (try 300 kWh a month, Colombo, 30 m², partial shading).
+2. **As `e2e_customer_estimate`**: save the estimate, open My estimates, then Prepare a request from it and send it to Demo Sunbird Solar (and the rival, to see competing offers).
+3. **As `demo_seed_company_a`**: open Enquiries, mark the enquiry opened, start a quotation draft, add lines, save (the totals come from the server) and send it. Try revising it to see the history.
+4. **Back as the customer**: open the request, compare the offers (differences and "Not specified" are flagged, nothing is ranked), accept one. Try accepting the other: it is refused and explained.
+5. **Track**: open the installation, then as the company start the first step, upload evidence and complete it, share a delay, and add an internal note. As the customer, see exactly what is shared, and that internal notes and evidence files are not.
+6. **Notifications**: the customer sees each change under Notifications (the Inngest worker produces them; locally run it, or use the local processor `python -m app.jobs.process_outbox_locally`).
+7. **As `e2e_platform_admin`**: review a company submission, edit a specification, publish a new estimator draft, and read the audit log.
+8. **As `e2e_sunbird_technician`**: notice there is nothing for technicians yet, which the scope defers to Phase 2.
 
 ## Browser tests (Phase 17)
 
