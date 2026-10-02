@@ -134,6 +134,30 @@ Use two browser profiles (or a private window) so a customer and a company can b
 7. **As `e2e_platform_admin`**: review a company submission, edit a specification, publish a new estimator draft, and read the audit log.
 8. **As `e2e_sunbird_technician`**: notice there is nothing for technicians yet, which the scope defers to Phase 2.
 
+### Measured demo performance (17.09)
+
+Measured on one developer laptop (Linux, PostgreSQL 16 in Docker, Python 3.14, Next.js production build), demo dataset only. These are demonstration figures, not capacity claims.
+
+| What | Result |
+|---|---|
+| Fresh database: all migrations | about 2.4 s |
+| Seeds (`app.seed_demo`, `app.seed_e2e`, the second run changes nothing) | under a second each, no manual database edit |
+| Production build of the web app | about 24 s |
+| API reads in process (30 runs after warm-up, `python -m app.benchmark_demo`) | median 18 to 50 ms, 95th percentile 23 to 56 ms across 13 endpoints; 3 to 9 queries each; no sequential scans |
+| Slowest read | company revision history, median 49.6 ms (9 queries) |
+| Over HTTP, warm | API health 35 ms, readiness 85 ms, catalogue list 23 ms; web pages 10 to 85 ms from the production server (the first request after start took 330 to 380 ms) |
+
+### Known limitations
+
+- Everything uses fictional companies and sample prices. Estimates are planning aids, not guarantees.
+- Arcjet and Inngest were tested with fakes or locally, not against live services.
+- Sign-in is Clerk's: demo people have no passwords and must be linked to Clerk users (see Demo accounts). Browser tests bypass sign-in with a signed test token.
+- Technician workspace, site visits, support, troubleshooting, education content and document export are Phase 2; they appear only as "Coming soon".
+- Only one estimator scenario is calculated (grid-connected, net metering, no battery backup); every figure is a fictional planning aid.
+- Evidence files use local private storage, which exists for development and tests only; notifications need the Inngest worker (or the local processor) running.
+- Measurements cover the demo dataset on one machine; nothing was load-tested, and no real device or screen reader was used.
+- Not yet built: deployment, CI, backups and monitoring (the later DevOps phase).
+
 ## Browser tests (Phase 17)
 
 Playwright runs the real web app against the real API and a known database. No Clerk account or password is needed: a test-only gateway signs a token for the demo person each test chooses, and the API still verifies it (the sign-in bypass works only when `E2E_AUTH=1` outside production).
@@ -170,8 +194,3 @@ Each criterion from section 11 of the project scope, with the evidence for it. "
 
 Technician workspace and conflict-checked site visits, support cases and sourced troubleshooting references, educational content, quotation document export, password recovery and scheduled reminders, expanded estimator scenarios (only grid-connected net metering without backup is calculated), and everything in Phase 3 and the deployment phase. The navigation shows Learn, Troubleshooting and Support only as "Coming soon" cards, never as links.
 
-### Known limitations
-
-- Everything uses fictional companies and sample prices. Estimates are planning aids, not guarantees.
-- Arcjet and Inngest were tested with fakes or locally, not against live services.
-- Not yet built: technician visits, support cases, education content, PDF export, email, and all deployment work (later phases).
