@@ -67,10 +67,10 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { id: "company-installations", label: messages.nav.items.companyInstallations, href: "/company/installations", group: "company", access: COMPANY_STAFF, available: true },
   { id: "company-profile", label: messages.nav.items.companyProfile, href: "/company/profile", group: "company", access: COMPANY_STAFF, available: true },
 
-  { id: "admin-companies", label: messages.nav.items.adminCompanies, href: "/admin/companies", group: "admin", access: PLATFORM_ADMIN, available: false },
+  { id: "admin-companies", label: messages.nav.items.adminCompanies, href: "/admin/companies", group: "admin", access: PLATFORM_ADMIN, available: true },
   { id: "admin-catalogue", label: messages.nav.items.adminCatalogue, href: "/admin/catalogue", group: "admin", access: PLATFORM_ADMIN, available: false },
   { id: "admin-estimator", label: messages.nav.items.adminEstimator, href: "/admin/estimator", group: "admin", access: PLATFORM_ADMIN, available: false },
-  { id: "admin-users", label: messages.nav.items.adminUsers, href: "/admin/users", group: "admin", access: PLATFORM_ADMIN, available: false },
+  { id: "admin-users", label: messages.nav.items.adminUsers, href: "/admin/users", group: "admin", access: PLATFORM_ADMIN, available: true },
   { id: "admin-activity", label: messages.nav.items.adminActivity, href: "/admin/activity", group: "admin", access: PLATFORM_ADMIN, available: false },
 
   { id: "account", label: messages.nav.items.account, href: "/account", group: "account", access: { kind: "signed-in" }, available: true },

@@ -15,6 +15,7 @@ export function ConfirmAction({
   keep,
   onConfirm,
   disabled = false,
+  onBeforeOpen,
   variant = "outline",
 }: {
   id: string;
@@ -26,6 +27,8 @@ export function ConfirmAction({
   keep: string;
   onConfirm: () => void;
   disabled?: boolean;
+  /** Called before the question opens; returning false keeps it closed, for a form that is not ready. */
+  onBeforeOpen?: () => boolean;
   variant?: "outline" | "default";
 }) {
   const [confirming, setConfirming] = useState(false);
@@ -65,6 +68,7 @@ export function ConfirmAction({
         data-action={id}
         onClick={() => {
           if (disabled) return;
+          if (onBeforeOpen && !onBeforeOpen()) return;
           setConfirming(true);
           setTimeout(() => heading.current?.focus(), 0);
         }}
