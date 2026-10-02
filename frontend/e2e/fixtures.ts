@@ -1,14 +1,18 @@
+import { spawnSync } from "node:child_process";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 
 import { test as base } from "@playwright/test";
 
 import { type IdentityName, IDENTITIES } from "./identities.ts";
 import { ensureKeys, signToken } from "./support/jwt.ts";
-import { API_PORT, FAIL_FILE, IDENTITY_FILE, TMP_DIR } from "./support/paths.ts";
+import { API_PORT, BACKEND_DIR, FAIL_FILE, IDENTITY_FILE, TMP_DIR } from "./support/paths.ts";
 
 export interface ApiResult {
   status: number;
   body: unknown;
+  /** The raw bytes of a response that is not JSON, such as a downloaded file. */
+  bytes?: Buffer;
 }
 
 interface Fixtures {
@@ -18,6 +22,8 @@ interface Fixtures {
   api: (who: IdentityName, method: string, path: string, body?: unknown, headers?: Record<string, string>) => Promise<ApiResult>;
   /** Make every write fail for the rest of the test, to see how screens recover. */
   failWrites: () => void;
+  /** Do what the background worker would: turn pending events into notifications (there is no Inngest in these tests). */
+  processOutbox: () => void;
 }
 
 export const test = base.extend<Fixtures>({
@@ -37,8 +43,22 @@ export const test = base.extend<Fixtures>({
         headers: { authorization: `Bearer ${signToken(IDENTITIES[who].subject, privateKey)}`, ...(body === undefined ? {} : { "content-type": "application/json" }), ...headers },
         body: body === undefined ? undefined : JSON.stringify(body),
       });
+      if (!(response.headers.get("content-type") ?? "").includes("json")) {
+        const bytes = Buffer.from(await response.arrayBuffer());
+        return { status: response.status, body: null, bytes };
+      }
       const text = await response.text();
       return { status: response.status, body: text ? JSON.parse(text) : null };
+    });
+  },
+  processOutbox: async ({}, provide) => {
+    await provide(() => {
+      const result = spawnSync(join(BACKEND_DIR, ".venv", "bin", "python"), ["-m", "app.jobs.process_outbox_locally"], {
+        cwd: BACKEND_DIR,
+        env: { ...process.env, SOLAR_DATABASE_URL: process.env.E2E_DATABASE_URL, SOLAR_ENVIRONMENT: "development", PYTHONPATH: BACKEND_DIR },
+        encoding: "utf8",
+      });
+      if (result.status !== 0) throw new Error(`Processing the outbox failed: ${result.stderr}`);
     });
   },
   failWrites: async ({}, provide) => {
