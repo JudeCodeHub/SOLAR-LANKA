@@ -19,7 +19,7 @@ from app.models.quotation import Quotation, QuotationRevision
 from app.models.quotation_request import QuotationRequest, RequestDelivery
 from app.models.saved_estimate import SavedEstimate
 from app.models.user import AppUser
-from app.seed_e2e import E2E_IDENTITIES, SUNBIRD, seed_e2e
+from app.seed_e2e import E2E_IDENTITIES, RIVAL_COMPANY, SUNBIRD, seed_e2e
 
 TABLES = (
     AppUser, Company, CompanyMembership, CompanyReview, AuditEvent, Product, Panel, Inverter,
@@ -54,6 +54,10 @@ def test_e2e_identities_are_repeatable_and_have_the_documented_roles(
     assert memberships["e2e_sunbird_technician"] == "technician"
     assert memberships["demo_seed_company_a"] == "company_admin"
     assert "e2e_platform_admin" not in memberships and "e2e_customer_new" not in memberships
-    assert len(users) == 4 + len(E2E_IDENTITIES)
+    assert len(users) == 5 + len(E2E_IDENTITIES)
+    rival = database_session.get(Company, RIVAL_COMPANY[0])
+    assert rival.publication_status == "approved" and rival.service_districts == ["Colombo"]
+    versions = list(database_session.scalars(select(EstimatorConfigVersion)))
+    assert [(v.version, v.status) for v in versions] == [(1, "published")]
     with pytest.raises(ValueError):
         seed_e2e(database_session, environment="production")

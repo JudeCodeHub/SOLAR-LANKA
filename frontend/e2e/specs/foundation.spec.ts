@@ -57,10 +57,16 @@ test.describe("known data", () => {
     await expect(page.getByText(/Received /).first()).toBeVisible();
   });
 
-  test("the platform administrator sees the platform counts", async ({ page, signInAs }) => {
+  test("the platform administrator sees the platform counts the API reports", async ({ page, api, signInAs }) => {
     signInAs("platformAdmin");
+    const counts = (await api("platformAdmin", "GET", "/admin/activity")).body as { users: number; approved_companies: number; active_products: number };
+    // The three demo companies are a minimum: browser tests add their own.
+    expect(counts.approved_companies).toBeGreaterThanOrEqual(3);
     await page.goto("/admin/activity");
-    await expect(page.locator("[data-counts]")).toContainText("3");
+    const shown = page.locator("[data-counts]");
+    await expect(shown).toContainText(`Accounts${counts.users}`);
+    await expect(shown).toContainText(`Approved companies${counts.approved_companies}`);
+    await expect(shown).toContainText(`Active products${counts.active_products}`);
   });
 
   test("three approved companies are listed publicly", async ({ page, signInAs }) => {
