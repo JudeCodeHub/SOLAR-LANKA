@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { test } from "node:test";
 
@@ -171,4 +171,40 @@ test("landing entry points link only to pages that exist and exclude home", () =
   assert.ok(built.every((entry) => entry.linkable));
   // Only public destinations are advertised, never role-specific ones.
   assert.ok(!built.some((entry) => /^(my-|company-|admin-)/.test(entry.id)));
+});
+
+// --- Role navigation review: what each kind of person is shown with the real registry. ---
+
+const real = (user: ShellUser | null, signedIn: boolean) => navigationFor(user, signedIn).flatMap((group) => group.items.map((item) => item.id));
+
+test("each role sees exactly its own finished destinations", () => {
+  assert.deepEqual(real(null, false), ["home", "panels", "inverters", "estimator", "companies"]);
+  assert.deepEqual(real(customer, true), ["home", "panels", "inverters", "estimator", "companies", "my-dashboard", "my-estimates", "my-requests", "my-installations", "my-favourites", "account", "notifications"]);
+  const companyLinks = ["company-dashboard", "company-inbox", "company-offers", "company-installations", "company-profile"];
+  for (const role of ["company_admin", "sales"] as const) {
+    assert.deepEqual(real(staff(role), true).filter((id) => id.startsWith("company-")), companyLinks);
+  }
+  assert.deepEqual(real(admin, true), ["home", "panels", "inverters", "estimator", "companies", "admin-companies", "admin-catalogue", "admin-estimator", "admin-users", "admin-activity", "account", "notifications"]);
+});
+
+test("technicians are shown no company, administration or support destinations", () => {
+  const shown = real(staff("technician"), true);
+  assert.ok(!shown.some((id) => /^(company-|admin-|support|troubleshooting|learn)/.test(id)), shown.join(","));
+});
+
+test("the only unfinished destinations are public guides, and none belongs to a role", () => {
+  const unbuilt = NAV_ITEMS.filter((item) => !item.available);
+  assert.deepEqual(unbuilt.map((item) => item.id).sort(), ["learn", "support", "troubleshooting"]);
+  assert.ok(unbuilt.every((item) => item.access.kind === "public" && item.group === "explore"));
+});
+
+test("every address a role-specific page lives at is guarded by the sign-in proxy", () => {
+  const source = readFileSync(join(import.meta.dirname, "..", "proxy.ts"), "utf8");
+  const listed = /createRouteMatcher\(\[([^\]]*)\]\)/.exec(source)?.[1] ?? "";
+  const prefixes = [...listed.matchAll(/"(\/[a-z]+)\(\.\*\)"/g)].map((match) => match[1] as string);
+  assert.ok(prefixes.length >= 4, "found no guarded prefixes in proxy.ts");
+  const guarded = (href: string) => prefixes.some((prefix) => href === prefix || href.startsWith(`${prefix}/`));
+  for (const item of NAV_ITEMS.filter((entry) => entry.access.kind !== "public")) {
+    assert.ok(guarded(item.href), `${item.id} (${item.href}) is not covered by the proxy`);
+  }
 });

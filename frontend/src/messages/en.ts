@@ -114,12 +114,6 @@ export const en = {
     customer: "Customer",
     platform_admin: "Platform administrator",
   },
-  home: {
-    title: "Solar Lanka",
-    tagline: "Explore solar products, estimate your system and compare quotations.",
-    note: "Portfolio demonstration under development. All companies, prices and estimates will be fictional samples.",
-    catalogueSoon: "Catalogue coming soon",
-  },
   services: {
     installation: "Installation",
     maintenance: "Maintenance",
