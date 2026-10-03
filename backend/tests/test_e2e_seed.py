@@ -18,6 +18,7 @@ from app.models.product_source import ProductSource
 from app.models.quotation import Quotation, QuotationRevision
 from app.models.quotation_request import QuotationRequest, RequestDelivery
 from app.models.saved_estimate import SavedEstimate
+from app.models.troubleshooting import TroubleshootingReference
 from app.models.user import AppUser
 from app.seed_e2e import E2E_IDENTITIES, RIVAL_COMPANY, SUNBIRD, seed_e2e
 
@@ -25,6 +26,7 @@ TABLES = (
     AppUser, Company, CompanyMembership, CompanyReview, AuditEvent, Product, Panel, Inverter,
     ProductSource, ProductOffer, EstimatorConfigVersion, SavedEstimate, QuotationRequest,
     RequestDelivery, Quotation, QuotationRevision, Installation, InstallationMilestoneRecord,
+    TroubleshootingReference,
 )  # fmt: skip
 
 
@@ -57,6 +59,9 @@ def test_e2e_identities_are_repeatable_and_have_the_documented_roles(
     assert len(users) == 5 + len(E2E_IDENTITIES)
     rival = database_session.get(Company, RIVAL_COMPANY[0])
     assert rival.publication_status == "approved" and rival.service_districts == ["Colombo"]
+    refs = list(database_session.scalars(select(TroubleshootingReference)))
+    assert sorted(r.code for r in refs) == ["E01", "E09"]
+    assert all(r.is_sample and r.status == "published" for r in refs)
     versions = list(database_session.scalars(select(EstimatorConfigVersion)))
     assert [(v.version, v.status) for v in versions] == [(1, "published")]
     with pytest.raises(ValueError):

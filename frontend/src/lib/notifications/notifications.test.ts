@@ -17,11 +17,18 @@ test("company administrators and sales are sent to the company's installation pa
 
 test("a notification that names nothing this app can open has no link", () => {
   assert.equal(destinationFor({ target_kind: null, target_id: null }, []), null);
-  assert.equal(destinationFor({ target_kind: "support_case", target_id: target.target_id }, []), null);
+  assert.equal(destinationFor({ target_kind: "billing", target_id: target.target_id }, []), null);
 });
 
 test("only unread is a filter; anything else shows everything", () => {
   assert.equal(parseFilter("unread"), "unread");
   assert.equal(parseFilter("read"), "all");
   assert.equal(parseFilter(null), "all");
+});
+
+test("a support notification opens the support request on the person's own side", () => {
+  const id = target.target_id;
+  assert.equal(destinationFor({ target_kind: "support_case", target_id: id }, [])?.href, `/my/support/${id}`);
+  assert.equal(destinationFor({ target_kind: "support_case", target_id: id }, [{ role: "technician" }])?.href, `/technician/support/${id}`);
+  assert.equal(destinationFor({ target_kind: "support_case", target_id: id }, [{ role: "sales" }])?.href, `/company/support/${id}`);
 });
