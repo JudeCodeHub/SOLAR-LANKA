@@ -70,6 +70,7 @@ class Action(StrEnum):
     USER_STATUS_MANAGE = "user_status.manage"
     PLATFORM_ACTIVITY_READ = "platform_activity.read"
     AUDIT_READ = "audit.read"
+    CONTENT_MANAGE = "content.manage"
 
 
 @dataclass(frozen=True)
@@ -142,6 +143,7 @@ PERMISSION_MATRIX: Mapping[Action, tuple[Grant, ...]] = MappingProxyType(
         Action.NOTIFICATION_READ: SELF_ACCESS,
         Action.NOTIFICATION_MARK_READ: SELF_ACCESS,
         Action.USER_STATUS_MANAGE: PLATFORM_ADMIN,
+        Action.CONTENT_MANAGE: PLATFORM_ADMIN,
         Action.PLATFORM_ACTIVITY_READ: PLATFORM_ADMIN,
         Action.AUDIT_READ: PLATFORM_ADMIN,
     }
