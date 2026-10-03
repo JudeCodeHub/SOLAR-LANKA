@@ -5,6 +5,9 @@ import { expect, test } from "../fixtures.ts";
 import type { IdentityName } from "../identities.ts";
 import { acceptedInstallation } from "../support/scenario.ts";
 
+// Each test visits several pages, and the development server compiles a page the first time it is asked for.
+test.describe.configure({ timeout: 180_000 });
+
 const RULES = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
 async function audit(page: Page, label: string) {
@@ -15,12 +18,12 @@ async function audit(page: Page, label: string) {
   expect(violations.map((v) => `${v.id}: ${v.nodes.slice(0, 2).map((n) => n.target.join(" ")).join(" | ")}`), label).toEqual([]);
 }
 
-const PUBLIC = ["/", "/panels", "/inverters", "/estimator", "/companies", "/sign-in"];
+const PUBLIC = ["/", "/panels", "/inverters", "/estimator", "/companies", "/troubleshooting", "/support", "/sign-in"];
 const BY_ROLE: [IdentityName, string[]][] = [
-  ["customer", ["/my", "/my/requests", "/my/estimates", "/my/installations", "/my/requests/new", "/notifications"]],
-  ["sunbirdAdmin", ["/company", "/company/inbox", "/company/offers", "/company/installations", "/company/profile"]],
-  ["sunbirdTechnician", ["/technician"]],
-  ["platformAdmin", ["/admin/companies", "/admin/catalogue", "/admin/estimator", "/admin/estimator/new", "/admin/users", "/admin/activity"]],
+  ["customer", ["/my", "/my/requests", "/my/estimates", "/my/installations", "/my/requests/new", "/my/support", "/notifications"]],
+  ["sunbirdAdmin", ["/company", "/company/support", "/company/inbox", "/company/offers", "/company/installations", "/company/profile"]],
+  ["sunbirdTechnician", ["/technician", "/technician/support"]],
+  ["platformAdmin", ["/admin/companies", "/admin/catalogue", "/admin/estimator", "/admin/estimator/new", "/admin/troubleshooting", "/admin/users", "/admin/activity"]],
 ];
 
 test.describe("axe finds no WCAG 2.2 AA violations", () => {
@@ -125,6 +128,32 @@ test("visit screens with a confirmed visit pass axe for customer, company and te
     ["estimateCustomer", `/my/installations/${s.installationId}`],
     ["sunbirdAdmin", `/company/installations/${s.installationId}`],
     ["sunbirdTechnician", `/technician/visits/${made.id}`],
+  ];
+  for (const [who, path] of visits) {
+    signInAs(who);
+    await page.goto(path);
+    await audit(page, `${who} ${path}`);
+  }
+});
+
+test("troubleshooting results and support cases pass axe, including the hazard box", async ({ page, api, signInAs }) => {
+  signInAs(null);
+  await page.goto("/troubleshooting");
+  for (const [model, code] of [["GW3000-DNS-30", ""], ["GW3000-DNS", ""], ["GW3000-DNS-30", "E99"]] as const) {
+    await page.getByLabel("Your model").fill(model);
+    await page.getByLabel("Code shown (optional)").fill(code);
+    await page.getByRole("button", { name: "Look up" }).click();
+    await page.locator("[data-result]").first().waitFor();
+    await audit(page, `troubleshooting ${model} ${code}`);
+  }
+  const s = await acceptedInstallation(api);
+  const made = (await api("estimateCustomer", "POST", "/users/me/support-cases", { installation_id: s.installationId, symptom: "Display fault", observed_code: "E01", unsafe_now: true })).body as { id: string };
+  const tech = ((await api("sunbirdAdmin", "GET", `/companies/${s.sunbird}/technicians`)).body as { user_id: string }[])[0]?.user_id;
+  await api("sunbirdAdmin", "POST", `/companies/${s.sunbird}/support-cases/${made.id}/assignments`, { user_id: tech });
+  const visits: [IdentityName, string][] = [
+    ["estimateCustomer", `/my/support/${made.id}`],
+    ["sunbirdAdmin", `/company/support/${made.id}`],
+    ["sunbirdTechnician", `/technician/support/${made.id}`],
   ];
   for (const [who, path] of visits) {
     signInAs(who);

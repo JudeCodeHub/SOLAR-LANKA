@@ -180,24 +180,24 @@ test("landing entry points link only to pages that exist and exclude home", () =
 const real = (user: ShellUser | null, signedIn: boolean) => navigationFor(user, signedIn).flatMap((group) => group.items.map((item) => item.id));
 
 test("each role sees exactly its own finished destinations", () => {
-  assert.deepEqual(real(null, false), ["home", "panels", "inverters", "estimator", "companies"]);
-  assert.deepEqual(real(customer, true), ["home", "panels", "inverters", "estimator", "companies", "my-dashboard", "my-estimates", "my-requests", "my-installations", "my-favourites", "account", "notifications"]);
-  const companyLinks = ["company-dashboard", "company-inbox", "company-offers", "company-installations", "company-profile"];
+  assert.deepEqual(real(null, false), ["home", "panels", "inverters", "estimator", "companies", "troubleshooting", "support"]);
+  assert.deepEqual(real(customer, true), ["home", "panels", "inverters", "estimator", "companies", "troubleshooting", "support", "my-dashboard", "my-support", "my-estimates", "my-requests", "my-installations", "my-favourites", "account", "notifications"]);
+  const companyLinks = ["company-dashboard", "company-support", "company-inbox", "company-offers", "company-installations", "company-profile"];
   for (const role of ["company_admin", "sales"] as const) {
     assert.deepEqual(real(staff(role), true).filter((id) => id.startsWith("company-")), companyLinks);
   }
-  assert.deepEqual(real(admin, true), ["home", "panels", "inverters", "estimator", "companies", "admin-companies", "admin-catalogue", "admin-estimator", "admin-users", "admin-activity", "account", "notifications"]);
+  assert.deepEqual(real(admin, true), ["home", "panels", "inverters", "estimator", "companies", "troubleshooting", "support", "admin-companies", "admin-catalogue", "admin-estimator", "admin-users", "admin-troubleshooting", "admin-activity", "account", "notifications"]);
 });
 
-test("technicians are shown only their visits, never company, administration or support destinations", () => {
+test("technicians are shown their own visits and support, never company or administration destinations", () => {
   const shown = real(staff("technician"), true);
-  assert.ok(shown.includes("technician-visits"));
-  assert.ok(!shown.some((id) => /^(company-|admin-|support|troubleshooting|learn)/.test(id)), shown.join(","));
+  assert.ok(shown.includes("technician-visits") && shown.includes("technician-support"));
+  assert.ok(!shown.some((id) => /^(company-|admin-)/.test(id)), shown.join(","));
 });
 
-test("the only unfinished destinations are public guides, and none belongs to a role", () => {
+test("the only unfinished destination is the public learning centre, and none belongs to a role", () => {
   const unbuilt = NAV_ITEMS.filter((item) => !item.available);
-  assert.deepEqual(unbuilt.map((item) => item.id).sort(), ["learn", "support", "troubleshooting"]);
+  assert.deepEqual(unbuilt.map((item) => item.id).sort(), ["learn"]);
   assert.ok(unbuilt.every((item) => item.access.kind === "public" && item.group === "explore"));
 });
 

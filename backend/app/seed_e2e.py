@@ -12,6 +12,8 @@ from app.core.estimator_scenario import GRID_NET_METERING
 from app.db.session import create_database_engine
 from app.models.company import Company, CompanyMembership
 from app.models.estimator_config import EstimatorConfigVersion
+from app.models.product import Product
+from app.models.troubleshooting import TroubleshootingReference
 from app.models.user import AppUser
 from app.seed_demo import DEMO_COMPANIES, seed_demo
 
@@ -106,6 +108,8 @@ def seed_e2e(session: Session, *, environment: str) -> None:
                 .on_conflict_do_nothing(constraint="uq_company_memberships_user_company")
             )
     seed_estimator(session)
+    session.flush()
+    seed_troubleshooting(session)
     session.execute(
         insert(Company)
         .values(
@@ -154,6 +158,64 @@ def seed_estimator(session: Session) -> None:
                 published_at=datetime.now(UTC),
             )
         )
+
+
+SAMPLE_SOURCE = {
+    "source_title": "Fictional demonstration reference (not a manufacturer document)",
+    "source_url": "https://example.org/fictional-troubleshooting",
+    "source_page": "1",
+    "verified_on": datetime(2026, 9, 28, tzinfo=UTC),
+    "is_sample": True,
+    "status": "published",
+}
+# The seeded inverter that has references; its sibling GW3600-DNS-30 deliberately has none.
+SAMPLE_MODEL = "GW3000-DNS-30"
+
+
+def seed_troubleshooting(session: Session) -> None:
+    """Two fictional references on one exact model, only when that model has none."""
+    product = session.scalars(select(Product).where(Product.model == SAMPLE_MODEL)).first()
+    admin = session.scalars(
+        select(AppUser).where(AppUser.clerk_subject == "e2e_platform_admin")
+    ).first()
+    if product is None or admin is None:
+        return
+    exists = session.scalar(
+        select(TroubleshootingReference.id).where(TroubleshootingReference.product_id == product.id)
+    )
+    if exists is not None:
+        return
+    session.add_all(
+        [
+            TroubleshootingReference(
+                product_id=product.id,
+                code="E01",
+                title="Display shows a grid fault code",
+                steps=[
+                    "Write down the code and the time it appeared.",
+                    "Take a photo of the display from a safe distance.",
+                    "Check whether the lights in your home are working normally.",
+                    "Do not open the inverter or touch its cables.",
+                ],
+                safety_level="safe_observation",
+                created_by=admin.id,
+                **SAMPLE_SOURCE,
+            ),
+            TroubleshootingReference(
+                product_id=product.id,
+                code="E09",
+                title="Burning smell, heat or sparks",
+                steps=["Keep everyone away from the inverter and the area around it."],
+                safety_level="hazard",
+                hazard_warning=(
+                    "Do not touch it. Switch off at the main isolator only if you can reach it "
+                    "safely, then call a qualified technician or the emergency services."
+                ),
+                created_by=admin.id,
+                **SAMPLE_SOURCE,
+            ),
+        ]
+    )
 
 
 def main() -> None:
