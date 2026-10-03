@@ -9,7 +9,7 @@ from pydantic import ValidationError
 
 from app.api.errors import register_error_handlers
 from app.api.openapi import install_openapi_cleanup
-from app.api.routes import site_visit_work, support, support_work, troubleshooting
+from app.api.routes import education, site_visit_work, support, support_work, troubleshooting
 from app.api.routes.admin_activity import router as admin_activity_router
 from app.api.routes.admin_users import router as admin_users_router
 from app.api.routes.audit import router as audit_router
@@ -133,6 +133,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(support_work.customer_router)
     application.include_router(support_work.company_router)
     application.include_router(support_work.technician_router)
+    application.include_router(education.public_router)
+    application.include_router(education.admin_router)
     application.include_router(troubleshooting.public_router)
     application.include_router(troubleshooting.admin_router)
     application.include_router(catalogue_router)
