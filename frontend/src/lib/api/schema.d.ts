@@ -142,6 +142,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/education/articles/{article_id}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Review
+         * @description A second administrator vouches for the text as it stands; authors cannot review their own.
+         */
+        post: operations["review_admin_education_articles__article_id__review_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/education/articles/{article_id}/unpublish": {
         parameters: {
             query?: never;
@@ -2468,12 +2488,22 @@ export interface components {
              * Format: uuid
              */
             id: string;
+            /** Is Sample */
+            is_sample: boolean;
             /** Language */
             language: string;
             /** Published At */
             published_at: string | null;
+            /** Review By */
+            review_by: string | null;
+            /** Reviewed On */
+            reviewed_on: string | null;
+            /** Reviewer Id */
+            reviewer_id: string | null;
             /** Slug */
             slug: string;
+            /** Sources */
+            sources: components["schemas"]["SourceView"][];
             /**
              * Status
              * @enum {string}
@@ -2481,6 +2511,8 @@ export interface components {
             status: "draft" | "published" | "archived";
             /** Summary */
             summary: string;
+            /** Time Sensitive */
+            time_sensitive: boolean;
             /** Title */
             title: string;
             /**
@@ -2488,6 +2520,8 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+            /** Valid As Of */
+            valid_as_of: string | null;
         };
         /** AdminReferenceView */
         AdminReferenceView: {
@@ -2556,6 +2590,8 @@ export interface components {
              * Format: uuid
              */
             id: string;
+            /** Is Sample */
+            is_sample: boolean;
             /** Language */
             language: string;
             /**
@@ -2565,10 +2601,23 @@ export interface components {
             published_at: string;
             /** Related */
             related: components["schemas"]["ArticleSummary"][];
+            /** Review By */
+            review_by: string | null;
+            /** Review Overdue */
+            review_overdue: boolean;
+            /**
+             * Reviewed On
+             * Format: date
+             */
+            reviewed_on: string;
             /** Slug */
             slug: string;
+            /** Sources */
+            sources: components["schemas"]["SourceView"][];
             /** Summary */
             summary: string;
+            /** Time Sensitive */
+            time_sensitive: boolean;
             /** Title */
             title: string;
             /**
@@ -2576,6 +2625,8 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+            /** Valid As Of */
+            valid_as_of: string | null;
         };
         /** ArticleSummary */
         ArticleSummary: {
@@ -2588,17 +2639,25 @@ export interface components {
              * Format: uuid
              */
             id: string;
+            /** Is Sample */
+            is_sample: boolean;
             /**
              * Published At
              * Format: date-time
              */
             published_at: string;
+            /** Review Overdue */
+            review_overdue: boolean;
             /** Slug */
             slug: string;
             /** Summary */
             summary: string;
+            /** Time Sensitive */
+            time_sensitive: boolean;
             /** Title */
             title: string;
+            /** Valid As Of */
+            valid_as_of: string | null;
         };
         /** ArticleWrite */
         ArticleWrite: {
@@ -2612,15 +2671,31 @@ export interface components {
              * Format: uuid
              */
             category_id: string;
+            /**
+             * Is Sample
+             * @default true
+             */
+            is_sample: boolean;
+            /** Review By */
+            review_by?: string | null;
             /** Slug */
             slug: string;
+            /** Sources */
+            sources?: components["schemas"]["Source"][];
             /**
              * Summary
              * @default
              */
             summary: string;
+            /**
+             * Time Sensitive
+             * @default false
+             */
+            time_sensitive: boolean;
             /** Title */
             title: string;
+            /** Valid As Of */
+            valid_as_of?: string | null;
         };
         /**
          * AssetCategory
@@ -5191,6 +5266,23 @@ export interface components {
              */
             starts_at: string;
         };
+        /** Source */
+        Source: {
+            /**
+             * Accessed On
+             * Format: date
+             */
+            accessed_on: string;
+            /** Publisher */
+            publisher: string;
+            /** Title */
+            title: string;
+            /**
+             * Url
+             * Format: uri
+             */
+            url: string;
+        };
         /** SourceSnapshot */
         SourceSnapshot: {
             /** Basis */
@@ -5221,6 +5313,20 @@ export interface components {
             cost: components["schemas"]["SourceSnapshot"];
             tariff: components["schemas"]["SourceSnapshot"];
             yield: components["schemas"]["SourceSnapshot"];
+        };
+        /** SourceView */
+        SourceView: {
+            /**
+             * Accessed On
+             * Format: date
+             */
+            accessed_on: string;
+            /** Publisher */
+            publisher: string;
+            /** Title */
+            title: string;
+            /** Url */
+            url: string;
         };
         /** StatusChange */
         StatusChange: {
@@ -6299,6 +6405,100 @@ export interface operations {
         };
     };
     publish_admin_education_articles__article_id__publish_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                article_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminArticle"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    review_admin_education_articles__article_id__review_post: {
         parameters: {
             query?: never;
             header?: never;

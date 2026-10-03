@@ -1,11 +1,12 @@
 """Educational categories and articles; drafts stay private until an administrator publishes."""
 
-from datetime import datetime
+from datetime import date, datetime
 from uuid import UUID
 
 from sqlalchemy import (
     CheckConstraint,
     Computed,
+    Date,
     DateTime,
     ForeignKey,
     Index,
@@ -15,7 +16,7 @@ from sqlalchemy import (
     UniqueConstraint,
     func,
 )
-from sqlalchemy.dialects.postgresql import TSVECTOR
+from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.value_types import new_entity_id
@@ -55,6 +56,22 @@ class Article(Base):
             "status <> 'published' OR (length(trim(summary)) > 0 AND length(trim(body)) > 0)",
             name="ck_articles_published_complete",
         ),
+        # Nothing is published unchecked: a second person has reviewed it and it names its sources.
+        CheckConstraint(
+            "status <> 'published' OR (reviewer_id IS NOT NULL AND reviewed_on IS NOT NULL "
+            "AND jsonb_array_length(sources) >= 1)",
+            name="ck_articles_published_reviewed",
+        ),
+        CheckConstraint(
+            "reviewer_id IS NULL OR reviewer_id <> author_id", name="ck_articles_reviewer_differs"
+        ),
+        # Time-sensitive content says what date it is true for and when it must be checked again.
+        CheckConstraint(
+            "NOT time_sensitive OR (valid_as_of IS NOT NULL AND review_by IS NOT NULL "
+            "AND review_by > valid_as_of)",
+            name="ck_articles_time_sensitive",
+        ),
+        CheckConstraint("jsonb_typeof(sources) = 'array'", name="ck_articles_sources"),
         Index("ix_articles_search", "search", postgresql_using="gin"),
         Index("ix_articles_category_status", "category_id", "status"),
     )
@@ -73,6 +90,17 @@ class Article(Base):
     author_id: Mapped[UUID] = mapped_column(
         ForeignKey("app_users.id", ondelete="RESTRICT"), nullable=False
     )
+    reviewer_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("app_users.id", ondelete="RESTRICT")
+    )
+    reviewed_on: Mapped[date | None] = mapped_column(Date)
+    # Each source: title, publisher, url and the date it was read.
+    sources: Mapped[list[dict]] = mapped_column(JSONB, nullable=False, default=list)
+    time_sensitive: Mapped[bool] = mapped_column(nullable=False, default=False)
+    valid_as_of: Mapped[date | None] = mapped_column(Date)
+    review_by: Mapped[date | None] = mapped_column(Date)
+    # Demonstration content is always labelled as such.
+    is_sample: Mapped[bool] = mapped_column(nullable=False, default=True)
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()

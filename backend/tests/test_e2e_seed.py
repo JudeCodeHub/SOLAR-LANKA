@@ -7,6 +7,7 @@ from sqlalchemy import select, text
 
 from app.models.audit import AuditEvent
 from app.models.company import Company, CompanyMembership, CompanyReview
+from app.models.education import Article, EducationCategory
 from app.models.estimator_config import EstimatorConfigVersion
 from app.models.installation import Installation
 from app.models.installation_milestone import InstallationMilestoneRecord
@@ -26,7 +27,7 @@ TABLES = (
     AppUser, Company, CompanyMembership, CompanyReview, AuditEvent, Product, Panel, Inverter,
     ProductSource, ProductOffer, EstimatorConfigVersion, SavedEstimate, QuotationRequest,
     RequestDelivery, Quotation, QuotationRevision, Installation, InstallationMilestoneRecord,
-    TroubleshootingReference,
+    TroubleshootingReference, EducationCategory, Article,
 )  # fmt: skip
 
 
@@ -62,6 +63,13 @@ def test_e2e_identities_are_repeatable_and_have_the_documented_roles(
     refs = list(database_session.scalars(select(TroubleshootingReference)))
     assert sorted(r.code for r in refs) == ["E01", "E09"]
     assert all(r.is_sample and r.status == "published" for r in refs)
+    articles = list(database_session.scalars(select(Article)))
+    assert len(articles) == 7 and all(a.status == "published" and a.is_sample for a in articles)
+    assert all(a.reviewer_id != a.author_id and a.sources for a in articles)
+    assert sorted(a.slug for a in articles if a.time_sensitive) == [
+        "net-metering-and-other-schemes",
+        "understanding-your-electricity-bill",
+    ]
     versions = list(database_session.scalars(select(EstimatorConfigVersion)))
     assert [(v.version, v.status) for v in versions] == [(1, "published")]
     with pytest.raises(ValueError):

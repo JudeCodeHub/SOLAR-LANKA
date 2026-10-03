@@ -1,6 +1,6 @@
 """Educational content: public published articles with search, and administrator authoring."""
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from typing import Annotated
 from uuid import UUID
 
@@ -38,9 +38,19 @@ def require_editor(user: Annotated[AppUser, Depends(require_local_user)]) -> App
     return user
 
 
+def _today() -> date:
+    return datetime.now(UTC).date()
+
+
 def _summary(article: Article, category: EducationCategory) -> ArticleSummary:
     assert article.published_at is not None
     return ArticleSummary(
+        time_sensitive=article.time_sensitive,
+        valid_as_of=article.valid_as_of,
+        review_overdue=bool(
+            article.time_sensitive and article.review_by and article.review_by < _today()
+        ),
+        is_sample=article.is_sample,
         id=article.id,
         slug=article.slug,
         title=article.title,
@@ -140,6 +150,9 @@ def read_article(
     summary = _summary(article, category)
     return ArticleDetail(
         **summary.model_dump(),
+        reviewed_on=article.reviewed_on,
+        review_by=article.review_by,
+        sources=article.sources,
         body=article.body,
         language=article.language,
         updated_at=article.updated_at,
@@ -248,7 +261,7 @@ def create_article(
     session: Annotated[Session, Depends(get_session)],
 ) -> AdminArticle:
     _category(session, body.category_id)
-    article = Article(author_id=editor.id, status="draft", **body.model_dump())
+    article = Article(author_id=editor.id, status="draft", **body.model_dump(mode="json"))
     session.add(article)
     _save(session, "article")
     view = _admin(article)
@@ -267,8 +280,11 @@ def edit_article(
     if article.status != "draft":
         raise BusinessConflict("Only a draft can be edited. Move it back to a draft first.")
     _category(session, body.category_id)
-    for field, value in body.model_dump().items():
+    for field, value in body.model_dump(mode="json").items():
         setattr(article, field, value)
+    # Any change to a draft needs a fresh review, so an old review never vouches for new words.
+    article.reviewer_id = None
+    article.reviewed_on = None
     _save(session, "article")
     view = _admin(article)
     session.commit()
@@ -282,10 +298,36 @@ def _move(session: Session, article_id: UUID, allowed: set[str], target: str) ->
     if target == "published":
         if not article.summary.strip() or not article.body.strip():
             raise BusinessConflict("Write a summary and the article text before publishing.")
+        if not article.sources:
+            raise BusinessConflict("Name at least one source before publishing.")
+        if article.reviewer_id is None or article.reviewed_on is None:
+            raise BusinessConflict("Another administrator must review it before it is published.")
         article.published_at = datetime.now(UTC)
     elif target in {"draft", "archived"}:
         article.published_at = None
     article.status = target
+    session.flush()
+    view = _admin(article)
+    session.commit()
+    return view
+
+
+@admin_router.post("/articles/{article_id}/review", response_model=AdminArticle)
+def review(
+    article_id: UUID,
+    editor: Annotated[AppUser, Depends(require_editor)],
+    session: Annotated[Session, Depends(get_session)],
+) -> AdminArticle:
+    """A second administrator vouches for the text as it stands; authors cannot review their own."""
+    article = _locked(session, article_id)
+    if article.status != "draft":
+        raise BusinessConflict("Only a draft can be reviewed.")
+    if article.author_id == editor.id:
+        raise BusinessConflict("An article must be reviewed by someone other than its author.")
+    if not article.summary.strip() or not article.body.strip() or not article.sources:
+        raise BusinessConflict("Write the summary and text and name a source before reviewing.")
+    article.reviewer_id = editor.id
+    article.reviewed_on = _today()
     session.flush()
     view = _admin(article)
     session.commit()

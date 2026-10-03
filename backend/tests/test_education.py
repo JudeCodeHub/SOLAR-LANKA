@@ -10,6 +10,14 @@ from app.models.user import AppUser
 pytestmark = pytest.mark.database
 
 
+SOURCE = {
+    "title": "Fictional guide",
+    "publisher": "Demo Publisher",
+    "url": "https://example.org/guide",
+    "accessed_on": "2026-09-28",
+}
+
+
 def article(category: str, slug: str, title: str, **over):
     return {
         "category_id": category,
@@ -17,6 +25,7 @@ def article(category: str, slug: str, title: str, **over):
         "title": title,
         "summary": over.pop("summary", "A short summary."),
         "body": over.pop("body", "The full text."),
+        "sources": over.pop("sources", [SOURCE]),
         **over,
     }
 
@@ -24,7 +33,11 @@ def article(category: str, slug: str, title: str, **over):
 def test_education(database_client, database_session):
     client, session = database_client, database_session
     session.add_all(
-        [AppUser(clerk_subject="ed_admin", role="platform_admin"), AppUser(clerk_subject="ed_user")]
+        [
+            AppUser(clerk_subject="ed_admin", role="platform_admin"),
+            AppUser(clerk_subject="ed_reviewer", role="platform_admin"),
+            AppUser(clerk_subject="ed_user"),
+        ]
     )
     session.commit()
 
@@ -124,6 +137,18 @@ def test_education(database_client, database_session):
     # Publishing needs a summary and text; edits only happen on drafts.
     act_as("ed_admin")
     assert client.post(f"{base}/articles/{empty['id']}/publish").status_code == 409
+    for item in (inverter, panels, net):
+        # Publishing needs a review by someone else; the author cannot review their own work.
+        assert client.post(f"{base}/articles/{item['id']}/publish").status_code == 409
+        assert client.post(f"{base}/articles/{item['id']}/review").status_code == 409
+    act_as("ed_reviewer")
+    assert (
+        client.post(f"{base}/articles/{empty['id']}/review").status_code == 409
+    )  # nothing to review
+    for item in (inverter, panels, net):
+        reviewed = client.post(f"{base}/articles/{item['id']}/review").json()
+        assert reviewed["reviewer_id"] and reviewed["reviewed_on"]
+    act_as("ed_admin")
     for item in (inverter, panels, net):
         assert client.post(f"{base}/articles/{item['id']}/publish").status_code == 200
     assert client.post(f"{base}/articles/{inverter['id']}/publish").status_code == 409
