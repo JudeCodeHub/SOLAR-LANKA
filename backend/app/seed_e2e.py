@@ -16,6 +16,7 @@ from app.models.product import Product
 from app.models.troubleshooting import TroubleshootingReference
 from app.models.user import AppUser
 from app.seed_demo import DEMO_COMPANIES, seed_demo
+from app.seed_education import seed_education
 
 SUNBIRD = DEMO_COMPANIES[0][0]
 
@@ -32,6 +33,7 @@ E2E_IDENTITIES: tuple[tuple[UUID, str, str, str | None], ...] = (
         "technician",
     ),
     (UUID("f7b6a8b0-4091-42b0-9d36-000000000026"), "e2e_customer_estimate", "customer", None),
+    (UUID("f7b6a8b0-4091-42b0-9d36-000000000028"), "e2e_content_reviewer", "platform_admin", None),
 )
 
 # A second company serving the same district as the first, so offers can compete.
@@ -110,6 +112,7 @@ def seed_e2e(session: Session, *, environment: str) -> None:
     seed_estimator(session)
     session.flush()
     seed_troubleshooting(session)
+    seed_education(session)
     session.execute(
         insert(Company)
         .values(

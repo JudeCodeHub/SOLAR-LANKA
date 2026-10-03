@@ -32,6 +32,8 @@ export const IDENTITIES = {
   moonleafAdmin: { subject: "demo_seed_company_b", role: "customer", company: { name: MOONLEAF, role: "company_admin" } },
   rivalAdmin: { subject: "e2e_rival_admin", role: "customer", company: { name: RIVAL, role: "company_admin" } },
   lotusAdmin: { subject: "demo_seed_company_c", role: "customer", company: { name: LOTUS, role: "company_admin" } },
+  /** A second administrator, so content can be reviewed by someone other than its author. */
+  contentReviewer: { subject: "e2e_content_reviewer", role: "platform_admin", company: null },
   platformAdmin: { subject: "e2e_platform_admin", role: "platform_admin", company: null },
 } as const satisfies Record<string, Identity>;
 
