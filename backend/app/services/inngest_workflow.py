@@ -6,6 +6,7 @@ import inngest
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings
+from app.services.reminders import run_reminders
 from app.services.workflow_notifications import process_workflow_event
 
 
@@ -45,3 +46,22 @@ def create_notification_function(
         return "processed"
 
     return process_notification
+
+
+REMINDER_CRON = "0 * * * *"
+
+
+def create_reminder_function(client: inngest.Inngest, factory: Callable[[], Session]):
+    @client.create_function(
+        fn_id="send-reminders",
+        trigger=inngest.TriggerCron(cron=REMINDER_CRON),
+        retries=2,
+    )
+    def send_reminders(ctx: inngest.Context) -> dict[str, int]:
+        def run() -> dict[str, int]:
+            with factory() as session:
+                return run_reminders(session)
+
+        return ctx.step.run("run-reminders", run)
+
+    return send_reminders

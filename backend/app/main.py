@@ -52,7 +52,11 @@ from app.core.request_protection import (
     protected_operations,
 )
 from app.db.session import create_database_engine, create_session_factory
-from app.services.inngest_workflow import create_inngest_client, create_notification_function
+from app.services.inngest_workflow import (
+    create_inngest_client,
+    create_notification_function,
+    create_reminder_function,
+)
 from app.services.mail import create_mail_sender
 
 
@@ -164,7 +168,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             else None
         ),
     )
-    inngest.fast_api.serve(application, inngest_client, [process_notification])
+    send_reminders = create_reminder_function(
+        inngest_client, lambda: application.state.session_factory()
+    )
+    inngest.fast_api.serve(application, inngest_client, [process_notification, send_reminders])
     for route in application.routes:
         # The Inngest callback is signed machine traffic, not part of the public API.
         if getattr(route, "path", None) == "/api/inngest":
