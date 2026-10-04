@@ -8,7 +8,7 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
 from app.core.database_config import DatabaseSettings
-from app.core.estimator_scenario import GRID_NET_METERING
+from app.core.estimator_scenario import GRID_NET_ACCOUNTING, GRID_NET_METERING, GRID_NET_PLUS
 from app.db.session import create_database_engine
 from app.models.company import Company, CompanyMembership
 from app.models.estimator_config import EstimatorConfigVersion
@@ -142,25 +142,38 @@ def seed_e2e(session: Session, *, environment: str) -> None:
     )
 
 
+# Fictional feed-in rate for the two export scenarios; the real figure is dated and sourced.
+E2E_EXPORT_ASSUMPTIONS = {**E2E_ASSUMPTIONS, "export_rate_lkr_per_kwh": {"low": "25", "high": "25"}}
+E2E_EXPORT_SOURCES = {
+    **E2E_SOURCES,
+    "export": {**_SOURCE, "url": "https://example.org/fictional-export"},
+}
+
+
 def seed_estimator(session: Session) -> None:
-    """Publish a fictional estimator version only when the database has none."""
-    scenario = GRID_NET_METERING.identifier
-    existing = session.scalar(
-        select(EstimatorConfigVersion.id)
-        .where(EstimatorConfigVersion.scenario == scenario)
-        .limit(1)
+    """Publish a fictional version of each supported scenario that has none."""
+    scenarios = (
+        (GRID_NET_METERING, E2E_ASSUMPTIONS, E2E_SOURCES),
+        (GRID_NET_ACCOUNTING, E2E_EXPORT_ASSUMPTIONS, E2E_EXPORT_SOURCES),
+        (GRID_NET_PLUS, E2E_EXPORT_ASSUMPTIONS, E2E_EXPORT_SOURCES),
     )
-    if existing is None:
-        session.add(
-            EstimatorConfigVersion(
-                scenario=scenario,
-                version=1,
-                status="published",
-                assumptions=E2E_ASSUMPTIONS,
-                source_metadata=E2E_SOURCES,
-                published_at=datetime.now(UTC),
-            )
+    for scenario, assumptions, sources in scenarios:
+        existing = session.scalar(
+            select(EstimatorConfigVersion.id)
+            .where(EstimatorConfigVersion.scenario == scenario.identifier)
+            .limit(1)
         )
+        if existing is None:
+            session.add(
+                EstimatorConfigVersion(
+                    scenario=scenario.identifier,
+                    version=1,
+                    status="published",
+                    assumptions=assumptions,
+                    source_metadata=sources,
+                    published_at=datetime.now(UTC),
+                )
+            )
 
 
 SAMPLE_SOURCE = {

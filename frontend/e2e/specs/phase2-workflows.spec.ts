@@ -1,0 +1,87 @@
+import { expect, test } from "../fixtures.ts";
+import { acceptedInstallation } from "../support/scenario.ts";
+
+const inputs = {
+  monthly_consumption_kwh: "300",
+  district: "Colombo",
+  usable_roof_area_m2: "30",
+  shading_condition: "partial",
+  daytime_consumption_percent: "50",
+  system_type: "on_grid",
+  backup_required: false,
+};
+
+interface Estimate {
+  scenario: string;
+  config_version: number;
+  sizing: { average_monthly_generation_kwh: { minimum: string; maximum: string } };
+  financial: { monthly_savings_lkr: { minimum: string; maximum: string } | null };
+  sources: Record<string, { effective_from?: string }>;
+}
+
+test.describe("phase 2 workflows run beside the core release", () => {
+  test("each supported connection scheme has its own seeded, sourced configuration", async ({ api }) => {
+    const preview = async (scheme: string) => {
+      const result = await api("estimateCustomer", "POST", "/estimates/preview", { ...inputs, connection_scheme: scheme });
+      expect(result.status).toBe(200);
+      return result.body as Estimate;
+    };
+    const metering = await preview("net_metering");
+    const accounting = await preview("net_accounting");
+    const plus = await preview("net_plus");
+    expect([metering.scenario, accounting.scenario, plus.scenario]).toEqual(["grid_net_metering_no_backup", "grid_net_accounting_no_backup", "grid_net_plus_no_backup"]);
+    expect(metering.sources.export).toBeUndefined();
+    expect(accounting.sources.export?.effective_from).toBe("2026-09-28");
+
+    // Net plus sells every generated kWh at the seeded 25 LKR/kWh, so its value is exactly generation times rate.
+    const generation = Number(plus.sizing.average_monthly_generation_kwh.minimum);
+    expect(Number(plus.financial.monthly_savings_lkr?.minimum)).toBeCloseTo(generation * 25, 2);
+    expect(Number(accounting.financial.monthly_savings_lkr?.minimum)).toBeGreaterThan(0);
+
+    // Net plus plus is still refused.
+    expect((await api("estimateCustomer", "POST", "/estimates/preview", { ...inputs, connection_scheme: "net_plus_plus" })).status).toBe(422);
+  });
+
+  test("a saved net accounting estimate keeps its scenario and version", async ({ api }) => {
+    const saved = await api("estimateCustomer", "POST", "/users/me/estimates", { ...inputs, connection_scheme: "net_accounting" });
+    expect(saved.status).toBe(201);
+    const estimate = (saved.body as { id: string; estimate: Estimate }).estimate;
+    expect(estimate.scenario).toBe("grid_net_accounting_no_backup");
+    expect(estimate.config_version).toBe(1);
+  });
+
+  test("an exported quotation is made once by the background job and only its owner can download it", async ({ api, processOutbox }) => {
+    const scenario = await acceptedInstallation(api);
+    const base = `/users/me/requests/${scenario.requestId}/quotations/${scenario.quotationId}/revisions/${scenario.revisionId}`;
+    const first = await api("estimateCustomer", "POST", `${base}/export`);
+    expect(first.status).toBe(202);
+    const again = await api("estimateCustomer", "POST", `${base}/export`);
+    expect((again.body as { id: string }).id).toBe((first.body as { id: string }).id);
+    const id = (first.body as { id: string }).id;
+    expect((await api("estimateCustomer", "GET", `/users/me/exports/${id}/file`)).status).toBe(409);
+
+    processOutbox();
+    processOutbox();
+    expect(((await api("estimateCustomer", "GET", `/users/me/exports/${id}`)).body as { status: string }).status).toBe("ready");
+    const file = await api("estimateCustomer", "GET", `/users/me/exports/${id}/file`);
+    expect(file.status).toBe(200);
+    expect(file.bytes?.subarray(0, 5).toString()).toBe("%PDF-");
+
+    expect((await api("otherCustomer", "GET", `/users/me/exports/${id}`)).status).toBe(404);
+    expect((await api("otherCustomer", "GET", `/users/me/exports/${id}/file`)).status).toBe(404);
+    expect((await api("otherCustomer", "POST", `${base}/export`)).status).toBe(404);
+  });
+
+  test("company staff can download the exact revision they sent", async ({ api }) => {
+    const scenario = await acceptedInstallation(api);
+    const me = (await api("sunbirdAdmin", "GET", "/users/me")).body as { memberships: { company_id: string }[] };
+    const requests = await api("sunbirdAdmin", "GET", `/companies/${me.memberships[0]?.company_id}/request-deliveries?limit=50`);
+    expect(requests.status).toBe(200);
+    const delivery = ((requests.body as { items: { id: string; request_id: string }[] }).items).find((item) => item.request_id === scenario.requestId);
+    expect(delivery).toBeDefined();
+    const pdf = await api("sunbirdAdmin", "GET", `/companies/${scenario.sunbird}/request-deliveries/${delivery?.id}/quotations/${scenario.quotationId}/revisions/${scenario.revisionId}/pdf`);
+    expect(pdf.status).toBe(200);
+    expect(pdf.bytes?.subarray(0, 5).toString()).toBe("%PDF-");
+    expect((await api("otherCustomer", "GET", `/companies/${scenario.sunbird}/request-deliveries/${delivery?.id}/quotations/${scenario.quotationId}/revisions/${scenario.revisionId}/pdf`)).status).toBeGreaterThanOrEqual(403);
+  });
+});

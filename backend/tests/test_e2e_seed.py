@@ -71,6 +71,10 @@ def test_e2e_identities_are_repeatable_and_have_the_documented_roles(
         "understanding-your-electricity-bill",
     ]
     versions = list(database_session.scalars(select(EstimatorConfigVersion)))
-    assert [(v.version, v.status) for v in versions] == [(1, "published")]
+    assert sorted((v.scenario, v.version, v.status) for v in versions) == [
+        ("grid_net_accounting_no_backup", 1, "published"),
+        ("grid_net_metering_no_backup", 1, "published"),
+        ("grid_net_plus_no_backup", 1, "published"),
+    ]
     with pytest.raises(ValueError):
         seed_e2e(database_session, environment="production")

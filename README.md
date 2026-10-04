@@ -214,14 +214,27 @@ Each criterion from section 11 of the project scope, with the evidence for it. "
 | 8 | Sent revisions stay accessible and unchanged | Met | Database immutability in `test_migrations.py` and migration 0029; `test_quotation_current_read.py`; browser: the sent page offers no inputs (`company-quotation.spec.ts`). |
 | 9 | Expired or superseded offers cannot be accepted | Met | `test_quotation_acceptance_policy.py`, `test_quotation_acceptance_transaction.py`; the screens explain refusals from fresh state (unit tests `lib/quotation/decision.test.ts`). |
 | 10 | Concurrent acceptance cannot create two accepted offers for one request | Met | `test_quotation_acceptance_transaction.py::test_competing_acceptance_has_one_committed_winner` (real PostgreSQL); browser: the competing-offer test in `customer-acceptance.spec.ts`. |
-| 11 | Implemented scheduling rejects conflicting technician visits | Deferred (Phase 2) | Technician workspace and site visits are not built, so there is nothing to conflict. |
+| 11 | Implemented scheduling rejects conflicting technician visits | Met (Phase 2) | A database exclusion constraint rejects overlapping confirmed visits for one technician even for direct writes (`test_site_visit_*`), and the browser spec `site-visits.spec.ts` shows the conflict explained from fresh state. |
 | 12 | Invalid installation transitions are rejected with understandable errors | Met | API: `test_core_journey.py` (order and evidence rules), `test_quotation_states.py`; screens: `lib/installations/staff.test.ts` and the explanations from fresh state. |
 | 13 | Private attachments require authorisation | Met | `test_private_media_routes.py`, `test_core_journey.py` (evidence), browser: `notifications-documents.spec.ts` (everyone else refused, signed out 401). |
 | 14 | Critical workflows pass automated tests | Met | Backend suite (460 tests with `--database`), 302 frontend unit tests, 126 browser tests. |
 | 15 | Works on desktop and mobile browser sizes | Met | Browser: `layout.spec.ts` (320 to 1280 px) and `accessibility.spec.ts` (axe, WCAG 2.2 AA). Emulated, not real devices. |
 | 16 | Sample identities, prices and estimates are labelled | Met | Fictional names end in "(Fictional)" (`test_demo_seed.py`); prices carry "Sample price" and claims "Company declared, not verified"; the home page states the demonstration status; estimates say they are planning aids. |
 
-### Deferred to Phase 2 or later (not part of the core release)
+## Phase 2 acceptance (Phases 18 and 19)
 
-Technician workspace and conflict-checked site visits, support cases and sourced troubleshooting references, educational content, quotation document export, scheduled reminders, expanded estimator scenarios (only grid-connected net metering without backup is calculated), and everything in Phase 3 and the deployment phase. The navigation shows Learn, Troubleshooting and Support only as "Coming soon" cards, never as links.
+Phase 2 adds to the core release without changing it. "Browser" means a Playwright test in `frontend/e2e/specs/`; backend files are in `backend/tests/`.
 
+| Feature | Status | Evidence |
+|---|---|---|
+| Technician workspace, conflict-checked site visits, visit evidence | Met | Browser: `site-visits.spec.ts`; API: `test_site_visit_*`, database exclusion constraint for overlapping confirmed visits. |
+| Sourced troubleshooting references with hazard escalation | Met, sample content | `test_troubleshooting*`, browser `support.spec.ts`. References are fictional samples (`is_sample`). |
+| Support cases with private attachments, assignment and replay-safe updates | Met | `test_support_*`, browser `support.spec.ts`. |
+| Education articles with review, sources and time-sensitive notices | Met, sample content | `test_education*`, browser `education.spec.ts`. Content is not verified against regulator pages. |
+| Quotation PDF export of an exact revision, built in the background and delivered privately | Met | `test_quotation_pdf.py` (PDF read back and compared with the stored revision), `test_quotation_exports.py`, browser `phase2-workflows.spec.ts`. Local private storage only. |
+| Transactional email with a local sink | Met for the adapter | `test_mail.py`. No feature sends email yet; SMTP was tested against a fake server only. |
+| Password and account recovery | Met by Clerk | `frontend/src/lib/recovery.test.ts` guards against a custom reset system; the live flow was not exercised. |
+| Pending-offer, visit and yearly maintenance reminders | Met in the API, not scheduled | `test_reminders.py`; `python -m app.jobs.send_reminders` must be run by a scheduler, which is not set up. |
+| Net accounting and net plus estimator scenarios | Met in the API, not in the screen | `test_estimator_export_scenarios.py`, `test_e2e_seed.py`, browser `phase2-workflows.spec.ts`. The estimate form still offers net metering only; rates need rechecking (see Estimator scenarios). |
+
+Still deferred: net plus plus, off-grid and hybrid estimates, email notifications, a download button for exports, and everything in Phase 3 and the deployment phase.
