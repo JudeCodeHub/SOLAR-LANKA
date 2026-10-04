@@ -53,7 +53,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { id: "inverters", label: messages.nav.items.inverters, href: "/inverters", group: "explore", access: PUBLIC, available: true },
   { id: "estimator", label: messages.nav.items.estimator, href: "/estimator", group: "explore", access: PUBLIC, available: true },
   { id: "companies", label: messages.nav.items.companies, href: "/companies", group: "explore", access: PUBLIC, available: true },
-  { id: "learn", label: messages.nav.items.learn, href: "/learn", group: "explore", access: PUBLIC, available: false },
+  { id: "learn", label: messages.nav.items.learn, href: "/learn", group: "explore", access: PUBLIC, available: true },
   { id: "troubleshooting", label: messages.nav.items.troubleshooting, href: "/troubleshooting", group: "explore", access: PUBLIC, available: true },
   { id: "support", label: messages.nav.items.support, href: "/support", group: "explore", access: PUBLIC, available: true },
 
@@ -78,6 +78,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { id: "admin-estimator", label: messages.nav.items.adminEstimator, href: "/admin/estimator", group: "admin", access: PLATFORM_ADMIN, available: true },
   { id: "admin-users", label: messages.nav.items.adminUsers, href: "/admin/users", group: "admin", access: PLATFORM_ADMIN, available: true },
   { id: "admin-troubleshooting", label: messages.nav.items.adminTroubleshooting, href: "/admin/troubleshooting", group: "admin", access: PLATFORM_ADMIN, available: true },
+  { id: "admin-education", label: messages.nav.items.adminEducation, href: "/admin/education", group: "admin", access: PLATFORM_ADMIN, available: true },
   { id: "admin-activity", label: messages.nav.items.adminActivity, href: "/admin/activity", group: "admin", access: PLATFORM_ADMIN, available: true },
 
   { id: "account", label: messages.nav.items.account, href: "/account", group: "account", access: { kind: "signed-in" }, available: true },
