@@ -32,6 +32,7 @@ from app.api.routes.memberships import router as memberships_router
 from app.api.routes.notifications import router as notifications_router
 from app.api.routes.offers import router as offers_router
 from app.api.routes.private_media import router as private_media_router
+from app.api.routes.quotation_exports import router as quotation_exports_router
 from app.api.routes.quotation_requests import router as quotation_requests_router
 from app.api.routes.readiness import router as readiness_router
 from app.api.routes.saved_estimates import router as saved_estimates_router
@@ -44,6 +45,7 @@ from app.api.routes.webhooks import router as webhooks_router
 from app.api.schemas.errors import ERROR_STATUS_CODES, ErrorResponse
 from app.core.config import Settings
 from app.core.database_config import DatabaseSettings
+from app.core.private_storage import LocalPrivateStorage
 from app.core.request_protection import (
     close_protection_clients,
     create_protection_clients,
@@ -142,6 +144,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(audit_router)
     application.include_router(public_companies_router)
     application.include_router(webhooks_router)
+    application.include_router(quotation_exports_router)
     if settings.environment == "production" and settings.arcjet_key is None:
         raise RuntimeError("An Arcjet key is required in production")
     if settings.environment == "production" and (
@@ -150,7 +153,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         raise RuntimeError("Inngest event and signing keys are required in production")
     inngest_client = create_inngest_client(settings)
     process_notification = create_notification_function(
-        inngest_client, lambda: application.state.session_factory()
+        inngest_client,
+        lambda: application.state.session_factory(),
+        (
+            LocalPrivateStorage(environment=settings.environment)
+            if settings.environment in {"development", "test"}
+            else None
+        ),
     )
     inngest.fast_api.serve(application, inngest_client, [process_notification])
     for route in application.routes:
