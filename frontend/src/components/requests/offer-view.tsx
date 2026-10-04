@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 
+import { OfferExport } from "@/components/requests/offer-export";
 import { OfferDecision } from "@/components/requests/offer-decision";
 import { QueryState } from "@/components/query-state";
 import { formatLongDate } from "@/lib/catalogue/detail";
@@ -206,6 +207,8 @@ function Offer({ requestId, quotationId, revisions, companyName, now }: { reques
           </>
         )}
       </section>
+
+      <OfferExport key={current.id} requestId={requestId} quotationId={quotationId} revisionId={current.id} revisionNumber={current.revision_number} />
 
       {/* Keyed by the revision so a newer one arriving closes any open confirmation instead of changing what it accepts. */}
       <OfferDecision key={current.id} refusedFor={refusedFor} setRefusedFor={setRefusedFor} requestId={requestId} quotationId={quotationId} revision={current} companyName={companyName ?? messages.customerOffers.list.notListed} now={now} />

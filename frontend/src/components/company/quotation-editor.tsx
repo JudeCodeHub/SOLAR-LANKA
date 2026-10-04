@@ -225,7 +225,7 @@ function Workspace({
               />
             ) : null}
 
-            <RevisionHistory revisions={items} now={now} />
+            <RevisionHistory revisions={items} now={now} ids={{ companyId, deliveryId, quotationId: current.quotation_id }} />
           </>
         );
       }}
