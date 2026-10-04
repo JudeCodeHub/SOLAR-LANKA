@@ -14,8 +14,10 @@ from app.models.notification import Notification
 from app.models.outbox_event import OutboxEvent
 from app.models.quotation import Quotation, QuotationRevision
 from app.models.quotation_request import QuotationRequest, RequestDelivery
+from app.models.site_visit import SiteVisit
 from app.models.support_case import SupportCase, SupportCaseAssignment, SupportCaseUpdate
 from app.models.user import AppUser
+from app.services.email_delivery import Mailer, email_once
 from app.services.quotation_export import EXPORT_EVENT, build_export
 
 
@@ -147,7 +149,45 @@ def _support_plan(session: Session, event: OutboxEvent):
     return _active(session, recipients), title, body, "support_case", case.id
 
 
-def process_workflow_event(session: Session, event_key: str, storage=None) -> bool:
+QUOTATION_SENT = "quotation.sent"
+VISIT_CONFIRMED = "site_visit.confirmed"
+
+
+def _sent_plan(session: Session, event: OutboxEvent):
+    """An offer reached the customer: tell the customer who owns the request."""
+    row = session.execute(
+        select(QuotationRequest.id, QuotationRequest.customer_id)
+        .select_from(QuotationRevision)
+        .join(Quotation, QuotationRevision.quotation_id == Quotation.id)
+        .join(RequestDelivery, Quotation.delivery_id == RequestDelivery.id)
+        .join(QuotationRequest, RequestDelivery.request_id == QuotationRequest.id)
+        .where(QuotationRevision.id == event.aggregate_id, QuotationRevision.sent_at.is_not(None))
+    ).one_or_none()
+    if row is None:
+        raise ValueError("Quotation outbox reference is invalid")
+    request_id, customer_id = row
+    targets = [(user_id, "request", request_id) for user_id in _active(session, [customer_id])]
+    return targets, "You have a new offer", "A company has sent you an offer to review."
+
+
+def _visit_plan(session: Session, event: OutboxEvent):
+    """A visit was confirmed: tell the customer and the technician, if it still stands."""
+    visit = session.get(SiteVisit, event.aggregate_id)
+    if visit is None:
+        raise ValueError("Site visit outbox reference is invalid")
+    targets = []
+    if visit.status == "confirmed":
+        targets = [(visit.requested_by, "installation", visit.installation_id)]
+        if visit.technician_id is not None:
+            targets.append((visit.technician_id, "site_visit", visit.id))
+        live = set(_active(session, [target[0] for target in targets]))
+        targets = [target for target in targets if target[0] in live]
+    return targets, "Your site visit is confirmed", "A site visit has been confirmed for you."
+
+
+def process_workflow_event(
+    session: Session, event_key: str, storage=None, mailer: Mailer | None = None
+) -> bool:
     """Return False for replay; store failure state and let Inngest retry errors."""
     event = session.scalars(
         select(OutboxEvent).where(OutboxEvent.event_key == event_key).with_for_update()
@@ -161,23 +201,31 @@ def process_workflow_event(session: Session, event_key: str, storage=None) -> bo
             if storage is None:
                 raise RuntimeError("Private storage is required for exports")
             build_export(session, UUID(str(event.payload.get("export_id"))), storage)
-            recipient_ids, title, body, target_kind, target_id = [], "", "", "", None
+            targets, title, body = [], "", ""
         elif event.event_type == SUPPORT_EVENT:
             recipient_ids, title, body, target_kind, target_id = _support_plan(session, event)
+            targets = [(recipient_id, target_kind, target_id) for recipient_id in recipient_ids]
+        elif event.event_type == QUOTATION_SENT:
+            targets, title, body = _sent_plan(session, event)
+        elif event.event_type == VISIT_CONFIRMED:
+            targets, title, body = _visit_plan(session, event)
         else:
-            recipient_ids = _recipients(session, event)
             title, body = (
                 ("Quotation accepted", "A quotation was accepted for your installation.")
                 if event.event_type == "quotation.accepted"
                 else ("Installation progress updated", "An installation milestone was updated.")
             )
-            target_kind, target_id = "installation", event.aggregate_id
-        for recipient_id in recipient_ids:
+            targets = [
+                (recipient_id, "installation", event.aggregate_id)
+                for recipient_id in _recipients(session, event)
+            ]
+        for recipient_id, target_kind, target_id in targets:
+            key = f"{event.event_key}:{recipient_id}"
             session.execute(
                 insert(Notification)
                 .values(
                     recipient_id=recipient_id,
-                    dedupe_key=f"{event.event_key}:{recipient_id}",
+                    dedupe_key=key,
                     kind=event.event_type,
                     title=title,
                     body=body,
@@ -186,6 +234,16 @@ def process_workflow_event(session: Session, event_key: str, storage=None) -> bo
                 )
                 .on_conflict_do_nothing(index_elements=["dedupe_key"])
             )
+            if mailer is not None:
+                email_once(
+                    session,
+                    mailer,
+                    recipient_id=recipient_id,
+                    dedupe_key=key,
+                    kind=event.event_type,
+                    subject=title,
+                    body=body,
+                )
         event.status = "delivered"
         event.processed_at = datetime.now(UTC)
         event.last_error = None
