@@ -37,6 +37,7 @@ from app.models.site_visit import (  # noqa: F401
     SiteVisitNote,
     SiteVisitSlot,
 )
+from app.models.quotation_export import QuotationExport  # noqa: F401
 from app.models.support_case import (  # noqa: F401
     SupportCase,
     SupportCaseAssignment,

@@ -16,6 +16,7 @@ from app.models.quotation import Quotation, QuotationRevision
 from app.models.quotation_request import QuotationRequest, RequestDelivery
 from app.models.support_case import SupportCase, SupportCaseAssignment, SupportCaseUpdate
 from app.models.user import AppUser
+from app.services.quotation_export import EXPORT_EVENT, build_export
 
 
 def _customer_and_company(session: Session, installation_id):
@@ -146,7 +147,7 @@ def _support_plan(session: Session, event: OutboxEvent):
     return _active(session, recipients), title, body, "support_case", case.id
 
 
-def process_workflow_event(session: Session, event_key: str) -> bool:
+def process_workflow_event(session: Session, event_key: str, storage=None) -> bool:
     """Return False for replay; store failure state and let Inngest retry errors."""
     event = session.scalars(
         select(OutboxEvent).where(OutboxEvent.event_key == event_key).with_for_update()
@@ -156,7 +157,12 @@ def process_workflow_event(session: Session, event_key: str) -> bool:
     if event.status == "delivered":
         return False
     try:
-        if event.event_type == SUPPORT_EVENT:
+        if event.event_type == EXPORT_EVENT:
+            if storage is None:
+                raise RuntimeError("Private storage is required for exports")
+            build_export(session, UUID(str(event.payload.get("export_id"))), storage)
+            recipient_ids, title, body, target_kind, target_id = [], "", "", "", None
+        elif event.event_type == SUPPORT_EVENT:
             recipient_ids, title, body, target_kind, target_id = _support_plan(session, event)
         else:
             recipient_ids = _recipients(session, event)

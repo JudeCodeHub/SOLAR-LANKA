@@ -4,12 +4,13 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.database_config import DatabaseSettings
+from app.core.private_storage import LocalPrivateStorage
 from app.db.session import create_database_engine
 from app.models.outbox_event import OutboxEvent
 from app.services.workflow_notifications import process_workflow_event
 
 
-def process_pending(session: Session) -> int:
+def process_pending(session: Session, storage=None) -> int:
     """Process every event that has not been delivered; replays are harmless (they dedupe)."""
     keys = session.scalars(
         select(OutboxEvent.event_key)
@@ -17,7 +18,7 @@ def process_pending(session: Session) -> int:
         .order_by(OutboxEvent.created_at, OutboxEvent.id)
     ).all()
     for key in keys:
-        process_workflow_event(session, key)
+        process_workflow_event(session, key, storage)
     return len(keys)
 
 
@@ -28,7 +29,8 @@ def main() -> None:
     engine = create_database_engine(settings)
     try:
         with Session(engine) as session:
-            print(f"processed {process_pending(session)}")
+            storage = LocalPrivateStorage(environment=settings.environment)
+            print(f"processed {process_pending(session, storage)}")
     finally:
         engine.dispose()
 

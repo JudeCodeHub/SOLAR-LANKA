@@ -24,7 +24,9 @@ def create_inngest_client(settings: Settings) -> inngest.Inngest:
     )
 
 
-def create_notification_function(client: inngest.Inngest, factory: Callable[[], Session]):
+def create_notification_function(
+    client: inngest.Inngest, factory: Callable[[], Session], storage=None
+):
     @client.create_function(
         fn_id="process-workflow-notification",
         trigger=inngest.TriggerEvent(event="solar/workflow.outbox"),
@@ -37,7 +39,7 @@ def create_notification_function(client: inngest.Inngest, factory: Callable[[], 
 
         def persist() -> bool:
             with factory() as session:
-                return process_workflow_event(session, event_key)
+                return process_workflow_event(session, event_key, storage)
 
         ctx.step.run("persist-notifications", persist)
         return "processed"
