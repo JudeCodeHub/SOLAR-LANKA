@@ -17,7 +17,7 @@ from tests.test_estimator_engine import example_config, example_inputs
         {"backup_required": "false"},
         {"system_type": "hybrid"},
         {"system_type": "off_grid"},
-        {"connection_scheme": "net_plus"},
+        {"connection_scheme": "net_plus_plus"},
         {"monthly_consumption_kwh": "-1"},
         {"usable_roof_area_m2": "-0.01"},
         {"daytime_consumption_percent": "101"},

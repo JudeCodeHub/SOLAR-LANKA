@@ -67,7 +67,7 @@ def test_required_inputs_cannot_be_silently_defaulted(missing: str) -> None:
 @pytest.mark.parametrize(
     "change",
     [
-        {"connection_scheme": "net_plus"},
+        {"connection_scheme": "net_plus_plus"},
         {"system_type": "hybrid"},
         {"backup_required": True},
     ],

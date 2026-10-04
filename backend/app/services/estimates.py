@@ -9,15 +9,17 @@ from app.api.schemas.estimate_preview import EstimatePreviewResponse, PublicSour
 from app.api.schemas.estimator_inputs import EstimatorInputs
 from app.core.estimator_engine import calculate_sizing
 from app.core.estimator_finance import calculate_financial
-from app.core.estimator_scenario import GRID_NET_METERING
+from app.core.estimator_scenario import SUPPORTED_SCENARIOS, ConnectionScheme
 from app.models.estimator_config import EstimatorConfigVersion
 
 
-def latest_published_config(session: Session) -> EstimatorConfigVersion | None:
+def latest_published_config(
+    session: Session, scheme: ConnectionScheme = ConnectionScheme.NET_METERING
+) -> EstimatorConfigVersion | None:
     return session.scalars(
         select(EstimatorConfigVersion)
         .where(
-            EstimatorConfigVersion.scenario == GRID_NET_METERING.identifier,
+            EstimatorConfigVersion.scenario == SUPPORTED_SCENARIOS[scheme].identifier,
             EstimatorConfigVersion.status == "published",
             EstimatorConfigVersion.is_archived.is_(False),
         )
@@ -32,7 +34,7 @@ def build_preview(
     sizing = calculate_sizing(inputs, config)
     financial = calculate_financial(inputs, config)
     sources = {}
-    for topic in ("yield", "tariff", "cost"):
+    for topic in ("yield", "tariff", "cost", "export"):
         raw = config.source_metadata.get(topic)
         if not isinstance(raw, dict):
             continue

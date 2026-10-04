@@ -14,7 +14,6 @@ from app.api.schemas.estimator_config import (
     EstimatorConfigDraft,
     EstimatorConfigSummary,
 )
-from app.core.estimator_scenario import GRID_NET_METERING
 from app.core.permissions import Action, Scope, required_scopes
 from app.db.session import get_session
 from app.models.estimator_config import EstimatorConfigVersion
@@ -29,6 +28,12 @@ def require_config_admin(
     if Scope.PLATFORM not in required_scopes(Action.CALCULATION_CONFIG_MANAGE, user.role):
         raise HTTPException(403)
     return user
+
+
+def stored_sources(body: EstimatorConfigDraft) -> dict:
+    """The export snapshot is stored only for scenarios that use it."""
+    exclude = {"export"} if body.source_metadata.export is None else None
+    return body.source_metadata.model_dump(mode="json", by_alias=True, exclude=exclude)
 
 
 def locked_draft(session: Session, version_id: UUID) -> EstimatorConfigVersion:
@@ -80,7 +85,7 @@ def create_draft(
     admin: Annotated[AppUser, Depends(require_config_admin)],
     session: Annotated[Session, Depends(get_session)],
 ) -> dict[str, str | int]:
-    scenario = GRID_NET_METERING.identifier
+    scenario = body.scenario
     session.execute(
         text("SELECT pg_advisory_xact_lock(hashtext(:scenario))"),
         {"scenario": scenario},
@@ -94,7 +99,7 @@ def create_draft(
         scenario=scenario,
         version=(latest or 0) + 1,
         assumptions=body.assumptions,
-        source_metadata=body.source_metadata.model_dump(mode="json", by_alias=True),
+        source_metadata=stored_sources(body),
     )
     session.add(version)
     session.commit()
@@ -109,8 +114,10 @@ def edit_draft(
     session: Annotated[Session, Depends(get_session)],
 ) -> dict[str, str | int]:
     version = locked_draft(session, version_id)
+    if body.scenario != version.scenario:
+        raise HTTPException(422, "A draft keeps the scenario it was created for.")
     version.assumptions = body.assumptions
-    version.source_metadata = body.source_metadata.model_dump(mode="json", by_alias=True)
+    version.source_metadata = stored_sources(body)
     session.commit()
     return {"id": str(version.id), "version": version.version, "status": version.status}
 

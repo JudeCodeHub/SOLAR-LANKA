@@ -97,6 +97,18 @@ The diagram shows the relationships that matter; the full column lists are in `b
 
 The API documents itself. With the backend running, interactive docs are at `/docs` (Swagger) and `/redoc`, and the machine-readable schema is `GET /openapi.json`. `.venv/bin/python -m app.export_openapi FILE` writes it to a file, and `pnpm api:types` in `frontend/` turns it into the typed client (`src/lib/api/schema.d.ts`), so the frontend cannot drift from the backend without a type error. Errors always look like `{"error": {"code", "message", "issues"}}`. Route groups: public catalogue, directory and estimate preview; `/users/me/...` (customer: estimates, requests, offers, installations, notifications); `/companies/{id}/...` (company staff); `/admin/...` and `/audit-events` (platform administrators); `/media/...` (uploads and private downloads).
 
+## Estimator scenarios
+
+Each scenario has its own published configuration (`grid_net_metering_no_backup`, `grid_net_accounting_no_backup`, `grid_net_plus_no_backup`) and an estimate only ever uses the latest published, unarchived version for its own connection scheme. Saved estimates keep the input, the full configuration (assumptions and source snapshots) and the result as they were, so publishing a newer version never changes them. Source for all schemes: PUCSL, [Rooftop Solar PV Connection Schemes](https://www.pucsl.gov.lk/rooftop-solar-pv-connection-schemes/), reviewed 2026-10-04. The page says it was last updated 2023-10-10 and lists feed-in rates "as of July 1, 2024" (27.06 LKR/kWh up to 500 kW), so the rate in a configuration must be rechecked and carries its own `effective_from` date.
+
+| Scenario | Monthly value used | Worked example (300 kWh used, 250 kWh generated, 50% daytime use, 27.06 LKR/kWh, sample tariff) |
+|---|---|---|
+| Net metering | Excess is banked, not paid: the bill is recomputed on consumption minus generation | 5 090 LKR (bill falls from 5 500 to 410) |
+| Net accounting | Daytime use offsets imports; the remainder is paid at the feed-in rate | 150 kWh used directly gives bill 2 500; 100 kWh exported earns 2 706; 5 500 - 2 500 + 2 706 = 5 706 LKR |
+| Net plus | All generation is sold at the feed-in rate; the household bill is unchanged | 250 x 27.06 = 6 765 LKR |
+
+Net accounting and net plus need an `export` source snapshot with an `effective_from` date and an `export_rate_lkr_per_kwh` low/high range in the configuration; without them (or, for net accounting, without the daytime-use percentage) the savings are left out rather than guessed. Net plus plus (power-plant arrangement above contract demand, roof rental, aggregators) is not modelled, and off-grid and hybrid systems have no sourced sizing data, so all three stay refused.
+
 ## Account and password recovery
 
 Recovery is Clerk's; the app builds no reset tokens, reset pages or recovery tables. `/sign-in` renders Clerk's `<SignIn />`, which shows "Forgot password?" and emails a verification code once the Clerk instance allows it, and `/account` renders Clerk's `<UserProfile />` for changing the password or email while signed in. To enable it in your Clerk development instance, turn on the Password and Email verification code options under User & authentication (and keep email as an identifier). A unit test (`frontend/src/lib/recovery.test.ts`) fails if either page stops using Clerk's component or if any frontend or backend source or migration adds a password-reset or reset-token implementation. The local mail sink from 19.06 is not used for recovery: Clerk sends its own email.
@@ -157,7 +169,7 @@ Measured on one developer laptop (Linux, PostgreSQL 16 in Docker, Python 3.14, N
 - Arcjet and Inngest were tested with fakes or locally, not against live services.
 - Sign-in is Clerk's: demo people have no passwords and must be linked to Clerk users (see Demo accounts). Browser tests bypass sign-in with a signed test token.
 - Technician workspace, site visits, support, troubleshooting, education content and document export are Phase 2; they appear only as "Coming soon".
-- Only one estimator scenario is calculated (grid-connected, net metering, no battery backup); every figure is a fictional planning aid.
+- Three grid-connected, no-backup estimator scenarios are calculated by the API (net metering, net accounting, net plus; see Estimator scenarios); the estimate screen still offers only net metering, and net plus plus, off-grid and hybrid are not calculated. Every figure is a fictional planning aid.
 - Evidence files use local private storage, which exists for development and tests only; notifications need the Inngest worker (or the local processor) running.
 - Measurements cover the demo dataset on one machine; nothing was load-tested, and no real device or screen reader was used.
 - Not yet built: deployment, CI, backups and monitoring (the later DevOps phase).

@@ -140,7 +140,7 @@ def save_estimate(
     response: Response,
 ) -> SavedEstimateCreated:
     response.headers["Cache-Control"] = "no-store"
-    config = latest_published_config(session)
+    config = latest_published_config(session, body.connection_scheme)
     if config is None:
         raise HTTPException(503)
     try:
