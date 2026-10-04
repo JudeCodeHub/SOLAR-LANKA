@@ -4,10 +4,17 @@ import { messages } from "../../messages/index.ts";
 const text = messages.adminEstimator.errors;
 
 const SOURCES = ["yield", "tariff", "cost"] as const;
+
+/** One published configuration per scenario; the export schemes also need a dated feed-in rate and source. */
+export const SCENARIOS = ["grid_net_metering_no_backup", "grid_net_accounting_no_backup", "grid_net_plus_no_backup"] as const;
+export type Scenario = (typeof SCENARIOS)[number];
+export const DEFAULT_SCENARIO: Scenario = "grid_net_metering_no_backup";
+export const needsExport = (scenario: string): boolean => scenario !== DEFAULT_SCENARIO;
 const REQUIRED = ["publisher", "title", "url", "unit", "reviewed_on", "limitation"] as const;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 export interface DraftBody {
+  scenario: Scenario;
   assumptions: Record<string, unknown>;
   source_metadata: Record<string, unknown>;
 }
@@ -26,7 +33,7 @@ function parseObject(raw: string): { value?: Record<string, unknown>; error?: st
 }
 
 /** Checks both documents the way the backend will: assumptions an object with content, each source complete. */
-export function parseDraft(assumptionsText: string, sourcesText: string): ParseResult {
+export function parseDraft(assumptionsText: string, sourcesText: string, scenario: Scenario = DEFAULT_SCENARIO): ParseResult {
   const errors: Partial<Record<"assumptions" | "sources", string>> = {};
   const assumptions = parseObject(assumptionsText);
   if (assumptions.error) errors.assumptions = assumptions.error;
@@ -57,8 +64,23 @@ export function parseDraft(assumptionsText: string, sourcesText: string): ParseR
       }
     }
   }
+  if (needsExport(scenario) && !errors.assumptions && !errors.sources) {
+    const rate = (assumptions.value ?? {}).export_rate_lkr_per_kwh as Record<string, unknown> | undefined;
+    const exported = (sources.value ?? {}).export as Record<string, unknown> | undefined;
+    if (!rate || typeof rate !== "object" || Number.isNaN(Number(rate.low)) || Number.isNaN(Number(rate.high)) || Number(rate.low) < 0 || Number(rate.low) > Number(rate.high) || rate.low === "" || rate.high === "") {
+      errors.assumptions = text.exportRate;
+    } else if (!exported || typeof exported !== "object") {
+      errors.sources = text.exportSource;
+    } else {
+      const bad = REQUIRED.find((key) => typeof exported[key] !== "string" || (exported[key] as string).trim() === "");
+      if (bad) errors.sources = text.missingField.replace("{source}", "export").replace("{field}", bad);
+      else if (!/^https?:\/\//i.test(exported.url as string)) errors.sources = text.badUrl.replace("{source}", "export");
+      else if (typeof exported.effective_from !== "string" || !DATE.test(exported.effective_from) || Number.isNaN(Date.parse(exported.effective_from))) errors.sources = text.exportDate;
+      else if (!DATE.test(exported.reviewed_on as string) || Number.isNaN(Date.parse(exported.reviewed_on as string))) errors.sources = text.badDate.replace("{source}", "export");
+    }
+  }
   if (Object.keys(errors).length > 0) return { ok: false, errors };
-  return { ok: true, body: { assumptions: assumptions.value as Record<string, unknown>, source_metadata: sources.value as Record<string, unknown> } };
+  return { ok: true, body: { scenario, assumptions: assumptions.value as Record<string, unknown>, source_metadata: sources.value as Record<string, unknown> } };
 }
 
 export function pretty(value: unknown): string {

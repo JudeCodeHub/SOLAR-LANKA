@@ -55,6 +55,7 @@ class EstimatorConfigSummary(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
+    scenario: str
     version: int
     status: Literal["draft", "published"]
     is_archived: bool
@@ -63,6 +64,5 @@ class EstimatorConfigSummary(BaseModel):
 
 
 class EstimatorConfigDetail(EstimatorConfigSummary):
-    scenario: str
     assumptions: dict[str, Any]
     source_metadata: dict[str, Any]

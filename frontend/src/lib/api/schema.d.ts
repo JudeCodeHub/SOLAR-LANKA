@@ -3825,6 +3825,8 @@ export interface components {
             is_archived: boolean;
             /** Published At */
             published_at: string | null;
+            /** Scenario */
+            scenario: string;
             /**
              * Status
              * @enum {string}

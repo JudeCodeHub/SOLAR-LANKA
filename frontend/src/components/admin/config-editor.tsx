@@ -11,7 +11,7 @@ import { QueryState } from "@/components/query-state";
 import { Button } from "@/components/ui/button";
 import type { ApiError } from "@/lib/api/errors";
 import { useConfigActions, useConfigVersion, useConfigVersions } from "@/lib/admin/hooks";
-import { parseDraft, pretty, refusalFor, sameJson } from "@/lib/admin/config";
+import { DEFAULT_SCENARIO, parseDraft, pretty, refusalFor, SCENARIOS, type Scenario, sameJson } from "@/lib/admin/config";
 import { format, messages } from "@/messages";
 
 const text = messages.adminEstimator;
@@ -28,22 +28,39 @@ export function ConfigEditor({ id }: { id: string | null }) {
   );
 }
 
-/** A new draft starts from the newest version's content, so only what differs is changed. */
+/** A new draft starts from the newest version of its scenario (or, failing that, of another), so only what differs is changed. */
 function NewDraft() {
+  const [scenario, setScenario] = useState<Scenario>(DEFAULT_SCENARIO);
   const versions = useConfigVersions();
-  const newest = versions.data?.[0];
+  const same = versions.data?.find((item) => item.scenario === scenario);
+  const newest = same ?? versions.data?.[0];
   const detail = useConfigVersion(newest?.id ?? null);
   return (
     <QueryState query={versions}>
-      {(list) =>
-        list.length === 0 ? (
-          <Editor key="blank" id={null} version={null} initial={{ assumptions: "{}", sources: "{}" }} prefilledFrom={null} />
-        ) : (
-          <QueryState query={detail}>
-            {(base) => <Editor key={base.id} id={null} version={null} initial={{ assumptions: pretty(base.assumptions), sources: pretty(base.source_metadata) }} prefilledFrom={base.version} />}
-          </QueryState>
-        )
-      }
+      {(list) => (
+        <>
+          <div className="space-y-1">
+            <label htmlFor="f-scenario" className="block font-medium">
+              {text.scenarioLabel}
+            </label>
+            <select id="f-scenario" value={scenario} onChange={(event) => setScenario(event.target.value as Scenario)} className="min-h-11 w-full rounded-lg border bg-transparent px-3 text-sm">
+              {SCENARIOS.map((name) => (
+                <option key={name} value={name}>
+                  {text.scenarios[name]}
+                </option>
+              ))}
+            </select>
+            <p className="text-sm text-muted-foreground">{text.scenarioHelp}</p>
+          </div>
+          {list.length === 0 ? (
+            <Editor key={`blank-${scenario}`} id={null} version={null} scenario={scenario} initial={{ assumptions: "{}", sources: "{}" }} prefilledFrom={null} fromOther={false} />
+          ) : (
+            <QueryState query={detail}>
+              {(base) => <Editor key={`${base.id}-${scenario}`} id={null} version={null} scenario={scenario} initial={{ assumptions: pretty(base.assumptions), sources: pretty(base.source_metadata) }} prefilledFrom={base.version} fromOther={same === undefined} />}
+            </QueryState>
+          )}
+        </>
+      )}
     </QueryState>
   );
 }
@@ -52,14 +69,14 @@ function Existing({ id }: { id: string }) {
   const query = useConfigVersion(id);
   return (
     <QueryState query={query}>
-      {(version) => <Editor key={`${version.id}-${version.status}-${version.is_archived}`} id={id} version={version} initial={{ assumptions: pretty(version.assumptions), sources: pretty(version.source_metadata) }} prefilledFrom={null} />}
+      {(version) => <Editor key={`${version.id}-${version.status}-${version.is_archived}`} id={id} version={version} scenario={version.scenario as Scenario} initial={{ assumptions: pretty(version.assumptions), sources: pretty(version.source_metadata) }} prefilledFrom={null} fromOther={false} />}
     </QueryState>
   );
 }
 
 type Version = NonNullable<ReturnType<typeof useConfigVersion>["data"]>;
 
-function Editor({ id, version, initial, prefilledFrom }: { id: string | null; version: Version | null; initial: { assumptions: string; sources: string }; prefilledFrom: number | null }) {
+function Editor({ id, version, scenario, initial, prefilledFrom, fromOther }: { id: string | null; version: Version | null; scenario: Scenario; initial: { assumptions: string; sources: string }; prefilledFrom: number | null; fromOther: boolean }) {
   const router = useRouter();
   const actions = useConfigActions(id);
   const fresh = useConfigVersion(id);
@@ -91,7 +108,7 @@ function Editor({ id, version, initial, prefilledFrom }: { id: string | null; ve
 
   const save = () => {
     if (busy.current) return;
-    const parsed = parseDraft(assumptions, sources);
+    const parsed = parseDraft(assumptions, sources, scenario);
     setErrors(parsed.ok ? {} : parsed.errors);
     setNotice(null);
     if (!parsed.ok) {
@@ -182,7 +199,12 @@ function Editor({ id, version, initial, prefilledFrom }: { id: string | null; ve
           {version.is_archived ? <span className="rounded-full border px-2 py-0.5 text-xs">{text.archived}</span> : null}
         </p>
       ) : null}
-      {prefilledFrom !== null ? <p className="text-sm text-muted-foreground">{format(text.prefilled, { version: prefilledFrom })}</p> : null}
+      {version ? (
+        <p className="text-sm text-muted-foreground" data-scenario>
+          {text.scenarios[version.scenario] ?? version.scenario}
+        </p>
+      ) : null}
+      {prefilledFrom !== null ? <p className="text-sm text-muted-foreground">{format(fromOther ? text.startedFromOther : text.prefilled, { version: prefilledFrom })}</p> : null}
       {version && !editable ? (
         <p className="text-sm" data-read-only>
           {format(text.readOnly, { state: version.is_archived ? text.archived.toLowerCase() : (text.status[version.status] ?? version.status).toLowerCase() })}

@@ -144,4 +144,30 @@ test.describe("phase 2 workflows run beside the core release", () => {
     await page.getByRole("button", { name: "Calculate estimate" }).click();
     await expect(page.locator("[data-slot=field-error]").filter({ hasText: "Choose Net metering, Net accounting or Net plus" })).toBeVisible();
   });
+
+  test("an administrator drafts a net accounting configuration that needs its dated export rate and source", async ({ page, signInAs }) => {
+    signInAs("platformAdmin");
+    await page.goto("/admin/estimator/new");
+    await page.locator("#f-scenario").selectOption("grid_net_accounting_no_backup");
+    // The draft starts from the newest net accounting version, so the export fields are already there.
+    const assumptions = page.locator("#f-assumptions");
+    await expect(assumptions).toContainText("export_rate_lkr_per_kwh");
+    const stored = JSON.parse(await assumptions.inputValue()) as Record<string, unknown>;
+
+    // Without the rate the form says what is missing and nothing is saved.
+    const withoutRate = Object.fromEntries(Object.entries(stored).filter(([key]) => key !== "export_rate_lkr_per_kwh"));
+    await assumptions.fill(JSON.stringify(withoutRate));
+    await page.getByRole("button", { name: /Create draft|Save draft/ }).click();
+    await expect(page.locator("[data-error='assumptions']")).toContainText("export_rate_lkr_per_kwh");
+    await expect(page.locator("[data-error-summary]")).toBeFocused();
+
+    // With the rate it is saved as a draft of that scenario and the list shows it.
+    await assumptions.fill(JSON.stringify(stored));
+    await page.getByRole("button", { name: /Create draft|Save draft/ }).click();
+    await page.waitForURL(/\/admin\/estimator\/[0-9a-f-]{36}$/);
+    await expect(page.locator("[data-scenario]")).toContainText("Net accounting");
+    await expect(page.locator("span[data-status]")).toHaveText("Draft");
+    await page.goto("/admin/estimator");
+    await expect(page.locator("[data-version][data-status='draft'] [data-scenario]").filter({ hasText: "Net accounting" }).first()).toBeVisible();
+  });
 });

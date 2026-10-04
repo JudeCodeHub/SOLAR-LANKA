@@ -178,4 +178,4 @@ export function useConfigActions(id: string | null) {
   };
 }
 
-type DraftBodyInput = { assumptions: Record<string, unknown>; source_metadata: Record<string, unknown> };
+type DraftBodyInput = { scenario: string; assumptions: Record<string, unknown>; source_metadata: Record<string, unknown> };
