@@ -14,13 +14,19 @@ dependencies = [
     "pydantic==2.13.5",
     "pydantic-settings==2.15.0",
     "python-multipart==0.0.32",
+    "reportlab>=5.0.1",
     "sqlalchemy==2.0.54",
     "svix==2.5.0",
     "uvicorn==0.53.0",
 ]
 
 [dependency-groups]
-dev = ["pytest==9.1.1", "ruff==0.16.8", "uv==0.12.17"]
+dev = [
+    "pypdf>=6.19.0",
+    "pytest==9.1.1",
+    "ruff==0.16.8",
+    "uv==0.12.17",
+]
 
 [tool.uv]
 package = false

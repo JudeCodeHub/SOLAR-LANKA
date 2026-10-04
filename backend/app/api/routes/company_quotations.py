@@ -16,8 +16,9 @@ from app.api.schemas.quotations import QuotationDraftCreated, QuotationRevisionV
 from app.core.permissions import Action, Scope, required_scopes
 from app.core.quotation_states import QuotationState, can_start_revision
 from app.db.session import get_session
-from app.models.company import CompanyMembership
+from app.models.company import Company, CompanyMembership
 from app.models.quotation import Quotation, QuotationLineItem, QuotationRevision
+from app.services.quotation_pdf import pdf_headers, render_revision_pdf
 
 router = APIRouter(
     prefix="/companies/{company_id}/request-deliveries/{delivery_id}/quotations",
@@ -79,6 +80,34 @@ def company_revision_history(
         offset=pagination.offset,
         total=total,
         items=[revision_view(session, revision) for revision in revisions],
+    )
+
+
+@router.get("/{quotation_id}/revisions/{revision_id}/pdf")
+def company_revision_pdf(
+    delivery_id: UUID,
+    quotation_id: UUID,
+    revision_id: UUID,
+    membership: Annotated[CompanyMembership, Depends(require_reader)],
+    session: Annotated[Session, Depends(get_session)],
+) -> Response:
+    scoped_delivery(session, delivery_id, membership.company_id)
+    quotation = scoped_quotation(session, quotation_id, delivery_id)
+    revision = session.scalars(
+        select(QuotationRevision).where(
+            QuotationRevision.id == revision_id,
+            QuotationRevision.quotation_id == quotation.id,
+        )
+    ).one_or_none()
+    if revision is None:
+        raise HTTPException(404)
+    company_name = session.scalars(
+        select(Company.name).where(Company.id == membership.company_id)
+    ).one()
+    return Response(
+        render_revision_pdf(company_name, revision_view(session, revision)),
+        media_type="application/pdf",
+        headers=pdf_headers(revision.revision_number),
     )
 
 
