@@ -2300,11 +2300,17 @@ export const en = {
     guidance: {
       title: "What this estimate covers",
       supported:
-        "Today the estimator calculates one situation only: a grid-connected rooftop system under net metering, with no battery backup.",
+        "The estimator calculates grid-connected rooftop systems with no battery backup under three schemes: net metering, net accounting and net plus.",
       netMetering:
         "Under net metering you pay for the net energy you import, and surplus energy you export is banked as credit rather than paid out in cash.",
+      netAccounting:
+        "Under net accounting the electricity you use in the day offsets what you would import, and what you export is paid at the feed-in rate. It needs your daytime share of use.",
+      netPlus:
+        "Under net plus everything your system generates is sold at the feed-in rate and your own bill stays as it is.",
+      feedInRate:
+        "Net accounting and net plus use a published feed-in rate. The rate, its date and its source are shown with your estimate, and rates change, so check the date.",
       deferred:
-        "Net accounting, net plus and net plus plus schemes, off-grid and hybrid systems, and battery backup are not calculated yet. Choosing one will not give you a different answer: the estimate is simply not offered, so a wrong number is never shown.",
+        "Net plus plus, off-grid and hybrid systems, and battery backup are not calculated yet. Choosing one will not give you a different answer: the estimate is simply not offered, so a wrong number is never shown.",
       planning:
         "Results are planning estimates in ranges, not an installation design, a quotation or a guaranteed saving. Ask companies for quotations before deciding.",
       defaultsTitle: "About the defaults",
@@ -2337,11 +2343,11 @@ export const en = {
       bill: "Monthly electricity bill (LKR per month)",
       billHelp: "Used to estimate savings. Leave blank if unknown.",
       scheme: "Connection scheme",
-      schemeHelp: "Default: Net metering, the only scheme calculated today.",
+      schemeHelp: "Net metering banks surplus energy, net accounting pays for exports and offsets your daytime use, net plus sells everything you generate.",
       schemeOptions: {
         net_metering: "Net metering (supported)",
-        net_accounting: "Net accounting (not supported yet)",
-        net_plus: "Net plus (not supported yet)",
+        net_accounting: "Net accounting (supported)",
+        net_plus: "Net plus (supported)",
         net_plus_plus: "Net plus plus (not supported yet)",
       },
       systemType: "System type",
@@ -2361,8 +2367,8 @@ export const en = {
       scheme: "The {name} scheme is not calculated yet.",
       systemType: "{name} systems are not calculated yet.",
       backup: "Estimates that include battery backup are not calculated yet.",
-      fix: "Choose Net metering, On-grid and No backup to get an estimate.",
-      schemeField: "Choose Net metering to get an estimate.",
+      fix: "Choose Net metering, Net accounting or Net plus, with On-grid and No backup, to get an estimate.",
+      schemeField: "Choose Net metering, Net accounting or Net plus to get an estimate.",
       systemTypeField: "Choose On-grid to get an estimate.",
       backupField: "Choose No backup to get an estimate.",
     },
@@ -2416,6 +2422,7 @@ export const en = {
         notFoundHelp: "Open your saved estimates to find the one you want.",
       },
       labels: {
+        export_rate_lkr_per_kwh: "Feed-in rate for exports (LKR per kWh)",
         panel_wattage_w: "Panel rating (W)",
         panel_area_m2: "Panel area (m²)",
         annual_yield_kwh_per_kwp: "Yearly yield (kWh per kWp)",
@@ -2496,6 +2503,7 @@ export const en = {
           "Needs the share of electricity you use in the daytime. Enter it in the form and calculate again.",
         noCost: "No published installer-quote cost basis is available, so no cost is shown.",
         noTariff: "No published electricity tariff is available for this estimate.",
+        noExport: "No published feed-in rate is available for this scheme, so no export income is shown.",
         dependsOnCost: "Needs an installed cost, which is not available.",
         dependsOnSavings: "Needs savings, which are not available.",
         noPositiveSavings: "Estimated savings are not positive, so a payback period cannot be given.",
@@ -2520,10 +2528,15 @@ export const en = {
       assumptions: {
         title: "Assumptions and sources",
         fixedTitle: "Fixed by the estimator",
-        fixed:
-          "Grid-connected net metering, on-grid system, no battery backup. Surplus energy is banked as credit, not paid in cash.",
+        fixed: "On-grid system, no battery backup.",
+        schemes: {
+          net_metering: "Net metering: surplus energy is banked as credit, not paid in cash, so your bill is worked out on what you import after your generation is taken off.",
+          net_accounting: "Net accounting: the share of generation you use in the daytime reduces your imports, and the rest is paid at the feed-in rate. Compared with net metering, exports earn cash instead of credit.",
+          net_plus: "Net plus: everything generated is sold at the feed-in rate and your own bill is unchanged. Compared with net metering, the value is income rather than a smaller bill.",
+        } as Record<string, string>,
         inputsTitle: "Inputs you gave",
         inputs: {
+          scheme: "Connection scheme",
           consumption: "Monthly electricity use",
           district: "District",
           roof: "Usable roof area",
@@ -2534,7 +2547,7 @@ export const en = {
         unknown: "Unknown",
         version: "Calculated with estimator settings version {version}.",
         sourcesTitle: "Sources and their limits",
-        sourceNames: { yield: "Generation yield", tariff: "Electricity tariff", cost: "Installed cost" },
+        sourceNames: { yield: "Generation yield", tariff: "Electricity tariff", cost: "Installed cost", export: "Feed-in rate for exports" },
         sourceNone: "No source information is published for this item.",
         publisher: "Publisher",
         document: "Document",

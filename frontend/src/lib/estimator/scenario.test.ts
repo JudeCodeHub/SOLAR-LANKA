@@ -15,12 +15,18 @@ test("the defaults are the one supported scenario", () => {
   assert.deepEqual(unsupportedParts({ ...DEFAULT_SCENARIO }), []);
 });
 
+test("net metering, net accounting and net plus are all supported", () => {
+  for (const connection_scheme of ["net_metering", "net_accounting", "net_plus"]) {
+    assert.deepEqual(unsupportedParts({ ...DEFAULT_SCENARIO, connection_scheme }), []);
+  }
+});
+
 test("every other scheme, system type and backup choice is reported", () => {
-  assert.deepEqual(unsupportedParts({ ...DEFAULT_SCENARIO, connection_scheme: "net_plus" }), ["scheme"]);
+  assert.deepEqual(unsupportedParts({ ...DEFAULT_SCENARIO, connection_scheme: "net_plus_plus" }), ["scheme"]);
   assert.deepEqual(unsupportedParts({ ...DEFAULT_SCENARIO, system_type: "hybrid" }), ["systemType"]);
   assert.deepEqual(unsupportedParts({ ...DEFAULT_SCENARIO, backup: "yes" }), ["backup"]);
   assert.deepEqual(
-    unsupportedParts({ connection_scheme: "net_accounting", system_type: "off_grid", backup: "yes" }),
+    unsupportedParts({ connection_scheme: "net_plus_plus", system_type: "off_grid", backup: "yes" }),
     ["scheme", "systemType", "backup"],
   );
 });
@@ -84,11 +90,19 @@ test("a district outside the backend's list is refused", () => {
   assert.ok(problems({ district: "Atlantis" }).district);
 });
 
+test("each supported scheme is sent as chosen", () => {
+  for (const scheme of ["net_metering", "net_accounting", "net_plus"]) {
+    const result = estimatorSchema.safeParse({ ...valid, connection_scheme: scheme });
+    assert.ok(result.success);
+    assert.equal(result.data.connection_scheme, scheme);
+  }
+});
+
 test("unsupported scenarios are refused on the field that caused them, never sent", () => {
-  assert.ok(problems({ connection_scheme: "net_plus" }).connection_scheme);
+  assert.ok(problems({ connection_scheme: "net_plus_plus" }).connection_scheme);
   assert.ok(problems({ system_type: "off_grid" }).system_type);
   assert.ok(problems({ backup: "yes" }).backup);
-  assert.deepEqual(Object.keys(problems({ connection_scheme: "net_plus", backup: "yes" })).sort(), ["backup", "connection_scheme"]);
+  assert.deepEqual(Object.keys(problems({ connection_scheme: "net_plus_plus", backup: "yes" })).sort(), ["backup", "connection_scheme"]);
 });
 
 test("choices outside the allowed lists are refused", () => {

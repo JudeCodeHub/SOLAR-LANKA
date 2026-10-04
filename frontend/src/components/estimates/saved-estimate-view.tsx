@@ -29,6 +29,7 @@ export function SavedEstimateView({ id }: { id: string }) {
         {(saved) => {
           const inputs = saved.inputs;
           const values: SubmittedValues = {
+            connection_scheme: inputs.connection_scheme,
             monthly_consumption_kwh: String(inputs.monthly_consumption_kwh),
             district: inputs.district,
             usable_roof_area_m2: String(inputs.usable_roof_area_m2),

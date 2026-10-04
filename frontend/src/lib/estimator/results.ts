@@ -84,7 +84,10 @@ export function sizingRows(preview: Preview, sent: SentInputs): ResultRow[] {
 /** Which input or publication is missing for the savings figures. */
 function savingsReason(preview: Preview, sent: SentInputs): string {
   if (preview.sizing.average_monthly_generation_kwh === null) return text.why.needsShading;
-  if (sent.daytime_consumption_percent === null) return text.why.needsDaytime;
+  const exports = preview.scenario !== "grid_net_metering_no_backup";
+  if (exports && preview.sources.export === undefined) return text.why.noExport;
+  // Net plus sells everything generated, so the daytime share does not matter there.
+  if (preview.scenario !== "grid_net_plus_no_backup" && sent.daytime_consumption_percent === null) return text.why.needsDaytime;
   return text.why.noTariff;
 }
 
