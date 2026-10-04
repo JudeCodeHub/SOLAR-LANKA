@@ -26,6 +26,8 @@ interface Fixtures {
   startVisit: (visitId: string) => void;
   /** Do what the background worker would: turn pending events into notifications (there is no Inngest in these tests). */
   processOutbox: () => void;
+  /** Run the reminder job once, as the scheduler would (there is no Inngest in these tests). */
+  runReminders: () => void;
 }
 
 export const test = base.extend<Fixtures>({
@@ -70,6 +72,16 @@ export const test = base.extend<Fixtures>({
         encoding: "utf8",
       });
       if (result.status !== 0) throw new Error(`Processing the outbox failed: ${result.stderr}`);
+    });
+  },
+  runReminders: async ({}, provide) => {
+    await provide(() => {
+      const result = spawnSync(join(BACKEND_DIR, ".venv", "bin", "python"), ["-m", "app.jobs.send_reminders"], {
+        cwd: BACKEND_DIR,
+        env: { ...process.env, SOLAR_DATABASE_URL: process.env.E2E_DATABASE_URL, SOLAR_ENVIRONMENT: "development", PYTHONPATH: BACKEND_DIR },
+        encoding: "utf8",
+      });
+      if (result.status !== 0) throw new Error(`Running the reminders failed: ${result.stderr}`);
     });
   },
   failWrites: async ({}, provide) => {

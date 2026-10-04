@@ -1,5 +1,5 @@
 import { expect, test } from "../fixtures.ts";
-import { acceptedInstallation } from "../support/scenario.ts";
+import { acceptedInstallation, sentOffer } from "../support/scenario.ts";
 
 const inputs = {
   monthly_consumption_kwh: "300",
@@ -169,5 +169,24 @@ test.describe("phase 2 workflows run beside the core release", () => {
     await expect(page.locator("span[data-status]")).toHaveText("Draft");
     await page.goto("/admin/estimator");
     await expect(page.locator("[data-version][data-status='draft'] [data-scenario]").filter({ hasText: "Net accounting" }).first()).toBeVisible();
+  });
+
+  test("a due reminder appears once however often the job runs, and opens the request", async ({ page, api, signInAs, runReminders }) => {
+    const offer = await sentOffer(api);
+    const remindersFor = async (who: "estimateCustomer") =>
+      ((await api(who, "GET", "/users/me/notifications?limit=50")).body as { items: { kind: string; target_id: string | null }[] }).items.filter((item) => item.kind === "reminder.quotation_expiring" && item.target_id === offer.requestId);
+
+    expect(await remindersFor("estimateCustomer")).toHaveLength(0);
+    runReminders();
+    runReminders();
+    expect(await remindersFor("estimateCustomer")).toHaveLength(1);
+
+    signInAs("estimateCustomer");
+    await page.goto("/notifications");
+    const link = page.locator(`a[href="/my/requests/${offer.requestId}"]`).first();
+    await expect(link).toBeVisible();
+    await expect(page.getByText("An offer is about to expire").first()).toBeVisible();
+    await link.click();
+    await page.waitForURL(`**/my/requests/${offer.requestId}`);
   });
 });
