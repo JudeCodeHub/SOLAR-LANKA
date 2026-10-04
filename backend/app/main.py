@@ -53,6 +53,7 @@ from app.core.request_protection import (
 )
 from app.db.session import create_database_engine, create_session_factory
 from app.services.inngest_workflow import create_inngest_client, create_notification_function
+from app.services.mail import create_mail_sender
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -151,6 +152,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         settings.inngest_event_key is None or settings.inngest_signing_key is None
     ):
         raise RuntimeError("Inngest event and signing keys are required in production")
+    if settings.environment == "production":
+        create_mail_sender(settings)
     inngest_client = create_inngest_client(settings)
     process_notification = create_notification_function(
         inngest_client,

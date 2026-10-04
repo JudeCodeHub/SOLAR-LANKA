@@ -42,6 +42,15 @@ class Settings(BaseSettings):
     inngest_event_key: SecretStr | None = None
     inngest_signing_key: SecretStr | None = None
 
+    # "sink" writes mail to local files for development and tests; "smtp" uses any SMTP server.
+    mail_backend: Literal["sink", "smtp"] = "sink"
+    mail_from: str = Field(default="Solar Lanka <no-reply@solarlanka.example>", min_length=3)
+    smtp_host: str | None = None
+    smtp_port: int = Field(default=587, ge=1, le=65535)
+    smtp_username: str | None = None
+    smtp_password: SecretStr | None = None
+    smtp_starttls: bool = True
+
     arcjet_key: SecretStr | None = None
     arcjet_timeout_ms: int = Field(default=1000, ge=100, le=5000)
     # Proxy addresses/CIDRs whose forwarded-IP headers Arcjet may trust.
