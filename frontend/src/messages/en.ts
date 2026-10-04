@@ -1019,7 +1019,7 @@ export const en = {
       missingField: "The {source} source is missing {field}.",
       badUrl: "The {source} source needs a web address starting with http:// or https://.",
       badDate: "The {source} source needs reviewed_on as yyyy-mm-dd.",
-      exportRate: "This scheme needs export_rate_lkr_per_kwh in the assumptions as {\"low\": \"…\", \"high\": \"…\"}, with low not above high.",
+      exportRate: "This scheme needs export_rate_lkr_per_kwh in the assumptions with a low and a high value, and low must not be above high.",
       exportSource: "This scheme needs an export source describing where the feed-in rate comes from.",
       exportDate: "The export source needs effective_from as yyyy-mm-dd, the date the rate applies from.",
       refusedGone: "That version could not be found any more. The page has been refreshed.",
@@ -2318,8 +2318,10 @@ export const en = {
         "Under net accounting the electricity you use in the day offsets what you would import, and what you export is paid at the feed-in rate. It needs your daytime share of use.",
       netPlus:
         "Under net plus everything your system generates is sold at the feed-in rate and your own bill stays as it is.",
+      newConnections:
+        "Under the National Electricity Policy, new on-grid rooftop agreements are on a net plus basis, and the Ministry of Energy has been reported to have stopped net metering and net accounting for new connections from 11 September 2026. Net metering and net accounting estimates are most useful for existing or extended agreements, so confirm with the company which scheme applies to you.",
       feedInRate:
-        "Net accounting and net plus use a published feed-in rate. The rate, its date and its source are shown with your estimate, and rates change, so check the date.",
+        "Net accounting and net plus use a published feed-in rate. The rate, its date and its source are shown with your estimate, and rates change (the Commission's August 2026 decision set 23.11 LKR per kWh for new rooftop systems up to 10 kW), so check the date.",
       deferred:
         "Net plus plus, off-grid and hybrid systems, and battery backup are not calculated yet. Choosing one will not give you a different answer: the estimate is simply not offered, so a wrong number is never shown.",
       planning:
