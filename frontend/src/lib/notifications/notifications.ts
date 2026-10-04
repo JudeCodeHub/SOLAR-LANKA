@@ -26,6 +26,12 @@ export function destinationFor(notification: TargetLike, memberships: readonly M
     const roles = memberships.map((membership) => membership.role);
     return { href: `${supportDestination(roles)}/${notification.target_id}`, label: text.openSupport };
   }
+  if (notification.target_kind === "request" && notification.target_id) {
+    return { href: `/my/requests/${notification.target_id}`, label: text.openRequest };
+  }
+  if (notification.target_kind === "site_visit" && notification.target_id) {
+    return { href: `/technician/visits/${notification.target_id}`, label: text.openVisit };
+  }
   if (notification.target_kind !== "installation" || !notification.target_id) return null;
   const staff = memberships.some((membership) => STAFF.includes(membership.role));
   return staff

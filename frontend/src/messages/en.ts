@@ -703,6 +703,8 @@ export const en = {
     open: "Open installation",
     openCompany: "Open installation for the company",
     openSupport: "Open support request",
+    openRequest: "Open request",
+    openVisit: "Open site visit",
     markedRead: "Marked as read.",
     markedUnread: "Marked as unread.",
     gone: "That notification no longer exists. The list has been refreshed.",
