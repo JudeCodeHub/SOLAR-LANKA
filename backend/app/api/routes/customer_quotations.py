@@ -27,6 +27,7 @@ from app.core.installation_milestones import SEQUENCE
 from app.core.permissions import Action, Scope, required_scopes
 from app.core.quotation_acceptance import AcceptanceFailure
 from app.db.session import get_session
+from app.models.company import Company
 from app.models.installation import Installation
 from app.models.installation_milestone import InstallationMilestoneRecord
 from app.models.outbox_event import OutboxEvent
@@ -37,6 +38,7 @@ from app.services.quotation_acceptance import (
     AcceptanceRejected,
     accept_revision_in_transaction,
 )
+from app.services.quotation_pdf import pdf_headers, render_revision_pdf
 
 router = APIRouter(
     prefix="/users/me/requests/{request_id}/quotations", tags=["customer quotations"]
@@ -287,6 +289,36 @@ def customer_revision_detail(
     if revision is None:
         raise HTTPException(404)
     return revision_view(session, revision)
+
+
+@router.get("/{quotation_id}/revisions/{revision_id}/pdf")
+def customer_revision_pdf(
+    request_id: UUID,
+    quotation_id: UUID,
+    revision_id: UUID,
+    user: Annotated[AppUser, Depends(require_customer_quote_reader)],
+    session: Annotated[Session, Depends(get_session)],
+) -> Response:
+    quotation = owned_quotation(session, request_id, quotation_id, user.id)
+    revision = session.scalars(
+        select(QuotationRevision).where(
+            QuotationRevision.id == revision_id,
+            QuotationRevision.quotation_id == quotation.id,
+            QuotationRevision.sent_at.is_not(None),
+        )
+    ).one_or_none()
+    if revision is None:
+        raise HTTPException(404)
+    company_name = session.scalars(
+        select(Company.name)
+        .join(RequestDelivery, RequestDelivery.company_id == Company.id)
+        .where(RequestDelivery.id == quotation.delivery_id)
+    ).one()
+    return Response(
+        render_revision_pdf(company_name, revision_view(session, revision)),
+        media_type="application/pdf",
+        headers=pdf_headers(revision.revision_number),
+    )
 
 
 @router.post(
