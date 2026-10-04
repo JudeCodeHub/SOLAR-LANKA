@@ -27,6 +27,7 @@ from app.models.product import Product  # noqa: F401
 from app.models.product_offer import ProductOffer  # noqa: F401
 from app.models.product_source import ProductSource  # noqa: F401
 from app.models.quotation import Quotation, QuotationLineItem, QuotationRevision  # noqa: F401
+from app.models.quotation_export import QuotationExport  # noqa: F401
 from app.models.quotation_request import QuotationRequest, RequestDelivery  # noqa: F401
 from app.models.request_delivery_note import RequestDeliveryNote  # noqa: F401
 from app.models.saved_estimate import SavedEstimate  # noqa: F401
@@ -37,7 +38,6 @@ from app.models.site_visit import (  # noqa: F401
     SiteVisitNote,
     SiteVisitSlot,
 )
-from app.models.quotation_export import QuotationExport  # noqa: F401
 from app.models.support_case import (  # noqa: F401
     SupportCase,
     SupportCaseAssignment,

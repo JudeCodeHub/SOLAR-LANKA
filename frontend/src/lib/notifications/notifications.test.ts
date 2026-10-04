@@ -32,3 +32,9 @@ test("a support notification opens the support request on the person's own side"
   assert.equal(destinationFor({ target_kind: "support_case", target_id: id }, [{ role: "technician" }])?.href, `/technician/support/${id}`);
   assert.equal(destinationFor({ target_kind: "support_case", target_id: id }, [{ role: "sales" }])?.href, `/company/support/${id}`);
 });
+
+test("reminders open the offer's request and the technician's visit", () => {
+  const id = target.target_id;
+  assert.equal(destinationFor({ target_kind: "request", target_id: id }, [])?.href, `/my/requests/${id}`);
+  assert.equal(destinationFor({ target_kind: "site_visit", target_id: id }, [{ role: "technician" }])?.href, `/technician/visits/${id}`);
+});
