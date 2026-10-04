@@ -35,6 +35,7 @@ from app.core.permissions import Action, Scope, required_scopes
 from app.core.quotation_terms import calculate_totals, check_validity_window
 from app.db.session import get_session
 from app.models.company import CompanyMembership
+from app.models.outbox_event import OutboxEvent
 from app.models.product import Product
 from app.models.quotation import Quotation, QuotationLineItem, QuotationRevision
 from app.models.quotation_request import QuotationRequest, RequestDelivery
@@ -442,6 +443,15 @@ def send_quotation(
     if previous is not None:
         previous.status = "revised"
     revision.status = "sent"
+    session.add(
+        OutboxEvent(
+            event_key=f"quotation.sent:{revision.id}",
+            event_type="quotation.sent",
+            aggregate_kind="quotation_revision",
+            aggregate_id=revision.id,
+            payload={"version": 1, "revision_id": str(revision.id)},
+        )
+    )
     session.commit()
     return QuotationSent(
         id=quotation.id,

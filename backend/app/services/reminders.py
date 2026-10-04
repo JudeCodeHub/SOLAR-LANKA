@@ -16,6 +16,7 @@ from app.models.quotation import Quotation, QuotationRevision
 from app.models.quotation_request import QuotationRequest, RequestDelivery
 from app.models.site_visit import SiteVisit
 from app.models.user import AppUser
+from app.services.email_delivery import Mailer, email_once
 
 QUOTATION_WINDOW = timedelta(days=3)
 VISIT_WINDOW = timedelta(hours=24)
@@ -23,7 +24,9 @@ VISIT_WINDOW = timedelta(hours=24)
 MAINTENANCE_INTERVAL = timedelta(days=365)
 
 
-def _send(session: Session, recipient_id: UUID, key: str, kind: str, title: str, body: str, target):
+def _send(
+    session: Session, mailer, recipient_id: UUID, key: str, kind: str, title: str, body: str, target
+):
     """Insert once per key; a repeated run or a retry finds the row and adds nothing."""
     active = session.scalar(
         select(AppUser.id).where(
@@ -48,10 +51,21 @@ def _send(session: Session, recipient_id: UUID, key: str, kind: str, title: str,
         .on_conflict_do_nothing(index_elements=["dedupe_key"])
         .returning(Notification.id)
     )
-    return len(result.all())
+    created = len(result.all())
+    if mailer is not None:
+        email_once(
+            session,
+            mailer,
+            recipient_id=recipient_id,
+            dedupe_key=key,
+            kind=kind,
+            subject=title,
+            body=body,
+        )
+    return created
 
 
-def remind_pending_quotations(session: Session, now: datetime) -> int:
+def remind_pending_quotations(session: Session, now: datetime, mailer: Mailer | None = None) -> int:
     """Tell customers an offer still awaiting their answer is about to lapse."""
     accepted = (
         select(QuotationRevision.id)
@@ -75,6 +89,7 @@ def remind_pending_quotations(session: Session, now: datetime) -> int:
     return sum(
         _send(
             session,
+            mailer,
             customer_id,
             f"reminder:quotation:{revision_id}",
             "reminder.quotation_expiring",
@@ -86,7 +101,7 @@ def remind_pending_quotations(session: Session, now: datetime) -> int:
     )
 
 
-def remind_confirmed_visits(session: Session, now: datetime) -> int:
+def remind_confirmed_visits(session: Session, now: datetime, mailer: Mailer | None = None) -> int:
     """Tell the customer and the technician about a confirmed visit starting within a day."""
     visits = session.execute(
         select(SiteVisit).where(
@@ -106,6 +121,7 @@ def remind_confirmed_visits(session: Session, now: datetime) -> int:
             if recipient is not None:
                 sent += _send(
                     session,
+                    mailer,
                     recipient,
                     f"reminder:visit:{visit.id}:{stamp}:{recipient}",
                     "reminder.site_visit",
@@ -116,7 +132,7 @@ def remind_confirmed_visits(session: Session, now: datetime) -> int:
     return sent
 
 
-def remind_maintenance(session: Session, now: datetime) -> int:
+def remind_maintenance(session: Session, now: datetime, mailer: Mailer | None = None) -> int:
     """Yearly check-in for customers whose installer lists maintenance as a service."""
     handed_over = (
         select(
@@ -151,6 +167,7 @@ def remind_maintenance(session: Session, now: datetime) -> int:
             continue
         sent += _send(
             session,
+            mailer,
             customer_id,
             f"reminder:maintenance:{installation_id}:{years}",
             "reminder.maintenance",
@@ -161,12 +178,14 @@ def remind_maintenance(session: Session, now: datetime) -> int:
     return sent
 
 
-def run_reminders(session: Session, now: datetime | None = None) -> dict[str, int]:
+def run_reminders(
+    session: Session, now: datetime | None = None, mailer: Mailer | None = None
+) -> dict[str, int]:
     now = now or datetime.now(UTC)
     counts = {
-        "quotations": remind_pending_quotations(session, now),
-        "visits": remind_confirmed_visits(session, now),
-        "maintenance": remind_maintenance(session, now),
+        "quotations": remind_pending_quotations(session, now, mailer),
+        "visits": remind_confirmed_visits(session, now, mailer),
+        "maintenance": remind_maintenance(session, now, mailer),
     }
     session.commit()
     return counts

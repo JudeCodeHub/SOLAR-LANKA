@@ -26,7 +26,7 @@ def create_inngest_client(settings: Settings) -> inngest.Inngest:
 
 
 def create_notification_function(
-    client: inngest.Inngest, factory: Callable[[], Session], storage=None
+    client: inngest.Inngest, factory: Callable[[], Session], storage=None, mailer=None
 ):
     @client.create_function(
         fn_id="process-workflow-notification",
@@ -40,7 +40,7 @@ def create_notification_function(
 
         def persist() -> bool:
             with factory() as session:
-                return process_workflow_event(session, event_key, storage)
+                return process_workflow_event(session, event_key, storage, mailer)
 
         ctx.step.run("persist-notifications", persist)
         return "processed"
@@ -51,7 +51,7 @@ def create_notification_function(
 REMINDER_CRON = "0 * * * *"
 
 
-def create_reminder_function(client: inngest.Inngest, factory: Callable[[], Session]):
+def create_reminder_function(client: inngest.Inngest, factory: Callable[[], Session], mailer=None):
     @client.create_function(
         fn_id="send-reminders",
         trigger=inngest.TriggerCron(cron=REMINDER_CRON),
@@ -60,7 +60,7 @@ def create_reminder_function(client: inngest.Inngest, factory: Callable[[], Sess
     def send_reminders(ctx: inngest.Context) -> dict[str, int]:
         def run() -> dict[str, int]:
             with factory() as session:
-                return run_reminders(session)
+                return run_reminders(session, mailer=mailer)
 
         return ctx.step.run("run-reminders", run)
 

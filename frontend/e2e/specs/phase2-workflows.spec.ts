@@ -1,5 +1,24 @@
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { expect, test } from "../fixtures.ts";
+import { BACKEND_DIR } from "../support/paths.ts";
 import { acceptedInstallation, sentOffer } from "../support/scenario.ts";
+
+/** The messages the local mail sink holds for one person, by subject. */
+function mailFor(subject: string, who: string): number {
+  const directory = join(BACKEND_DIR, "storage", "mail");
+  let files: string[] = [];
+  try {
+    files = readdirSync(directory);
+  } catch {
+    return 0;
+  }
+  return files.filter((name) => {
+    const message = JSON.parse(readFileSync(join(directory, name), "utf8")) as { to: string; subject: string };
+    return message.to === `${who}@example.test` && message.subject === subject;
+  }).length;
+}
 
 const inputs = {
   monthly_consumption_kwh: "300",
@@ -188,5 +207,30 @@ test.describe("phase 2 workflows run beside the core release", () => {
     await expect(page.getByText("An offer is about to expire").first()).toBeVisible();
     await link.click();
     await page.waitForURL(`**/my/requests/${offer.requestId}`);
+  });
+
+  test("an offer, its acceptance and its reminder each write one email to the local sink, however often the jobs run", async ({ api, processOutbox, runReminders }) => {
+    const customer = "e2e_customer_estimate";
+    // Settle whatever earlier tests left pending so only this test's events are counted.
+    processOutbox();
+    runReminders();
+
+    const offer = await sentOffer(api);
+    const received = mailFor("You have a new offer", customer);
+    processOutbox();
+    processOutbox();
+    expect(mailFor("You have a new offer", customer)).toBe(received + 1);
+
+    const expiring = mailFor("An offer is about to expire", customer);
+    runReminders();
+    runReminders();
+    expect(mailFor("An offer is about to expire", customer)).toBe(expiring + 1);
+
+    const accepted = mailFor("Quotation accepted", customer);
+    const response = await api("estimateCustomer", "POST", `/users/me/requests/${offer.requestId}/quotations/${offer.quotationId}/revisions/${offer.revisionId}/accept`);
+    expect(response.status).toBeLessThan(300);
+    processOutbox();
+    processOutbox();
+    expect(mailFor("Quotation accepted", customer)).toBe(accepted + 1);
   });
 });

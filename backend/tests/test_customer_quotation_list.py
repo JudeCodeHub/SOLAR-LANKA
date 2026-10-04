@@ -8,6 +8,7 @@ from sqlalchemy import text
 from app.core.auth import VerifiedIdentity, require_identity
 from app.models.company import Company, CompanyMembership
 from app.models.estimator_config import EstimatorConfigVersion
+from app.models.outbox_event import OutboxEvent
 from app.models.product import Product
 from app.models.product_offer import ProductOffer
 from app.models.quotation import Quotation, QuotationLineItem, QuotationRevision
@@ -47,6 +48,7 @@ def test_customer_lists_their_offers_without_drafts(
         Quotation,
         QuotationRevision,
         QuotationLineItem,
+        OutboxEvent,
     ):
         model.__table__.create(database_connection)
     customer = AppUser(clerk_subject="user_list_customer")

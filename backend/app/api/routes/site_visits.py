@@ -6,6 +6,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy import delete, select
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -30,6 +31,7 @@ from app.core.site_visit_states import can
 from app.db.session import get_session
 from app.models.company import CompanyMembership
 from app.models.installation_assignment import InstallationAssignment
+from app.models.outbox_event import OutboxEvent
 from app.models.site_visit import SiteVisit, SiteVisitEvent, SiteVisitSlot
 from app.models.user import AppUser
 
@@ -119,6 +121,22 @@ def _record(
             to_status=visit.status,
             reason=reason,
         )
+    )
+
+
+def _confirmed_event(session: Session, visit: SiteVisit) -> None:
+    """One outbox event per confirmed time, so a rescheduled visit is announced again."""
+    stamp = visit.confirmed_starts_at.astimezone(UTC).strftime("%Y%m%dT%H%M")
+    session.execute(
+        insert(OutboxEvent)
+        .values(
+            event_key=f"site_visit.confirmed:{visit.id}:{stamp}",
+            event_type="site_visit.confirmed",
+            aggregate_kind="site_visit",
+            aggregate_id=visit.id,
+            payload={"version": 1, "visit_id": str(visit.id)},
+        )
+        .on_conflict_do_nothing(index_elements=["event_key"])
     )
 
 
@@ -252,6 +270,7 @@ def accept_alternative(
     _flush_or_clash(
         session, "That time is no longer available. Ask for new slots or wait for new offers."
     )
+    _confirmed_event(session, visit)
     view = _view(session, visit, staff=False)
     session.commit()
     return view
@@ -369,6 +388,7 @@ def confirm_visit(
     )
     _assign(session, installation_id, technician, membership.user_id)
     _record(session, visit, membership.user_id, "confirmed", before)
+    _confirmed_event(session, visit)
     session.flush()
     view = _view(session, visit, staff=True)
     session.commit()
