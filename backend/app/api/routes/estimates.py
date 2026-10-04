@@ -26,7 +26,7 @@ def preview_estimate(
 ) -> EstimatePreviewResponse:
     """Calculate without identity, persistence, or a draft configuration."""
     response.headers["Cache-Control"] = "no-store"
-    config = latest_published_config(session)
+    config = latest_published_config(session, body.connection_scheme)
     if config is None:
         raise HTTPException(503)
     try:

@@ -11,6 +11,7 @@ from app.core.estimator_engine import (
     calculate_sizing,
     positive_decimal,
 )
+from app.core.estimator_scenario import ConnectionScheme
 from app.models.estimator_config import EstimatorConfigVersion
 
 
@@ -119,6 +120,32 @@ def monthly_bill(consumption_kwh: Decimal, tariff: dict) -> Decimal:
     return (energy + fixed + other) * (1 + tax_percent / 100)
 
 
+def export_rate(config: EstimatorConfigVersion) -> ValueRange[Decimal] | None:
+    """The sourced feed-in rate; without a dated source and a rate there is no export income."""
+    source = config.source_metadata.get("export")
+    raw = config.assumptions.get("export_rate_lkr_per_kwh")
+    if (
+        not isinstance(source, dict)
+        or not source.get("url")
+        or not source.get("effective_from")
+        or raw is None
+    ):
+        return None
+    return assumption_range(raw, "export rate")
+
+
+def with_payback(
+    cost: ValueRange[Decimal] | None,
+    baseline: Decimal | None,
+    monthly: ValueRange[Decimal],
+) -> FinancialEstimate:
+    annual = ValueRange(monthly.minimum * 12, monthly.maximum * 12)
+    payback = None
+    if cost is not None and annual.minimum > 0:
+        payback = ValueRange(cost.minimum / annual.maximum, cost.maximum / annual.minimum)
+    return FinancialEstimate(cost, baseline, monthly, annual, payback)
+
+
 def calculate_financial(
     inputs: EstimatorInputs, config: EstimatorConfigVersion
 ) -> FinancialEstimate:
@@ -126,6 +153,44 @@ def calculate_financial(
     sizing = calculate_sizing(inputs, config)
     cost = installed_cost(sizing, config)
     missing = FinancialEstimate(cost, None, None, None, None)
+    scheme = inputs.connection_scheme
+    generation = sizing.average_monthly_generation_kwh
+    if scheme != ConnectionScheme.NET_METERING:
+        rate = export_rate(config)
+        if rate is None or generation is None:
+            return missing
+        tariff = config.assumptions.get("domestic_tariff")
+        tariff_source = config.source_metadata.get("tariff")
+        baseline = (
+            monthly_bill(inputs.monthly_consumption_kwh, tariff)
+            if isinstance(tariff, dict)
+            and isinstance(tariff_source, dict)
+            and tariff_source.get("url")
+            and tariff_source.get("effective_from")
+            else None
+        )
+        if scheme == ConnectionScheme.NET_PLUS:
+            # Every generated kWh is sold and the household bill is unchanged.
+            monthly = ValueRange(
+                generation.minimum * rate.minimum, generation.maximum * rate.maximum
+            )
+            return with_payback(cost, baseline, monthly)
+        # Net accounting: daytime use offsets imports and the rest is paid at the feed-in rate.
+        if baseline is None or inputs.daytime_consumption_percent is None:
+            return missing
+        consumption = inputs.monthly_consumption_kwh
+        daytime = consumption * inputs.daytime_consumption_percent / 100
+
+        def monthly_value(generated: Decimal, rate_value: Decimal) -> Decimal:
+            used = min(generated, daytime)
+            bill = monthly_bill(consumption - used, tariff)
+            return baseline - bill + (generated - used) * rate_value
+
+        monthly = ValueRange(
+            monthly_value(generation.minimum, rate.minimum),
+            monthly_value(generation.maximum, rate.maximum),
+        )
+        return with_payback(cost, baseline, monthly)
     source = config.source_metadata.get("tariff")
     tariff = config.assumptions.get("domestic_tariff")
     if (

@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from decimal import ROUND_CEILING, ROUND_FLOOR, Decimal, InvalidOperation
 
 from app.api.schemas.estimator_inputs import EstimatorInputs
-from app.core.estimator_scenario import GRID_NET_METERING
+from app.core.estimator_scenario import SUPPORTED_SCENARIOS
 from app.models.estimator_config import EstimatorConfigVersion
 
 
@@ -59,7 +59,10 @@ def calculate_sizing(inputs: EstimatorInputs, config: EstimatorConfigVersion) ->
     """Apply the hand-checkable 7.04 formulas without inventing missing values."""
     # Revalidate at the engine boundary.
     inputs = EstimatorInputs.model_validate(inputs.model_dump(mode="python"))
-    if config.status != "published" or config.scenario != GRID_NET_METERING.identifier:
+    if (
+        config.status != "published"
+        or config.scenario != SUPPORTED_SCENARIOS[inputs.connection_scheme].identifier
+    ):
         raise ValueError("A published configuration for this scenario is required")
     if not isinstance(config.source_metadata, dict) or not config.source_metadata.get("yield"):
         raise ValueError("A sourced yield configuration is required")

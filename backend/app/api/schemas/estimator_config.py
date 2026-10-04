@@ -1,10 +1,10 @@
 """Admin input for versioned estimator assumptions and their source snapshots."""
 
 from datetime import date, datetime
-from typing import Any, Literal
+from typing import Any, Literal, Self
 from uuid import UUID
 
-from pydantic import AnyHttpUrl, BaseModel, ConfigDict, Field
+from pydantic import AnyHttpUrl, BaseModel, ConfigDict, Field, model_validator
 
 
 class SourceSnapshot(BaseModel):
@@ -26,13 +26,27 @@ class SourceSnapshots(BaseModel):
     yield_source: SourceSnapshot = Field(alias="yield")
     tariff: SourceSnapshot
     cost: SourceSnapshot
+    export: SourceSnapshot | None = None
 
 
 class EstimatorConfigDraft(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    scenario: Literal[
+        "grid_net_metering_no_backup", "grid_net_accounting_no_backup", "grid_net_plus_no_backup"
+    ] = "grid_net_metering_no_backup"
     assumptions: dict[str, Any] = Field(min_length=1)
     source_metadata: SourceSnapshots
+
+    @model_validator(mode="after")
+    def export_scenarios_are_sourced(self) -> Self:
+        if self.scenario != "grid_net_metering_no_backup" and (
+            self.source_metadata.export is None
+            or self.source_metadata.export.effective_from is None
+            or "export_rate_lkr_per_kwh" not in self.assumptions
+        ):
+            raise ValueError("Export scenarios need a dated export source and rate")
+        return self
 
 
 class EstimatorConfigSummary(BaseModel):
@@ -49,5 +63,6 @@ class EstimatorConfigSummary(BaseModel):
 
 
 class EstimatorConfigDetail(EstimatorConfigSummary):
+    scenario: str
     assumptions: dict[str, Any]
     source_metadata: dict[str, Any]
