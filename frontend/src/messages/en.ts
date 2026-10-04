@@ -539,6 +539,15 @@ export const en = {
     emptyDescription: "There is nothing to show right now.",
   },
   customerOffers: {
+    export: {
+      title: "Keep a copy",
+      intro: "A PDF of this revision exactly as the company sent it. It is made once and only you can download it.",
+      request: "Prepare PDF",
+      preparing: "Your PDF is being prepared. This page checks again every few seconds.",
+      ready: "Your PDF is ready.",
+      download: "Download PDF",
+      downloading: "Downloading…",
+    },
     decide: {
       title: "Your decision",
       intro: "Accepting applies to exactly this revision, as shown above, and nothing else.",
@@ -1908,6 +1917,7 @@ export const en = {
           exclusions: "Exclusions: {value}",
           notes: "Notes: {value}",
           totals: "Subtotal {subtotal}, discount {discount}, tax {tax}, total {total}",
+          downloadPdf: "Download PDF of this revision",
           sentOnly: "Sent {date}",
           draftNote: "Not visible to the customer.",
         },

@@ -84,4 +84,31 @@ test.describe("phase 2 workflows run beside the core release", () => {
     expect(pdf.bytes?.subarray(0, 5).toString()).toBe("%PDF-");
     expect((await api("otherCustomer", "GET", `/companies/${scenario.sunbird}/request-deliveries/${delivery?.id}/quotations/${scenario.quotationId}/revisions/${scenario.revisionId}/pdf`)).status).toBeGreaterThanOrEqual(403);
   });
+
+  test("the customer asks for a PDF on the offer page, waits while it is prepared, then downloads it", async ({ page, api, signInAs, processOutbox }) => {
+    const scenario = await acceptedInstallation(api);
+    signInAs("estimateCustomer");
+    await page.goto(`/my/requests/${scenario.requestId}/offers/${scenario.quotationId}`);
+    await page.locator("[data-export-request]").click();
+    await expect(page.locator("[data-export-pending]")).toBeVisible();
+    await expect(page.locator("[data-export-download]")).toHaveCount(0);
+
+    // The background job runs; the page notices on its next check.
+    processOutbox();
+    await expect(page.locator("[data-export-ready]")).toBeVisible({ timeout: 15_000 });
+    const [download] = await Promise.all([page.waitForEvent("download"), page.locator("[data-export-download]").click()]);
+    expect(download.suggestedFilename()).toBe("quotation-r1.pdf");
+  });
+
+  test("company staff download a sent revision from the quotation page", async ({ page, api, signInAs }) => {
+    const scenario = await acceptedInstallation(api);
+    const me = (await api("sunbirdAdmin", "GET", "/users/me")).body as { memberships: { company_id: string }[] };
+    const inbox = await api("sunbirdAdmin", "GET", `/companies/${me.memberships[0]?.company_id}/request-deliveries?limit=50`);
+    const delivery = ((inbox.body as { items: { id: string; request_id: string }[] }).items).find((item) => item.request_id === scenario.requestId);
+    signInAs("sunbirdAdmin");
+    await page.goto(`/company/inbox/${delivery?.id}/quotation`);
+    await page.locator("[data-history] summary").first().click();
+    const [download] = await Promise.all([page.waitForEvent("download"), page.locator("[data-pdf-download]").first().click()]);
+    expect(download.suggestedFilename()).toBe("quotation-r1.pdf");
+  });
 });

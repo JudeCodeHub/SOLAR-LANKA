@@ -1,6 +1,9 @@
 "use client";
 
+import { ApiErrorMessage } from "@/components/api-error-message";
+import { Button } from "@/components/ui/button";
 import { formatLongDate } from "@/lib/catalogue/detail";
+import { useCompanyPdf } from "@/lib/quotation/export-hooks";
 import { effectiveStatus, statusLabel, totalChange } from "@/lib/quotation/lifecycle";
 import type { Revision } from "@/lib/quotation/hooks";
 import { formatMoney } from "@/lib/quotation/draft";
@@ -60,7 +63,8 @@ export function RevisionBody({ revision }: { revision: Revision }) {
 }
 
 /** Every revision, newest first. Sent revisions are shown as the customer saw them and are never editable. */
-export function RevisionHistory({ revisions, now }: { revisions: readonly Revision[]; now: number }) {
+export function RevisionHistory({ revisions, now, ids }: { revisions: readonly Revision[]; now: number; ids: { companyId: string; deliveryId: string; quotationId: string } }) {
+  const pdf = useCompanyPdf(ids.companyId, ids.deliveryId, ids.quotationId);
   return (
     <section aria-labelledby="history-title" className="space-y-3" data-history>
       <h2 id="history-title" className="font-heading text-xl font-semibold tracking-tight">
@@ -92,6 +96,11 @@ export function RevisionHistory({ revisions, now }: { revisions: readonly Revisi
                       {change ? ` · ${change}` : ""}
                     </p>
                     <RevisionBody revision={revision} />
+                    {revision.sent_at ? (
+                      <Button type="button" variant="outline" size="sm" aria-disabled={pdf.isPending} data-pdf-download onClick={() => !pdf.isPending && pdf.mutate({ revisionId: revision.id, revisionNumber: revision.revision_number })}>
+                        {history.downloadPdf}
+                      </Button>
+                    ) : null}
                   </div>
                 </details>
               </li>
@@ -99,6 +108,7 @@ export function RevisionHistory({ revisions, now }: { revisions: readonly Revisi
           })}
         </ul>
       )}
+      {pdf.error ? <ApiErrorMessage error={pdf.error} /> : null}
     </section>
   );
 }
