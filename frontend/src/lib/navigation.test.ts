@@ -81,8 +81,8 @@ test("platform administrators see administration, not customer or company pages"
 });
 
 test("pages that are not built yet are never shown", () => {
+  // Every planned page exists now, so this guards the next one added before its page is built.
   const unbuilt = NAV_ITEMS.filter((item) => !item.available).map((item) => item.id);
-  assert.ok(unbuilt.length > 0);
   for (const user of [customer, staff("sales"), admin]) {
     const shown = navigationFor(user, true).flatMap((group) => group.items.map((item) => item.id));
     for (const id of unbuilt) {
@@ -180,13 +180,13 @@ test("landing entry points link only to pages that exist and exclude home", () =
 const real = (user: ShellUser | null, signedIn: boolean) => navigationFor(user, signedIn).flatMap((group) => group.items.map((item) => item.id));
 
 test("each role sees exactly its own finished destinations", () => {
-  assert.deepEqual(real(null, false), ["home", "panels", "inverters", "estimator", "companies", "troubleshooting", "support"]);
-  assert.deepEqual(real(customer, true), ["home", "panels", "inverters", "estimator", "companies", "troubleshooting", "support", "my-dashboard", "my-support", "my-estimates", "my-requests", "my-installations", "my-favourites", "account", "notifications"]);
+  assert.deepEqual(real(null, false), ["home", "panels", "inverters", "estimator", "companies", "learn", "troubleshooting", "support"]);
+  assert.deepEqual(real(customer, true), ["home", "panels", "inverters", "estimator", "companies", "learn", "troubleshooting", "support", "my-dashboard", "my-support", "my-estimates", "my-requests", "my-installations", "my-favourites", "account", "notifications"]);
   const companyLinks = ["company-dashboard", "company-support", "company-inbox", "company-offers", "company-installations", "company-profile"];
   for (const role of ["company_admin", "sales"] as const) {
     assert.deepEqual(real(staff(role), true).filter((id) => id.startsWith("company-")), companyLinks);
   }
-  assert.deepEqual(real(admin, true), ["home", "panels", "inverters", "estimator", "companies", "troubleshooting", "support", "admin-companies", "admin-catalogue", "admin-estimator", "admin-users", "admin-troubleshooting", "admin-activity", "account", "notifications"]);
+  assert.deepEqual(real(admin, true), ["home", "panels", "inverters", "estimator", "companies", "learn", "troubleshooting", "support", "admin-companies", "admin-catalogue", "admin-estimator", "admin-users", "admin-troubleshooting", "admin-education", "admin-activity", "account", "notifications"]);
 });
 
 test("technicians are shown their own visits and support, never company or administration destinations", () => {
@@ -195,9 +195,9 @@ test("technicians are shown their own visits and support, never company or admin
   assert.ok(!shown.some((id) => /^(company-|admin-)/.test(id)), shown.join(","));
 });
 
-test("the only unfinished destination is the public learning centre, and none belongs to a role", () => {
+test("no destination is advertised without a page, and an unfinished one could only be public", () => {
   const unbuilt = NAV_ITEMS.filter((item) => !item.available);
-  assert.deepEqual(unbuilt.map((item) => item.id).sort(), ["learn"]);
+  assert.deepEqual(unbuilt.map((item) => item.id), []);
   assert.ok(unbuilt.every((item) => item.access.kind === "public" && item.group === "explore"));
 });
 

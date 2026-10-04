@@ -18,12 +18,12 @@ async function audit(page: Page, label: string) {
   expect(violations.map((v) => `${v.id}: ${v.nodes.slice(0, 2).map((n) => n.target.join(" ")).join(" | ")}`), label).toEqual([]);
 }
 
-const PUBLIC = ["/", "/panels", "/inverters", "/estimator", "/companies", "/troubleshooting", "/support", "/sign-in"];
+const PUBLIC = ["/", "/panels", "/inverters", "/estimator", "/companies", "/learn", "/learn/net-metering-and-other-schemes", "/troubleshooting", "/support", "/sign-in"];
 const BY_ROLE: [IdentityName, string[]][] = [
   ["customer", ["/my", "/my/requests", "/my/estimates", "/my/installations", "/my/requests/new", "/my/support", "/notifications"]],
   ["sunbirdAdmin", ["/company", "/company/support", "/company/inbox", "/company/offers", "/company/installations", "/company/profile"]],
   ["sunbirdTechnician", ["/technician", "/technician/support"]],
-  ["platformAdmin", ["/admin/companies", "/admin/catalogue", "/admin/estimator", "/admin/estimator/new", "/admin/troubleshooting", "/admin/users", "/admin/activity"]],
+  ["platformAdmin", ["/admin/companies", "/admin/catalogue", "/admin/estimator", "/admin/estimator/new", "/admin/troubleshooting", "/admin/education", "/admin/education/new", "/admin/users", "/admin/activity"]],
 ];
 
 test.describe("axe finds no WCAG 2.2 AA violations", () => {

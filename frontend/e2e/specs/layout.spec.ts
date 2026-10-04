@@ -43,6 +43,8 @@ const PAGES: [IdentityName | null, string][] = [
   [null, "/panels"],
   [null, "/estimator"],
   [null, "/companies"],
+  [null, "/learn"],
+  [null, "/learn/net-metering-and-other-schemes"],
   [null, "/troubleshooting"],
   [null, "/support"],
   ["customer", "/my"],
@@ -58,6 +60,8 @@ const PAGES: [IdentityName | null, string][] = [
   ["sunbirdTechnician", "/technician/support"],
   ["platformAdmin", "/admin/catalogue"],
   ["platformAdmin", "/admin/troubleshooting"],
+  ["platformAdmin", "/admin/education"],
+  ["platformAdmin", "/admin/education/new"],
   ["platformAdmin", "/admin/estimator/new"],
   ["platformAdmin", "/admin/activity"],
 ];
