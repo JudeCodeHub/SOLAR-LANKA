@@ -8,6 +8,7 @@ import {
   DEFAULT_SCENARIO,
   SCHEMES,
   SYSTEM_TYPES,
+  type SupportedScheme,
   unsupportedParts,
 } from "./scenario.ts";
 
@@ -102,7 +103,7 @@ export const estimatorSchema = z
     shading_condition: value.shading_condition === "" ? null : value.shading_condition,
     daytime_consumption_percent: value.daytime_consumption_percent,
     monthly_bill_lkr: value.monthly_bill_lkr,
-    connection_scheme: "net_metering" as const,
+    connection_scheme: value.connection_scheme as SupportedScheme,
     system_type: "on_grid" as const,
     backup_required: false as const,
   }));

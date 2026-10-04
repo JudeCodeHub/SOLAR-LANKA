@@ -11,6 +11,9 @@ export function ScenarioGuidance() {
       </h2>
       <p>{text.supported}</p>
       <p className="text-muted-foreground">{text.netMetering}</p>
+      <p className="text-muted-foreground">{text.netAccounting}</p>
+      <p className="text-muted-foreground">{text.netPlus}</p>
+      <p className="text-muted-foreground">{text.feedInRate}</p>
       <p className="text-muted-foreground">{text.deferred}</p>
       <h3 className="font-medium">{text.defaultsTitle}</h3>
       <p className="text-muted-foreground">{text.defaults}</p>

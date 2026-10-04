@@ -24,6 +24,7 @@ const ResultChart = dynamic(() => import("@/components/estimator/result-chart"),
 
 /** The raw form values the estimate was calculated from. */
 export interface SubmittedValues {
+  connection_scheme: string;
   monthly_consumption_kwh: string;
   district: string;
   usable_roof_area_m2: string;
@@ -57,7 +58,10 @@ export function EstimateResults({
   const note = roofNote(preview);
   const charts = chartSpecs(preview, values.monthly_consumption_kwh);
   const unknown = about.unknown;
+  const schemeNames: Record<string, string> = messages.estimator.fields.schemeOptions;
+  const schemeName = (schemeNames[values.connection_scheme] ?? values.connection_scheme).replace(/ \(supported\)$/, "");
   const inputRows: [string, string][] = [
+    [about.inputs.scheme, schemeName],
     [about.inputs.consumption, `${values.monthly_consumption_kwh} ${text.units.kwhPerMonth}`],
     [about.inputs.district, values.district],
     [about.inputs.roof, `${values.usable_roof_area_m2} ${text.units.m2}`],
@@ -127,6 +131,7 @@ export function EstimateResults({
         <div className="space-y-1 text-sm">
           <h4 className="font-medium">{about.fixedTitle}</h4>
           <p className="text-muted-foreground">{about.fixed}</p>
+          <p className="text-muted-foreground" data-scheme-note>{about.schemes[values.connection_scheme]}</p>
           <p className="text-muted-foreground">
             {format(about.version, { version: preview.config_version })}
           </p>
@@ -145,7 +150,7 @@ export function EstimateResults({
         <div className="space-y-3 text-sm">
           <h4 className="font-medium">{about.sourcesTitle}</h4>
           <ul className="space-y-3">
-            {(["yield", "tariff", "cost"] as const).map((topic) => {
+            {(["yield", "tariff", "cost", "export"] as const).filter((topic) => topic !== "export" || preview.sources.export !== undefined).map((topic) => {
               const source = preview.sources[topic];
               const link = safeExternalUrl(source?.url);
               return (

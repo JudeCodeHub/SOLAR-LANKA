@@ -70,6 +70,7 @@ export function EstimatorForm() {
           run: runs.current,
           request: payload,
           values: {
+            connection_scheme: all.connection_scheme,
             monthly_consumption_kwh: all.monthly_consumption_kwh,
             district: all.district,
             usable_roof_area_m2: all.usable_roof_area_m2,

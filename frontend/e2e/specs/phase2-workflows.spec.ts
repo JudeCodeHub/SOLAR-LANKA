@@ -111,4 +111,37 @@ test.describe("phase 2 workflows run beside the core release", () => {
     const [download] = await Promise.all([page.waitForEvent("download"), page.locator("[data-pdf-download]").first().click()]);
     expect(download.suggestedFilename()).toBe("quotation-r1.pdf");
   });
+
+  test("the estimate form calculates net accounting and net plus, shows the feed-in source and refuses net plus plus", async ({ page, signInAs }) => {
+    signInAs(null);
+    await page.goto("/estimator");
+    await page.getByLabel("Monthly electricity use (kWh per month)").fill("300");
+    await page.getByLabel("District").selectOption({ label: "Colombo" });
+    await page.getByLabel("Usable roof area (m²)").fill("30");
+    await page.getByLabel("Shading on the roof").selectOption({ label: "Partial" });
+    await page.getByLabel("Share of electricity used in the daytime (%)").fill("50");
+
+    await page.getByLabel("Connection scheme").selectOption("net_accounting");
+    await page.getByRole("button", { name: "Calculate estimate" }).click();
+    await expect(page.getByRole("heading", { name: "Your estimate" })).toBeVisible();
+    await expect(page.locator("[data-scheme-note]")).toContainText("Net accounting");
+    await expect(page.locator("[data-source='export']")).toContainText("Feed-in rate for exports");
+
+    // Changing the scheme marks the shown estimate as out of date until it is calculated again.
+    await page.getByLabel("Connection scheme").selectOption("net_plus");
+    await page.getByRole("button", { name: "Calculate estimate" }).click();
+    await expect(page.locator("[data-scheme-note]")).toContainText("Net plus");
+    await expect(page.locator("[data-source='export']")).toBeVisible();
+
+    await page.getByLabel("Connection scheme").selectOption("net_metering");
+    await page.getByRole("button", { name: "Calculate estimate" }).click();
+    await expect(page.locator("[data-scheme-note]")).toContainText("Net metering");
+    await expect(page.locator("[data-source='export']")).toHaveCount(0);
+
+    // Net plus plus is explained and not sent.
+    await page.getByLabel("Connection scheme").selectOption("net_plus_plus");
+    await expect(page.getByText("This combination cannot be estimated yet")).toBeVisible();
+    await page.getByRole("button", { name: "Calculate estimate" }).click();
+    await expect(page.locator("[data-slot=field-error]").filter({ hasText: "Choose Net metering, Net accounting or Net plus" })).toBeVisible();
+  });
 });
