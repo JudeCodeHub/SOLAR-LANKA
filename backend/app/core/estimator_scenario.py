@@ -11,8 +11,7 @@ class ConnectionScheme(StrEnum):
     NET_PLUS_PLUS = "net_plus_plus"
 
 
-# Net plus plus is a separate power-plant arrangement (installations above contract demand,
-# roof rental, aggregators) that this household estimator does not model.
+# Net plus plus is a power-plant arrangement this household estimator does not model.
 DEFERRED_SCHEMES = frozenset({ConnectionScheme.NET_PLUS_PLUS})
 DEFERRED_SYSTEM_TYPES = frozenset({"off_grid", "hybrid"})
 
@@ -39,8 +38,7 @@ GRID_NET_METERING = SupportedScenario(
 )
 
 
-# Verified against the page as it read on the review date; its own note says it was last
-# updated 2023-10-10 and lists feed-in rates "as of July 1, 2024", so rates need rechecking.
+# Rates follow the PUCSL feed-in tariff decision effective 2026-08-25, not the stale schemes page.
 GRID_NET_ACCOUNTING = SupportedScenario(
     identifier="grid_net_accounting_no_backup",
     scheme=ConnectionScheme.NET_ACCOUNTING,

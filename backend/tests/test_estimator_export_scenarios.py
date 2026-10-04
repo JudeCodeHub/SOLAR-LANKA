@@ -22,14 +22,15 @@ from app.models.user import AppUser
 from tests.test_estimate_preview import request_body
 from tests.test_estimator_finance import financial_config, inputs_with_daytime
 
+# PUCSL Decision on Feed in Tariffs, Annex 2: new rooftop solar up to 10 kW, effective 2026-08-25.
 EXPORT_SOURCE = {
-    "url": "https://www.pucsl.gov.lk/rooftop-solar-pv-connection-schemes/",
-    "effective_from": "2024-07-01",
+    "url": "https://www.pucsl.gov.lk/wp-content/uploads/2026/08/Full-Final-Decision-on-Feed-in-Tariffs-August-2026.pdf",
+    "effective_from": "2026-08-25",
     "reviewed_on": "2026-10-04",
 }
 
 
-def export_config(scenario: str, rate: str = "27.06"):
+def export_config(scenario: str, rate: str = "23.11"):
     config = financial_config()
     config.scenario = scenario
     config.assumptions["export_rate_lkr_per_kwh"] = {"low": rate, "high": rate}
@@ -54,16 +55,14 @@ def test_both_schemes_are_supported_and_net_plus_plus_stays_deferred():
 
 
 def test_net_accounting_worked_example():
-    # 250 kWh/month generated, 300 used, 50% in the day: 150 used directly, 100 exported.
-    # Import bill falls from 5500 to 2500 (60 x 10 + 90 x 20 + 100 fixed); export earns
-    # 100 x 27.06 = 2706; monthly value = 5500 - 2500 + 2706 = 5706.
+    # Worked by hand: 150 kWh used directly, 100 exported, so 5500 - 2500 + 2311 = 5311.
     config = export_config("grid_net_accounting_no_backup")
     inputs = with_scheme(inputs_with_daytime(), ConnectionScheme.NET_ACCOUNTING)
     result = calculate_financial(inputs, config)
     assert result.baseline_monthly_bill_lkr == Decimal("5500")
-    assert result.monthly_savings_lkr == ValueRange(Decimal("5706.00"), Decimal("5706.00"))
-    assert result.annual_savings_lkr == ValueRange(Decimal("68472.00"), Decimal("68472.00"))
-    assert result.simple_payback_years.minimum == Decimal("250000") / Decimal("68472.00")
+    assert result.monthly_savings_lkr == ValueRange(Decimal("5311.00"), Decimal("5311.00"))
+    assert result.annual_savings_lkr == ValueRange(Decimal("63732.00"), Decimal("63732.00"))
+    assert result.simple_payback_years.minimum == Decimal("250000") / Decimal("63732.00")
 
 
 def test_net_accounting_is_not_the_net_metering_answer():
@@ -87,13 +86,13 @@ def test_net_accounting_needs_daytime_use_and_a_dated_rate():
 
 
 def test_net_plus_worked_example():
-    # All 250 kWh are sold at 27.06 and the household still pays its normal bill.
+    # All 250 kWh are sold at 23.11 and the household still pays its normal bill.
     config = export_config("grid_net_plus_no_backup")
     inputs = with_scheme(inputs_with_daytime(daytime=None), ConnectionScheme.NET_PLUS)
     result = calculate_financial(inputs, config)
     assert result.baseline_monthly_bill_lkr == Decimal("5500")
-    assert result.monthly_savings_lkr == ValueRange(Decimal("6765.00"), Decimal("6765.00"))
-    assert result.annual_savings_lkr == ValueRange(Decimal("81180.00"), Decimal("81180.00"))
+    assert result.monthly_savings_lkr == ValueRange(Decimal("5777.50"), Decimal("5777.50"))
+    assert result.annual_savings_lkr == ValueRange(Decimal("69330.00"), Decimal("69330.00"))
 
 
 def test_a_config_for_another_scenario_is_refused():
@@ -130,10 +129,10 @@ def test_saved_estimates_keep_their_scenario_rate_and_source(
     saved_id = created.json()["id"]
     before = created.json()["estimate"]
     assert before["scenario"] == "grid_net_accounting_no_backup"
-    assert before["sources"]["export"]["effective_from"] == "2024-07-01"
+    assert before["sources"]["export"]["effective_from"] == "2026-08-25"
 
     # A newer version with a different rate changes new estimates, not the saved one.
-    second = export_config("grid_net_accounting_no_backup", rate="30.00")
+    second = export_config("grid_net_accounting_no_backup", rate="20.00")
     second.version = 2
     second.published_at = datetime.now(UTC)
     database_session.add(second)
@@ -145,9 +144,9 @@ def test_saved_estimates_keep_their_scenario_rate_and_source(
     assert str(saved.id) == saved_id
     assert saved.result_snapshot == before
     assert saved.configuration_snapshot["version"] == 1
-    assert saved.configuration_snapshot["assumptions"]["export_rate_lkr_per_kwh"]["low"] == "27.06"
+    assert saved.configuration_snapshot["assumptions"]["export_rate_lkr_per_kwh"]["low"] == "23.11"
     assert saved.configuration_snapshot["source_metadata"]["export"]["effective_from"] == (
-        "2024-07-01"
+        "2026-08-25"
     )
     assert saved.input_snapshot["connection_scheme"] == "net_accounting"
 
@@ -169,7 +168,7 @@ def test_admin_drafts_for_export_scenarios_need_a_dated_source_and_rate():
     draft = {"scenario": "grid_net_plus_no_backup", "assumptions": {"a": 1}}
     with pytest.raises(ValidationError):
         EstimatorConfigDraft.model_validate({**draft, "source_metadata": base})
-    dated = {**source, "effective_from": "2024-07-01"}
+    dated = {**source, "effective_from": "2026-08-25"}
     with pytest.raises(ValidationError):
         EstimatorConfigDraft.model_validate({**draft, "source_metadata": {**base, "export": dated}})
     rated = {**draft, "assumptions": {"export_rate_lkr_per_kwh": {"low": "1", "high": "2"}}}

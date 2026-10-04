@@ -48,9 +48,9 @@ test("a refused change is explained from the current version", () => {
   assert.ok(refusalFor(undefined, "save"));
 });
 
-const exportSource = { ...source, effective_from: "2024-07-01" };
+const exportSource = { ...source, effective_from: "2026-08-25" };
 const withExport = pretty({ yield: source, tariff: source, cost: source, export: exportSource });
-const rate = '{"a":1,"export_rate_lkr_per_kwh":{"low":"25","high":"27.06"}}';
+const rate = '{"a":1,"export_rate_lkr_per_kwh":{"low":"20","high":"23.11"}}';
 
 test("net metering needs no export rate or source and the scenario is sent", () => {
   const result = parseDraft('{"a":1}', sources);
