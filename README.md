@@ -97,6 +97,10 @@ The diagram shows the relationships that matter; the full column lists are in `b
 
 The API documents itself. With the backend running, interactive docs are at `/docs` (Swagger) and `/redoc`, and the machine-readable schema is `GET /openapi.json`. `.venv/bin/python -m app.export_openapi FILE` writes it to a file, and `pnpm api:types` in `frontend/` turns it into the typed client (`src/lib/api/schema.d.ts`), so the frontend cannot drift from the backend without a type error. Errors always look like `{"error": {"code", "message", "issues"}}`. Route groups: public catalogue, directory and estimate preview; `/users/me/...` (customer: estimates, requests, offers, installations, notifications); `/companies/{id}/...` (company staff); `/admin/...` and `/audit-events` (platform administrators); `/media/...` (uploads and private downloads).
 
+## Account and password recovery
+
+Recovery is Clerk's; the app builds no reset tokens, reset pages or recovery tables. `/sign-in` renders Clerk's `<SignIn />`, which shows "Forgot password?" and emails a verification code once the Clerk instance allows it, and `/account` renders Clerk's `<UserProfile />` for changing the password or email while signed in. To enable it in your Clerk development instance, turn on the Password and Email verification code options under User & authentication (and keep email as an identifier). A unit test (`frontend/src/lib/recovery.test.ts`) fails if either page stops using Clerk's component or if any frontend or backend source or migration adds a password-reset or reset-token implementation. The local mail sink from 19.06 is not used for recovery: Clerk sends its own email.
+
 ## Demo accounts
 
 The seeds create the people below with the roles and companies shown, but **no passwords exist**: sign-in is Clerk's. To sign in as one, create a user in your Clerk development instance, copy its user id (starts with `user_`) from the Clerk dashboard, and link it **before that user's first sign-in**:
@@ -207,5 +211,5 @@ Each criterion from section 11 of the project scope, with the evidence for it. "
 
 ### Deferred to Phase 2 or later (not part of the core release)
 
-Technician workspace and conflict-checked site visits, support cases and sourced troubleshooting references, educational content, quotation document export, password recovery and scheduled reminders, expanded estimator scenarios (only grid-connected net metering without backup is calculated), and everything in Phase 3 and the deployment phase. The navigation shows Learn, Troubleshooting and Support only as "Coming soon" cards, never as links.
+Technician workspace and conflict-checked site visits, support cases and sourced troubleshooting references, educational content, quotation document export, scheduled reminders, expanded estimator scenarios (only grid-connected net metering without backup is calculated), and everything in Phase 3 and the deployment phase. The navigation shows Learn, Troubleshooting and Support only as "Coming soon" cards, never as links.
 
