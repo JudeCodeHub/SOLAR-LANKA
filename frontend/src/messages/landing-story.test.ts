@@ -11,7 +11,7 @@ function leaves(value: unknown): string[] {
 
 test("every landing sentence is plain text with no markup and no stray spaces", () => {
   for (const text of leaves(story)) {
-    assert.ok(!/[<>{}]/.test(text), text);
+    assert.ok(!/[<>{}]/.test(text.replace(/\{\w+\}/g, "")), text);
     assert.ok(text.trim() === text && text.length > 0, text);
   }
 });

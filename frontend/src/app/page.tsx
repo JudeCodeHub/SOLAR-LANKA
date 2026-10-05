@@ -1,4 +1,5 @@
 import { EstimateTeaser } from "@/components/landing/estimate-teaser";
+import { HowItWorks } from "@/components/landing/how-it-works";
 import { EntryPoints } from "@/components/landing/entry-points";
 import { FeaturedCompanies } from "@/components/landing/featured-companies";
 import { FeaturedProducts } from "@/components/landing/featured-products";
@@ -16,6 +17,7 @@ export default async function Home() {
     <>
       <Hero signedIn={isSignedIn} />
       <EstimateTeaser />
+      <HowItWorks />
       <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-10 px-4 py-8">
         <EntryPoints />
         <FeaturedProducts

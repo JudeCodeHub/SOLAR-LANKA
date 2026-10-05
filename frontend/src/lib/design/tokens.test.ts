@@ -383,3 +383,12 @@ test("the estimate teaser labels its figures as a sample, writes them in the fig
   assert.ok(count.includes("prefers-reduced-motion: reduce") && count.includes("IntersectionObserver") && count.includes("observer.disconnect()") && count.includes('className="sr-only"'));
   assert.ok(read("app/page.tsx").indexOf("<EstimateTeaser />") > read("app/page.tsx").indexOf("<Hero"));
 });
+
+test("the how-it-works strip has the four approved steps, a drawn line in both directions, and numbered captions", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  const strip = read("components/landing/how-it-works.tsx");
+  for (const id of ["estimate", "compare", "choose", "track"]) assert.ok(strip.includes(`id: "${id}"`), id);
+  assert.ok(strip.includes('<DrawLine direction="y"') && strip.includes('<DrawLine direction="x"') && strip.includes("<ol") && strip.includes("text.stepLabel"));
+  const page = read("app/page.tsx");
+  assert.ok(page.indexOf("<HowItWorks />") > page.indexOf("<EstimateTeaser />"));
+});
