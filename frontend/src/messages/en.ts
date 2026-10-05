@@ -1155,6 +1155,10 @@ export const en = {
       confirmBody: "This cannot be undone.",
       confirmed: "Confirmed.",
     },
+    loading: {
+      title: "Skeletons and loading",
+      intro: "Placeholders sweep a soft light while content loads. Under reduced motion they hold still. The loading state around them is a status region with a spoken label.",
+    },
     badges: {
       title: "Badges and status labels",
       intro: "Each badge pairs an icon with a word, so its meaning never rests on colour alone. Three presets cover the content labels used across the app.",

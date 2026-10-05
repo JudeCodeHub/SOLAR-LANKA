@@ -3,6 +3,7 @@ import { CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAler
 
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Skeleton, SkeletonCard, SkeletonText } from "@/components/ui/skeleton";
 import { OverlayDemo } from "@/components/design/overlay-demo";
 import { Pagination } from "@/components/catalogue/pagination";
 import { Segmented, segmentedItemClass } from "@/components/ui/segmented";
@@ -324,6 +325,22 @@ export function DesignGallery() {
         <h2 id="overlays-title" className="type-heading">{text.overlays.title}</h2>
         <p className="type-body max-w-3xl text-ink-2">{text.overlays.intro}</p>
         <OverlayDemo />
+      </section>
+
+      <section aria-labelledby="loading-title" className="space-y-6">
+        <h2 id="loading-title" className="type-heading">{text.loading.title}</h2>
+        <p className="type-body max-w-3xl text-ink-2">{text.loading.intro}</p>
+        <div className="grid gap-4 md:grid-cols-3">
+          <SkeletonCard />
+          <div className="space-y-4 rounded-card border border-line bg-surface p-4">
+            <Skeleton className="h-6 w-1/2" />
+            <SkeletonText lines={4} />
+          </div>
+          <div className="flex items-center gap-4 rounded-card border border-line bg-surface p-4">
+            <Skeleton className="size-12 rounded-full" />
+            <SkeletonText lines={2} className="flex-1" />
+          </div>
+        </div>
       </section>
 
       <section aria-labelledby="badges-title" className="space-y-6">

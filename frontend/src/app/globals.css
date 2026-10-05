@@ -550,3 +550,25 @@
     color: var(--ds-text);
   }
 }
+
+/* Skeleton: a soft light sweep over a quiet block; it holds still under reduced motion. */
+@keyframes shimmer-sweep {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+@utility shimmer {
+  background-color: var(--ds-surface-2);
+  background-image: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--ds-text) 7%, transparent) 50%, transparent 70%);
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: shimmer-sweep 1.6s var(--ds-ease) infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    background-image: none;
+  }
+}
