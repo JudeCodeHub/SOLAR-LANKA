@@ -70,7 +70,7 @@ function List() {
           {text.search}
         </label>
         <div className="flex gap-2">
-          <input id="product-search" value={draft} onChange={(event) => setDraft(event.target.value)} maxLength={100} className="h-11 min-w-0 flex-1 rounded-lg border bg-transparent px-3" />
+          <input id="product-search" value={draft} onChange={(event) => setDraft(event.target.value)} maxLength={100} className="h-11 min-w-0 flex-1 field-control px-3" />
           <Button type="submit" variant="outline">
             {text.searchApply}
           </Button>

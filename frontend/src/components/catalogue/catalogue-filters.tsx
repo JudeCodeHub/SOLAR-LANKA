@@ -4,11 +4,9 @@ import { FilterField } from "@/components/catalogue/filter-field";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import type { CatalogueKind, CatalogueState } from "@/lib/catalogue/params";
-import { cn } from "@/lib/utils";
 import { messages } from "@/messages";
 
-const selectClass =
-  "h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30";
+const selectClass = "field-control field-select h-11 w-full min-w-0 px-3.5 py-2";
 
 /** Search and filters as an ordinary GET form, so the chosen values end up in the address. */
 export function CatalogueFilters({
@@ -61,7 +59,7 @@ export function CatalogueFilters({
                   name="type"
                   defaultValue={values.type ?? ""}
                   aria-invalid={Boolean(errors.type)}
-                  className={cn(selectClass, errors.type && "border-destructive")}
+                  className={selectClass}
                 >
                   <option value="">{text.typeAny}</option>
                   <option value="on_grid">{text.typeOptions.on_grid}</option>

@@ -5,11 +5,9 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { DISTRICTS, SERVICES } from "@/lib/directory/options";
 import type { DirectoryState } from "@/lib/directory/params";
 import { serviceLabel } from "@/lib/landing/format";
-import { cn } from "@/lib/utils";
 import { messages } from "@/messages";
 
-const selectClass =
-  "h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30";
+const selectClass = "field-control field-select h-11 w-full min-w-0 px-3.5 py-2";
 
 const text = messages.directory.filters;
 
@@ -41,7 +39,7 @@ function Choice({
         defaultValue={known ? value : ""}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? errorId : undefined}
-        className={cn(selectClass, error && "border-destructive")}
+        className={selectClass}
       >
         <option value="">{any}</option>
         {options.map((option) => (

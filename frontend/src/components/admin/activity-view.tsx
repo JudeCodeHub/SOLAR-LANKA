@@ -113,7 +113,7 @@ function AuditLog() {
             aria-describedby={`company-filter-help${problem ? " company-filter-error" : ""}`}
             autoComplete="off"
             spellCheck={false}
-            className="h-11 min-w-0 flex-1 rounded-lg border bg-transparent px-3"
+            className="h-11 min-w-0 flex-1 field-control px-3"
           />
           <Button type="submit" variant="outline" data-action="filter">
             {text.filterApply}

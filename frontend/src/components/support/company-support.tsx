@@ -146,7 +146,7 @@ function Case({ companyId, id }: { companyId: string; id: string }) {
                     <label htmlFor="technician" className="block font-medium">
                       {text.assign}
                     </label>
-                    <select id="technician" value={technician} onChange={(event) => setTechnician(event.target.value)} className="h-11 rounded-lg border bg-transparent px-2">
+                    <select id="technician" value={technician} onChange={(event) => setTechnician(event.target.value)} className="h-11 field-control field-select px-2">
                       <option value="">{text.choose}</option>
                       {(technicians.data ?? []).map((t) => (
                         <option key={t.user_id} value={t.user_id}>
@@ -204,9 +204,9 @@ function Case({ companyId, id }: { companyId: string; id: string }) {
                   <label htmlFor="update" className="block font-medium">
                     {text.updateLabel}
                   </label>
-                  <textarea id="update" rows={3} value={body} maxLength={2000} onChange={(event) => setBody(event.target.value)} className="w-full rounded-lg border bg-transparent p-2" />
+                  <textarea id="update" rows={3} value={body} maxLength={2000} onChange={(event) => setBody(event.target.value)} className="w-full field-control p-2" />
                   <label className="flex min-h-11 items-center gap-3">
-                    <input type="checkbox" checked={shared} onChange={(event) => setShared(event.target.checked)} aria-describedby="shared-help" className="size-6 shrink-0" />
+                    <input type="checkbox" checked={shared} onChange={(event) => setShared(event.target.checked)} aria-describedby="shared-help" className="field-check size-6 shrink-0" />
                     <span>{text.shared}</span>
                   </label>
                   <p id="shared-help" className="text-muted-foreground">
@@ -229,7 +229,7 @@ function Case({ companyId, id }: { companyId: string; id: string }) {
                 <label htmlFor="reason" className="block font-medium">
                   {text.closeReason}
                 </label>
-                <input id="reason" value={reason} maxLength={2000} onChange={(event) => setReason(event.target.value)} className="h-11 w-full rounded-lg border bg-transparent px-3" />
+                <input id="reason" value={reason} maxLength={2000} onChange={(event) => setReason(event.target.value)} className="h-11 w-full field-control px-3" />
                 <div className="flex flex-wrap items-start gap-3">
                   {staffMoves(item.status).map((move) => (
                     <ConfirmAction

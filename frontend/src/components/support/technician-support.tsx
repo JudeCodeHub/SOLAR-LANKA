@@ -121,10 +121,10 @@ export function TechnicianCase({ id }: { id: string }) {
                   <label htmlFor="update" className="block font-medium">
                     {text.updateLabel}
                   </label>
-                  <textarea id="update" rows={3} value={body} maxLength={2000} onChange={(event) => setBody(event.target.value)} aria-invalid={Boolean(problem)} className="w-full rounded-lg border bg-transparent p-2" />
+                  <textarea id="update" rows={3} value={body} maxLength={2000} onChange={(event) => setBody(event.target.value)} aria-invalid={Boolean(problem)} className="w-full field-control p-2" />
                   {problem ? <p role="alert" className="font-medium text-destructive" data-error="update">{problem}</p> : null}
                   <label className="flex min-h-11 items-center gap-3">
-                    <input type="checkbox" checked={shared} onChange={(event) => setShared(event.target.checked)} aria-describedby="shared-help" className="size-6 shrink-0" />
+                    <input type="checkbox" checked={shared} onChange={(event) => setShared(event.target.checked)} aria-describedby="shared-help" className="field-check size-6 shrink-0" />
                     <span>{text.shared}</span>
                   </label>
                   <p id="shared-help" className="text-muted-foreground">

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Photo } from "@/components/ui/photo";
+import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Reveal } from "@/components/ui/reveal";
 import { contrastRatio } from "@/lib/design/contrast";
 import { CSS_NAMES, DARK, LIGHT, type Theme } from "@/lib/design/tokens";
@@ -150,6 +151,73 @@ export function DesignGallery() {
               <Button variant="destructive" disabled>{text.buttons.destructive}</Button>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="fields-title" className="space-y-6">
+        <h2 id="fields-title" className="type-heading">{text.fields.title}</h2>
+        <p className="type-body max-w-3xl text-ink-2">{text.fields.intro}</p>
+        <div className="grid gap-6 rounded-2xl border border-line bg-surface p-6 md:grid-cols-2">
+          <Field>
+            <FieldLabel htmlFor="d-text">{text.fields.textLabel}</FieldLabel>
+            <Input id="d-text" placeholder={text.fields.textPlaceholder} aria-describedby="d-text-help" />
+            <FieldDescription id="d-text-help">{text.fields.textHelp}</FieldDescription>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="d-select">{text.fields.selectLabel}</FieldLabel>
+            <select id="d-select" className="field-control field-select h-11 w-full min-w-0 px-3.5 py-2" aria-describedby="d-select-help">
+              {text.fields.options.map((option) => (
+                <option key={option}>{option}</option>
+              ))}
+            </select>
+            <FieldDescription id="d-select-help">{text.fields.selectHint}</FieldDescription>
+          </Field>
+          <Field className="md:col-span-2">
+            <FieldLabel htmlFor="d-area">{text.fields.areaLabel}</FieldLabel>
+            <textarea id="d-area" rows={3} placeholder={text.fields.areaPlaceholder} className="field-control min-h-28 w-full min-w-0 px-3.5 py-3" />
+          </Field>
+          <Field data-invalid>
+            <FieldLabel htmlFor="d-invalid">{text.fields.invalidLabel}</FieldLabel>
+            <Input id="d-invalid" defaultValue={text.fields.invalidValue} aria-invalid="true" aria-describedby="d-invalid-error" />
+            <FieldError id="d-invalid-error" role={undefined}>{text.fields.invalidError}</FieldError>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="d-disabled">{text.fields.disabledLabel}</FieldLabel>
+            <Input id="d-disabled" defaultValue={text.fields.disabledValue} disabled />
+          </Field>
+          <fieldset className="space-y-3 md:col-span-2">
+            <legend className="type-subheading mb-2">{text.fields.checkboxes}</legend>
+            <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+              <label className="flex min-h-11 items-center gap-3 type-small">
+                <input type="checkbox" className="field-check size-6" defaultChecked />
+                {text.fields.checkboxOne}
+              </label>
+              <label className="flex min-h-11 items-center gap-3 type-small">
+                <input type="checkbox" className="field-check size-6" />
+                {text.fields.checkboxTwo}
+              </label>
+              <label className="flex min-h-11 items-center gap-3 type-small">
+                <input type="radio" name="d-kind" className="field-radio size-6" defaultChecked />
+                {text.fields.radioOne}
+              </label>
+              <label className="flex min-h-11 items-center gap-3 type-small">
+                <input type="radio" name="d-kind" className="field-radio size-6" />
+                {text.fields.radioTwo}
+              </label>
+              <label className="flex min-h-11 items-center gap-3 type-small">
+                <input type="checkbox" className="field-switch" defaultChecked />
+                {text.fields.switchLabel}
+              </label>
+              <label className="flex min-h-11 items-center gap-3 type-small">
+                <input type="checkbox" className="field-switch" />
+                {text.fields.switchOff}
+              </label>
+              <label className="flex min-h-11 items-center gap-3 type-small text-ink-3">
+                <input type="checkbox" className="field-check size-6" disabled />
+                {text.fields.disabledCheck}
+              </label>
+            </div>
+          </fieldset>
         </div>
       </section>
 

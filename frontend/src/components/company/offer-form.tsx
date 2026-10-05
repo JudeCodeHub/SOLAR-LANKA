@@ -35,7 +35,7 @@ export function OfferForm({
       </div>
       <div className="space-y-1">
         <label className="flex min-h-11 cursor-pointer items-center gap-2 text-sm">
-          <input type="checkbox" className="size-6 shrink-0" {...form.register("is_demo_price")} />
+          <input type="checkbox" className="field-check size-6 shrink-0" {...form.register("is_demo_price")} />
           <span>{text.demo}</span>
         </label>
         <FieldDescription>{text.demoHelp}</FieldDescription>

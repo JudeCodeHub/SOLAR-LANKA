@@ -113,7 +113,7 @@ function Visit({ id, visit, now }: { id: string; visit: Work; now: number }) {
               <label htmlFor="summary" className="block text-sm font-medium">
                 {text.summaryLabel}
               </label>
-              <textarea id="summary" rows={3} value={summary} maxLength={2000} onChange={(event) => setSummary(event.target.value)} aria-invalid={Boolean(errors.summary)} aria-describedby={errors.summary ? "summary-error" : undefined} className="w-full rounded-lg border bg-transparent p-2 text-sm" />
+              <textarea id="summary" rows={3} value={summary} maxLength={2000} onChange={(event) => setSummary(event.target.value)} aria-invalid={Boolean(errors.summary)} aria-describedby={errors.summary ? "summary-error" : undefined} className="w-full field-control p-2 text-sm" />
               {errors.summary ? (
                 <p id="summary-error" className="text-sm font-medium text-destructive" data-error="summary">
                   {errors.summary}
@@ -170,7 +170,7 @@ function Visit({ id, visit, now }: { id: string; visit: Work; now: number }) {
           <label htmlFor="note" className="block text-sm font-medium">
             {text.noteLabel}
           </label>
-          <textarea id="note" rows={2} value={note} maxLength={2000} onChange={(event) => setNote(event.target.value)} aria-invalid={Boolean(errors.note)} aria-describedby={errors.note ? "note-error" : undefined} className="w-full rounded-lg border bg-transparent p-2 text-sm" />
+          <textarea id="note" rows={2} value={note} maxLength={2000} onChange={(event) => setNote(event.target.value)} aria-invalid={Boolean(errors.note)} aria-describedby={errors.note ? "note-error" : undefined} className="w-full field-control p-2 text-sm" />
           {errors.note ? (
             <p id="note-error" className="text-sm font-medium text-destructive" data-error="note">
               {errors.note}

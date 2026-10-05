@@ -115,7 +115,7 @@ function ProductPicker({ onPick, onCancel }: { onPick: (id: string, label: strin
         <div className="flex flex-wrap gap-4 text-sm">
           {(["panel", "inverter"] as const).map((value) => (
             <label key={value} className="flex cursor-pointer items-center gap-2">
-              <input type="radio" checked={kind === value} onChange={() => { setKind(value); setSearch(null); }} />
+              <input type="radio" className="field-radio size-6" checked={kind === value} onChange={() => { setKind(value); setSearch(null); }} />
               <span>{value === "panel" ? text.panels : text.inverters}</span>
             </label>
           ))}
@@ -132,7 +132,7 @@ function ProductPicker({ onPick, onCancel }: { onPick: (id: string, label: strin
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             autoComplete="off"
-            className="mt-1 h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-base md:text-sm"
+            className="field-control mt-1 h-11 w-full px-3.5"
           />
         </div>
         <Button type="button" onClick={() => (draft.trim() === search ? void results.refetch() : setSearch(draft.trim()))}>

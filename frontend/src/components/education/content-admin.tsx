@@ -41,7 +41,7 @@ function Body() {
         <label htmlFor="status" className="block font-medium">
           {text.filter}
         </label>
-        <select id="status" value={status} onChange={(event) => setStatus(event.target.value)} className="h-11 rounded-lg border bg-transparent px-2">
+        <select id="status" value={status} onChange={(event) => setStatus(event.target.value)} className="h-11 field-control field-select px-2">
           <option value="">{text.allStatuses}</option>
           {Object.entries(text.statuses).map(([value, label]) => (
             <option key={value} value={value}>
@@ -137,7 +137,7 @@ function Topics() {
             <label htmlFor={id} className="block font-medium">
               {label}
             </label>
-            <input id={id} value={value} onChange={(event) => set(event.target.value)} aria-invalid={Boolean(error) && id !== "cat-description"} className="h-11 w-full rounded-lg border bg-transparent px-3" />
+            <input id={id} value={value} onChange={(event) => set(event.target.value)} aria-invalid={Boolean(error) && id !== "cat-description"} className="h-11 w-full field-control px-3" />
           </div>
         ))}
         {error ? (

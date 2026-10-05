@@ -43,7 +43,7 @@ function NewDraft() {
             <label htmlFor="f-scenario" className="block font-medium">
               {text.scenarioLabel}
             </label>
-            <select id="f-scenario" value={scenario} onChange={(event) => setScenario(event.target.value as Scenario)} className="min-h-11 w-full rounded-lg border bg-transparent px-3 text-sm">
+            <select id="f-scenario" value={scenario} onChange={(event) => setScenario(event.target.value as Scenario)} className="min-h-11 w-full field-control field-select px-3 text-sm">
               {SCENARIOS.map((name) => (
                 <option key={name} value={name}>
                   {text.scenarios[name]}
@@ -175,7 +175,7 @@ function Editor({ id, version, scenario, initial, prefilledFrom, fromOther }: { 
         spellCheck={false}
         aria-invalid={Boolean(errors[key])}
         aria-describedby={`f-${key}-help${errors[key] ? ` f-${key}-error` : ""}`}
-        className="w-full rounded-lg border bg-transparent p-3 font-mono text-sm"
+        className="w-full field-control p-3 font-mono text-sm"
       />
       <p id={`f-${key}-help`} className="text-sm text-muted-foreground">
         {help}

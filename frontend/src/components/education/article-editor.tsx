@@ -114,9 +114,9 @@ function Form({ id, article, selfId }: { id: string | null; article: AdminArticl
           {label}
         </label>
         {options.area ? (
-          <textarea {...common} rows={key === "body" ? 14 : 3} onChange={(event) => set(key, event.target.value as never)} className="w-full rounded-lg border bg-transparent p-2" />
+          <textarea {...common} rows={key === "body" ? 14 : 3} onChange={(event) => set(key, event.target.value as never)} className="w-full field-control p-2" />
         ) : (
-          <input {...common} type={options.type ?? "text"} onChange={(event) => set(key, event.target.value as never)} className="h-11 w-full rounded-lg border bg-transparent px-3" />
+          <input {...common} type={options.type ?? "text"} onChange={(event) => set(key, event.target.value as never)} className="h-11 w-full field-control px-3" />
         )}
         {options.help ? <p id={`${fid}-help`} className="text-muted-foreground">{options.help}</p> : null}
         {error ? <p id={`${fid}-error`} className="font-medium text-destructive" data-error={key}>{error}</p> : null}
@@ -158,7 +158,7 @@ function Form({ id, article, selfId }: { id: string | null; article: AdminArticl
           <label htmlFor="a-category" className="block font-medium">
             {f.category}
           </label>
-          <select id="a-category" value={form.category_id} disabled={!editable} onChange={(event) => set("category_id", event.target.value)} aria-invalid={Boolean(errors.category_id)} className="h-11 rounded-lg border bg-transparent px-2">
+          <select id="a-category" value={form.category_id} disabled={!editable} onChange={(event) => set("category_id", event.target.value)} aria-invalid={Boolean(errors.category_id)} className="h-11 field-control field-select px-2">
             <option value="">{f.chooseCategory}</option>
             {(categories.data ?? []).map((item) => (
               <option key={item.id} value={item.id}>
@@ -200,7 +200,7 @@ function Form({ id, article, selfId }: { id: string | null; article: AdminArticl
                     <label htmlFor={fid} className="block font-medium">
                       {label}
                     </label>
-                    <input id={fid} type={type} value={source[key]} readOnly={!editable} aria-invalid={Boolean(error)} aria-describedby={error ? `${fid}-error` : undefined} onChange={(event) => set("sources", form.sources.map((row, i) => (i === index ? { ...row, [key]: event.target.value } : row)))} className="h-11 w-full rounded-lg border bg-transparent px-3" />
+                    <input id={fid} type={type} value={source[key]} readOnly={!editable} aria-invalid={Boolean(error)} aria-describedby={error ? `${fid}-error` : undefined} onChange={(event) => set("sources", form.sources.map((row, i) => (i === index ? { ...row, [key]: event.target.value } : row)))} className="h-11 w-full field-control px-3" />
                     {error ? <p id={`${fid}-error`} className="font-medium text-destructive" data-error={`sources.${index}.${key}`}>{error}</p> : null}
                   </div>
                 );
@@ -220,7 +220,7 @@ function Form({ id, article, selfId }: { id: string | null; article: AdminArticl
         </fieldset>
         <fieldset className="space-y-2">
           <label className="flex min-h-11 items-center gap-3">
-            <input type="checkbox" checked={form.time_sensitive} disabled={!editable} onChange={(event) => set("time_sensitive", event.target.checked)} aria-describedby="ts-help" className="size-6 shrink-0" />
+            <input type="checkbox" checked={form.time_sensitive} disabled={!editable} onChange={(event) => set("time_sensitive", event.target.checked)} aria-describedby="ts-help" className="field-check size-6 shrink-0" />
             <span>{f.timeSensitive}</span>
           </label>
           <p id="ts-help" className="text-muted-foreground">{f.timeSensitiveHelp}</p>
@@ -231,7 +231,7 @@ function Form({ id, article, selfId }: { id: string | null; article: AdminArticl
             </div>
           ) : null}
           <label className="flex min-h-11 items-center gap-3">
-            <input type="checkbox" checked={form.is_sample} disabled={!editable} onChange={(event) => set("is_sample", event.target.checked)} className="size-6 shrink-0" />
+            <input type="checkbox" checked={form.is_sample} disabled={!editable} onChange={(event) => set("is_sample", event.target.checked)} className="field-check size-6 shrink-0" />
             <span>{f.sample}</span>
           </label>
         </fieldset>

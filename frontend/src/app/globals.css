@@ -409,3 +409,130 @@
     }
   }
 }
+
+/* Form controls: one look for every text field, text area and select. Size and spacing stay with the element; this sets border, surface, text and states. */
+@utility field-control {
+  min-height: 2.75rem;
+  border: 1px solid var(--ds-field-border);
+  border-radius: var(--radius-field);
+  background-color: var(--ds-surface);
+  color: var(--ds-text);
+  font-size: 1rem;
+  line-height: 1.4;
+  transition:
+    border-color var(--ds-dur-fast) var(--ds-ease),
+    background-color var(--ds-dur-fast) var(--ds-ease);
+  &::placeholder {
+    color: var(--ds-muted);
+  }
+  &:hover:not(:disabled) {
+    border-color: var(--ds-muted);
+  }
+  &:focus-visible {
+    border-color: var(--ds-focus);
+  }
+  &:disabled {
+    background-color: var(--ds-disabled-bg);
+    color: var(--ds-disabled-text);
+    cursor: not-allowed;
+  }
+  &[aria-invalid="true"] {
+    border-color: var(--ds-danger);
+    background-color: color-mix(in srgb, var(--ds-danger-tint) 55%, var(--ds-surface));
+  }
+}
+
+/* A native select with a quiet chevron; the right padding keeps long options clear of it. */
+@utility field-select {
+  appearance: none;
+  padding-inline-end: 2.5rem !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238A7D6F' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.875rem center;
+  background-size: 1rem;
+}
+
+/* Checkbox and radio: a drawn box that fills with orange and shows a dark mark. */
+@utility field-check {
+  appearance: none;
+  flex-shrink: 0;
+  border: 1.5px solid var(--ds-field-border);
+  border-radius: 0.4rem;
+  background-color: var(--ds-surface);
+  transition:
+    background-color var(--ds-dur-fast) var(--ds-ease),
+    border-color var(--ds-dur-fast) var(--ds-ease);
+  &:hover:not(:disabled) {
+    border-color: var(--ds-muted);
+  }
+  &:checked {
+    border-color: var(--ds-orange);
+    background-color: var(--ds-orange);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231A1511' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7'/%3E%3C/svg%3E");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 78%;
+  }
+  &:disabled {
+    background-color: var(--ds-disabled-bg);
+    border-color: var(--ds-disabled-text);
+    cursor: not-allowed;
+  }
+  &[aria-invalid="true"] {
+    border-color: var(--ds-danger);
+  }
+}
+@utility field-radio {
+  appearance: none;
+  flex-shrink: 0;
+  border: 1.5px solid var(--ds-field-border);
+  border-radius: 9999px;
+  background-color: var(--ds-surface);
+  transition:
+    background-color var(--ds-dur-fast) var(--ds-ease),
+    border-color var(--ds-dur-fast) var(--ds-ease);
+  &:hover:not(:disabled) {
+    border-color: var(--ds-muted);
+  }
+  &:checked {
+    border-color: var(--ds-orange);
+    background-color: var(--ds-orange);
+    background-image: radial-gradient(circle, var(--ds-on-orange) 0 28%, transparent 31%);
+  }
+  &:disabled {
+    background-color: var(--ds-disabled-bg);
+    border-color: var(--ds-disabled-text);
+    cursor: not-allowed;
+  }
+}
+
+/* A switch: the same checkbox element drawn as a track with a sliding knob; use it where a setting turns on or off. */
+@utility field-switch {
+  appearance: none;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 1.5rem;
+  border: 1.5px solid var(--ds-field-border);
+  border-radius: 9999px;
+  background-color: var(--ds-surface-2);
+  background-image: radial-gradient(circle, var(--ds-text-2) 0 40%, transparent 44%);
+  background-size: 1.25rem 1.25rem;
+  background-repeat: no-repeat;
+  background-position: 0.1rem center;
+  transition:
+    background-color var(--ds-dur-base) var(--ds-ease),
+    background-position var(--ds-dur-base) var(--ds-ease);
+  &:checked {
+    border-color: var(--ds-orange);
+    background-color: var(--ds-orange);
+    background-image: radial-gradient(circle, var(--ds-on-orange) 0 40%, transparent 44%);
+    background-position: calc(100% - 0.1rem) center;
+  }
+  &:disabled {
+    background-color: var(--ds-disabled-bg);
+    cursor: not-allowed;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}

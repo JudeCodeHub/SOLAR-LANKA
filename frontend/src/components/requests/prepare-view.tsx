@@ -206,14 +206,14 @@ function RequirementsForm({
             <ul className="space-y-1">
               <li>
                 <label className="flex cursor-pointer items-start gap-2 text-sm">
-                  <input type="radio" className="mt-1 size-6 shrink-0" {...radio("")} />
+                  <input type="radio" className="field-radio mt-1 size-6 shrink-0" {...radio("")} />
                   <span>{text.estimate.none}</span>
                 </label>
               </li>
               {options.map((entry) => (
                 <li key={entry.id}>
                   <label className="flex cursor-pointer items-start gap-2 text-sm">
-                    <input type="radio" className="mt-1 size-6 shrink-0" {...radio(entry.id)} />
+                    <input type="radio" className="field-radio mt-1 size-6 shrink-0" {...radio(entry.id)} />
                     <span>{entry.label}</span>
                   </label>
                 </li>

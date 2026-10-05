@@ -40,13 +40,13 @@ function Body() {
   const field = (key: keyof typeof values, label: string, options: { area?: boolean; help?: string; type?: string } = {}) => {
     const id = `ref-${key}`;
     const error = errors[key];
-    const common = { id, value: String(values[key]), "aria-invalid": Boolean(error), "aria-describedby": [options.help ? `${id}-help` : "", error ? `${id}-error` : ""].filter(Boolean).join(" ") || undefined, onChange: (event: { target: { value: string } }) => set(key, event.target.value), className: "w-full rounded-lg border bg-transparent px-3" };
+    const common = { id, value: String(values[key]), "aria-invalid": Boolean(error), "aria-describedby": [options.help ? `${id}-help` : "", error ? `${id}-error` : ""].filter(Boolean).join(" ") || undefined, onChange: (event: { target: { value: string } }) => set(key, event.target.value), className: "w-full field-control px-3" };
     return (
       <div className="space-y-1" key={key}>
         <label htmlFor={id} className="block font-medium">
           {label}
         </label>
-        {options.area ? <textarea {...common} rows={4} className="w-full rounded-lg border bg-transparent p-2" /> : <input {...common} type={options.type ?? "text"} className="h-11 w-full rounded-lg border bg-transparent px-3" />}
+        {options.area ? <textarea {...common} rows={4} className="w-full field-control p-2" /> : <input {...common} type={options.type ?? "text"} className="h-11 w-full field-control px-3" />}
         {options.help ? <p id={`${id}-help`} className="text-muted-foreground">{options.help}</p> : null}
         {error ? <p id={`${id}-error`} className="font-medium text-destructive" data-error={key}>{error}</p> : null}
       </div>
@@ -130,7 +130,7 @@ function Body() {
         {field("title", text.titleLabel)}
         {field("steps", text.steps, { area: true, help: text.stepsHelp })}
         <label className="flex min-h-11 items-center gap-3">
-          <input type="checkbox" checked={values.hazard} onChange={(event) => set("hazard", event.target.checked)} className="size-6 shrink-0" />
+          <input type="checkbox" checked={values.hazard} onChange={(event) => set("hazard", event.target.checked)} className="field-check size-6 shrink-0" />
           <span>{text.hazardOption}</span>
         </label>
         {values.hazard ? field("warning", text.warning, { area: true, help: text.warningHelp }) : null}
@@ -139,7 +139,7 @@ function Body() {
         {field("sourcePage", text.sourcePage)}
         {field("verified", text.verified, { type: "date", help: text.verifiedHelp })}
         <label className="flex min-h-11 items-center gap-3">
-          <input type="checkbox" checked={values.sample} onChange={(event) => set("sample", event.target.checked)} className="size-6 shrink-0" />
+          <input type="checkbox" checked={values.sample} onChange={(event) => set("sample", event.target.checked)} className="field-check size-6 shrink-0" />
           <span>{text.sample}</span>
         </label>
         <Button type="submit" aria-disabled={actions.create.isPending} data-action="create-reference">

@@ -124,19 +124,19 @@ export function ShareForm({ companyId, installationId, milestoneId, now }: { com
       ) : null}
       <div className="space-y-1">
         <label htmlFor={`${id}-reason`} className="block font-medium">{share.reason}</label>
-        <textarea id={`${id}-reason`} rows={2} value={reason} onChange={(e) => setReason(e.target.value)} className="w-full rounded-lg border bg-transparent p-2" {...field("reason")} />
+        <textarea id={`${id}-reason`} rows={2} value={reason} onChange={(e) => setReason(e.target.value)} className="w-full field-control p-2" {...field("reason")} />
         <p id={`${id}-reason-help`} className="text-muted-foreground">{share.reasonHelp}</p>
         {problem("reason")}
       </div>
       <div className="space-y-1">
         <label htmlFor={`${id}-nextAction`} className="block font-medium">{share.nextAction}</label>
-        <textarea id={`${id}-nextAction`} rows={2} value={nextAction} onChange={(e) => setNextAction(e.target.value)} className="w-full rounded-lg border bg-transparent p-2" {...field("nextAction")} />
+        <textarea id={`${id}-nextAction`} rows={2} value={nextAction} onChange={(e) => setNextAction(e.target.value)} className="w-full field-control p-2" {...field("nextAction")} />
         <p id={`${id}-nextAction-help`} className="text-muted-foreground">{share.nextActionHelp}</p>
         {problem("nextAction")}
       </div>
       <div className="space-y-1">
         <label htmlFor={`${id}-delayDate`} className="block font-medium">{share.delayDate}</label>
-        <input id={`${id}-delayDate`} type="date" value={delayDate} onChange={(e) => setDelayDate(e.target.value)} className="h-11 rounded-lg border bg-transparent px-2" {...field("delayDate")} />
+        <input id={`${id}-delayDate`} type="date" value={delayDate} onChange={(e) => setDelayDate(e.target.value)} className="h-11 field-control px-2" {...field("delayDate")} />
         <p id={`${id}-delayDate-help`} className="text-muted-foreground">{share.delayHelp}</p>
         {problem("delayDate")}
       </div>
@@ -228,7 +228,7 @@ export function InternalNotes({ companyId, installationId }: { companyId: string
           onChange={(event) => setBody(event.target.value)}
           aria-invalid={Boolean(problem)}
           aria-describedby={`internal-help${problem ? " internal-error" : ""}`}
-          className="w-full rounded-lg border bg-background p-2"
+          className="field-control w-full p-3"
         />
         <p id="internal-help" className="text-muted-foreground">{internal.addHelp}</p>
         {problem ? (
