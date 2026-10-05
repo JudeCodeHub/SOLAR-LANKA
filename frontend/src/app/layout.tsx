@@ -13,8 +13,11 @@ import { THEME_SCRIPT } from "@/lib/theme/theme";
 import { messages } from "@/messages";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.SITE_URL ?? "http://localhost:3000"),
   title: messages.app.name,
   description: messages.app.description,
+  openGraph: { type: "website", siteName: messages.app.name, title: messages.app.name, description: messages.app.description },
+  twitter: { card: "summary_large_image", title: messages.app.name, description: messages.app.description },
 };
 
 /** The browser bar follows the system theme. */
