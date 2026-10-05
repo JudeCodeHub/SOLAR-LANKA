@@ -9,7 +9,25 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-body);
   --font-mono: var(--font-figures);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-display);
+  --color-paper: var(--ds-bg);
+  --color-paper-2: var(--ds-surface-2);
+  --color-surface: var(--ds-surface);
+  --color-ink: var(--ds-text);
+  --color-ink-2: var(--ds-text-2);
+  --color-ink-3: var(--ds-muted);
+  --color-line: var(--ds-line);
+  --color-field-border: var(--ds-field-border);
+  --color-orange: var(--ds-orange);
+  --color-orange-hover: var(--ds-orange-hover);
+  --color-orange-text: var(--ds-orange-text);
+  --color-orange-tint: var(--ds-orange-tint);
+  --color-on-orange: var(--ds-on-orange);
+  --color-focus: var(--ds-focus);
+  --color-success: var(--ds-success);
+  --color-warning: var(--ds-warning);
+  --color-danger: var(--ds-danger);
+  --color-info: var(--ds-info);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -48,73 +66,113 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-:root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+/* Premium Signal tokens: the --ds-* values must equal src/lib/design/tokens.ts (a unit test compares them). */
+:root,
+.light {
+  color-scheme: light;
+  --ds-bg: #FBF8F3;
+  --ds-surface: #FFFFFF;
+  --ds-surface-2: #F3EDE4;
+  --ds-text: #1A1511;
+  --ds-text-2: #4B4036;
+  --ds-muted: #6E6256;
+  --ds-line: #E4DBCF;
+  --ds-field-border: #857868;
+  --ds-orange: #FF6A1A;
+  --ds-orange-hover: #E85A0C;
+  --ds-orange-text: #B33D00;
+  --ds-orange-tint: #FFE8D6;
+  --ds-on-orange: #1A1511;
+  --ds-focus: #B33D00;
+  --ds-success: #1F7A4D;
+  --ds-warning: #8A5A00;
+  --ds-danger: #C42B23;
+  --ds-info: #2457B8;
+  --radius: 0.75rem;
+  --background: var(--ds-bg);
+  --foreground: var(--ds-text);
+  --card: var(--ds-surface);
+  --card-foreground: var(--ds-text);
+  --popover: var(--ds-surface);
+  --popover-foreground: var(--ds-text);
+  --primary: var(--ds-orange);
+  --primary-foreground: var(--ds-on-orange);
+  --secondary: var(--ds-surface-2);
+  --secondary-foreground: var(--ds-text);
+  --muted: var(--ds-surface-2);
+  --muted-foreground: var(--ds-muted);
+  --accent: var(--ds-orange-tint);
+  --accent-foreground: var(--ds-text);
+  --destructive: var(--ds-danger);
+  --border: var(--ds-line);
+  --input: var(--ds-field-border);
+  --ring: var(--ds-focus);
+  --chart-1: var(--ds-orange-text);
+  --chart-2: var(--ds-info);
+  --chart-3: var(--ds-success);
+  --chart-4: var(--ds-warning);
+  --chart-5: var(--ds-text-2);
+  --sidebar: var(--ds-surface);
+  --sidebar-foreground: var(--ds-text);
+  --sidebar-primary: var(--ds-orange);
+  --sidebar-primary-foreground: var(--ds-on-orange);
+  --sidebar-accent: var(--ds-orange-tint);
+  --sidebar-accent-foreground: var(--ds-text);
+  --sidebar-border: var(--ds-line);
+  --sidebar-ring: var(--ds-focus);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  color-scheme: dark;
+  --ds-bg: #0D0B09;
+  --ds-surface: #15110E;
+  --ds-surface-2: #1D1814;
+  --ds-text: #F7F0E7;
+  --ds-text-2: #CDBFB0;
+  --ds-muted: #A09282;
+  --ds-line: #2D251F;
+  --ds-field-border: #76685B;
+  --ds-orange: #FF6A1A;
+  --ds-orange-hover: #FF7D38;
+  --ds-orange-text: #FF8A4C;
+  --ds-orange-tint: #2B1A10;
+  --ds-on-orange: #0D0B09;
+  --ds-focus: #FF8A4C;
+  --ds-success: #5FD39A;
+  --ds-warning: #F0B440;
+  --ds-danger: #FF8077;
+  --ds-info: #7FA8FF;
+  --background: var(--ds-bg);
+  --foreground: var(--ds-text);
+  --card: var(--ds-surface);
+  --card-foreground: var(--ds-text);
+  --popover: var(--ds-surface-2);
+  --popover-foreground: var(--ds-text);
+  --primary: var(--ds-orange);
+  --primary-foreground: var(--ds-on-orange);
+  --secondary: var(--ds-surface-2);
+  --secondary-foreground: var(--ds-text);
+  --muted: var(--ds-surface-2);
+  --muted-foreground: var(--ds-muted);
+  --accent: var(--ds-orange-tint);
+  --accent-foreground: var(--ds-text);
+  --destructive: var(--ds-danger);
+  --border: var(--ds-line);
+  --input: var(--ds-field-border);
+  --ring: var(--ds-focus);
+  --chart-1: var(--ds-orange-text);
+  --chart-2: var(--ds-info);
+  --chart-3: var(--ds-success);
+  --chart-4: var(--ds-warning);
+  --chart-5: var(--ds-text-2);
+  --sidebar: var(--ds-surface);
+  --sidebar-foreground: var(--ds-text);
+  --sidebar-primary: var(--ds-orange);
+  --sidebar-primary-foreground: var(--ds-on-orange);
+  --sidebar-accent: var(--ds-orange-tint);
+  --sidebar-accent-foreground: var(--ds-text);
+  --sidebar-border: var(--ds-line);
+  --sidebar-ring: var(--ds-focus);
 }
 
 @layer base {
@@ -163,4 +221,72 @@
       min-height: 2.75rem;
     }
   }
+}
+@layer base {
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--ds-focus);
+    outline-offset: 2px;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+    font-optical-sizing: auto;
+  }
+}
+
+/* The type scale: display sizes are fluid; the figure style is for numbers, units and codes. */
+@utility type-display-xl {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(2.75rem, 1.6rem + 5.2vw, 5.5rem);
+  line-height: 1.04;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+@utility type-display-l {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(2.25rem, 1.4rem + 3.6vw, 4rem);
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+@utility type-display-m {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(1.875rem, 1.4rem + 2vw, 2.75rem);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+@utility type-heading {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.5rem, 1.3rem + 0.8vw, 1.75rem);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+@utility type-subheading {
+  font-weight: 600;
+  font-size: clamp(1.125rem, 1.05rem + 0.3vw, 1.25rem);
+  line-height: 1.35;
+}
+@utility type-body {
+  font-size: 1.0625rem;
+  line-height: 1.55;
+}
+@utility type-small {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+@utility type-caption {
+  font-size: 0.78rem;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+}
+@utility type-figure {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
 }

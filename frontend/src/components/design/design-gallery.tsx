@@ -1,0 +1,171 @@
+import { CheckCircle2, Clock, Info, XCircle } from "lucide-react";
+
+import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Photo } from "@/components/ui/photo";
+import { contrastRatio } from "@/lib/design/contrast";
+import { CSS_NAMES, DARK, LIGHT, type Theme } from "@/lib/design/tokens";
+import { PHOTOS, type PhotoKey } from "@/lib/photos/photos";
+import { format, messages } from "@/messages";
+
+const text = messages.design;
+
+/** Each swatch as a literal class (so Tailwind finds it), in the order they are shown. */
+const SWATCHES: [string, string][] = [
+  ["bg", "bg-paper"],
+  ["surface", "bg-surface"],
+  ["surface-2", "bg-paper-2"],
+  ["text", "bg-ink"],
+  ["text-2", "bg-ink-2"],
+  ["muted", "bg-ink-3"],
+  ["line", "bg-line"],
+  ["field-border", "bg-field-border"],
+  ["orange", "bg-orange"],
+  ["orange-hover", "bg-orange-hover"],
+  ["orange-text", "bg-orange-text"],
+  ["orange-tint", "bg-orange-tint"],
+  ["on-orange", "bg-on-orange"],
+  ["focus", "bg-focus"],
+  ["success", "bg-success"],
+  ["warning", "bg-warning"],
+  ["danger", "bg-danger"],
+  ["info", "bg-info"],
+];
+
+function valueOf(theme: Theme, cssName: string): string {
+  const tokens: Record<string, string> = theme === "light" ? LIGHT : DARK;
+  const key = Object.entries(CSS_NAMES[theme]).find(([, name]) => name === cssName)?.[0] ?? "";
+  return tokens[key] ?? "";
+}
+
+function Palette({ theme }: { theme: Theme }) {
+  const background = valueOf(theme, "bg");
+  return (
+    <div className={`${theme === "light" ? "light" : "dark"} rounded-2xl border border-line bg-paper p-5 text-ink`}>
+      <h3 className="type-subheading">{theme === "light" ? text.colour.light : text.colour.dark}</h3>
+      <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+        {SWATCHES.map(([cssName, swatch]) => {
+          const value = valueOf(theme, cssName);
+          return (
+            <li key={cssName} className="flex items-center gap-3">
+              <span aria-hidden className={`size-11 shrink-0 rounded-lg border border-line ${swatch}`} />
+              <span className="min-w-0">
+                <span className="block type-small font-medium">{text.colour.tokens[cssName]}</span>
+                <span className="block type-caption type-figure text-ink-3">
+                  {value} · {format(text.colour.onPage, { ratio: contrastRatio(value, background).toFixed(1) })}
+                </span>
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+/** The development-only design review page. */
+export function DesignGallery() {
+  return (
+    <div className="mx-auto w-full max-w-6xl flex-1 space-y-16 px-4 py-12">
+      <header className="flex flex-wrap items-start justify-between gap-6">
+        <div className="max-w-2xl space-y-3">
+          <h1 className="type-display-m">{text.title}</h1>
+          <p className="type-body text-ink-2">{text.intro}</p>
+        </div>
+        <ThemeToggle />
+      </header>
+
+      <section aria-labelledby="colour-title" className="space-y-6">
+        <h2 id="colour-title" className="type-heading">{text.colour.title}</h2>
+        <p className="type-body max-w-3xl text-ink-2">{text.colour.intro}</p>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Palette theme="light" />
+          <Palette theme="dark" />
+        </div>
+      </section>
+
+      <section aria-labelledby="type-title" className="space-y-6">
+        <h2 id="type-title" className="type-heading">{text.type.title}</h2>
+        <p className="type-body max-w-3xl text-ink-2">{text.type.intro}</p>
+        <div className="space-y-6 rounded-2xl border border-line bg-surface p-6">
+          <p className="type-display-xl">{text.type.displayXl}</p>
+          <p className="type-display-l">{text.type.displayL}</p>
+          <p className="type-display-m">{text.type.displayM}</p>
+          <p className="type-heading">{text.type.heading}</p>
+          <p className="type-subheading">{text.type.subheading}</p>
+          <p className="type-body max-w-3xl">{text.type.body}</p>
+          <p className="type-small text-ink-2">{text.type.small}</p>
+          <p className="type-caption text-ink-3">{text.type.caption}</p>
+          <p className="type-figure text-2xl">{text.type.figure}</p>
+        </div>
+      </section>
+
+      <section aria-labelledby="buttons-title" className="space-y-6">
+        <h2 id="buttons-title" className="type-heading">{text.buttons.title}</h2>
+        <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-surface p-6">
+          <Button>{text.buttons.primary}</Button>
+          <Button variant="secondary">{text.buttons.secondary}</Button>
+          <Button variant="outline">{text.buttons.outline}</Button>
+          <Button variant="ghost">{text.buttons.ghost}</Button>
+          <Button variant="destructive">{text.buttons.destructive}</Button>
+          <Button variant="link">{text.buttons.link}</Button>
+          <Button size="sm">{text.buttons.small}</Button>
+          <Button size="lg">{text.buttons.large}</Button>
+          <Button disabled>{text.buttons.disabled}</Button>
+        </div>
+      </section>
+
+      <section aria-labelledby="surfaces-title" className="space-y-6">
+        <h2 id="surfaces-title" className="type-heading">{text.surfaces.title}</h2>
+        <div className="grid gap-6 md:grid-cols-3">
+          <div className="space-y-2 rounded-2xl border border-line bg-surface p-6 shadow-sm">
+            <h3 className="type-subheading">{text.surfaces.cardTitle}</h3>
+            <p className="type-small text-ink-2">{text.surfaces.cardBody}</p>
+          </div>
+          <div className="space-y-2 rounded-2xl border border-line bg-orange-tint p-6">
+            <h3 className="type-subheading">{text.surfaces.tintTitle}</h3>
+            <p className="type-small text-ink-2">{text.surfaces.tintBody}</p>
+          </div>
+          <div className="space-y-2 rounded-2xl border border-line bg-surface p-6">
+            <Label htmlFor="design-field">{text.surfaces.fieldLabel}</Label>
+            <Input id="design-field" placeholder={text.surfaces.fieldPlaceholder} inputMode="decimal" />
+            <p className="type-caption text-ink-3">{text.surfaces.fieldHelp}</p>
+          </div>
+        </div>
+        <ul aria-label={text.surfaces.statuses} className="flex flex-wrap gap-3">
+          <li className="inline-flex items-center gap-1.5 rounded-full border border-success px-3 py-1 type-small text-success">
+            <CheckCircle2 aria-hidden className="size-4" />
+            {text.surfaces.success}
+          </li>
+          <li className="inline-flex items-center gap-1.5 rounded-full border border-warning px-3 py-1 type-small text-warning">
+            <Clock aria-hidden className="size-4" />
+            {text.surfaces.warning}
+          </li>
+          <li className="inline-flex items-center gap-1.5 rounded-full border border-danger px-3 py-1 type-small text-danger">
+            <XCircle aria-hidden className="size-4" />
+            {text.surfaces.danger}
+          </li>
+          <li className="inline-flex items-center gap-1.5 rounded-full border border-info px-3 py-1 type-small text-info">
+            <Info aria-hidden className="size-4" />
+            {text.surfaces.info}
+          </li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="photos-title" className="space-y-6">
+        <h2 id="photos-title" className="type-heading">{text.photos.title}</h2>
+        <p className="type-body max-w-3xl text-ink-2">{text.photos.intro}</p>
+        <ul className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {(Object.keys(PHOTOS) as PhotoKey[]).map((name) => (
+            <li key={name} className="space-y-1.5">
+              <Photo name={name} sizes="(min-width: 1024px) 25vw, 50vw" className="aspect-[3/2] w-full rounded-xl object-cover" />
+              <p className="type-caption type-figure text-ink-3">{name}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
+  );
+}

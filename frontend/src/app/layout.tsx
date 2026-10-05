@@ -1,5 +1,6 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { bodyFont, displayFont, figureFont } from "@/fonts/fonts";
 import { ComparisonTray } from "@/components/comparison/comparison-tray";
@@ -7,6 +8,7 @@ import { Providers } from "@/components/providers";
 import { SessionWatcher } from "@/components/session-watcher";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { THEME_SCRIPT } from "@/lib/theme/theme";
 import { messages } from "@/messages";
 
 export const metadata: Metadata = {
@@ -18,9 +20,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${bodyFont.variable} ${displayFont.variable} ${figureFont.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <Script id="theme-init" strategy="beforeInteractive">
+          {THEME_SCRIPT}
+        </Script>
         <ClerkProvider
           afterSignOutUrl="/"
           signInFallbackRedirectUrl="/"

@@ -1,4 +1,3 @@
-import { DemoStatus } from "@/components/landing/demo-status";
 import { EntryPoints } from "@/components/landing/entry-points";
 import { FeaturedCompanies } from "@/components/landing/featured-companies";
 import { FeaturedProducts } from "@/components/landing/featured-products";
@@ -14,7 +13,6 @@ export default async function Home() {
   ]);
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-10 px-4 py-8">
-      <DemoStatus />
       <Hero signedIn={isSignedIn} />
       <EntryPoints />
       <FeaturedProducts

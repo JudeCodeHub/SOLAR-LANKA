@@ -128,5 +128,6 @@ Desktop.ini
 
 # Browser test output and throwaway keys
 /frontend/e2e/.tmp/
+/frontend/photos-original/
 /frontend/test-results/
 /frontend/playwright-report/

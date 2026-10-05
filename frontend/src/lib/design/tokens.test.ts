@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import test from "node:test";
 
 import { contrastRatio } from "./contrast.ts";
-import { CONTRAST_RULES, DARK, DECORATIVE_ONLY_ON_LIGHT, LIGHT, type ContrastRule, type Theme } from "./tokens.ts";
+import { CONTRAST_RULES, CSS_NAMES, DARK, DECORATIVE_ONLY_ON_LIGHT, LIGHT, type ContrastRule, type Theme } from "./tokens.ts";
 
 const maps: Record<Theme, Record<string, string>> = { light: LIGHT, dark: DARK };
 
@@ -63,5 +65,23 @@ test("the orange fill is never an essential graphic on a light surface", () => {
     const used = CONTRAST_RULES.filter((rule) => rule.theme === "light" && rule.foreground === name && rule.minimum > 0 && rule.use !== "label on an orange button");
     assert.deepEqual(used, [], name);
     assert.ok(contrastRatio(LIGHT.orange, LIGHT.paper) < 3);
+  }
+});
+
+/** The --ds-* values of one rule block in globals.css. */
+function cssValues(selector: RegExp): Record<string, string> {
+  const css = readFileSync(join(import.meta.dirname, "..", "..", "app", "globals.css"), "utf8");
+  const block = css.match(selector)?.[1] ?? "";
+  return Object.fromEntries([...block.matchAll(/--ds-([a-z0-9-]+):\s*(#[0-9A-Fa-f]{6});/g)].map((match) => [match[1] ?? "", (match[2] ?? "").toUpperCase()]));
+}
+
+test("the CSS variables carry exactly the values the contrast test measures", () => {
+  const css = { light: cssValues(/:root,\s*\.light\s*\{([^}]*)\}/), dark: cssValues(/\.dark\s*\{([^}]*)\}/) };
+  for (const theme of ["light", "dark"] as const) {
+    const tokens: Record<string, string> = maps[theme];
+    for (const [key, cssName] of Object.entries(CSS_NAMES[theme])) {
+      assert.equal(css[theme][cssName], tokens[key]?.toUpperCase(), `${theme} ${key} (--ds-${cssName})`);
+    }
+    assert.deepEqual(Object.keys(css[theme]).sort(), Object.values(CSS_NAMES[theme]).sort(), `${theme} has no extra or missing variables`);
   }
 });

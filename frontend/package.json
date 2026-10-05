@@ -14,7 +14,8 @@
     "api:types": "tmp=$(mktemp) && (cd ../backend && .venv/bin/python -m app.export_openapi \"$tmp\") && openapi-typescript \"$tmp\" -o src/lib/api/schema.d.ts && rm -f \"$tmp\"",
     "test": "node --test",
     "e2e": "playwright test",
-    "screens": "playwright test -c playwright.screens.config.ts"
+    "screens": "playwright test -c playwright.screens.config.ts",
+    "photos": "node scripts/photos.mjs"
   },
   "dependencies": {
     "@clerk/nextjs": "7.9.9",

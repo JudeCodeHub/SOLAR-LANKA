@@ -6,6 +6,7 @@ export const LIGHT = {
   ink: "#1A1511",
   ink2: "#4B4036",
   ink3: "#6E6256",
+  line: "#E4DBCF",
   fieldBorder: "#857868",
   orange: "#FF6A1A",
   orangeHover: "#E85A0C",
@@ -26,9 +27,12 @@ export const DARK = {
   text: "#F7F0E7",
   text2: "#CDBFB0",
   muted: "#A09282",
+  line: "#2D251F",
   fieldBorder: "#76685B",
   orange: "#FF6A1A",
+  orangeHover: "#FF7D38",
   orangeText: "#FF8A4C",
+  orangeTint: "#2B1A10",
   onOrange: "#0D0B09",
   focus: "#FF8A4C",
   success: "#5FD39A",
@@ -68,8 +72,8 @@ export const CONTRAST_RULES: ContrastRule[] = [
   ...rules("light", ["orangeText"], LIGHT_SURFACES, GRAPHIC, "dial arc and other essential orange graphics"),
   ...rules("light", ["focus"], LIGHT_SURFACES, GRAPHIC, "focus ring"),
   ...rules("dark", ["text", "text2", "muted"], DARK_SURFACES, TEXT, "body and muted text"),
-  ...rules("dark", ["orangeText"], DARK_SURFACES, TEXT, "links and small orange text"),
-  ...rules("dark", ["onOrange"], ["orange"], TEXT, "label on an orange button"),
+  ...rules("dark", ["orangeText"], [...DARK_SURFACES, "orangeTint"], TEXT, "links and small orange text"),
+  ...rules("dark", ["onOrange"], ["orange", "orangeHover"], TEXT, "label on an orange button"),
   ...rules("dark", LIGHT_STATUS, DARK_SURFACES, TEXT, "status text"),
   ...rules("dark", ["fieldBorder"], DARK_SURFACES, GRAPHIC, "control borders"),
   ...rules("dark", ["orange"], DARK_SURFACES, GRAPHIC, "dial arc and other essential orange graphics"),
@@ -78,3 +82,9 @@ export const CONTRAST_RULES: ContrastRule[] = [
 
 /** The orange fill is only 2.7 to 1 on light surfaces, so there it may be decoration but never carry meaning. */
 export const DECORATIVE_ONLY_ON_LIGHT = ["orange"];
+
+/** The CSS custom property (--ds-<name>) that carries each token in each theme; both themes use the same property names. */
+export const CSS_NAMES: Record<Theme, Record<string, string>> = {
+  light: { paper: "bg", paper2: "surface-2", card: "surface", ink: "text", ink2: "text-2", ink3: "muted", line: "line", fieldBorder: "field-border", orange: "orange", orangeHover: "orange-hover", orangeText: "orange-text", orangeTint: "orange-tint", onOrange: "on-orange", focus: "focus", success: "success", warning: "warning", danger: "danger", info: "info" },
+  dark: { bg: "bg", surface: "surface", surface2: "surface-2", text: "text", text2: "text-2", muted: "muted", line: "line", fieldBorder: "field-border", orange: "orange", orangeHover: "orange-hover", orangeText: "orange-text", orangeTint: "orange-tint", onOrange: "on-orange", focus: "focus", success: "success", warning: "warning", danger: "danger", info: "info" },
+};
