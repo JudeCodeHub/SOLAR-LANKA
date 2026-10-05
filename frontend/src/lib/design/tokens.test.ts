@@ -372,3 +372,14 @@ test("the landing hero has the approved wording, two actions, a sample-labelled 
   assert.ok(hero.includes("from-background") && hero.includes("lg:max-w-[48%]"), "the words sit in the faded, text-safe side");
   assert.ok(read("app/page.tsx").indexOf("<Hero") < read("app/page.tsx").indexOf("<EntryPoints"));
 });
+
+test("the estimate teaser labels its figures as a sample, writes them in the figure face and counts them up", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  const teaser = read("components/landing/estimate-teaser.tsx");
+  assert.ok(teaser.includes("<SampleBadge>") && teaser.includes("messages.brand.microcopy.indicative") && teaser.includes('href="/estimator"'));
+  assert.equal([...teaser.matchAll(/<CountUp /g)].length, 3);
+  assert.ok(teaser.includes("type-figure"));
+  const count = read("components/ui/count-up.tsx");
+  assert.ok(count.includes("prefers-reduced-motion: reduce") && count.includes("IntersectionObserver") && count.includes("observer.disconnect()") && count.includes('className="sr-only"'));
+  assert.ok(read("app/page.tsx").indexOf("<EstimateTeaser />") > read("app/page.tsx").indexOf("<Hero"));
+});
