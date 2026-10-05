@@ -50,13 +50,20 @@ class LocalPrivateStorage:
             raise ValueError("Invalid private file ID")
         return file_id
 
-    def save(self, *, category: AssetCategory, content: bytes, mime_type: str) -> str:
+    def save(
+        self,
+        *,
+        category: AssetCategory,
+        content: bytes,
+        mime_type: str,
+        file_id: str | None = None,
+    ) -> str:
         if not isinstance(content, bytes):
             raise ValueError("File content must be bytes")
         policy = validate_upload_metadata(category, size_bytes=len(content), mime_type=mime_type)
         if policy.visibility != Visibility.PRIVATE or not _matches_mime(content, mime_type):
             raise ValueError("Unsupported private file")
-        file_id = uuid4().hex
+        file_id = uuid4().hex if file_id is None else self._name(file_id)
         path = self.root / file_id
         fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
         try:
@@ -74,6 +81,9 @@ class LocalPrivateStorage:
         fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
         with os.fdopen(fd, "rb") as stream:
             return stream.read()
+
+    def exists(self, file_id: str) -> bool:
+        return (self.root / self._name(file_id)).is_file()
 
     def delete(self, file_id: str) -> None:
         (self.root / self._name(file_id)).unlink()

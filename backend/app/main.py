@@ -55,6 +55,7 @@ from app.core.request_protection import (
 from app.db.session import create_database_engine, create_session_factory
 from app.services.email_delivery import create_mailer
 from app.services.inngest_workflow import (
+    create_cleanup_function,
     create_inngest_client,
     create_notification_function,
     create_reminder_function,
@@ -173,7 +174,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     send_reminders = create_reminder_function(
         inngest_client, lambda: application.state.session_factory(), mailer
     )
-    inngest.fast_api.serve(application, inngest_client, [process_notification, send_reminders])
+    functions = [process_notification, send_reminders]
+    if settings.environment in {"development", "test"}:
+        functions.append(
+            create_cleanup_function(
+                inngest_client,
+                lambda: application.state.session_factory(),
+                LocalPrivateStorage(environment=settings.environment),
+            )
+        )
+    inngest.fast_api.serve(application, inngest_client, functions)
     for route in application.routes:
         # The Inngest callback is signed machine traffic, not part of the public API.
         if getattr(route, "path", None) == "/api/inngest":

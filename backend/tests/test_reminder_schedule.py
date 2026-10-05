@@ -18,3 +18,14 @@ def test_reminders_are_scheduled_hourly_and_use_the_shared_job():
     assert [trigger.cron for trigger in triggers] == [REMINDER_CRON]
     assert function.id == "solarlanka-send-reminders"
     assert REMINDER_CRON == "0 * * * *"
+
+
+def test_export_cleanup_is_scheduled_daily():
+    from app.services.inngest_workflow import CLEANUP_CRON, create_cleanup_function
+
+    client = create_inngest_client(Settings(_env_file=None, environment="test"))
+    function = create_cleanup_function(client, MagicMock(), MagicMock())
+    config = function.get_config("http://localhost")
+    assert [trigger.cron for trigger in config.main.triggers] == [CLEANUP_CRON]
+    assert function.id == "solarlanka-cleanup-exports"
+    assert CLEANUP_CRON == "0 3 * * *"

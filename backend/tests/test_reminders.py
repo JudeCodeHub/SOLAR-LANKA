@@ -79,7 +79,7 @@ def test_visit_reminders_follow_the_confirmed_time(database_session):
     visit.confirmed_starts_at = start + timedelta(days=1)
     visit.confirmed_ends_at = start + timedelta(days=1, hours=1)
     session.commit()
-    assert run_reminders(session, start + timedelta(hours=10))["visits"] == 2
+    assert run_reminders(session, start + timedelta(hours=4))["visits"] == 2
     visit.status = "cancelled"
     session.commit()
     assert run_reminders(session, start + timedelta(hours=11))["visits"] == 0
@@ -89,7 +89,7 @@ def test_visit_reminders_follow_the_confirmed_time(database_session):
     visit.confirmed_starts_at = start + timedelta(days=5)
     visit.confirmed_ends_at = start + timedelta(days=5, hours=1)
     session.commit()
-    assert run_reminders(session, start + timedelta(days=4, hours=12))["visits"] == 1
+    assert run_reminders(session, start + timedelta(days=4, hours=4))["visits"] == 1
 
 
 def test_maintenance_reminders_are_yearly_and_need_the_service(database_session):
@@ -124,3 +124,51 @@ def test_maintenance_reminders_are_yearly_and_need_the_service(database_session)
     assert run_reminders(session, done + timedelta(days=500))["maintenance"] == 0
     assert run_reminders(session, done + timedelta(days=800))["maintenance"] == 1
     assert count(session, "reminder.maintenance") == 2
+
+
+def visit_at(session, zone: str, starts_at: datetime) -> SiteVisit:
+    visit = SiteVisit(
+        installation_id=INSTALLATION,
+        requested_by=CUSTOMER_ID,
+        status="confirmed",
+        timezone=zone,
+        confirmed_starts_at=starts_at,
+        confirmed_ends_at=starts_at + timedelta(hours=1),
+    )
+    session.add(visit)
+    session.commit()
+    return visit
+
+
+def test_visit_reminders_follow_the_visits_own_time_zone(database_session):
+    session = database_session
+    seed_demo(session, environment="test")
+    # 13:30 in Colombo (UTC+5:30); the evening before is night there.
+    colombo = visit_at(session, "Asia/Colombo", datetime(2031, 5, 2, 8, 0, tzinfo=UTC))
+    assert run_reminders(session, datetime(2031, 5, 1, 17, 0, tzinfo=UTC))["visits"] == 0
+    # 07:30 the next morning in Colombo: daytime, so the waiting reminder goes out, once.
+    assert run_reminders(session, datetime(2031, 5, 2, 2, 0, tzinfo=UTC))["visits"] == 1
+    assert run_reminders(session, datetime(2031, 5, 2, 3, 0, tzinfo=UTC))["visits"] == 0
+    first = session.scalars(select(Notification).where(Notification.kind == "reminder.site_visit"))
+    body = first.one().body
+    assert body == "Your site visit starts 02 May 2031 at 13:30 (Asia/Colombo)."
+    assert colombo.id is not None
+
+
+def test_a_near_visit_is_reminded_even_at_night_and_the_text_is_in_local_time(database_session):
+    session = database_session
+    seed_demo(session, environment="test")
+    visit_at(session, "America/Los_Angeles", datetime(2031, 5, 2, 16, 0, tzinfo=UTC))
+    # 20:00 the evening before in Los Angeles is allowed and says the local time.
+    assert run_reminders(session, datetime(2031, 5, 2, 3, 0, tzinfo=UTC))["visits"] == 1
+    texts = {
+        n.body for n in session.scalars(select(Notification)) if n.kind == "reminder.site_visit"
+    }
+    assert texts == {"Your site visit starts 02 May 2031 at 09:00 (America/Los_Angeles)."}
+
+    # 01:30 local, two hours before a 03:30 start: night, but the visit is near.
+    visit_at(session, "Asia/Colombo", datetime(2031, 5, 2, 22, 0, tzinfo=UTC))
+    assert run_reminders(session, datetime(2031, 5, 2, 20, 0, tzinfo=UTC))["visits"] == 1
+    # The same moment is night for a visit that is not near, so that one waits.
+    visit_at(session, "Asia/Colombo", datetime(2031, 5, 3, 12, 0, tzinfo=UTC))
+    assert run_reminders(session, datetime(2031, 5, 2, 20, 30, tzinfo=UTC))["visits"] == 0
