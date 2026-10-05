@@ -286,3 +286,13 @@ test("the header is sticky, frosts once scrolled, shows the logo, and active lin
   assert.ok(header.includes("<Logo") && header.includes("<StickyHeader>") && header.includes("<ThemeToggle"));
   assert.ok(read("shell/nav-link.tsx").includes("bg-orange-tint text-orange-text"));
 });
+
+test("the mobile menu carries the logo, the theme choice and 44 px rows, and the narrow header drops to the mark alone", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", "components", path), "utf8");
+  const menu = read("shell/mobile-menu.tsx");
+  assert.ok(menu.includes("<Logo") && menu.includes("<ThemeToggle") && menu.includes("min-h-11"));
+  assert.ok(menu.includes("<Sheet") && menu.includes("<SheetTitle") && menu.includes("<SheetDescription"), "the dialog keeps its name and description");
+  const header = read("site-header.tsx");
+  assert.ok(header.includes('className="hidden sm:block"') && header.includes('<LogoMark size={36} className="sm:hidden"'));
+  assert.ok(header.includes('<div className="hidden md:block">'), "the header theme toggle moves into the menu on phones");
+});
