@@ -17,6 +17,7 @@ import { Stat } from "@/components/ui/stat";
 import { EmptyState } from "@/components/states/empty-state";
 import { ErrorState } from "@/components/states/error-state";
 import { NotFoundState } from "@/components/states/not-found-state";
+import { PageSkeleton } from "@/components/states/page-skeleton";
 import { Skeleton, SkeletonCard, SkeletonText } from "@/components/ui/skeleton";
 import { OverlayDemo } from "@/components/design/overlay-demo";
 import { Pagination } from "@/components/catalogue/pagination";
@@ -433,6 +434,10 @@ export function DesignGallery() {
             <Skeleton className="size-12 rounded-full" />
             <SkeletonText lines={2} className="flex-1" />
           </div>
+        </div>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <div className="max-h-[28rem] overflow-hidden rounded-panel border border-line bg-paper-2"><PageSkeleton variant="cards" className="py-6" /></div>
+          <div className="max-h-[28rem] overflow-hidden rounded-panel border border-line bg-paper-2"><PageSkeleton variant="table" className="py-6" /></div>
         </div>
       </section>
 

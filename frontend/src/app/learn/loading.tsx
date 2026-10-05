@@ -1,6 +1,6 @@
 import { PageSkeleton } from "@/components/states/page-skeleton";
 
-/** Shown while a page streams in; the header and footer stay in place. */
+/** Shown while the learning centre loads. */
 export default function Loading() {
   return <PageSkeleton variant="cards" />;
 }
