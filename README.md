@@ -2,11 +2,11 @@
 
 Solar Lanka is a solar energy portfolio web application for exploring solar products, estimating system requirements, comparing company quotations, and tracking installation progress.
 
-**Status: Phase 1 (core release) is built and tested; deployment is a later phase.** Everything uses fictional companies and sample prices. Contents: [setup](#setup-from-a-fresh-checkout), [architecture](#architecture), [database diagram](#database-relationships), [API documentation](#api-documentation), [demo accounts](#demo-accounts), [walkthrough](#guided-walkthrough), [browser tests](#browser-tests-phase-17), [scope acceptance](#core-scope-acceptance-phase-1).
+**Status: the core release (Phase 1) and the Phase 2 features are built and tested; deployment is a later phase, and a few follow-ups are listed under Known limitations.** Everything uses fictional companies and sample prices. Contents: [setup](#setup-from-a-fresh-checkout), [architecture](#architecture), [database diagram](#database-relationships), [API documentation](#api-documentation), [demo accounts](#demo-accounts), [walkthrough](#guided-walkthrough), [browser tests](#browser-tests-phase-17), [scope acceptance](#core-scope-acceptance-phase-1), [Phase 2 acceptance](#phase-2-acceptance-phases-18-and-19).
 
-## Backend (Phase 1 API) — status: complete
+## Backend
 
-The backend gate is passed: the core journey (estimate → request → compare → accept → track) works through the API, proven by `backend/tests/test_core_journey.py`. The frontend (Phase 13 onward) can begin.
+The core journey (estimate → request → compare → accept → track) works through the API, proven by `backend/tests/test_core_journey.py`; the Phase 2 features (technician visits, support, troubleshooting, education, exports, email, reminders) sit on the same API, and the web app is built on it.
 
 ### Run it
 
@@ -29,7 +29,8 @@ All integration settings are backend-only and documented with dummy values in `b
 
 - **Clerk** (identity): the API verifies Clerk bearer tokens and keeps roles and company memberships locally. Demo data creates no logins; create demo users in a Clerk development instance.
 - **ImageKit** (public media): upload authorisation and verification; private documents use local private storage in development.
-- **Inngest** (background work): notifications are produced from a database outbox. Use the Inngest Dev Server locally; production needs both keys.
+- **Inngest** (background work): notifications, quotation PDF exports and their emails are produced from a database outbox, and two scheduled functions run the reminders (hourly) and the export cleanup (daily, development and test). Use the Inngest Dev Server locally; production needs both keys. Without it, `python -m app.jobs.process_outbox_locally`, `python -m app.jobs.send_reminders` and `python -m app.jobs.cleanup_exports` do the same work once.
+- **Email**: a local file sink by default and SMTP when configured; see Email below.
 - **Arcjet** (abuse protection): rate limits on public and write routes. Unset `SOLAR_ARCJET_KEY` disables it in development; production requires it.
 
 ## Setup from a fresh checkout
@@ -47,9 +48,10 @@ flowchart LR
   B[Browser] -->|same-origin /api| N[Next.js 16 app<br/>pages, TanStack Query, Clerk session]
   N -->|bearer token added server-side| A[FastAPI<br/>verifies Clerk token, applies roles and company membership]
   A --> P[(PostgreSQL<br/>constraints and triggers keep sent quotations frozen)]
-  A -->|outbox rows| O[Inngest worker<br/>writes notifications]
+  A -->|outbox rows| O[Inngest worker<br/>notifications, PDF exports, emails, reminders]
   O --> P
-  A -.->|private evidence| F[Local private storage<br/>development only]
+  O -.->|email| M[Mail sink files<br/>or SMTP]
+  A -.->|private evidence, photos and exports| F[Local private storage<br/>development only]
   A -.->|public images| I[ImageKit]
   N --> C[Clerk<br/>sign-in only]
 ```
@@ -78,20 +80,36 @@ erDiagram
   companies ||--o{ request_deliveries : receives
   request_deliveries ||--o| quotations : "answered by"
   quotations ||--o{ quotation_revisions : "versions"
-  quotation_revisions ||--o{ quotation_lines : "itemised by"
-  products ||--o{ quotation_lines : "snapshot of"
+  quotation_revisions ||--o{ quotation_line_items : "itemised by"
+  products ||--o{ quotation_line_items : "snapshot of"
   quotation_revisions ||--o| installations : "accepted creates"
   installations ||--o{ installation_milestones : "8 ordered steps"
-  installation_milestones ||--o{ milestone_events : "history"
+  installation_milestones ||--o{ installation_milestone_events : "history"
   installations ||--o{ installation_internal_notes : "company only"
   request_deliveries ||--o{ request_delivery_notes : "company only"
   app_users ||--o{ notifications : receives
   app_users ||--o{ media_assets : uploads
   app_users ||--o{ audit_events : "acts in"
   outbox_events }o--|| installations : "announces"
+  installations ||--o{ installation_assignments : "staff on the job"
+  installations ||--o{ site_visits : "visits"
+  site_visits ||--o{ site_visit_slots : "times offered"
+  site_visits ||--o{ site_visit_events : history
+  site_visits ||--o{ site_visit_notes : "notes"
+  site_visits ||--o{ site_visit_evidence : "photos"
+  products ||--o{ troubleshooting_references : "exact model"
+  installations ||--o{ support_cases : "problems reported"
+  support_cases ||--o{ support_case_updates : "history"
+  support_cases ||--o{ support_case_attachments : "photos"
+  support_cases ||--o{ support_case_assignments : "technician"
+  education_categories ||--o{ articles : groups
+  quotation_revisions ||--o{ quotation_exports : "PDF made once"
+  app_users ||--o{ quotation_exports : requests
+  app_users ||--o| notification_preferences : "own switches"
+  app_users ||--o{ email_deliveries : "emailed once"
 ```
 
-The diagram shows the relationships that matter; the full column lists are in `backend/app/models/`. Table names follow the models (a few above are shortened). Companies' prices live in `product_offers`, never on the canonical `products`, and sent quotation revisions and their lines are made immutable by database triggers (migration 0029).
+The diagram shows the relationships that matter; the full column lists are in `backend/app/models/`. Table names follow the models. Companies' prices live in `product_offers`, never on the canonical `products`, and sent quotation revisions and their lines are made immutable by database triggers (migration 0029).
 
 ## API documentation
 
@@ -150,6 +168,7 @@ cd backend
 | `e2e_customer_new` | customer | none | every empty state |
 | `e2e_customer_estimate`, `e2e_customer_two` | customer | none | run the whole workflow yourself without touching the seeded customer |
 | `e2e_platform_admin` | platform administrator | none | review companies, edit the catalogue and estimator settings, read the audit log |
+| `e2e_content_reviewer` | platform administrator | none | a second administrator, so learning articles can be reviewed by someone other than their author |
 | `e2e_rival_admin` | company administrator | E2E Rival Solar | a second approved Colombo company, so offers can compete |
 
 Anyone who signs in with a Clerk user that is not linked becomes an ordinary customer with no data.
@@ -167,9 +186,15 @@ Use two browser profiles (or a private window) so a customer and a company can b
 7. **As `e2e_platform_admin`**: review a company submission, edit a specification, publish a new estimator draft, and read the audit log.
 8. **Site visit**: as `e2e_customer_estimate`, open the installation and request a visit with a time; as the company, confirm it with the technician (or offer other times); as `e2e_sunbird_technician`, open My visits, add a note and a photo and complete the visit once its time has come (the app refuses to complete a visit that has not started; for a demonstration, a visit scheduled for the past can only be made by editing its time in the database, which the browser tests do for you).
 
+9. **Support and troubleshooting**: without signing in, open Troubleshooting and look up `GW3000-DNS-30` (hazards come first, each reference names its manual page; a similar name such as `GW3000-DNS` only offers names to pick from). As `e2e_customer_estimate`, open Support and report a problem on the installation (tick "may be dangerous" to see the safety message); as the company, assign `e2e_sunbird_technician`, who then sees only that case.
+10. **Learning centre**: open Learn without signing in. Three articles (how rooftop solar works, connection schemes and the electricity bill) were checked against their cited pages and carry no sample label; the other four are still marked as sample. As `e2e_platform_admin` open Learning content to draft an article, then publish it as `e2e_content_reviewer`.
+11. **Estimator schemes**: on the Estimator choose Net accounting or Net plus (with a daytime share for net accounting). The result names the scheme, says how it differs from net metering, and lists the feed-in rate with its date and source. As `e2e_platform_admin`, open Estimator settings to draft a version for a scheme (its export rate and a dated export source are required).
+12. **PDF copy**: as the customer, open an offer and choose Prepare PDF; it is made by the background job (run `python -m app.jobs.process_outbox_locally` locally), then Download PDF appears. The company can download any sent revision from its quotation page.
+13. **Email and reminders**: every notification is also written as a file under `backend/storage/mail` (see Email). Run `python -m app.jobs.send_reminders` to create reminders for offers about to expire, visits within a day and yearly check-ins. On Notifications, switch reminders or email off for your own account.
+
 ### Measured demo performance (17.09)
 
-Measured on one developer laptop (Linux, PostgreSQL 16 in Docker, Python 3.14, Next.js production build), demo dataset only. These are demonstration figures, not capacity claims.
+Measured during Phase 17, on the core release before the Phase 2 features were added, on one developer laptop (Linux, PostgreSQL 16 in Docker, Python 3.14, Next.js production build), demo dataset only; they were not measured again after Phase 2. These are demonstration figures, not capacity claims.
 
 | What | Result |
 |---|---|
@@ -183,35 +208,37 @@ Measured on one developer laptop (Linux, PostgreSQL 16 in Docker, Python 3.14, N
 ### Known limitations
 
 - Everything uses fictional companies and sample prices. Estimates are planning aids, not guarantees.
-- Arcjet and Inngest were tested with fakes or locally, not against live services.
-- Sign-in is Clerk's: demo people have no passwords and must be linked to Clerk users (see Demo accounts). Browser tests bypass sign-in with a signed test token.
-- Technician workspace, site visits, support, troubleshooting, education content and document export are Phase 2; they appear only as "Coming soon".
-- Three grid-connected, no-backup estimator scenarios are calculated by the API (net metering, net accounting, net plus; see Estimator scenarios); the estimate screen still offers only net metering, and net plus plus, off-grid and hybrid are not calculated. Every figure is a fictional planning aid.
-- Evidence files use local private storage, which exists for development and tests only; notifications need the Inngest worker (or the local processor) running.
+- Arcjet, Inngest and SMTP were tested with fakes or local stand-ins, not against live services or a hosted provider.
+- Sign-in is Clerk's: demo people have no passwords and must be linked to Clerk users (see Demo accounts). Browser tests bypass sign-in with a signed test token. A live check against a real Clerk development instance is written (see Try it with a real Clerk instance) but its sign-in and recovery steps have not been run.
+- Content: three learning articles and the three troubleshooting references (one inverter model only) were read against their sources; four articles remain sample, and no content has had a human reviewer.
+- Estimates: net plus plus, off-grid, hybrid and battery systems are not calculated. The feed-in rate is a single figure for any system size, and the schemes open to new connections are changing, so confirm them with a company.
+- Private files (evidence, photos and PDF exports) use local storage, which exists for development and tests only. Notifications, exports, emails and reminders need the Inngest worker and its schedules (or the local jobs) running.
+- Email links are not included (the app has no public address setting yet) and delivery is at least once.
 - Measurements cover the demo dataset on one machine; nothing was load-tested, and no real device or screen reader was used.
-- Not yet built: deployment, CI, backups and monitoring (the later DevOps phase).
+- Not yet built: deployment, CI, production storage, backups and monitoring (the deployment phase).
 
-## Local release gate (17.10)
+## Local release gate
 
-Run on one machine with a disposable database, before Phase 18 (deployment). All of these pass:
+Last run on 2026-10-05 on one machine with a disposable database, after the Phase 2 work. Everything passed; the numbers below come from that run.
 
 | Check | Command | Result |
 |---|---|---|
-| Backend lint and format | `ruff check .` and `ruff format --check .` | clean (239 files) |
-| Backend tests, real PostgreSQL | `pytest --database` | 461 passed |
-| Frontend lint and types | `pnpm check` | clean |
-| Frontend unit tests | `pnpm test` | 302 passed |
+| Backend lint and format | `ruff check .` and `ruff format --check .` | clean (310 files) |
+| Migrations up and down | `make test-migrations` | 2 passed |
+| Backend tests, real PostgreSQL | `pytest --database` | 533 passed |
+| Frontend lint and types | `eslint .` and `next typegen && tsc --noEmit` (the two steps of `pnpm check`) | clean |
+| Frontend unit tests | `pnpm test` | 329 passed |
 | Frontend production build | `next build` | compiles, every route generated |
-| Browser tests (desktop, tablet, mobile) | `playwright test` | 126 passed (in three runs of the same specs: layout 12, the four workflow specs 84, accessibility 30) |
+| Browser tests (desktop, tablet, mobile) | `playwright test` | 213 tests: 212 passed and 1 flaky (a mobile support test that fails its first attempt now and then and passes on the automatic retry), none failed; the layout spec runs on desktop only |
 
-Not part of this gate: CI, deployment, load testing and real-device checks (see Known limitations).
+Not part of this gate: CI, deployment, load testing, real-device checks and the live Clerk run (see Known limitations).
 
 ## Browser tests (Phase 17)
 
 Playwright runs the real web app against the real API and a known database. No Clerk account or password is needed: a test-only gateway signs a token for the demo person each test chooses, and the API still verifies it (the sign-in bypass works only when `E2E_AUTH=1` outside production).
 
 1. Create a disposable PostgreSQL database in the test container and export its address. From `backend/`: `.venv/bin/python ../frontend/e2e/support/database.py create`, then `export E2E_DATABASE_URL=$(.venv/bin/python ../frontend/e2e/support/database.py url)` (it reads the passwords in the root `.env`; never print the address). `drop` removes it afterwards.
-2. From `frontend/`: `node_modules/.bin/playwright test` (or `pnpm e2e`). It migrates and seeds the database (`app.seed_demo` plus `app.seed_e2e`, both repeatable), starts the API and the signing proxy, starts the web app, and uses the Chrome installed on the machine. Projects: desktop (1280 px), tablet (iPad) and mobile (Pixel 7).
+2. From `frontend/`: `node_modules/.bin/playwright test` (or `pnpm e2e`). It migrates and seeds the database (`app.seed_demo` plus `app.seed_e2e`, both repeatable), starts the API and the signing proxy, starts the web app, and uses the Chrome installed on the machine. Projects: desktop (1280 px), tablet (iPad) and mobile (Pixel 7); the layout spec runs on desktop only because it sets its own sizes.
 3. Layout is checked at 320 (small phone), 390 (phone), 768 (tablet), 1024 (tablet landscape) and 1280 (desktop) pixels wide: no sideways scrolling, and controls at least 24 px (WCAG 2.5.8; most are 44 px) at phone and tablet widths.
 4. The demo people and what each can do are listed in `frontend/e2e/identities.ts`; `e2e/specs/foundation.spec.ts` checks that each one is who the table says and that the known data and the refusals are as expected.
 
@@ -221,7 +248,7 @@ Each criterion from section 11 of the project scope, with the evidence for it. "
 
 | # | Criterion | Status | Evidence |
 |---|-----------|--------|----------|
-| 1 | A reviewer can sign in with documented demo accounts for each supported role | Partly met | The seeds create the demo people (`app.seed_demo`, `app.seed_e2e`) and the API verifies Clerk tokens, but no passwords exist: a reviewer must create matching users in a Clerk development instance. Browser tests use a signed test token instead (`e2e/identities.ts`). Step-by-step instructions are 17.08. |
+| 1 | A reviewer can sign in with documented demo accounts for each supported role | Partly met | The seeds create the demo people (`app.seed_demo`, `app.seed_e2e`) and the API verifies Clerk tokens, but no passwords exist: a reviewer must create matching users in a Clerk development instance (steps under Demo accounts and Try it with a real Clerk instance). Browser tests use a signed test token instead (`e2e/identities.ts`). |
 | 2 | Estimate, request, compare, accept, track | Met | Browser: `customer-acceptance.spec.ts` (estimate, request, offer, accept, tracking). API: `test_core_journey.py`. Saving an estimate from the page itself needs a real Clerk session and is covered through the API. |
 | 3 | Company A cannot reach Company B's enquiries, quotations, notes or files | Met | Browser: `company-quotation.spec.ts`, `notifications-documents.spec.ts` (403 for other companies and technicians). API: `test_company_access.py`, `test_core_journey.py`. |
 | 4 | Customers cannot read other customers' records by changing an id | Met | Browser: `foundation.spec.ts`, `notifications-documents.spec.ts` (404). API: `test_saved_estimate_access.py`, `test_request_reads.py`. |
@@ -234,7 +261,7 @@ Each criterion from section 11 of the project scope, with the evidence for it. "
 | 11 | Implemented scheduling rejects conflicting technician visits | Met (Phase 2) | A database exclusion constraint rejects overlapping confirmed visits for one technician even for direct writes (`test_site_visit_*`), and the browser spec `site-visits.spec.ts` shows the conflict explained from fresh state. |
 | 12 | Invalid installation transitions are rejected with understandable errors | Met | API: `test_core_journey.py` (order and evidence rules), `test_quotation_states.py`; screens: `lib/installations/staff.test.ts` and the explanations from fresh state. |
 | 13 | Private attachments require authorisation | Met | `test_private_media_routes.py`, `test_core_journey.py` (evidence), browser: `notifications-documents.spec.ts` (everyone else refused, signed out 401). |
-| 14 | Critical workflows pass automated tests | Met | Backend suite (460 tests with `--database`), 302 frontend unit tests, 126 browser tests. |
+| 14 | Critical workflows pass automated tests | Met | Backend suite (533 tests with `--database`), 329 frontend unit tests, 213 browser tests (see Local release gate). |
 | 15 | Works on desktop and mobile browser sizes | Met | Browser: `layout.spec.ts` (320 to 1280 px) and `accessibility.spec.ts` (axe, WCAG 2.2 AA). Emulated, not real devices. |
 | 16 | Sample identities, prices and estimates are labelled | Met | Fictional names end in "(Fictional)" (`test_demo_seed.py`); prices carry "Sample price" and claims "Company declared, not verified"; the home page states the demonstration status; estimates say they are planning aids. |
 
@@ -245,13 +272,14 @@ Phase 2 adds to the core release without changing it. "Browser" means a Playwrig
 | Feature | Status | Evidence |
 |---|---|---|
 | Technician workspace, conflict-checked site visits, visit evidence | Met | Browser: `site-visits.spec.ts`; API: `test_site_visit_*`, database exclusion constraint for overlapping confirmed visits. |
-| Sourced troubleshooting references with hazard escalation | Met, sample content | `test_troubleshooting*`, browser `support.spec.ts`. References are fictional samples (`is_sample`). |
+| Sourced troubleshooting references with hazard escalation | Met for one model | `test_troubleshooting*`, browser `support.spec.ts`. The three seeded references for `GW3000-DNS-30` come from GoodWe's DNS G3 user manual (V1.5-2023-05-25, a distributor-hosted copy) and cite its pages; no other model has any, and the earth fault hazard rating is a cautious choice that a qualified person should confirm. |
 | Support cases with private attachments, assignment and replay-safe updates | Met | `test_support_*`, browser `support.spec.ts`. |
-| Education articles with review, sources and time-sensitive notices | Met, sample content | `test_education*`, browser `education.spec.ts`. Content is not verified against regulator pages. |
-| Quotation PDF export of an exact revision, built in the background and delivered privately | Met | `test_quotation_pdf.py` (PDF read back and compared with the stored revision), `test_quotation_exports.py`, browser `phase2-workflows.spec.ts`. Local private storage only. Export files are named after their export and old ones are removed by a daily job (`python -m app.jobs.cleanup_exports`, also scheduled in Inngest at 03:00): ready exports after 30 days (the customer can ask again) and files a crashed attempt left behind. |
+| Education articles with review, sources and time-sensitive notices | Met; three of seven articles verified | `test_education*`, `test_education_sources.py`, browser `education.spec.ts`. Three articles were read against their cited regulator and Department of Energy pages and are not labelled sample; four stay marked as sample. No human reviewer has signed any of them off. |
+| Quotation PDF export of an exact revision, built in the background and delivered privately | Met | `test_quotation_pdf.py` (PDF read back and compared with the stored revision), `test_quotation_exports.py`, browser `phase2-workflows.spec.ts` (the customer's Prepare and Download PDF buttons and the company's download), `test_quotation_pdf_access.py` (who may fetch each PDF route). Local private storage only. Export files are named after their export and old ones are removed by a daily job (`python -m app.jobs.cleanup_exports`, also scheduled in Inngest at 03:00): ready exports after 30 days (the customer can ask again) and files a crashed attempt left behind. |
 | Transactional email with a local sink | Met | `test_mail.py`, `test_email_delivery.py` (one email per notification, retry-safe, switchable per person), `test_smtp_delivery.py` (delivery to a real SMTP server over a local socket), browser `phase2-workflows.spec.ts`. Not tried against a hosted provider or a real inbox. |
-| Password and account recovery | Met by Clerk | `frontend/src/lib/recovery.test.ts` guards against a custom reset system; the live flow was not exercised. |
+| Private notification settings | Met | `test_notification_preferences.py` (defaults, privacy, reminders and email actually stopped), browser `phase2-workflows.spec.ts`. Only two switches exist: reminders and email. |
+| Password and account recovery | Met by Clerk in the code; live flow not yet run | `frontend/src/lib/recovery.test.ts` guards against a custom reset system. An opt-in live check against a real Clerk development instance is written (`playwright.live.config.ts`); only its sign-in page test has been run. |
 | Pending-offer, visit and yearly maintenance reminders | Met in the API; scheduled hourly through Inngest | `test_reminders.py`, `test_reminder_schedule.py`, browser `phase2-workflows.spec.ts`. Visit reminders say the start time in the visit's own time zone and wait for daytime there (07:00 to 21:00) unless the visit is within 3 hours. Not tried against a running Inngest server. |
-| Net accounting and net plus estimator scenarios | Met in the API, not in the screen | `test_estimator_export_scenarios.py`, `test_e2e_seed.py`, browser `phase2-workflows.spec.ts`. The estimate form still offers net metering only; rates need rechecking (see Estimator scenarios). |
+| Net accounting and net plus estimator scenarios | Met | `test_estimator_export_scenarios.py`, `test_e2e_seed.py`, browser `phase2-workflows.spec.ts` (the estimate form, the administrator's draft and saved estimates). The feed-in rate follows the PUCSL August 2026 decision (see Estimator scenarios); it must be rechecked. |
 
-Still deferred: net plus plus, off-grid and hybrid estimates, email notifications, a download button for exports, and everything in Phase 3 and the deployment phase.
+Still deferred: net plus plus, off-grid, hybrid and battery estimates; email links and per-event switches; production file storage; a live Clerk sign-in and recovery run; human review of the content; and everything in Phase 3 and the deployment phase.

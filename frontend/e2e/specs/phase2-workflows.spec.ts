@@ -235,17 +235,17 @@ test.describe("phase 2 workflows run beside the core release", () => {
   });
 
   test("a person's own switches stop reminders and email, stay private, and can be turned back on", async ({ page, api, signInAs, processOutbox, runReminders }) => {
-    const person = "e2e_customer_new";
-    const reset = () => api("newCustomer", "PUT", "/users/me/notification-preferences", { reminders_enabled: true, email_enabled: true });
+    const person = "e2e_customer_estimate";
+    const reset = () => api("estimateCustomer", "PUT", "/users/me/notification-preferences", { reminders_enabled: true, email_enabled: true });
     // Every viewport runs this test on the same database, so it starts and ends with the switches on.
     await reset();
-    const notifications = async (who: "newCustomer", requestId: string) =>
+    const notifications = async (who: "estimateCustomer", requestId: string) =>
       ((await api(who, "GET", "/users/me/notifications?limit=50")).body as { items: { kind: string; target_id: string | null }[] }).items.filter((item) => item.target_id === requestId);
     processOutbox();
     runReminders();
 
     // The switches start on, and changing one is saved and kept after a reload.
-    signInAs("newCustomer");
+    signInAs("estimateCustomer");
     await page.goto("/notifications");
     const reminders = page.locator("[data-setting='reminders']");
     const email = page.locator("[data-setting='email']");
@@ -259,24 +259,24 @@ test.describe("phase 2 workflows run beside the core release", () => {
 
     // They are this person's alone.
     expect((await api("otherCustomer", "GET", "/users/me/notification-preferences")).body).toEqual({ reminders_enabled: true, email_enabled: true });
-    expect((await api("newCustomer", "GET", "/users/me/notification-preferences")).body).toEqual({ reminders_enabled: false, email_enabled: true });
+    expect((await api("estimateCustomer", "GET", "/users/me/notification-preferences")).body).toEqual({ reminders_enabled: false, email_enabled: true });
 
     // Reminders off: the new offer is still announced and emailed, but no reminder is made.
-    const first = await sentOffer(api, "newCustomer");
+    const first = await sentOffer(api, "estimateCustomer");
     const received = mailFor("You have a new offer", person);
     const expiring = mailFor("An offer is about to expire", person);
     processOutbox();
     runReminders();
-    expect((await notifications("newCustomer", first.requestId)).map((item) => item.kind)).toEqual(["quotation.sent"]);
+    expect((await notifications("estimateCustomer", first.requestId)).map((item) => item.kind)).toEqual(["quotation.sent"]);
     expect(mailFor("You have a new offer", person)).toBe(received + 1);
     expect(mailFor("An offer is about to expire", person)).toBe(expiring);
 
     // Email off: the notification still appears, but nothing is emailed.
     await page.locator("[data-setting='email']").uncheck();
     await expect(page.locator("[data-settings-status]")).toHaveText("Settings saved.");
-    const second = await sentOffer(api, "newCustomer");
+    const second = await sentOffer(api, "estimateCustomer");
     processOutbox();
-    expect((await notifications("newCustomer", second.requestId)).map((item) => item.kind)).toEqual(["quotation.sent"]);
+    expect((await notifications("estimateCustomer", second.requestId)).map((item) => item.kind)).toEqual(["quotation.sent"]);
     expect(mailFor("You have a new offer", person)).toBe(received + 1);
 
     // Reminders back on: the waiting offer is reminded about, once, and by in-app notice only.
@@ -284,7 +284,7 @@ test.describe("phase 2 workflows run beside the core release", () => {
     await expect(page.locator("[data-settings-status]")).toHaveText("Settings saved.");
     runReminders();
     runReminders();
-    expect((await notifications("newCustomer", first.requestId)).filter((item) => item.kind === "reminder.quotation_expiring")).toHaveLength(1);
+    expect((await notifications("estimateCustomer", first.requestId)).filter((item) => item.kind === "reminder.quotation_expiring")).toHaveLength(1);
     expect(mailFor("An offer is about to expire", person)).toBe(expiring);
     await reset();
   });
