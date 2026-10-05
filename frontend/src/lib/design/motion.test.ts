@@ -54,3 +54,15 @@ test("the page transition is a short fade, off under reduced motion, and wraps o
   assert.match(block, /::view-transition-new\(\.page\)[\s\S]*220ms/);
   assert.match(block.slice(block.indexOf("prefers-reduced-motion")), /animation: none !important/);
 });
+
+test("the hero entrance rises in turn, fades the photo, delays the dial sweep, and is skipped under reduced motion", () => {
+  const block = css.slice(css.indexOf("Hero entrance:"));
+  assert.match(block, /@utility hero-in \{[\s\S]*animation: hero-rise 640ms[\s\S]*calc\(var\(--i, 0\) \* 90ms\)/);
+  assert.match(block, /@utility hero-fade \{[\s\S]*animation: hero-fade 900ms/);
+  const reduced = [...block.matchAll(/prefers-reduced-motion: reduce\) \{\s*animation: none;/g)];
+  assert.equal(reduced.length, 2, "both entrance utilities switch off under reduced motion");
+  assert.match(css, /animation: dial-sweep var\(--ds-dur-sweep\) var\(--ds-ease\) var\(--dial-delay, 0ms\) both/);
+  const hero = readFileSync(join(import.meta.dirname, "..", "..", "components", "landing", "hero.tsx"), "utf8");
+  for (const index of [0, 1, 2, 3, 4, 5]) assert.ok(hero.includes(`step(${index})`), `step ${index}`);
+  assert.ok(hero.includes("hero-fade") && hero.includes("delay={900}"));
+});

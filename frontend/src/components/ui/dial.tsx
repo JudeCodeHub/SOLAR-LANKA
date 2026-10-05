@@ -14,6 +14,7 @@ export function Dial({
   unit,
   display,
   size = 200,
+  delay = 0,
   className,
 }: {
   label: string;
@@ -24,13 +25,15 @@ export function Dial({
   /** The value as it should be written, for example with a thousands separator; defaults to the number itself. */
   display?: string;
   size?: number;
+  /** Milliseconds to wait before the sweep starts, so it can follow an entrance. */
+  delay?: number;
   className?: string;
 }) {
   const share = fraction(value, min, max);
   const shown = display ?? String(value);
   const spoken = format(messages.dial.description, { label, value: shown, unit, min, max });
   return (
-    <figure data-slot="dial" data-fraction={share} className={cn("inline-flex flex-col items-center gap-2", className)}>
+    <figure data-slot="dial" data-fraction={share} style={delay > 0 ? ({ "--dial-delay": `${delay}ms` } as React.CSSProperties) : undefined} className={cn("inline-flex flex-col items-center gap-2", className)}>
       <svg viewBox={`0 0 ${DIAL_BOX} ${DIAL_BOX}`} width={size} height={size} role="img" aria-label={spoken}>
         <g aria-hidden>
           <path d={TRACK} fill="none" stroke="var(--ds-line)" strokeWidth={12} strokeLinecap="round" />
