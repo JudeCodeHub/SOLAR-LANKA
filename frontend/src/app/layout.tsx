@@ -7,6 +7,7 @@ import { ComparisonTray } from "@/components/comparison/comparison-tray";
 import { Providers } from "@/components/providers";
 import { SessionWatcher } from "@/components/session-watcher";
 import { SiteFooter } from "@/components/site-footer";
+import { SkipLink } from "@/components/shell/skip-link";
 import { SiteHeader } from "@/components/site-header";
 import { BRAND_COLOURS } from "@/lib/brand/logo";
 import { THEME_SCRIPT } from "@/lib/theme/theme";
@@ -46,12 +47,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           <Providers>
             <SessionWatcher />
-            <a
-              href="#main-content"
-              className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:shadow-md focus:ring-3 focus:ring-ring/50 focus:outline-none"
-            >
-              {messages.a11y.skipToContent}
-            </a>
+            <SkipLink />
             <SiteHeader />
             <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col outline-none">
               {children}
