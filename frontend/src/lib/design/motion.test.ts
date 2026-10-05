@@ -35,3 +35,12 @@ test("both themes define the three elevation levels and the grain strength", () 
 test("the container, section and radius tokens are in the theme", () => {
   for (const token of ["--container-content: 75rem", "--container-wide: 90rem", "--container-reading: 45rem", "--spacing-section-s", "--spacing-section-xl", "--radius-field", "--radius-card", "--radius-panel"]) assert.ok(css.includes(token), token);
 });
+
+test("the skeleton shimmer animates softly and is switched off under reduced motion", () => {
+  const css = readFileSync(join(import.meta.dirname, "..", "..", "app", "globals.css"), "utf8");
+  const block = css.slice(css.indexOf("@utility shimmer"));
+  assert.match(block, /animation: shimmer-sweep 1\.6s/);
+  assert.match(block.slice(block.indexOf("prefers-reduced-motion")), /animation: none/);
+  const source = readFileSync(join(import.meta.dirname, "..", "..", "components", "ui", "skeleton.tsx"), "utf8");
+  assert.ok(source.includes("shimmer") && !source.includes("animate-pulse"), "the old pulse ignores reduced motion");
+});
