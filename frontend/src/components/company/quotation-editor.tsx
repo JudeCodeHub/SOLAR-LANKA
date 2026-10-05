@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { BackLink } from "@/components/ui/back-link";
 import { useRef, useState } from "react";
 import { useFieldArray, useWatch } from "react-hook-form";
 
@@ -48,9 +48,7 @@ export function QuotationDraftView({ id }: { id: string }) {
       <StaffGate basePath={`/company/inbox/${id}/quotation`}>
         {(company) => (
           <>
-            <Link href={`/company/inbox/${id}?company=${company.company_id}`} className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">
-              {text.editor.back}
-            </Link>
+            <BackLink href={`/company/inbox/${id}?company=${company.company_id}`}>{text.editor.back}</BackLink>
             <Quotation companyId={company.company_id} deliveryId={id} />
           </>
         )}

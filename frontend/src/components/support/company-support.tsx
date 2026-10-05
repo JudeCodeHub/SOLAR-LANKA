@@ -1,5 +1,6 @@
 "use client";
 
+import { BackLink } from "@/components/ui/back-link";
 import Link from "next/link";
 import { useRef, useState } from "react";
 
@@ -102,9 +103,7 @@ function Case({ companyId, id }: { companyId: string; id: string }) {
 
   return (
     <>
-      <Link href={`/company/support?company=${companyId}`} className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">
-        {text.back}
-      </Link>
+      <BackLink href={`/company/support?company=${companyId}`}>{text.back}</BackLink>
       <QueryState query={caseQuery}>
         {(item) => (
           <>

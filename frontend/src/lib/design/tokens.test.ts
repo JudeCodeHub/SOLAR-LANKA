@@ -313,3 +313,14 @@ test("the skip link is a visible orange pill above the sticky header when focuse
   const layout = read("app/layout.tsx");
   assert.ok(layout.indexOf("<SkipLink />") > 0 && layout.indexOf("<SkipLink />") < layout.indexOf("<SiteHeader />"));
 });
+
+test("detail pages lead back with one BackLink, and breadcrumbs mark the current page", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", "components", path), "utf8");
+  const back = read("ui/back-link.tsx");
+  assert.ok(back.includes("min-h-11") && back.includes("ArrowLeft") && back.includes("motion-reduce"));
+  for (const file of ["requests/request-view.tsx", "requests/offer-view.tsx", "estimates/saved-estimate-view.tsx", "installations/tracking-view.tsx", "comparison/compare-page.tsx", "catalogue/detail/product-detail-page.tsx", "education/article-view.tsx", "directory/company-profile.tsx", "visits/technician-visit.tsx"]) {
+    assert.ok(read(file).includes("<BackLink"), `${file} should use BackLink`);
+  }
+  const crumbs = read("ui/breadcrumbs.tsx");
+  assert.ok(crumbs.includes('aria-current={last ? "page" : undefined}') && crumbs.includes("<nav aria-label={label}") && crumbs.includes("min-h-11"));
+});

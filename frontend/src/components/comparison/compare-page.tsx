@@ -1,5 +1,5 @@
+import { BackLink } from "@/components/ui/back-link";
 import { Table, TableRegion } from "@/components/ui/table";
-import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 import { UnspecifiedValue } from "@/components/catalogue/detail/unspecified-value";
@@ -42,10 +42,7 @@ export async function ComparePage({
   const copy = kind === "panel" ? text.panels : text.inverters;
   const results = await Promise.all(ids.map((id) => loadProductDetail(kind, id)));
   const backLink = (
-    <Link href={BASE_PATH[kind]} className="inline-flex items-center gap-1 text-sm underline underline-offset-2">
-      <ArrowLeft aria-hidden className="size-4" />
-      {messages.detail.back[kind]}
-    </Link>
+    <BackLink href={BASE_PATH[kind]}>{messages.detail.back[kind]}</BackLink>
   );
   const header = (
     <header className="space-y-2">

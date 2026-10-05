@@ -1,5 +1,6 @@
 "use client";
 
+import { BackLink } from "@/components/ui/back-link";
 import { Table as DataTable, TableRegion } from "@/components/ui/table";
 import Link from "next/link";
 
@@ -34,9 +35,7 @@ export function CompareView({ requestId }: { requestId: string }) {
   const offers = useRequestOffers(requestId);
   return (
     <div className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 py-8">
-      <Link href={`/my/requests/${requestId}`} className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">
-        {text.back}
-      </Link>
+      <BackLink href={`/my/requests/${requestId}`}>{text.back}</BackLink>
       <header className="space-y-2">
         <h1 className="font-heading text-3xl font-semibold tracking-tight">{text.title}</h1>
         <p className="max-w-3xl text-muted-foreground">{text.intro}</p>

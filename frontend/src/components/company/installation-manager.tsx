@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { BackLink } from "@/components/ui/back-link";
 import { useRef, useState } from "react";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
@@ -79,9 +79,7 @@ function Manager({ companyId, id }: { companyId: string; id: string }) {
 
   return (
     <>
-      <Link href={`/company/installations?company=${companyId}`} className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">
-        {text.back}
-      </Link>
+      <BackLink href={`/company/installations?company=${companyId}`}>{text.back}</BackLink>
       {done ? (
         <p ref={doneRef} tabIndex={-1} role="status" className="text-sm font-medium outline-none" data-done>
           {done}

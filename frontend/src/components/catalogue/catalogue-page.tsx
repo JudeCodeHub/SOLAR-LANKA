@@ -82,9 +82,7 @@ export async function CataloguePage({
             }
             action={
               filtered ? (
-                <Link href={basePath} className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">
-                  {messages.catalogue.filters.clear}
-                </Link>
+                <Link href={basePath} className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">{messages.catalogue.filters.clear}</Link>
               ) : undefined
             }
           />

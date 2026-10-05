@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { BackLink } from "@/components/ui/back-link";
 import { useMemo, useRef, useState } from "react";
 
 import { PlatformGate } from "@/components/admin/platform-gate";
@@ -19,9 +19,7 @@ const text = messages.adminCatalogue;
 export function ProductEditor({ id }: { id: string }) {
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
-      <Link href="/admin/catalogue" className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">
-        {text.back}
-      </Link>
+      <BackLink href="/admin/catalogue">{text.back}</BackLink>
       <PlatformGate>{() => <Loader id={id} />}</PlatformGate>
     </div>
   );

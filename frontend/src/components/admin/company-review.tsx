@@ -1,5 +1,6 @@
 "use client";
 
+import { BackLink } from "@/components/ui/back-link";
 import Link from "next/link";
 import { useRef, useState } from "react";
 
@@ -19,9 +20,7 @@ const text = messages.admin.detail;
 export function CompanyReview({ id }: { id: string }) {
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
-      <Link href="/admin/companies" className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">
-        {text.back}
-      </Link>
+      <BackLink href="/admin/companies">{text.back}</BackLink>
       <PlatformGate>{() => <Review id={id} />}</PlatformGate>
     </div>
   );

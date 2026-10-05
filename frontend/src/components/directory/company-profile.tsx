@@ -1,5 +1,5 @@
+import { BackLink } from "@/components/ui/back-link";
 import Image from "next/image";
-import Link from "next/link";
 
 import { CredentialList } from "@/components/directory/credential-list";
 import { SectionUnavailable } from "@/components/landing/section-unavailable";
@@ -13,9 +13,7 @@ const text = messages.directory;
 export function CompanyProfile({ company, backHref }: { company: PublicCompany; backHref: string }) {
   return (
     <div className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-8">
-      <Link href={backHref} className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">
-        {text.profile.back}
-      </Link>
+      <BackLink href={backHref}>{text.profile.back}</BackLink>
 
       <header className="flex flex-wrap items-center gap-4">
         {company.logo ? (
@@ -84,9 +82,7 @@ export function CompanyProfile({ company, backHref }: { company: PublicCompany; 
 export function CompanyProfileUnavailable({ backHref }: { backHref: string }) {
   return (
     <div className="mx-auto w-full max-w-4xl flex-1 space-y-6 px-4 py-8">
-      <Link href={backHref} className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">
-        {text.profile.back}
-      </Link>
+      <BackLink href={backHref}>{text.profile.back}</BackLink>
       <SectionUnavailable />
     </div>
   );

@@ -1,5 +1,4 @@
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
+import { BackLink } from "@/components/ui/back-link";
 import { notFound } from "next/navigation";
 
 import { FavouriteButton } from "@/components/favourites/favourite-button";
@@ -35,13 +34,7 @@ export async function ProductDetailPage({
     notFound();
   }
   const back = (
-    <Link
-      href={backHref(kind, from)}
-      className="inline-flex items-center gap-1 text-sm underline underline-offset-2"
-    >
-      <ArrowLeft aria-hidden className="size-4" />
-      {messages.detail.back[kind]}
-    </Link>
+    <BackLink href={backHref(kind, from)}>{messages.detail.back[kind]}</BackLink>
   );
   if (result.status === "error") {
     return (

@@ -1003,6 +1003,15 @@ export const en = {
     title: "Design system preview",
     intro: "A development-only page that shows the colours, type and images of the Premium Signal design in both themes. It does not exist in production.",
     contents: "Sections on this page",
+    wayfinding: {
+      title: "Back link and breadcrumbs",
+      intro: "Detail pages lead back with one back link: an arrow that nudges on hover, 44 px high, naming where it goes. Breadcrumbs show the path, with the current page as plain text.",
+      back: "Back to solar panels",
+      label: "Breadcrumb",
+      home: "Home",
+      panels: "Solar panels",
+      product: "Mono PERC 545 W",
+    },
     dials: {
       title: "Dial",
       intro: "The meter dial shows one figure on a scale. It sweeps once when it appears, holds still under reduced motion, and reads out as a single sentence for screen readers.",

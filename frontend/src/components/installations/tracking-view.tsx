@@ -1,7 +1,7 @@
 "use client";
 
+import { BackLink } from "@/components/ui/back-link";
 import { Table } from "@/components/ui/table";
-import Link from "next/link";
 import { useEffect, useRef } from "react";
 
 import { CustomerVisits } from "@/components/visits/customer-visits";
@@ -37,12 +37,7 @@ export function TrackingView({
   }, [justAccepted]);
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
-      <Link
-        href="/my/installations"
-        className="inline-flex min-h-11 items-center text-sm underline underline-offset-2"
-      >
-        {text.back}
-      </Link>
+      <BackLink href="/my/installations">{text.back}</BackLink>
       <h1
         ref={heading}
         tabIndex={-1}
