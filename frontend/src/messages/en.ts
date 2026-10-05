@@ -437,6 +437,76 @@ export const en = {
     },
   },
   landing: {
+    story: {
+      teaser: {
+        eyebrow: "Try it now",
+        title: "See a number before you talk to anyone.",
+        body: "Enter your monthly electricity use and get a sample system size, yearly generation and a cost range.",
+        sampleLabel: "Sample figures",
+        action: "Open the estimator",
+      },
+      how: {
+        eyebrow: "How it works",
+        title: "From your bill to a working system, in four steps.",
+        steps: {
+          estimate: { title: "Estimate", body: "Size a system from your electricity use and your roof." },
+          compare: { title: "Compare", body: "Put quotations side by side, with every figure labelled." },
+          choose: { title: "Choose", body: "Accept the offer that fits, with the terms in plain words." },
+          track: { title: "Track", body: "Follow the installation from site survey to handover." },
+        },
+      },
+      features: {
+        eyebrow: "What you can do",
+        title: "Everything between curiosity and switch-on.",
+        estimate: { title: "Estimate your system", body: "Size, yearly output and a cost range, with the assumptions shown.", link: "Start an estimate" },
+        compare: { title: "Compare quotations", body: "Up to three offers in one table. Missing values say so.", link: "See how comparison works" },
+        track: { title: "Track the installation", body: "Eight clear steps, each with its own status and date.", link: "See the steps" },
+        learn: { title: "Learn the basics", body: "Short guides on panels, inverters, bills and connection schemes.", link: "Open the learning centre" },
+      },
+      catalogue: {
+        eyebrow: "Catalogue",
+        title: "Specifications side by side, never guessed.",
+        body: "Where the catalogue holds no value it says \u201cNot specified\u201d, which is not the same as zero.",
+        panels: "Browse solar panels",
+        inverters: "Browse inverters",
+      },
+      companies: {
+        eyebrow: "Companies",
+        title: "Installers you can ask directly.",
+        body: "Find a company by district and service, then send one request to several of them.",
+        sampleLabel: "Fictional companies for this demonstration",
+        action: "See all companies",
+      },
+      learn: {
+        eyebrow: "Learn",
+        title: "Plain words, no jargon.",
+        body: "Three guides to start with.",
+        action: "All guides",
+      },
+      tracking: {
+        eyebrow: "Transparency",
+        title: "Eight steps, always visible.",
+        body: "Your installer updates each step and you see it as it happens.",
+      },
+      comparison: {
+        eyebrow: "Quotations",
+        title: "Quotes you can actually compare.",
+        body: "Same rows, same units, and a flag wherever offers differ or a value is not specified.",
+        sampleLabel: "Sample data",
+      },
+      safety: {
+        eyebrow: "Safety",
+        title: "Safety comes first.",
+        body: "If an inverter shows an error, look up the code. Some faults are dangerous: for those we say stop, keep clear and call a licensed technician.",
+        action: "Look up an error code",
+      },
+      closing: {
+        title: "Start with your electricity bill.",
+        body: "It takes a minute, costs nothing and commits you to nothing.",
+        action: "Estimate my system",
+        note: "Portfolio demonstration with fictional data.",
+      },
+    },
     hero: {
       title: "Solar Lanka",
       tagline:
