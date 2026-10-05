@@ -16,7 +16,8 @@
     "e2e": "playwright test",
     "design-axe": "playwright test -c playwright.design.config.ts",
     "screens": "playwright test -c playwright.screens.config.ts",
-    "photos": "node scripts/photos.mjs"
+    "photos": "node scripts/photos.mjs",
+    "brand": "node scripts/brand.mjs"
   },
   "dependencies": {
     "@clerk/nextjs": "7.9.9",
