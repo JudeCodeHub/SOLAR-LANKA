@@ -13,6 +13,7 @@ from app.core.config import Settings
 from app.models.email_delivery import EmailDelivery
 from app.models.user import AppUser
 from app.services.mail import Mail, MailSender, create_mail_sender
+from app.services.notification_preferences import preferences_for
 
 
 class EmailDirectory(Protocol):
@@ -73,7 +74,7 @@ def email_once(
             AppUser.provider_state == "active",
         )
     ).one_or_none()
-    if user is None:
+    if user is None or not preferences_for(session, recipient_id)[1]:
         return False
     address = mailer.directory.address_for(user.clerk_subject)
     if address is None:
