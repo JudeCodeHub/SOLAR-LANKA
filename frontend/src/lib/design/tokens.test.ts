@@ -304,3 +304,12 @@ test("the footer carries the logo, link columns from the navigation list, and th
   for (const id of ["panels", "inverters", "estimator", "companies", "learn", "troubleshooting", "support"]) assert.ok(source.includes(`"${id}"`), id);
   assert.ok(source.includes("text-ink-2") && source.includes("bg-paper-2"), "link and notice colours come from the tested pairs");
 });
+
+test("the skip link is a visible orange pill above the sticky header when focused, and the layout puts it before the header", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  const link = read("components/shell/skip-link.tsx");
+  assert.ok(link.includes("focus:bg-orange") && link.includes("focus:text-on-orange") && link.includes("focus:z-[60]") && link.includes("focus:min-h-11"));
+  assert.ok(!link.includes("focus:outline-none"), "the focus ring stays");
+  const layout = read("app/layout.tsx");
+  assert.ok(layout.indexOf("<SkipLink />") > 0 && layout.indexOf("<SkipLink />") < layout.indexOf("<SiteHeader />"));
+});

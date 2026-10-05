@@ -21,8 +21,13 @@ for (const width of [320, 390]) {
       expect(await page.evaluate(() => document.activeElement?.closest('[role="dialog"]') !== null)).toBe(true);
     }
     // The menu itself fits inside the screen.
-    const box = await menu.boundingBox();
-    expect(box && box.x >= -1 && box.x + box.width <= width + 1).toBe(true);
+    // The sheet slides in, so wait for it to settle before measuring.
+    await expect
+      .poll(async () => {
+        const box = await menu.boundingBox();
+        return box !== null && box.x >= -1 && box.x + box.width <= width + 1;
+      })
+      .toBe(true);
 
     await page.keyboard.press("Escape");
     await expect(menu).toHaveCount(0);
