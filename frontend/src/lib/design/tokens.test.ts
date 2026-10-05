@@ -4,7 +4,7 @@ import { join } from "node:path";
 import test from "node:test";
 
 import { contrastRatio } from "./contrast.ts";
-import { BUTTON_VARIANTS, CONTRAST_RULES, CSS_NAMES, DARK, DECORATIVE_ONLY_ON_LIGHT, LIGHT, type ContrastRule, type Theme } from "./tokens.ts";
+import { BUTTON_VARIANTS, CARD_VARIANTS, CONTRAST_RULES, CSS_NAMES, DARK, DECORATIVE_ONLY_ON_LIGHT, LIGHT, type ContrastRule, type Theme } from "./tokens.ts";
 
 const maps: Record<Theme, Record<string, string>> = { light: LIGHT, dark: DARK };
 
@@ -119,4 +119,29 @@ test("every button size is at least 44 px tall", () => {
   const heights = [...sizes.matchAll(/"(?:h|size)-(\d+)/g)].map((match) => Number(match[1]));
   assert.ok(heights.length >= 8, "found the sizes");
   for (const height of heights) assert.ok(height >= 11, `h-${height}`);
+});
+
+test("every card surface keeps its text readable in both themes", () => {
+  const problems: string[] = [];
+  for (const { variant, pairs } of CARD_VARIANTS) {
+    for (const theme of ["light", "dark"] as const) {
+      for (const [foreground, background] of pairs) {
+        const ratio = contrastRatio(valueByCssName(theme, foreground), valueByCssName(theme, background));
+        if (ratio < 4.5) problems.push(`${variant} ${theme}: ${foreground} on ${background} is ${ratio.toFixed(2)}`);
+      }
+    }
+  }
+  assert.deepEqual(problems, []);
+});
+
+test("the Card component offers exactly the five surfaces, raised by default, built from the named classes", () => {
+  const source = readFileSync(join(import.meta.dirname, "..", "..", "components", "ui", "card.tsx"), "utf8");
+  const block = source.match(/variant: \{([\s\S]*?)\n      \},/)?.[1] ?? "";
+  assert.deepEqual([...block.matchAll(/^\s+(\w+):/gm)].map((match) => match[1]), CARD_VARIANTS.map((card) => card.variant));
+  assert.match(source, /defaultVariants: \{ variant: "raised" \}/);
+  for (const { variant, classes } of CARD_VARIANTS) {
+    const line = block.match(new RegExp(`${variant}:\\s*"([^"]+)"`))?.[1] ?? "";
+    for (const name of classes) assert.ok(line.split(/\s+/).includes(name), `${variant} should use ${name}`);
+  }
+  assert.ok(!source.includes("ring-foreground"), "the old template ring is gone");
 });

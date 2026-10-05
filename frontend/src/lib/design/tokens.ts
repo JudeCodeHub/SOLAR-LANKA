@@ -125,3 +125,12 @@ export const BUTTON_VARIANTS: { variant: string; classes: string[]; pairs: [stri
   { variant: "destructive", classes: ["bg-danger", "text-on-danger"], pairs: [["on-danger", "danger"]] },
   { variant: "link", classes: ["text-orange-text"], pairs: [["orange-text", "bg"], ["orange-text", "surface"]] },
 ];
+
+/** The card surfaces and the text pairs each must keep readable (shared CSS names, checked in both themes). */
+export const CARD_VARIANTS: { variant: string; classes: string[]; pairs: [string, string][] }[] = [
+  { variant: "flat", classes: ["bg-surface"], pairs: [["text", "surface"], ["muted", "surface"]] },
+  { variant: "raised", classes: ["bg-surface", "shadow-e1"], pairs: [["text", "surface"], ["muted", "surface"]] },
+  { variant: "outlined", classes: ["border-field-border"], pairs: [["text", "bg"], ["muted", "bg"], ["text", "surface"]] },
+  { variant: "inset", classes: ["bg-paper-2"], pairs: [["text", "surface-2"], ["muted", "surface-2"]] },
+  { variant: "glass", classes: ["bg-surface/80", "backdrop-blur-xl"], pairs: [["text", "surface"], ["text", "bg"], ["muted", "surface"]] },
+];

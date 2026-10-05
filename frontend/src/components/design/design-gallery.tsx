@@ -2,6 +2,7 @@ import { CheckCircle2, Clock, Download, Heart, Info, XCircle } from "lucide-reac
 
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Photo } from "@/components/ui/photo";
@@ -41,6 +42,14 @@ const SWATCHES: [string, string][] = [
   ["info-tint", "bg-info-tint"],
   ["disabled-bg", "bg-disabled-bg"],
   ["disabled-text", "bg-disabled-text"],
+];
+
+const CARDS: ['flat' | 'raised' | 'outlined' | 'inset' | 'glass', string, string][] = [
+  ["flat", text.cards.flat, text.cards.flatBody],
+  ["raised", text.cards.raised, text.cards.raisedBody],
+  ["outlined", text.cards.outlined, text.cards.outlinedBody],
+  ["inset", text.cards.inset, text.cards.insetBody],
+  ["glass", text.cards.glass, text.cards.glassBody],
 ];
 
 function valueOf(theme: Theme, cssName: string): string {
@@ -218,6 +227,42 @@ export function DesignGallery() {
               </label>
             </div>
           </fieldset>
+        </div>
+      </section>
+
+      <section aria-labelledby="cards-title" className="space-y-6">
+        <h2 id="cards-title" className="type-heading">{text.cards.title}</h2>
+        <p className="type-body max-w-3xl text-ink-2">{text.cards.intro}</p>
+        <div className="space-y-3">
+          <h3 className="type-subheading">{text.cards.onPage}</h3>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
+            {CARDS.map(([variant, title, body]) => (
+              <Card key={variant} variant={variant}>
+                <CardHeader>
+                  <CardTitle className="type-subheading">{title}</CardTitle>
+                  <CardDescription>{body}</CardDescription>
+                </CardHeader>
+                <CardContent />
+              </Card>
+            ))}
+          </div>
+        </div>
+        <div className="space-y-3">
+          <h3 className="type-subheading">{text.cards.overPhoto}</h3>
+          <div className="relative overflow-hidden rounded-panel">
+            <Photo name="hero" sizes="(min-width: 1024px) 1100px, 100vw" className="absolute inset-0 size-full object-cover" />
+            <div className="relative grid gap-5 p-6 sm:grid-cols-2 lg:grid-cols-5 lg:p-10">
+              {CARDS.map(([variant, title, body]) => (
+                <Card key={variant} variant={variant}>
+                  <CardHeader>
+                    <CardTitle className="type-subheading">{title}</CardTitle>
+                    <CardDescription>{body}</CardDescription>
+                  </CardHeader>
+                  <CardContent />
+                </Card>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
