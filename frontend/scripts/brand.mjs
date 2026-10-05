@@ -16,7 +16,7 @@ writeFileSync(join(OUT, "logo-mark-small.svg"), markSmallSvg(TITLE));
 // App icons: the small mark as the SVG favicon, and PNGs and an .ico drawn from the same geometry.
 import { createRequire } from "node:module";
 
-import { BRAND_COLOURS } from "../src/lib/brand/logo.ts";
+import { BRAND_COLOURS, LOCKUP } from "../src/lib/brand/logo.ts";
 
 const sharp = createRequire(createRequire(import.meta.url).resolve("next/package.json"))("sharp");
 const APP = join(import.meta.dirname, "..", "src", "app");
@@ -59,3 +59,26 @@ pngs.forEach((png, index) => {
   offset += png.length;
 });
 writeFileSync(join(APP, "favicon.ico"), Buffer.concat([header, ...pngs]));
+
+// Share card: the sunset photo (P29) darkened on the left, with the lockup in light-on-dark colours. 1200 by 630 is the size social previews expect.
+import { copyFileSync } from "node:fs";
+
+
+const CARD = { width: 1200, height: 630 };
+const photo = await sharp(join(import.meta.dirname, "..", "photos-original", "share-card-background.png")).resize(CARD.width, CARD.height, { fit: "cover", position: "left" }).toBuffer();
+const shade = Buffer.from(
+  `<svg xmlns="http://www.w3.org/2000/svg" width="${CARD.width}" height="${CARD.height}"><defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#0D0B09" stop-opacity="0.92"/><stop offset="0.5" stop-color="#0D0B09" stop-opacity="0.8"/><stop offset="0.9" stop-color="#0D0B09" stop-opacity="0.05"/></linearGradient></defs><rect width="100%" height="100%" fill="url(#g)"/></svg>`,
+);
+const lockupWidth = 620;
+const lockup = await sharp(Buffer.from(lockupSvg("dark", TITLE)), { density: 400 }).resize({ width: lockupWidth }).png().toBuffer();
+const lockupHeight = Math.round((lockupWidth * LOCKUP.height) / LOCKUP.width);
+await sharp(photo)
+  .composite([
+    { input: shade },
+    { input: lockup, left: 80, top: Math.round((CARD.height - lockupHeight) / 2) },
+  ])
+  .jpeg({ quality: 88, mozjpeg: true })
+  .toFile(join(APP, "opengraph-image.jpg"));
+copyFileSync(join(APP, "opengraph-image.jpg"), join(APP, "twitter-image.jpg"));
+writeFileSync(join(APP, "opengraph-image.alt.txt"), `${TITLE}: solar panels at sunset beside the dial-and-sun logo\n`);
+writeFileSync(join(APP, "twitter-image.alt.txt"), `${TITLE}: solar panels at sunset beside the dial-and-sun logo\n`);

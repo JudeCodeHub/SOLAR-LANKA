@@ -34,3 +34,18 @@ test("the manifest names the icons that exist, and the layout sets a theme colou
   const layout = readFileSync(join(ROOT, "src", "app", "layout.tsx"), "utf8");
   assert.ok(layout.includes("prefers-color-scheme: light") && layout.includes("prefers-color-scheme: dark"));
 });
+
+test("the share card is a 1200 by 630 image with alt text, and the layout describes the site for previews", () => {
+  for (const name of ["opengraph-image", "twitter-image"]) {
+    const jpeg = bytes(`src/app/${name}.jpg`);
+    assert.deepEqual([jpeg[0], jpeg[1]], [0xff, 0xd8]);
+    assert.ok(jpeg.length < 300_000, "small enough for every preview service");
+    assert.match(bytes(`src/app/${name}.alt.txt`).toString("utf8"), /Solar Lanka/);
+  }
+  // A JPEG stores its size in a start-of-frame segment.
+  const jpeg = bytes("src/app/opengraph-image.jpg");
+  const frame = jpeg.findIndex((value, index) => value === 0xff && (jpeg[index + 1] === 0xc0 || jpeg[index + 1] === 0xc2));
+  assert.deepEqual([jpeg.readUInt16BE(frame + 7), jpeg.readUInt16BE(frame + 5)], [1200, 630]);
+  const layout = readFileSync(join(ROOT, "src", "app", "layout.tsx"), "utf8");
+  assert.ok(layout.includes("metadataBase") && layout.includes("summary_large_image") && layout.includes("openGraph"));
+});
