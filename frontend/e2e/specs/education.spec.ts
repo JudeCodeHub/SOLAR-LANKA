@@ -37,10 +37,13 @@ test.describe("the learning centre", () => {
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Net metering and other connection schemes");
     const note = page.locator("[data-currency]");
     await expect(note).toContainText("can change");
-    await expect(note).toContainText("28 September 2026");
-    await expect(page.locator("main")).toContainText("Reviewed on 28 September 2026");
+    await expect(note).toContainText("5 October 2026");
+    await expect(page.locator("main")).toContainText("Reviewed on 5 October 2026");
     await expect(page.locator("[data-sources] a").first()).toHaveAttribute("href", /pucsl\.gov\.lk/);
     await expect(page.locator("[data-related] a")).toContainText("Understanding your electricity bill");
+    // Its claims were read against its sources, so it is not labelled as sample; an unchecked article still is.
+    await expect(page.locator("main")).not.toContainText("This is sample content");
+    await page.goto("/learn/panels-and-inverters-explained");
     await expect(page.locator("main")).toContainText("This is sample content");
     // A malformed or unpublished address is not found.
     await page.goto("/learn/does-not-exist");

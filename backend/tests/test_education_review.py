@@ -179,7 +179,7 @@ def test_demonstration_content_is_reviewed_and_the_tariff_articles_are_marked(
     rows = session.scalars(select(Article)).all()
     assert len(rows) == len(ARTICLES) == 7
     assert all(a.status == "published" and a.reviewer_id == reviewer.id and a.sources for a in rows)
-    assert {c for c, *_ in ARTICLES} == {slug for slug, *_ in CATEGORIES}
+    assert {article[0] for article in ARTICLES} == {slug for slug, *_ in CATEGORIES}
     marked = {a.slug for a in rows if a.time_sensitive}
     assert marked == {"net-metering-and-other-schemes", "understanding-your-electricity-bill"}
     assert all(a.valid_as_of and a.review_by for a in rows if a.time_sensitive)
