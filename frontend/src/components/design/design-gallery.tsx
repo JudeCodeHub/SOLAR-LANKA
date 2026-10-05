@@ -3,6 +3,7 @@ import { CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAler
 
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { OverlayDemo } from "@/components/design/overlay-demo";
 import { Pagination } from "@/components/catalogue/pagination";
 import { Segmented, segmentedItemClass } from "@/components/ui/segmented";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -317,6 +318,12 @@ export function DesignGallery() {
           <h3 className="type-subheading">{text.navigation.pagination}</h3>
           <Pagination hrefFor={(page) => `/design?page=${page}`} page={3} pageCount={9} />
         </div>
+      </section>
+
+      <section aria-labelledby="overlays-title" className="space-y-6">
+        <h2 id="overlays-title" className="type-heading">{text.overlays.title}</h2>
+        <p className="type-body max-w-3xl text-ink-2">{text.overlays.intro}</p>
+        <OverlayDemo />
       </section>
 
       <section aria-labelledby="badges-title" className="space-y-6">
