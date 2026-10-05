@@ -64,7 +64,13 @@ def test_e2e_identities_are_repeatable_and_have_the_documented_roles(
     assert sorted(r.code for r in refs) == ["E01", "E09"]
     assert all(r.is_sample and r.status == "published" for r in refs)
     articles = list(database_session.scalars(select(Article)))
-    assert len(articles) == 7 and all(a.status == "published" and a.is_sample for a in articles)
+    assert len(articles) == 7 and all(a.status == "published" for a in articles)
+    # Only the three articles whose claims were read against their sources are not samples.
+    assert sorted(a.slug for a in articles if not a.is_sample) == [
+        "how-rooftop-solar-works",
+        "net-metering-and-other-schemes",
+        "understanding-your-electricity-bill",
+    ]
     assert all(a.reviewer_id != a.author_id and a.sources for a in articles)
     assert sorted(a.slug for a in articles if a.time_sensitive) == [
         "net-metering-and-other-schemes",

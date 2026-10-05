@@ -13,17 +13,45 @@ AUTHOR = "e2e_platform_admin"
 REVIEWER = "e2e_content_reviewer"
 CHECKED = date(2026, 9, 28)
 
+# Articles whose claims were each read against their cited pages carry this date; the rest stay sample.
+VERIFIED = date(2026, 10, 5)
+REVIEW_BY = date(2027, 4, 5)
+
 PUCSL_SCHEMES = {
     "title": "Rooftop solar PV connection schemes",
     "publisher": "Public Utilities Commission of Sri Lanka",
     "url": "https://www.pucsl.gov.lk/rooftop-solar-pv-connection-schemes/",
-    "accessed_on": CHECKED.isoformat(),
+    "accessed_on": VERIFIED.isoformat(),
+}
+PUCSL_FEED_IN = {
+    "title": "Decision on Feed in Tariffs, effective 25 August 2026",
+    "publisher": "Public Utilities Commission of Sri Lanka",
+    "url": "https://www.pucsl.gov.lk/wp-content/uploads/2026/08/Full-Final-Decision-on-Feed-in-Tariffs-August-2026.pdf",
+    "accessed_on": VERIFIED.isoformat(),
 }
 PUCSL_TARIFFS = {
     "title": "End-user tariff decisions",
     "publisher": "Public Utilities Commission of Sri Lanka",
     "url": "https://www.pucsl.gov.lk/end-user-tariff-decisions/",
-    "accessed_on": CHECKED.isoformat(),
+    "accessed_on": VERIFIED.isoformat(),
+}
+PUCSL_DOMESTIC = {
+    "title": "Domestic tariff (the page shows no revision date)",
+    "publisher": "Public Utilities Commission of Sri Lanka",
+    "url": "https://www.pucsl.gov.lk/?p=8390",
+    "accessed_on": VERIFIED.isoformat(),
+}
+DOE_PV_BASICS = {
+    "title": "Solar photovoltaic technology basics",
+    "publisher": "US Department of Energy, Solar Energy Technologies Office",
+    "url": "https://www.energy.gov/eere/solar/solar-photovoltaic-technology-basics",
+    "accessed_on": VERIFIED.isoformat(),
+}
+DOE_INVERTERS = {
+    "title": "Solar integration: inverters and grid services basics",
+    "publisher": "US Department of Energy, Solar Energy Technologies Office",
+    "url": "https://www.energy.gov/eere/solar/solar-integration-inverters-and-grid-services-basics",
+    "accessed_on": VERIFIED.isoformat(),
 }
 SEA = {
     "title": "Soorya Bala Sangramaya programme",
@@ -43,21 +71,26 @@ CATEGORIES = (
     ("safety-and-maintenance", "Safety and maintenance", "Looking after a system without risk.", 3),
 )
 
-# (category, slug, title, summary, body, sources, time-sensitive)
+# (category, slug, title, summary, body, sources, time-sensitive, verified on)
 ARTICLES = (
     (
         "solar-basics",
         "how-rooftop-solar-works",
         "How rooftop solar works",
         "Panels make direct current, an inverter turns it into the alternating current your home uses.",
-        "Sunlight falling on a solar panel makes direct current (DC).\n\n"
-        "An inverter changes that into alternating current (AC), which is what your lights and "
-        "appliances use. The electricity your home uses first comes from the panels while the sun "
-        "shines. Anything you use beyond that still comes from the grid.\n\n"
-        "A grid-connected system has no battery. When the grid is down, a basic grid-connected "
-        "inverter switches off for safety, so panels alone do not keep the lights on during a power cut.",
-        [SEA],
+        "Sunlight falling on a solar panel's cells is turned into direct current (DC) electricity.\n\n"
+        "An inverter changes DC into alternating current (AC), the kind of electricity the grid uses "
+        "and that the appliances in your home run on.\n\n"
+        "A rooftop system connected to the grid can send the electricity it makes beyond what your "
+        "home uses to the grid. How that extra energy is counted depends on your connection scheme: "
+        "see the article on connection schemes.\n\n"
+        "Inverters connected to the grid are designed to disconnect and shut down when the grid is "
+        "disrupted for a long time or by a large amount, so a basic grid-connected system does not "
+        "keep the lights on during a power cut. If you need power during a cut, ask your installer "
+        "what your system does.",
+        [DOE_PV_BASICS, DOE_INVERTERS, PUCSL_SCHEMES],
         False,
+        VERIFIED,
     ),
     (
         "solar-basics",
@@ -72,6 +105,7 @@ ARTICLES = (
         "Compare products on the same units, and treat a missing value as unknown, not as zero.",
         [SEA],
         False,
+        None,
     ),
     (
         "solar-basics",
@@ -85,6 +119,7 @@ ARTICLES = (
         "terms rather than only the number of years.",
         [SEA],
         False,
+        None,
     ),
     (
         "costs-and-tariffs",
@@ -93,30 +128,42 @@ ARTICLES = (
         "Connection schemes decide how energy you send to the grid is counted. They can change.",
         "When a solar system makes more than your home uses, the extra goes to the grid. How that "
         "extra energy is counted depends on the connection scheme your system is approved under.\n\n"
-        "Under net metering the energy you send to the grid is banked as credit against the energy "
-        "you take, rather than paid out in cash. Other schemes, such as net accounting and net plus, "
-        "count and pay for exported energy differently.\n\n"
-        "The schemes on offer, their terms and their prices are set by the regulator and have been "
-        "revised before. This article explains the idea only. Before you decide, read the regulator's "
-        "current page listed below, and ask your installer which scheme your quotation assumes.",
-        [PUCSL_SCHEMES],
+        "The regulator's page describes four schemes. Under net metering the excess is not paid for "
+        "in cash: it is banked, for up to 10 years according to the page, and counted against the "
+        "energy you take. Under net accounting you are paid for the electricity you export, at a "
+        "feed-in tariff. Under net plus, two meters measure import and export separately and you are "
+        "paid for all the electricity you generate, whatever you use. Net plus plus is a further "
+        "arrangement that treats the system as a power plant, for installations above a home's "
+        "contract demand.\n\n"
+        "The schemes and what they pay change. The regulator's August 2026 decision on feed-in "
+        "tariffs applies from 25 August 2026 until the next revision, and it quotes the National "
+        'Electricity Policy: new on-grid rooftop agreements are on a "net plus" basis, a term the '
+        "decision explains as the two-meter connection arrangement.\n\n"
+        "This article explains the idea only and gives no rate. Read the regulator's pages listed "
+        "below for the current terms, and ask your installer which scheme your quotation assumes and "
+        "whether it is open to new connections.",
+        [PUCSL_SCHEMES, PUCSL_FEED_IN],
         True,
+        VERIFIED,
     ),
     (
         "costs-and-tariffs",
         "understanding-your-electricity-bill",
         "Understanding your electricity bill",
         "Why bills have blocks, fixed charges and changing rates, and why savings are a range.",
-        "A household electricity bill is usually built from the units you used, charged in blocks "
-        "at different rates, plus a fixed charge. The rates, the block sizes and the fixed charges "
-        "are set by the regulator and can be revised.\n\n"
+        "A household electricity bill is built from the units you used, charged in blocks at "
+        "different rates, plus a fixed charge. The regulator's domestic tariff counts blocks over a "
+        "30 day billing period and has a separate scale for households using 60 units a month or "
+        "less. The rates, the block sizes and the fixed charges are set by the regulator, whose "
+        "tariff decisions have been revised many times.\n\n"
         "That is why a saving worked out today is a planning estimate, not a promise: if rates "
         "change, so does the saving. A good estimate shows a range and says which tariff and which "
         "date it assumed.\n\n"
-        "For the current rates, read the regulator's tariff decisions listed below. Do not rely on "
-        "a figure quoted without a date.",
-        [PUCSL_TARIFFS],
+        "This article gives no rates. For the current ones, read the regulator's pages listed "
+        "below, and do not rely on a figure quoted without a date.",
+        [PUCSL_DOMESTIC, PUCSL_TARIFFS],
         True,
+        VERIFIED,
     ),
     (
         "safety-and-maintenance",
@@ -130,6 +177,7 @@ ARTICLES = (
         "rest of the system is switched off.",
         [SEA],
         False,
+        None,
     ),
     (
         "safety-and-maintenance",
@@ -143,6 +191,7 @@ ARTICLES = (
         "equipment: keep people away and call a qualified technician or the emergency services.",
         [SEA],
         False,
+        None,
     ),
 )
 
@@ -166,8 +215,15 @@ def seed_education(session: Session) -> None:
             session.flush()
         categories[slug] = category
     now = datetime.now(UTC)
-    for category, slug, title, summary, body, sources, time_sensitive in ARTICLES:
-        if session.scalars(select(Article).where(Article.slug == slug)).first() is not None:
+    for category, slug, title, summary, body, sources, time_sensitive, verified_on in ARTICLES:
+        existing = session.scalars(select(Article).where(Article.slug == slug)).first()
+        if existing is not None:
+            # A demo database seeded before the check gets the checked wording, only while still sample.
+            if verified_on is not None and existing.is_sample:
+                existing.body, existing.sources, existing.summary = body, sources, summary
+                existing.reviewed_on, existing.is_sample = verified_on, False
+                existing.valid_as_of = verified_on if time_sensitive else None
+                existing.review_by = REVIEW_BY if time_sensitive else None
             continue
         session.add(
             Article(
@@ -179,12 +235,14 @@ def seed_education(session: Session) -> None:
                 status="published",
                 author_id=author.id,
                 reviewer_id=reviewer.id,
-                reviewed_on=CHECKED,
+                reviewed_on=verified_on or CHECKED,
                 sources=sources,
                 time_sensitive=time_sensitive,
-                valid_as_of=CHECKED if time_sensitive else None,
-                review_by=date(2027, 3, 28) if time_sensitive else None,
-                is_sample=True,
+                valid_as_of=(verified_on or CHECKED) if time_sensitive else None,
+                review_by=(REVIEW_BY if verified_on else date(2027, 3, 28))
+                if time_sensitive
+                else None,
+                is_sample=verified_on is None,
                 published_at=now,
             )
         )
