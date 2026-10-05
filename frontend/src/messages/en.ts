@@ -2975,11 +2975,13 @@ export const en = {
   },
   pages: {
     notFound: {
+      eyebrow: "Error 404",
       title: "Page not found",
       message: "The page you asked for does not exist or has moved.",
       home: "Go to the home page",
     },
     error: {
+      eyebrow: "Error",
       title: "Something went wrong",
       message: "This page could not be shown. Try again, and contact support if it continues.",
       retry: "Try again",
