@@ -6,7 +6,7 @@ import { format, messages } from "@/messages";
 
 const text = messages.catalogue.pagination;
 const itemClass =
-  "inline-flex h-8 min-w-8 items-center justify-center rounded-md border px-2 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
+  "inline-flex min-h-11 min-w-11 items-center justify-center rounded-field border border-line bg-surface px-3 text-sm font-medium text-ink";
 
 /** Page links that keep every filter in the address. */
 export function Pagination({
@@ -28,11 +28,11 @@ export function Pagination({
       <ul className="flex flex-wrap items-center justify-center gap-1">
         <li>
           {page > 1 ? (
-            <Link href={href(page - 1)} rel="prev" className={cn(itemClass, "hover:bg-muted")}>
+            <Link href={href(page - 1)} rel="prev" className={cn(itemClass, "hover:bg-paper-2")}>
               {text.previous}
             </Link>
           ) : (
-            <span aria-disabled="true" className={cn(itemClass, "opacity-50")}>
+            <span aria-disabled="true" className={cn(itemClass, "text-disabled-text")}>
               {text.previous}
             </span>
           )}
@@ -45,7 +45,7 @@ export function Pagination({
           ) : (
             <li key={entry}>
               {entry === page ? (
-                <span aria-current="page" className={cn(itemClass, "bg-primary text-primary-foreground")}>
+                <span aria-current="page" className={cn(itemClass, "border-orange bg-orange text-on-orange")}>
                   <span className="sr-only">{format(text.page, { page: entry })}</span>
                   <span aria-hidden="true">{entry}</span>
                 </span>
@@ -53,7 +53,7 @@ export function Pagination({
                 <Link
                   href={href(entry)}
                   aria-label={format(text.goTo, { page: entry })}
-                  className={cn(itemClass, "hover:bg-muted")}
+                  className={cn(itemClass, "hover:bg-paper-2")}
                 >
                   {entry}
                 </Link>
@@ -63,11 +63,11 @@ export function Pagination({
         )}
         <li>
           {page < pageCount ? (
-            <Link href={href(page + 1)} rel="next" className={cn(itemClass, "hover:bg-muted")}>
+            <Link href={href(page + 1)} rel="next" className={cn(itemClass, "hover:bg-paper-2")}>
               {text.next}
             </Link>
           ) : (
-            <span aria-disabled="true" className={cn(itemClass, "opacity-50")}>
+            <span aria-disabled="true" className={cn(itemClass, "text-disabled-text")}>
               {text.next}
             </span>
           )}

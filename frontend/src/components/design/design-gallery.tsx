@@ -3,6 +3,9 @@ import { CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAler
 
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Pagination } from "@/components/catalogue/pagination";
+import { Segmented, segmentedItemClass } from "@/components/ui/segmented";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableRegion } from "@/components/ui/table";
 import { Badge, SampleBadge, TimeSensitiveBadge, VerifiedBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -284,6 +287,36 @@ export function DesignGallery() {
             </Fragment>
           ))}
         </dl>
+      </section>
+
+      <section aria-labelledby="navigation-title" className="space-y-6">
+        <h2 id="navigation-title" className="type-heading">{text.navigation.title}</h2>
+        <p className="type-body max-w-3xl text-ink-2">{text.navigation.intro}</p>
+        <div className="space-y-3">
+          <h3 className="type-subheading">{text.navigation.tabs}</h3>
+          <Tabs defaultValue="overview">
+            <TabsList aria-label={text.navigation.tabs}>
+              <TabsTrigger value="overview">{text.navigation.overview}</TabsTrigger>
+              <TabsTrigger value="specs">{text.navigation.specs}</TabsTrigger>
+              <TabsTrigger value="documents">{text.navigation.documents}</TabsTrigger>
+            </TabsList>
+            <TabsContent value="overview" className="type-body text-ink-2">{text.navigation.overviewBody}</TabsContent>
+            <TabsContent value="specs" className="type-body text-ink-2">{text.navigation.specsBody}</TabsContent>
+            <TabsContent value="documents" className="type-body text-ink-2">{text.navigation.documentsBody}</TabsContent>
+          </Tabs>
+        </div>
+        <div className="space-y-3">
+          <h3 className="type-subheading">{text.navigation.segmented}</h3>
+          <Segmented label={text.navigation.segmented}>
+            <button type="button" aria-pressed="true" className={segmentedItemClass(true)}>{text.navigation.monthly}</button>
+            <button type="button" aria-pressed="false" className={segmentedItemClass(false)}>{text.navigation.yearly}</button>
+            <button type="button" aria-pressed="false" className={segmentedItemClass(false)}>{text.navigation.lifetime}</button>
+          </Segmented>
+        </div>
+        <div className="space-y-3">
+          <h3 className="type-subheading">{text.navigation.pagination}</h3>
+          <Pagination hrefFor={(page) => `/design?page=${page}`} page={3} pageCount={9} />
+        </div>
       </section>
 
       <section aria-labelledby="badges-title" className="space-y-6">

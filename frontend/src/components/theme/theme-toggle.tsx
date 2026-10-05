@@ -1,5 +1,6 @@
 "use client";
 
+import { Segmented, segmentedItemClass } from "@/components/ui/segmented";
 import { Monitor, Moon, Sun } from "lucide-react";
 import { useEffect, useSyncExternalStore } from "react";
 
@@ -38,7 +39,7 @@ export function ThemeToggle() {
   };
 
   return (
-    <div role="group" aria-label={text.label} className="inline-flex items-center gap-0.5 rounded-full border border-input p-0.5" data-theme-toggle>
+    <Segmented label={text.label} className="flex-nowrap gap-0.5 p-0.5" data-theme-toggle>
       {CHOICES.map((option) => {
         const Icon = ICONS[option];
         const active = choice === option;
@@ -50,12 +51,12 @@ export function ThemeToggle() {
             aria-label={text[option]}
             title={text[option]}
             onClick={() => choose(option)}
-            className={`inline-flex size-8 items-center justify-center rounded-full transition-colors ${active ? "bg-orange text-on-orange" : "text-ink-2 hover:bg-paper-2"}`}
+            className={segmentedItemClass(active, "size-8 min-h-0 min-w-0 px-0 pointer-coarse:size-11")}
           >
             <Icon aria-hidden className="size-4" />
           </button>
         );
       })}
-    </div>
+    </Segmented>
   );
 }
