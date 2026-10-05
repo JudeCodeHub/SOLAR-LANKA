@@ -976,6 +976,19 @@ export const en = {
   design: {
     title: "Design system preview",
     intro: "A development-only page that shows the colours, type and images of the Premium Signal design in both themes. It does not exist in production.",
+    contents: "Sections on this page",
+    sideBySide: {
+      title: "Both themes at once",
+      intro: "The same components in Ivory and Night, side by side, whichever theme the page is using.",
+      light: "Ivory",
+      dark: "Night",
+      primary: "Primary action",
+      secondary: "Secondary",
+      badge: "Accepted",
+      alertTitle: "Check this first",
+      alertBody: "A short sentence that says what to do next.",
+      statLabel: "System size",
+    },
     colour: {
       title: "Colour",
       intro: "Every text and border pair is measured against its background (WCAG 2.2). Text on the orange fill is always dark ink, and orange used as text or as an essential graphic on a light surface uses the burnt orange.",
