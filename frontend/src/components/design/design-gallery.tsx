@@ -3,6 +3,9 @@ import { CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAler
 
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { EmptyState } from "@/components/states/empty-state";
+import { ErrorState } from "@/components/states/error-state";
+import { NotFoundState } from "@/components/states/not-found-state";
 import { Skeleton, SkeletonCard, SkeletonText } from "@/components/ui/skeleton";
 import { OverlayDemo } from "@/components/design/overlay-demo";
 import { Pagination } from "@/components/catalogue/pagination";
@@ -340,6 +343,16 @@ export function DesignGallery() {
             <Skeleton className="size-12 rounded-full" />
             <SkeletonText lines={2} className="flex-1" />
           </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="states-title" className="space-y-6">
+        <h2 id="states-title" className="type-heading">{text.states.title}</h2>
+        <p className="type-body max-w-3xl text-ink-2">{text.states.intro}</p>
+        <div className="grid gap-4 lg:grid-cols-3">
+          <EmptyState title={text.states.emptyTitle} description={text.states.emptyBody} action={<Button variant="outline">{text.states.emptyAction}</Button>} />
+          <ErrorState title={text.states.errorTitle} description={text.states.errorBody} action={<Button variant="outline">{text.states.errorAction}</Button>} />
+          <NotFoundState title={text.states.notFoundTitle} description={text.states.notFoundBody} action={<Button>{text.states.notFoundAction}</Button>} />
         </div>
       </section>
 
