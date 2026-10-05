@@ -512,6 +512,9 @@ export const en = {
       tagline:
         "Explore solar panels and inverters, estimate what a system could produce and cost, and compare quotations from solar companies in Sri Lanka.",
       goToAccount: "Go to your account",
+      sampleSize: "Sample system size",
+      sampleUnit: "kW",
+      sampleNote: "For a family home using about 400 units a month.",
     },
     entry: {
       title: "Start here",
