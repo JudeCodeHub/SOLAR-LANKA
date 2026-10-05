@@ -6,6 +6,7 @@ import inngest
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings
+from app.services.quotation_export import cleanup_exports
 from app.services.reminders import run_reminders
 from app.services.workflow_notifications import process_workflow_event
 
@@ -65,3 +66,22 @@ def create_reminder_function(client: inngest.Inngest, factory: Callable[[], Sess
         return ctx.step.run("run-reminders", run)
 
     return send_reminders
+
+
+CLEANUP_CRON = "0 3 * * *"
+
+
+def create_cleanup_function(client: inngest.Inngest, factory: Callable[[], Session], storage):
+    @client.create_function(
+        fn_id="cleanup-exports",
+        trigger=inngest.TriggerCron(cron=CLEANUP_CRON),
+        retries=2,
+    )
+    def cleanup(ctx: inngest.Context) -> dict[str, int]:
+        def run() -> dict[str, int]:
+            with factory() as session:
+                return cleanup_exports(session, storage)
+
+        return ctx.step.run("cleanup-exports", run)
+
+    return cleanup

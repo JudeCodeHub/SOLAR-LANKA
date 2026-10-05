@@ -2,6 +2,7 @@
 
 from datetime import UTC, datetime, timedelta
 from uuid import UUID
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from sqlalchemy import exists, select
 from sqlalchemy.dialects.postgresql import insert
@@ -21,6 +22,9 @@ from app.services.notification_preferences import preferences_for
 
 QUOTATION_WINDOW = timedelta(days=3)
 VISIT_WINDOW = timedelta(hours=24)
+# Visit reminders wait for daytime in the visit's own zone unless the visit is this close.
+QUIET_FROM_HOUR, QUIET_UNTIL_HOUR = 21, 7
+URGENT_WITHIN = timedelta(hours=3)
 # A fictional sample interval; real maintenance advice depends on the equipment and its warranty.
 MAINTENANCE_INTERVAL = timedelta(days=365)
 
@@ -102,6 +106,18 @@ def remind_pending_quotations(session: Session, now: datetime, mailer: Mailer | 
     )
 
 
+def visit_zone(name: str) -> ZoneInfo:
+    try:
+        return ZoneInfo(name)
+    except ZoneInfoNotFoundError, ValueError:
+        return ZoneInfo("UTC")
+
+
+def in_quiet_hours(now: datetime, zone: ZoneInfo) -> bool:
+    hour = now.astimezone(zone).hour
+    return hour >= QUIET_FROM_HOUR or hour < QUIET_UNTIL_HOUR
+
+
 def remind_confirmed_visits(session: Session, now: datetime, mailer: Mailer | None = None) -> int:
     """Tell the customer and the technician about a confirmed visit starting within a day."""
     visits = session.execute(
@@ -113,6 +129,13 @@ def remind_confirmed_visits(session: Session, now: datetime, mailer: Mailer | No
     ).scalars()
     sent = 0
     for visit in visits:
+        zone = visit_zone(visit.timezone)
+        urgent = visit.confirmed_starts_at - now <= URGENT_WITHIN
+        # At night in the visit's zone the reminder waits for the next run unless the visit is near.
+        if in_quiet_hours(now, zone) and not urgent:
+            continue
+        local_start = visit.confirmed_starts_at.astimezone(zone)
+        body = f"Your site visit starts {local_start:%d %B %Y} at {local_start:%H:%M} ({zone.key})."
         # The start time is in the key, so a rescheduled visit is reminded again.
         stamp = visit.confirmed_starts_at.astimezone(UTC).strftime("%Y%m%dT%H%M")
         for recipient, target in (
@@ -127,7 +150,7 @@ def remind_confirmed_visits(session: Session, now: datetime, mailer: Mailer | No
                     f"reminder:visit:{visit.id}:{stamp}:{recipient}",
                     "reminder.site_visit",
                     "A site visit is coming up",
-                    "A confirmed site visit starts within the next day.",
+                    body,
                     target,
                 )
     return sent
