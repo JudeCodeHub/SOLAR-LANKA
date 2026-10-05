@@ -989,8 +989,8 @@ export const en = {
   },
   theme: {
     label: "Colour theme",
-    light: "Light",
-    dark: "Dark",
+    light: "Light theme",
+    dark: "Dark theme",
     system: "Match my device",
   },
   dial: {
