@@ -69,10 +69,6 @@ const PAGES: [IdentityName | null, string][] = [
 test.describe("layout at the documented sizes", () => {
   // Each of these visits up to 14 pages, and the development server compiles a page the first time it is asked for.
   test.setTimeout(180_000);
-  test.beforeEach(({}, info) => {
-    test.skip(info.project.name !== "desktop", "sizes are set by the test itself, so one project runs it");
-  });
-
   for (const size of SIZES) {
     test(`pages fit at ${size.name}`, async ({ page, signInAs }) => {
       await page.setViewportSize({ width: size.width, height: size.height });
