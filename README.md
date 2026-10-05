@@ -113,6 +113,19 @@ Net accounting and net plus need an `export` source snapshot with an `effective_
 
 Every in-app notification is also emailed once, unless the person has switched email off on the Notifications page. By default (`SOLAR_MAIL_BACKEND=sink`) messages are written as files under `backend/storage/mail`, to the fictional address `<clerk subject>@example.test`, so nothing needs an account. To send for real, set `SOLAR_MAIL_BACKEND=smtp` with `SOLAR_SMTP_HOST`, `SOLAR_SMTP_PORT`, `SOLAR_SMTP_USERNAME`, `SOLAR_SMTP_PASSWORD` (STARTTLS is on unless `SOLAR_SMTP_STARTTLS=false`) and `SOLAR_CLERK_SECRET_KEY`, which is used to look up each person's primary address (the app stores none). The SMTP path is tested against an in-process SMTP server (`aiosmtpd`, a dev dependency) rather than a container; to watch messages in a tool such as Mailpit you start it yourself and point the SMTP settings at it (for example port 1025 with `SOLAR_SMTP_STARTTLS=false`), but that needs a real Clerk key for the address lookup and was not tried here.
 
+## Try it with a real Clerk instance
+
+The browser tests bypass sign-in, so this is the check that exercises Clerk itself. It is opt-in and uses a test user you create yourself in your Clerk development instance (the app never sees or stores passwords).
+
+1. In the Clerk dashboard (User & authentication) switch on Email address and Password, and, for recovery, Email verification code. Leave Password reset by email code enabled.
+2. Create a user with an email containing `+clerk_test`, for example `me+clerk_test@example.com`, and a password. In a development instance Clerk accepts the fixed code `424242` for such addresses, so no inbox is needed.
+3. Link that user to a demo person before their first sign-in (see Demo accounts): copy the user id (starts with `user_`) and run `.venv/bin/python -m app.link_demo_account` as described there.
+4. Start the stack as in Setup, open `/sign-in`, and sign in with the email and password. The header should change from Sign in to your account menu.
+5. Recovery: on `/sign-in` enter the email, click Forgot password, choose to reset by email code, enter `424242` and set a new password.
+6. To run the same steps automatically from `frontend/`: `LIVE_CLERK_EMAIL=... LIVE_CLERK_PASSWORD=... LIVE_CLERK_NEW_PASSWORD=... node_modules/.bin/playwright test -c playwright.live.config.ts`. Without those variables only the first test runs (the page is Clerk's own email and password form); the recovery test changes the user's password.
+
+Delete the test user in the dashboard when you are done.
+
 ## Account and password recovery
 
 Recovery is Clerk's; the app builds no reset tokens, reset pages or recovery tables. `/sign-in` renders Clerk's `<SignIn />`, which shows "Forgot password?" and emails a verification code once the Clerk instance allows it, and `/account` renders Clerk's `<UserProfile />` for changing the password or email while signed in. To enable it in your Clerk development instance, turn on the Password and Email verification code options under User & authentication (and keep email as an identifier). A unit test (`frontend/src/lib/recovery.test.ts`) fails if either page stops using Clerk's component or if any frontend or backend source or migration adds a password-reset or reset-token implementation. The local mail sink from 19.06 is not used for recovery: Clerk sends its own email.
