@@ -1,0 +1,12 @@
+Fonts used by Solar Lanka, kept in the project so the build and the site never fetch fonts from the network.
+
+- Fraunces (display headlines): copyright 2020 The Fraunces Project Authors (github.com/undercasetype/Fraunces).
+  Files: fraunces-latin-opsz-normal.woff2 and fraunces-latin-opsz-italic.woff2 (Latin subset, weight and optical-size axes).
+- Hanken Grotesk (body and interface text): copyright 2021 The Hanken Grotesk Project Authors (github.com/marcologous/hanken-grotesk).
+  File: hanken-grotesk-latin-wght-normal.woff2 (Latin subset, weight axis).
+- IBM Plex Mono (figures and codes): copyright 2017 IBM Corp.
+  Files: ibm-plex-mono-latin-400-normal.woff2, -500- and -600- (Latin subset).
+
+All three are licensed under the SIL Open Font License, Version 1.1; the full text is in the OFL.txt file beside each family.
+The woff2 files come from the Fontsource packages @fontsource-variable/fraunces, @fontsource-variable/hanken-grotesk and @fontsource/ibm-plex-mono, version 5.3.0, fetched on 2026-10-05.
+The OFL allows use, embedding and redistribution with the application, provided this notice and the licence stay with the fonts and the fonts are not sold on their own.

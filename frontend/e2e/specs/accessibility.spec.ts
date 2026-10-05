@@ -72,6 +72,8 @@ test.describe("axe finds no violations on the newest screens in their changing s
       await page.getByLabel("Connection scheme").selectOption(scheme);
       await page.getByRole("button", { name: "Calculate estimate" }).click();
       await expect(page.locator("[data-scheme-note]")).toBeVisible();
+      // The button dims while it is working; audit only once it has settled.
+      await expect(page.getByRole("button", { name: "Calculate estimate" })).not.toHaveAttribute("aria-disabled", "true");
       await audit(page, `estimate results ${scheme}`);
     }
   });
