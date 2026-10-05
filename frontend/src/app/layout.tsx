@@ -1,5 +1,5 @@
 import { ClerkProvider } from "@clerk/nextjs";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import "./globals.css";
 import { bodyFont, displayFont, figureFont } from "@/fonts/fonts";
@@ -8,12 +8,21 @@ import { Providers } from "@/components/providers";
 import { SessionWatcher } from "@/components/session-watcher";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { BRAND_COLOURS } from "@/lib/brand/logo";
 import { THEME_SCRIPT } from "@/lib/theme/theme";
 import { messages } from "@/messages";
 
 export const metadata: Metadata = {
   title: messages.app.name,
   description: messages.app.description,
+};
+
+/** The browser bar follows the system theme. */
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: BRAND_COLOURS.light.background },
+    { media: "(prefers-color-scheme: dark)", color: BRAND_COLOURS.dark.background },
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
