@@ -1,9 +1,11 @@
 "use client";
 
+import { OctagonAlert } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { type Lookup, useLookup } from "@/lib/support/hooks";
 import { lookupQuery, ordered } from "@/lib/support/support";
@@ -112,13 +114,16 @@ function Result({ data, choose }: { data: Lookup; choose: (productId: string) =>
         </p>
       ) : null}
       {references.map((reference) => (
-        <article key={reference.id} className={`space-y-2 rounded-lg border p-4 text-sm ${reference.safety_level === "hazard" ? "border-2 border-destructive" : ""}`} data-reference={reference.safety_level}>
+        <article key={reference.id} className={`space-y-2 rounded-lg border p-4 text-sm`} data-reference={reference.safety_level}>
           {reference.safety_level === "hazard" ? (
-            <div role="alert" className="space-y-1 font-medium" data-hazard>
-              <p>{text.hazardTitle}</p>
-              <p>{reference.hazard_warning}</p>
-              <p>{text.hazardEscalate}</p>
-            </div>
+            <Alert variant="hazard" data-hazard>
+              <OctagonAlert aria-hidden />
+              <div className="space-y-1">
+                <p>{text.hazardTitle}</p>
+                <p>{reference.hazard_warning}</p>
+                <p>{text.hazardEscalate}</p>
+              </div>
+            </Alert>
           ) : (
             <p className="font-medium" data-safe>
               {text.safeTitle}
