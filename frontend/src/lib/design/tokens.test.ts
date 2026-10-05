@@ -213,3 +213,15 @@ test("the table region is focusable, scrolls on its own and the table has a stic
   assert.ok(source.includes("nth-child(even)"));
   assert.ok(!source.includes("outline-none"), "the global focus ring must stay visible");
 });
+
+test("tabs, segmented controls and pagination are 44 px high and keep the focus ring", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", "components", path), "utf8");
+  for (const file of ["ui/tabs.tsx", "ui/segmented.tsx", "catalogue/pagination.tsx"]) {
+    const source = read(file);
+    assert.ok(source.includes("min-h-11"), `${file} should be 44 px high`);
+    assert.ok(!source.includes("outline-none"), `${file} must keep the global focus ring`);
+  }
+  assert.ok(read("ui/segmented.tsx").includes("bg-orange text-on-orange"));
+  assert.ok(read("catalogue/pagination.tsx").includes("bg-orange text-on-orange"));
+  assert.ok(read("ui/tabs.tsx").includes("data-[state=active]:border-orange"));
+});
