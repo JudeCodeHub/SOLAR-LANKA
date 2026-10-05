@@ -276,3 +276,13 @@ test("the design page lists every section, links to it, and shows both themes si
   assert.ok(listed.length >= 18);
   assert.ok(source.includes('<ThemePreview theme="light" />') && source.includes('<ThemePreview theme="dark" />'));
 });
+
+test("the header is sticky, frosts once scrolled, shows the logo, and active links use the tested orange tint", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", "components", path), "utf8");
+  const sticky = read("shell/sticky-header.tsx");
+  assert.ok(sticky.includes("sticky top-0") && sticky.includes("backdrop-blur-md") && sticky.includes("scrollY"));
+  assert.ok(sticky.includes("motion-reduce:transition-none"));
+  const header = read("site-header.tsx");
+  assert.ok(header.includes("<Logo") && header.includes("<StickyHeader>") && header.includes("<ThemeToggle"));
+  assert.ok(read("shell/nav-link.tsx").includes("bg-orange-tint text-orange-text"));
+});
