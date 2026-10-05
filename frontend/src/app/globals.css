@@ -587,7 +587,7 @@
 }
 
 @utility dial-sweep {
-  animation: dial-sweep var(--ds-dur-sweep) var(--ds-ease) both;
+  animation: dial-sweep var(--ds-dur-sweep) var(--ds-ease) var(--dial-delay, 0ms) both;
   @media (prefers-reduced-motion: reduce) {
     animation: none;
   }
@@ -631,5 +631,32 @@
   ::view-transition-old(*),
   ::view-transition-new(*) {
     animation: none !important;
+  }
+}
+
+/* Hero entrance: each piece rises in turn (set --i to its place in the order) and the photo fades in; it plays once on load and is skipped under reduced motion. */
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+@keyframes hero-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@utility hero-in {
+  animation: hero-rise 640ms var(--ds-ease) calc(var(--i, 0) * 90ms) both;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@utility hero-fade {
+  animation: hero-fade 900ms var(--ds-ease) 120ms both;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
   }
 }
