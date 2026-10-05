@@ -13,8 +13,8 @@ export function PrimaryNav({ signedIn }: { signedIn: boolean }) {
     return null;
   }
   return (
-    <div className="hidden border-t md:block">
-      <nav aria-label={messages.nav.primaryLabel} className="mx-auto w-full max-w-6xl px-4 py-1">
+    <div className="hidden border-b border-line md:block">
+      <nav aria-label={messages.nav.primaryLabel} className="mx-auto w-full max-w-6xl px-4 py-1.5">
         <ul className="flex flex-wrap items-center gap-1">
           {items.map((item) => (
             <li key={item.id}>
