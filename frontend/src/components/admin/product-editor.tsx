@@ -117,7 +117,7 @@ function Form({ id, product }: { id: string; product: Product }) {
       id: fid,
       "aria-invalid": Boolean(error),
       "aria-describedby": error ? `${fid}-error` : undefined,
-      className: "w-full rounded-lg border bg-transparent px-3",
+      className: "w-full field-control px-3",
     };
     const label = (text.fields as Record<string, string>)[key] ?? (key === "brand" ? text.brand : text.model);
     return (
@@ -126,7 +126,7 @@ function Form({ id, product }: { id: string; product: Product }) {
           {label}
         </label>
         {def?.kind === "category" ? (
-          <select {...common} className={`${common.className} h-11`} value={values[key] ?? ""} onChange={(event) => set({ ...values, [key]: event.target.value })}>
+          <select {...common} className={`${common.className} field-select h-11`} value={values[key] ?? ""} onChange={(event) => set({ ...values, [key]: event.target.value })}>
             <option value="">{text.categoryNone}</option>
             {Object.entries(text.categories).map(([value, name]) => (
               <option key={value} value={value}>

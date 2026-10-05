@@ -24,7 +24,7 @@ export function SlotFields({ id, rows, errors, onChange }: { id: string; rows: S
           onChange={(event) => set(index, name, event.target.value)}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? `${fid}-error` : undefined}
-          className="h-11 w-full rounded-lg border bg-transparent px-2"
+          className="h-11 w-full field-control px-2"
         />
         {error ? (
           <p id={`${fid}-error`} className="font-medium text-destructive" data-error={`${index}.${name}`}>

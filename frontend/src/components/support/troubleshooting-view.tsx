@@ -44,7 +44,7 @@ export function TroubleshootingView() {
           <label htmlFor="model" className="block font-medium">
             {text.modelLabel}
           </label>
-          <input id="model" value={model} onChange={(event) => setModel(event.target.value)} maxLength={100} aria-invalid={Boolean(problem)} aria-describedby={`model-help${problem ? " model-error" : ""}`} autoComplete="off" className="h-11 w-full rounded-lg border bg-transparent px-3" />
+          <input id="model" value={model} onChange={(event) => setModel(event.target.value)} maxLength={100} aria-invalid={Boolean(problem)} aria-describedby={`model-help${problem ? " model-error" : ""}`} autoComplete="off" className="h-11 w-full field-control px-3" />
           <p id="model-help" className="text-sm text-muted-foreground">
             {text.modelHelp}
           </p>
@@ -58,7 +58,7 @@ export function TroubleshootingView() {
           <label htmlFor="code" className="block font-medium">
             {text.codeLabel}
           </label>
-          <input id="code" value={code} onChange={(event) => setCode(event.target.value)} maxLength={64} aria-describedby="code-help" autoComplete="off" className="h-11 w-full rounded-lg border bg-transparent px-3" />
+          <input id="code" value={code} onChange={(event) => setCode(event.target.value)} maxLength={64} aria-describedby="code-help" autoComplete="off" className="h-11 w-full field-control px-3" />
           <p id="code-help" className="text-sm text-muted-foreground">
             {text.codeHelp}
           </p>

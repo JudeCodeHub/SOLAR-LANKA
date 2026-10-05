@@ -100,7 +100,7 @@ function Visit({ visit, companyId, installationId, technicians, start, handlers,
       <label htmlFor={`tech-${visit.id}`} className="block font-medium">
         {text.technician}
       </label>
-      <select id={`tech-${visit.id}`} value={technician} onChange={(event) => { setTechnician(event.target.value); setMissing(false); }} aria-invalid={missing} className="h-11 rounded-lg border bg-transparent px-2">
+      <select id={`tech-${visit.id}`} value={technician} onChange={(event) => { setTechnician(event.target.value); setMissing(false); }} aria-invalid={missing} className="h-11 field-control field-select px-2">
         <option value="">{text.choose}</option>
         {technicians.map((t) => (
           <option key={t.user_id} value={t.user_id}>

@@ -46,7 +46,7 @@ export function CheckboxGroupField<TInput extends FieldValues, TOutput extends F
         {options.map((option) => (
           <li key={option.value}>
             <label className="flex min-h-11 cursor-pointer items-center gap-2 text-sm">
-              <input type="checkbox" className="size-6 shrink-0" value={option.value} {...form.register(name)} />
+              <input type="checkbox" className="field-check size-6 shrink-0" value={option.value} {...form.register(name)} />
               <span>{option.label}</span>
             </label>
           </li>

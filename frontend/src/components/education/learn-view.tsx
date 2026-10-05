@@ -56,7 +56,7 @@ export function LearnView() {
           {text.searchLabel}
         </label>
         <div className="flex gap-2">
-          <input id="learn-search" value={draft} maxLength={100} onChange={(event) => setDraft(event.target.value)} aria-describedby="learn-search-help" className="h-11 min-w-0 flex-1 rounded-lg border bg-transparent px-3" />
+          <input id="learn-search" value={draft} maxLength={100} onChange={(event) => setDraft(event.target.value)} aria-describedby="learn-search-help" className="h-11 min-w-0 flex-1 field-control px-3" />
           <Button type="submit" variant="outline">
             {text.search}
           </Button>

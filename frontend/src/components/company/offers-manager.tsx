@@ -230,6 +230,7 @@ function AddOffer({ companyId, existing }: { companyId: string; existing: Set<st
             <label key={value} className="flex cursor-pointer items-center gap-2">
               <input
                 type="radio"
+                className="field-radio size-6"
                 name="offer-kind"
                 checked={kind === value}
                 onChange={() => {
@@ -266,7 +267,7 @@ function AddOffer({ companyId, existing }: { companyId: string; existing: Set<st
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             autoComplete="off"
-            className="mt-1 h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-base md:text-sm"
+            className="field-control mt-1 h-11 w-full px-3.5"
           />
         </div>
         <Button type="submit">{add.searchButton}</Button>

@@ -57,7 +57,7 @@ export function NotificationSettings() {
             ).map(([key, label, help, name]) => (
               <div key={key} className="space-y-1">
                 <label className="flex min-h-11 items-center gap-3 text-sm font-medium">
-                  <input type="checkbox" className="size-6 shrink-0" checked={(shown ?? current)[key]} aria-disabled={save.isPending} aria-describedby={`setting-${name}-help`} data-setting={name} onChange={(event) => change(current, key, event.target.checked)} />
+                  <input type="checkbox" className="field-check size-6 shrink-0" checked={(shown ?? current)[key]} aria-disabled={save.isPending} aria-describedby={`setting-${name}-help`} data-setting={name} onChange={(event) => change(current, key, event.target.checked)} />
                   <span>{label}</span>
                 </label>
                 <p id={`setting-${name}-help`} className="pl-9 text-sm text-muted-foreground">

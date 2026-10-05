@@ -112,7 +112,7 @@ export function CustomerVisits({ installationId }: { installationId: string }) {
             <label htmlFor="visit-note" className="block font-medium">
               {text.noteLabel}
             </label>
-            <textarea id="visit-note" value={note} onChange={(event) => setNote(event.target.value)} rows={2} maxLength={1000} aria-describedby="visit-note-help" className="w-full rounded-lg border bg-transparent p-2" />
+            <textarea id="visit-note" value={note} onChange={(event) => setNote(event.target.value)} rows={2} maxLength={1000} aria-describedby="visit-note-help" className="w-full field-control p-2" />
             <p id="visit-note-help" className="text-muted-foreground">
               {text.noteHelp}
             </p>

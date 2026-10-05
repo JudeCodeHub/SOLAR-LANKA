@@ -6,11 +6,9 @@ import { type FieldValues, get, type Path, type UseFormReturn } from "react-hook
 import { useAppFormContext } from "@/components/forms/app-form";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { fieldId } from "@/lib/forms/errors";
-import { cn } from "@/lib/utils";
 import { messages } from "@/messages";
 
-const selectClass =
-  "h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30";
+const selectClass = "field-control field-select h-11 w-full min-w-0 px-3.5 py-2";
 
 /** A labelled native select wired like TextField: label, description, error and aria state. */
 export function SelectField<TInput extends FieldValues, TOutput extends FieldValues = TInput>({
@@ -61,7 +59,7 @@ export function SelectField<TInput extends FieldValues, TOutput extends FieldVal
         aria-required={!optional}
         aria-invalid={hasError}
         aria-describedby={describedBy || undefined}
-        className={cn(selectClass, hasError && "border-destructive")}
+        className={selectClass}
         {...form.register(name)}
       >
         {placeholder !== undefined ? <option value="">{placeholder}</option> : null}

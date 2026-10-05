@@ -246,7 +246,7 @@ function StepForms({ companyId, installationId, step, steps, pending, run }: { c
             onChange={(event) => setNote(event.target.value)}
             rows={2}
             aria-describedby={`${id}-note-help`}
-            className="w-full rounded-lg border bg-transparent p-2"
+            className="w-full field-control p-2"
           />
           <p id={`${id}-note-help`} className="text-muted-foreground">
             {text.noteHelp}
@@ -287,7 +287,7 @@ function StepForms({ companyId, installationId, step, steps, pending, run }: { c
           rows={2}
           aria-invalid={Boolean(resetErrors.reason)}
           aria-describedby={`${id}-reason-help${resetErrors.reason ? ` ${id}-reason-error` : ""}`}
-          className="w-full rounded-lg border bg-transparent p-2"
+          className="w-full field-control p-2"
         />
         <p id={`${id}-reason-help`} className="text-muted-foreground">
           {text.resetHelp}

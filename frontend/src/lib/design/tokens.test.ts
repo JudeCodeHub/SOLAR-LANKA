@@ -4,7 +4,7 @@ import { join } from "node:path";
 import test from "node:test";
 
 import { contrastRatio } from "./contrast.ts";
-import { CONTRAST_RULES, CSS_NAMES, DARK, DECORATIVE_ONLY_ON_LIGHT, LIGHT, type ContrastRule, type Theme } from "./tokens.ts";
+import { BUTTON_VARIANTS, CONTRAST_RULES, CSS_NAMES, DARK, DECORATIVE_ONLY_ON_LIGHT, LIGHT, type ContrastRule, type Theme } from "./tokens.ts";
 
 const maps: Record<Theme, Record<string, string>> = { light: LIGHT, dark: DARK };
 
@@ -84,4 +84,39 @@ test("the CSS variables carry exactly the values the contrast test measures", ()
     }
     assert.deepEqual(Object.keys(css[theme]).sort(), Object.values(CSS_NAMES[theme]).sort(), `${theme} has no extra or missing variables`);
   }
+});
+
+const valueByCssName = (theme: Theme, cssName: string): string => {
+  const key = Object.entries(CSS_NAMES[theme]).find(([, name]) => name === cssName)?.[0] ?? "";
+  return maps[theme][key] ?? "";
+};
+
+test("every button variant meets its contrast in both themes", () => {
+  const problems: string[] = [];
+  for (const { variant, pairs } of BUTTON_VARIANTS) {
+    for (const theme of ["light", "dark"] as const) {
+      for (const [foreground, background] of pairs) {
+        const ratio = contrastRatio(valueByCssName(theme, foreground), valueByCssName(theme, background));
+        const needed = foreground === "field-border" ? 3 : 4.5;
+        if (ratio < needed) problems.push(`${variant} ${theme}: ${foreground} on ${background} is ${ratio.toFixed(2)}`);
+      }
+    }
+  }
+  assert.deepEqual(problems, []);
+});
+
+test("the Button component is built from exactly the classes the contrast data names", () => {
+  const source = readFileSync(join(import.meta.dirname, "..", "..", "components", "ui", "button.tsx"), "utf8");
+  for (const { variant, classes } of BUTTON_VARIANTS) {
+    const line = source.match(new RegExp(`\\n\\s+"?${variant}"?:\\s*\\n?\\s*"([^"]+)"`))?.[1] ?? "";
+    for (const name of classes) assert.ok(line.split(/\s+/).includes(name), `${variant} should use ${name}`);
+  }
+});
+
+test("every button size is at least 44 px tall", () => {
+  const source = readFileSync(join(import.meta.dirname, "..", "..", "components", "ui", "button.tsx"), "utf8");
+  const sizes = source.match(/size: \{([\s\S]*?)\n      \},/)?.[1] ?? "";
+  const heights = [...sizes.matchAll(/"(?:h|size)-(\d+)/g)].map((match) => Number(match[1]));
+  assert.ok(heights.length >= 8, "found the sizes");
+  for (const height of heights) assert.ok(height >= 11, `h-${height}`);
 });

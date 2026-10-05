@@ -85,7 +85,7 @@ function Form({ selfId }: { selfId: string }) {
           aria-describedby={`account-id-help${problem ? " account-id-error" : ""}`}
           autoComplete="off"
           spellCheck={false}
-          className="h-11 w-full rounded-lg border bg-transparent px-3"
+          className="h-11 w-full field-control px-3"
         />
         <p id="account-id-help" className="text-sm text-muted-foreground">
           {text.idHelp}

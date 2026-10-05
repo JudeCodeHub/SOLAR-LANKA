@@ -15,7 +15,7 @@ export function FormSubmitButton({
   pending: boolean;
 }) {
   return (
-    <Button type="submit" aria-disabled={pending} data-pending={pending} className="aria-disabled:opacity-70">
+    <Button type="submit" loading={pending} data-pending={pending}>
       {pending ? messages.forms.saving : children}
     </Button>
   );

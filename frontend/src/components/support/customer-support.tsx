@@ -127,7 +127,7 @@ export function CustomerSupport() {
                 <label htmlFor="installation" className="block font-medium">
                   {text.installation}
                 </label>
-                <select id="installation" value={installation} onChange={(event) => setInstallation(event.target.value)} aria-invalid={Boolean(errors.installation)} className="h-11 rounded-lg border bg-transparent px-2">
+                <select id="installation" value={installation} onChange={(event) => setInstallation(event.target.value)} aria-invalid={Boolean(errors.installation)} className="h-11 field-control field-select px-2">
                   <option value="">{text.installation}</option>
                   {installations.data.items.map((item) => (
                     <option key={item.id} value={item.id}>
@@ -142,7 +142,7 @@ export function CustomerSupport() {
               <label htmlFor="symptom" className="block font-medium">
                 {text.symptom}
               </label>
-              <textarea id="symptom" rows={4} value={symptom} maxLength={2000} onChange={(event) => setSymptom(event.target.value)} aria-invalid={Boolean(errors.symptom)} aria-describedby={`symptom-help${errors.symptom ? " symptom-error" : ""}`} className="w-full rounded-lg border bg-transparent p-2" />
+              <textarea id="symptom" rows={4} value={symptom} maxLength={2000} onChange={(event) => setSymptom(event.target.value)} aria-invalid={Boolean(errors.symptom)} aria-describedby={`symptom-help${errors.symptom ? " symptom-error" : ""}`} className="w-full field-control p-2" />
               <p id="symptom-help" className="text-muted-foreground">
                 {text.symptomHelp}
               </p>
@@ -156,14 +156,14 @@ export function CustomerSupport() {
               <label htmlFor="code" className="block font-medium">
                 {text.code}
               </label>
-              <input id="code" value={code} maxLength={64} onChange={(event) => setCode(event.target.value)} aria-describedby="code-help" className="h-11 w-full rounded-lg border bg-transparent px-3" />
+              <input id="code" value={code} maxLength={64} onChange={(event) => setCode(event.target.value)} aria-describedby="code-help" className="h-11 w-full field-control px-3" />
               <p id="code-help" className="text-muted-foreground">
                 {text.codeHelp}
               </p>
             </div>
             <div className="space-y-1">
               <label className="flex min-h-11 items-center gap-3 font-medium">
-                <input type="checkbox" checked={unsafe} onChange={(event) => setUnsafe(event.target.checked)} aria-describedby="unsafe-help" className="size-6 shrink-0" />
+                <input type="checkbox" checked={unsafe} onChange={(event) => setUnsafe(event.target.checked)} aria-describedby="unsafe-help" className="field-check size-6 shrink-0" />
                 <span>{safety.unsafeBox}</span>
               </label>
               <p id="unsafe-help" className="text-muted-foreground">
@@ -266,7 +266,7 @@ export function CustomerCase({ id }: { id: string }) {
                   <label htmlFor="message" className="block text-sm font-medium">
                     {text.messageLabel}
                   </label>
-                  <textarea id="message" rows={3} value={message} maxLength={2000} onChange={(event) => setMessage(event.target.value)} aria-invalid={Boolean(problem)} className="w-full rounded-lg border bg-transparent p-2 text-sm" />
+                  <textarea id="message" rows={3} value={message} maxLength={2000} onChange={(event) => setMessage(event.target.value)} aria-invalid={Boolean(problem)} className="w-full field-control p-2 text-sm" />
                   {problem ? <p role="alert" className="text-sm font-medium text-destructive" data-error="message">{problem}</p> : null}
                   <Button type="submit" variant="outline" aria-disabled={actions.message.isPending} data-action="send-message">
                     {text.send}
@@ -331,7 +331,7 @@ export function CustomerCase({ id }: { id: string }) {
                 <label htmlFor="reason" className="block text-sm font-medium">
                   {text.closeNote}
                 </label>
-                <input id="reason" value={reason} maxLength={2000} onChange={(event) => setReason(event.target.value)} className="h-11 w-full rounded-lg border bg-transparent px-3 text-sm" />
+                <input id="reason" value={reason} maxLength={2000} onChange={(event) => setReason(event.target.value)} className="h-11 w-full field-control px-3 text-sm" />
               </div>
             ) : null}
           </>
