@@ -4,7 +4,7 @@ import { join } from "node:path";
 import test from "node:test";
 
 import { contrastRatio } from "./contrast.ts";
-import { BUTTON_VARIANTS, CARD_VARIANTS, CONTRAST_RULES, CSS_NAMES, DARK, DECORATIVE_ONLY_ON_LIGHT, LIGHT, type ContrastRule, type Theme } from "./tokens.ts";
+import { BADGE_VARIANTS, BUTTON_VARIANTS, CARD_VARIANTS, CONTRAST_RULES, CSS_NAMES, DARK, DECORATIVE_ONLY_ON_LIGHT, LIGHT, type ContrastRule, type Theme } from "./tokens.ts";
 
 const maps: Record<Theme, Record<string, string>> = { light: LIGHT, dark: DARK };
 
@@ -144,4 +144,30 @@ test("the Card component offers exactly the five surfaces, raised by default, bu
     for (const name of classes) assert.ok(line.split(/\s+/).includes(name), `${variant} should use ${name}`);
   }
   assert.ok(!source.includes("ring-foreground"), "the old template ring is gone");
+});
+
+test("every badge variant keeps its words readable in both themes", () => {
+  const problems: string[] = [];
+  for (const { variant, pairs } of BADGE_VARIANTS) {
+    for (const theme of ["light", "dark"] as const) {
+      for (const [foreground, background] of pairs) {
+        const ratio = contrastRatio(valueByCssName(theme, foreground), valueByCssName(theme, background));
+        if (ratio < 4.5) problems.push(`${variant} ${theme}: ${foreground} on ${background} is ${ratio.toFixed(2)}`);
+      }
+    }
+  }
+  assert.deepEqual(problems, []);
+});
+
+test("the Badge component has exactly these variants, built from the named classes, and always draws an icon", () => {
+  const source = readFileSync(join(import.meta.dirname, "..", "..", "components", "ui", "badge.tsx"), "utf8");
+  const block = source.match(/variant: \{([\s\S]*?)\n    \},/)?.[1] ?? "";
+  assert.deepEqual([...block.matchAll(/^\s+(\w+):/gm)].map((match) => match[1]), BADGE_VARIANTS.map((badge) => badge.variant));
+  for (const { variant, classes } of BADGE_VARIANTS) {
+    const line = block.match(new RegExp(`${variant}:\\s*"([^"]+)"`))?.[1] ?? "";
+    for (const name of classes) assert.ok(line.split(/\s+/).includes(name), `${variant} should use ${name}`);
+  }
+  // The icon is drawn unconditionally, so a badge can never be colour only.
+  assert.match(source, /<Icon aria-hidden \/>/);
+  for (const preset of ["SampleBadge", "VerifiedBadge", "TimeSensitiveBadge"]) assert.ok(source.includes(`function ${preset}`), preset);
 });

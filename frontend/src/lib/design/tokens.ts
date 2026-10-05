@@ -134,3 +134,13 @@ export const CARD_VARIANTS: { variant: string; classes: string[]; pairs: [string
   { variant: "inset", classes: ["bg-paper-2"], pairs: [["text", "surface-2"], ["muted", "surface-2"]] },
   { variant: "glass", classes: ["bg-surface/80", "backdrop-blur-xl"], pairs: [["text", "surface"], ["text", "bg"], ["muted", "surface"]] },
 ];
+
+/** The badge variants and the text pair each must keep readable (shared CSS names). */
+export const BADGE_VARIANTS: { variant: string; classes: string[]; pairs: [string, string][] }[] = [
+  { variant: "neutral", classes: ["bg-paper-2", "text-ink-2"], pairs: [["text-2", "surface-2"]] },
+  { variant: "orange", classes: ["bg-orange-tint", "text-orange-text"], pairs: [["orange-text", "orange-tint"]] },
+  { variant: "success", classes: ["bg-success-tint", "text-success"], pairs: [["success", "success-tint"]] },
+  { variant: "warning", classes: ["bg-warning-tint", "text-warning"], pairs: [["warning", "warning-tint"]] },
+  { variant: "danger", classes: ["bg-danger-tint", "text-danger"], pairs: [["danger", "danger-tint"]] },
+  { variant: "info", classes: ["bg-info-tint", "text-info"], pairs: [["info", "info-tint"]] },
+];
