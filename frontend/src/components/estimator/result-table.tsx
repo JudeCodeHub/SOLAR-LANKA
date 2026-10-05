@@ -1,3 +1,4 @@
+import { Table, TableRegion } from "@/components/ui/table";
 import type { ResultRow } from "@/lib/estimator/results";
 import { messages } from "@/messages";
 
@@ -6,15 +7,8 @@ const text = messages.estimator.results;
 /** Estimates as a captioned table. */
 export function ResultTable({ caption, rows }: { caption: string; rows: ResultRow[] }) {
   return (
-    <div
-      role="region"
-      aria-label={caption}
-      // A scrollable region must be focusable so keyboard users can scroll it (WCAG 2.1.1).
-      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
-      tabIndex={0}
-      className="overflow-x-auto outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-    >
-      <table className="w-full min-w-[32rem] text-sm">
+    <TableRegion label={caption}>
+      <Table className="min-w-[32rem]">
         <caption className="sr-only">{caption}</caption>
         <thead>
           <tr className="border-b text-left">
@@ -56,7 +50,7 @@ export function ResultTable({ caption, rows }: { caption: string; rows: ResultRo
             </tr>
           ))}
         </tbody>
-      </table>
-    </div>
+      </Table>
+    </TableRegion>
   );
 }

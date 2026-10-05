@@ -1,5 +1,6 @@
 "use client";
 
+import { Table } from "@/components/ui/table";
 import Link from "next/link";
 import { useRef, useState } from "react";
 
@@ -137,7 +138,7 @@ function Detail({
         <h2 id="progress-title" className="font-heading text-xl font-semibold tracking-tight">
           {text.progressTitle}
         </h2>
-        <table className="w-full text-sm" data-progress>
+        <Table className="w-full text-sm" data-progress>
           <caption className="sr-only">{text.progressCaption}</caption>
           <thead>
             <tr className="border-b text-left">
@@ -181,7 +182,7 @@ function Detail({
               );
             })}
           </tbody>
-        </table>
+        </Table>
       </section>
 
       <OffersSection requestId={request.id} />
@@ -190,7 +191,7 @@ function Detail({
         <h2 id="asked-title" className="font-heading text-xl font-semibold tracking-tight">
           {text.askedTitle}
         </h2>
-        <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
+        <dl className="description-list text-sm">
           <dt className="text-muted-foreground">{text.district}</dt>
           <dd>{requirements.district ?? ""}</dd>
           <dt className="text-muted-foreground">{text.consumption}</dt>

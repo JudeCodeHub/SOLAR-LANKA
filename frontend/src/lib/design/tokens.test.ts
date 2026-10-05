@@ -4,7 +4,7 @@ import { join } from "node:path";
 import test from "node:test";
 
 import { contrastRatio } from "./contrast.ts";
-import { ALERT_VARIANTS, BADGE_VARIANTS, BUTTON_VARIANTS, CARD_VARIANTS, CONTRAST_RULES, CSS_NAMES, DARK, DECORATIVE_ONLY_ON_LIGHT, LIGHT, type ContrastRule, type Theme } from "./tokens.ts";
+import { ALERT_VARIANTS, TABLE_PAIRS, BADGE_VARIANTS, BUTTON_VARIANTS, CARD_VARIANTS, CONTRAST_RULES, CSS_NAMES, DARK, DECORATIVE_ONLY_ON_LIGHT, LIGHT, type ContrastRule, type Theme } from "./tokens.ts";
 
 const maps: Record<Theme, Record<string, string>> = { light: LIGHT, dark: DARK };
 
@@ -191,4 +191,25 @@ test("the Alert component builds each variant from the named classes and the haz
     const line = source.match(new RegExp(`\\s${variant}:\\s*"([^"]+)"`))?.[1] ?? "";
     for (const name of classes) assert.ok(line.split(/\s+/).includes(name), `${variant} should use ${name}`);
   }
+});
+
+test("table header, stripe and highlight colours keep their words readable in both themes", () => {
+  const problems: string[] = [];
+  for (const theme of ["light", "dark"] as const) {
+    for (const [foreground, background] of TABLE_PAIRS) {
+      const ratio = contrastRatio(valueByCssName(theme, foreground), valueByCssName(theme, background));
+      if (ratio < 4.5) problems.push(`${theme}: ${foreground} on ${background} is ${ratio.toFixed(2)}`);
+    }
+  }
+  assert.deepEqual(problems, []);
+});
+
+test("the table region is focusable, scrolls on its own and the table has a sticky header and stripes", () => {
+  const source = readFileSync(join(import.meta.dirname, "..", "..", "components", "ui", "table.tsx"), "utf8");
+  assert.match(source, /tabIndex=\{0\}/);
+  assert.match(source, /role="region"/);
+  assert.ok(source.includes("overflow-auto"));
+  assert.ok(source.includes("sticky"));
+  assert.ok(source.includes("nth-child(even)"));
+  assert.ok(!source.includes("outline-none"), "the global focus ring must stay visible");
 });

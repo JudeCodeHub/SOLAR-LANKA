@@ -1104,6 +1104,24 @@ export const en = {
       hazardTitle: "Safety first: do not open the inverter cover.",
       hazardBody: "Switch off at the isolator, keep clear and call a licensed technician.",
     },
+    tables: {
+      title: "Tables and lists",
+      intro: "A wide table scrolls sideways inside its own region. Tab to the region to scroll it with the arrow keys. The header stays put and rows stripe softly.",
+      region: "Sample quotations by size",
+      columns: { quotation: "Quotation", size: "System size", panels: "Panels", inverter: "Inverter", warranty: "Warranty", total: "Total (LKR)" },
+      rows: {
+        a: { quotation: "Roof A, 3 kW", size: "3.0 kW", panels: "6 x 545 W", inverter: "Hybrid 3 kW", warranty: "10 years", total: "1,050,000" },
+        b: { quotation: "Roof B, 5 kW", size: "5.0 kW", panels: "10 x 545 W", inverter: "Hybrid 5 kW", warranty: "10 years", total: "1,640,000" },
+        c: { quotation: "Roof C, 8 kW", size: "8.2 kW", panels: "15 x 545 W", inverter: "Grid-tied 8 kW", warranty: "12 years", total: "2,310,000" },
+        d: { quotation: "Roof D, 10 kW", size: "10.9 kW", panels: "20 x 545 W", inverter: "Grid-tied 10 kW", warranty: "12 years", total: "2,880,000" },
+        e: { quotation: "Roof E, 15 kW", size: "16.3 kW", panels: "30 x 545 W", inverter: "Grid-tied 15 kW", warranty: "12 years", total: "4,120,000" },
+      },
+      facts: {
+        panel: { term: "Panel", value: "545 W mono PERC" },
+        feedIn: { term: "Feed-in rate", value: "23.11 LKR per kWh" },
+        valid: { term: "Valid until", value: "30 November" },
+      },
+    },
     badges: {
       title: "Badges and status labels",
       intro: "Each badge pairs an icon with a word, so its meaning never rests on colour alone. Three presets cover the content labels used across the app.",

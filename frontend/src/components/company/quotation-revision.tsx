@@ -1,5 +1,6 @@
 "use client";
 
+import { Table } from "@/components/ui/table";
 import { ApiErrorMessage } from "@/components/api-error-message";
 import { Button } from "@/components/ui/button";
 import { formatLongDate } from "@/lib/catalogue/detail";
@@ -25,7 +26,7 @@ export function RevisionBody({ revision }: { revision: Revision }) {
     <div className="space-y-3 text-sm" data-revision-body>
       <div>
         <h3 className="font-medium">{history.lines}</h3>
-        <table className="mt-1 w-full" data-revision-lines>
+        <Table className="mt-1 w-full" data-revision-lines>
           <caption className="sr-only">{history.lines}</caption>
           <tbody>
             {revision.lines.map((line) => (
@@ -41,7 +42,7 @@ export function RevisionBody({ revision }: { revision: Revision }) {
               </tr>
             ))}
           </tbody>
-        </table>
+        </Table>
       </div>
       <p>
         {format(history.totals, {

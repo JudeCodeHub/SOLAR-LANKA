@@ -84,7 +84,7 @@ function Visit({ id, visit, now }: { id: string; visit: Work; now: number }) {
         </p>
       ) : null}
       {failure ? <ApiErrorMessage error={failure} /> : null}
-      <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-sm">
+      <dl className="description-list text-sm">
         <dt className="text-muted-foreground">{text.whenLabel}</dt>
         <dd data-when>{range}</dd>
         <dt className="text-muted-foreground">{text.districtLabel}</dt>

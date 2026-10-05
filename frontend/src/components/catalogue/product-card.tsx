@@ -58,7 +58,7 @@ export function ProductCard({
           </h3>
         </CardTitle>
       </CardHeader>
-      <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 px-4 pb-4 text-sm">
+      <dl className="description-list px-4 pb-4 text-sm">
         {rows.map(([label, value]) => (
           <div key={label} className="contents">
             <dt className="text-muted-foreground">{label}</dt>

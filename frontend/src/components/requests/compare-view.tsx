@@ -1,5 +1,6 @@
 "use client";
 
+import { Table as DataTable, TableRegion } from "@/components/ui/table";
 import Link from "next/link";
 
 import { QueryState } from "@/components/query-state";
@@ -68,10 +69,8 @@ function Table({ requestId, offers, note, now }: { requestId: string; offers: Co
           {text.oneOnly}
         </p>
       ) : null}
-      {/* A scrollable region must be focusable so keyboard users can scroll it. */}
-      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
-      <div role="region" aria-label={text.region} tabIndex={0} className="overflow-x-auto rounded-lg border outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
-        <table className="w-full border-collapse text-sm" style={{ minWidth: `${12 + offers.length * 12}rem` }} data-compare>
+      <TableRegion label={text.region}>
+        <DataTable style={{ minWidth: `${12 + offers.length * 12}rem` }} data-compare>
           <caption className="sr-only">{text.caption}</caption>
           <thead>
             <tr className="border-b text-left">
@@ -106,8 +105,8 @@ function Table({ requestId, offers, note, now }: { requestId: string; offers: Co
               </tr>
             ))}
           </tbody>
-        </table>
-      </div>
+        </DataTable>
+      </TableRegion>
     </section>
   );
 }

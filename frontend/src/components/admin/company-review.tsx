@@ -84,7 +84,7 @@ function Review({ id }: { id: string }) {
             <h2 id="profile-title" className="font-heading text-xl font-semibold tracking-tight">
               {text.profile}
             </h2>
-            <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
+            <dl className="description-list text-sm">
               <dt className="text-muted-foreground">{text.districts}</dt>
               <dd>{data.service_districts.join(", ") || text.none}</dd>
               <dt className="text-muted-foreground">{text.services}</dt>

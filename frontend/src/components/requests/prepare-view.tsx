@@ -308,7 +308,7 @@ function Ready({ draft, onEdit }: { draft: Requirements; onEdit: () => void }) {
           {ready.title}
         </h2>
         <p className="text-sm text-muted-foreground">{ready.intro}</p>
-        <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm" data-ready>
+        <dl className="description-list text-sm" data-ready>
           <dt className="text-muted-foreground">{ready.district}</dt>
           <dd>{draft.district}</dd>
           <dt className="text-muted-foreground">{ready.consumption}</dt>

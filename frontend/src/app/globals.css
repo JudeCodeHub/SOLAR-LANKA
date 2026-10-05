@@ -536,3 +536,17 @@
     transition: none;
   }
 }
+
+/* Term and value pairs: a quiet label column beside the value. */
+@utility description-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 1.5rem;
+  row-gap: 0.5rem;
+  & > dt {
+    color: var(--ds-text-2);
+  }
+  & > dd {
+    color: var(--ds-text);
+  }
+}

@@ -1,5 +1,6 @@
 "use client";
 
+import { Table } from "@/components/ui/table";
 import { Bar, BarChart, CartesianGrid, LabelList, ResponsiveContainer, XAxis, YAxis } from "recharts";
 
 import type { ChartSpec } from "@/lib/estimator/results";
@@ -35,7 +36,7 @@ export default function ResultChart({ spec }: { spec: ChartSpec }) {
         </ResponsiveContainer>
       </div>
       <p className="text-xs text-muted-foreground">{spec.unit}</p>
-      <table className="w-full text-sm">
+      <Table className="w-full text-sm">
         <caption className="pb-1 text-left text-xs text-muted-foreground">{text.tableNote}</caption>
         <thead>
           <tr className="border-b text-left">
@@ -57,7 +58,7 @@ export default function ResultChart({ spec }: { spec: ChartSpec }) {
             </tr>
           ))}
         </tbody>
-      </table>
+      </Table>
     </figure>
   );
 }

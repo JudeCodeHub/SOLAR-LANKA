@@ -1,7 +1,9 @@
+import { Fragment } from "react";
 import { CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
 
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Table, TableRegion } from "@/components/ui/table";
 import { Badge, SampleBadge, TimeSensitiveBadge, VerifiedBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -245,6 +247,43 @@ export function DesignGallery() {
           <OctagonAlert aria-hidden />
           <div className="space-y-1"><p>{text.alerts.hazardTitle}</p><p>{text.alerts.hazardBody}</p></div>
         </Alert>
+      </section>
+
+      <section aria-labelledby="tables-title" className="space-y-6">
+        <h2 id="tables-title" className="type-heading">{text.tables.title}</h2>
+        <p className="type-body max-w-3xl text-ink-2">{text.tables.intro}</p>
+        <TableRegion label={text.tables.region} className="max-h-64">
+          <Table className="min-w-[44rem]">
+            <caption className="sr-only">{text.tables.region}</caption>
+            <thead>
+              <tr>
+                {Object.values(text.tables.columns).map((column) => (
+                  <th key={column} scope="col" className="text-left">{column}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(text.tables.rows).map(([id, row]) => (
+                <tr key={id}>
+                  <th scope="row" className="text-left font-normal">{row.quotation}</th>
+                  <td>{row.size}</td>
+                  <td>{row.panels}</td>
+                  <td>{row.inverter}</td>
+                  <td>{row.warranty}</td>
+                  <td>{row.total}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </TableRegion>
+        <dl className="description-list max-w-xl text-sm">
+          {Object.entries(text.tables.facts).map(([id, fact]) => (
+            <Fragment key={id}>
+              <dt>{fact.term}</dt>
+              <dd>{fact.value}</dd>
+            </Fragment>
+          ))}
+        </dl>
       </section>
 
       <section aria-labelledby="badges-title" className="space-y-6">
