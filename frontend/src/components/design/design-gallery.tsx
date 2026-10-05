@@ -1,6 +1,7 @@
-import { CheckCircle2, Clock, Download, Heart, Info, XCircle } from "lucide-react";
+import { Download, Heart } from "lucide-react";
 
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { Badge, SampleBadge, TimeSensitiveBadge, VerifiedBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -230,6 +231,33 @@ export function DesignGallery() {
         </div>
       </section>
 
+      <section aria-labelledby="badges-title" className="space-y-6">
+        <h2 id="badges-title" className="type-heading">{text.badges.title}</h2>
+        <p className="type-body max-w-3xl text-ink-2">{text.badges.intro}</p>
+        <div className="space-y-6 rounded-2xl border border-line bg-surface p-6">
+          <div className="space-y-3">
+            <h3 className="type-subheading">{text.badges.variants}</h3>
+            <div className="flex flex-wrap gap-3">
+              <Badge>{text.badges.neutral}</Badge>
+              <Badge variant="orange">{text.badges.orange}</Badge>
+              <Badge variant="success">{text.badges.success}</Badge>
+              <Badge variant="warning">{text.badges.warning}</Badge>
+              <Badge variant="danger">{text.badges.danger}</Badge>
+              <Badge variant="info">{text.badges.info}</Badge>
+            </div>
+          </div>
+          <div className="space-y-3">
+            <h3 className="type-subheading">{text.badges.presets}</h3>
+            <div className="flex flex-wrap gap-3">
+              <SampleBadge>{text.badges.sample}</SampleBadge>
+              <VerifiedBadge>{text.badges.verified}</VerifiedBadge>
+              <TimeSensitiveBadge>{text.badges.timeSensitive}</TimeSensitiveBadge>
+              <Badge variant="danger">{text.badges.overdue}</Badge>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section aria-labelledby="cards-title" className="space-y-6">
         <h2 id="cards-title" className="type-heading">{text.cards.title}</h2>
         <p className="type-body max-w-3xl text-ink-2">{text.cards.intro}</p>
@@ -283,24 +311,6 @@ export function DesignGallery() {
             <p className="type-caption text-ink-3">{text.surfaces.fieldHelp}</p>
           </div>
         </div>
-        <ul aria-label={text.surfaces.statuses} className="flex flex-wrap gap-3">
-          <li className="inline-flex items-center gap-1.5 rounded-full border border-success px-3 py-1 type-small text-success">
-            <CheckCircle2 aria-hidden className="size-4" />
-            {text.surfaces.success}
-          </li>
-          <li className="inline-flex items-center gap-1.5 rounded-full border border-warning px-3 py-1 type-small text-warning">
-            <Clock aria-hidden className="size-4" />
-            {text.surfaces.warning}
-          </li>
-          <li className="inline-flex items-center gap-1.5 rounded-full border border-danger px-3 py-1 type-small text-danger">
-            <XCircle aria-hidden className="size-4" />
-            {text.surfaces.danger}
-          </li>
-          <li className="inline-flex items-center gap-1.5 rounded-full border border-info px-3 py-1 type-small text-info">
-            <Info aria-hidden className="size-4" />
-            {text.surfaces.info}
-          </li>
-        </ul>
       </section>
 
       <section aria-labelledby="layout-title" className="space-y-8">

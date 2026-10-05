@@ -1,3 +1,4 @@
+import { Badge, SampleBadge, TimeSensitiveBadge } from "@/components/ui/badge";
 import { formatLongDate } from "@/lib/catalogue/detail";
 import { currency } from "@/lib/education/education";
 import { format, messages } from "@/messages";
@@ -8,10 +9,10 @@ const text = messages.education;
 export function Badges({ article }: { article: { time_sensitive: boolean; review_overdue: boolean; is_sample: boolean } }) {
   const state = currency(article);
   return (
-    <p className="flex flex-wrap gap-2 text-xs" data-badges>
-      {state === "time-sensitive" ? <span className="rounded-full border border-foreground px-2 py-0.5 font-medium" data-badge="time-sensitive">{text.timeSensitiveBadge}</span> : null}
-      {state === "overdue" ? <span className="rounded-full border-2 border-destructive px-2 py-0.5 font-medium" data-badge="overdue">{text.overdueBadge}</span> : null}
-      {article.is_sample ? <span className="rounded-full border px-2 py-0.5" data-badge="sample">{text.sampleBadge}</span> : null}
+    <p className="flex flex-wrap gap-2" data-badges>
+      {state === "time-sensitive" ? <TimeSensitiveBadge data-badge="time-sensitive">{text.timeSensitiveBadge}</TimeSensitiveBadge> : null}
+      {state === "overdue" ? <Badge variant="danger" data-badge="overdue">{text.overdueBadge}</Badge> : null}
+      {article.is_sample ? <SampleBadge data-badge="sample">{text.sampleBadge}</SampleBadge> : null}
     </p>
   );
 }
