@@ -246,7 +246,6 @@ test("empty, error and not-found states share one panel with an illustration slo
   for (const file of ["states/empty-state.tsx", "states/error-state.tsx", "states/not-found-state.tsx"]) assert.ok(read(file).includes("StatePanel"), file);
   assert.ok(read("states/error-state.tsx").includes('role="alert"'));
   assert.ok(read("states/not-found-state.tsx").includes('heading="h1"'));
-  assert.ok(read("../app/error.tsx").includes("ErrorState") && read("../app/not-found.tsx").includes("NotFoundState"));
 });
 
 test("page header, figure and key-value components use the type scale and tested colours", () => {
@@ -335,4 +334,22 @@ test("each signed-in area is wrapped in the dashboard shell with its own link gr
   assert.ok(shell.includes("hidden w-60 shrink-0 lg:block") && shell.includes("lg:hidden") && shell.includes("<Sheet"), "side column on desktop, drawer on phones");
   assert.ok(shell.includes("useNavigation(signedIn)") && shell.includes("data-dashboard"));
   assert.ok(shell.includes("sticky top-24"));
+});
+
+test("the not-found and error pages use the full-page state with the photo, and the root error page carries tested colours", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  const screen = read("components/states/state-screen.tsx");
+  assert.ok(screen.includes('name="errorSky"') && screen.includes("<Heading") && screen.includes("lg:grid-cols-2"));
+  for (const file of ["app/not-found.tsx", "app/error.tsx", "app/companies/[id]/not-found.tsx"]) assert.ok(read(file).includes("<StateScreen"), file);
+  assert.ok(read("app/error.tsx").includes("alert") && read("app/not-found.tsx").includes("href=\"/\""), "an error announces itself and not-found leads home");
+  const root = read("app/global-error.tsx");
+  assert.ok(root.includes("#FBF8F3") && root.includes("#FF6A1A") && root.includes("outline: 3px"));
+  for (const theme of ["light", "dark"] as const) {
+    const ink = theme === "light" ? "#1A1511" : "#F7F0E7";
+    const paper = theme === "light" ? "#FBF8F3" : "#0D0B09";
+    const muted = theme === "light" ? "#4B4036" : "#CDBFB0";
+    assert.ok(root.includes(ink) && root.includes(paper) && root.includes(muted), theme);
+    assert.ok(contrastRatio(ink, paper) >= 4.5 && contrastRatio(muted, paper) >= 4.5, theme);
+  }
+  assert.ok(contrastRatio("#1A1511", "#FF6A1A") >= 4.5, "button text on orange");
 });

@@ -1,18 +1,20 @@
 import Link from "next/link";
 
+import { StateScreen } from "@/components/states/state-screen";
 import { Button } from "@/components/ui/button";
 import { messages } from "@/messages";
 
 export default function NotFound() {
   return (
-    <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center gap-4 px-4 py-16 text-center">
-      <h1 className="font-heading text-2xl font-semibold tracking-tight">
-        {messages.directory.notFound.title}
-      </h1>
-      <p className="text-muted-foreground">{messages.directory.notFound.message}</p>
-      <Button asChild>
-        <Link href="/companies">{messages.directory.profile.back}</Link>
-      </Button>
-    </div>
+    <StateScreen
+      eyebrow={messages.pages.notFound.eyebrow}
+      title={messages.directory.notFound.title}
+      description={messages.directory.notFound.message}
+      actions={
+        <Button asChild>
+          <Link href="/companies">{messages.directory.profile.back}</Link>
+        </Button>
+      }
+    />
   );
 }
