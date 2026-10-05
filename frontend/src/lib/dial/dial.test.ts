@@ -44,3 +44,14 @@ test("the dial is one labelled image, sweeps once and holds still under reduced 
   assert.match(block, /var\(--ds-dur-sweep\)/);
   assert.match(block.slice(block.indexOf("prefers-reduced-motion")), /animation: none/);
 });
+
+test("the loader is a dial that turns, holds still under reduced motion, and the button uses it instead of the old spinner", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  const css = read("app/globals.css");
+  const block = css.slice(css.indexOf("@utility dial-spin"));
+  assert.match(block, /animation: dial-spin/);
+  assert.match(block.slice(block.indexOf("prefers-reduced-motion")), /animation: none/);
+  assert.ok(read("components/ui/dial-loader.tsx").includes("aria-hidden"));
+  assert.ok(read("components/ui/button.tsx").includes("<DialLoader />") && !read("components/ui/button.tsx").includes("Loader2"));
+  assert.ok(read("components/states/loading-state.tsx").includes("<DialLoader"));
+});

@@ -592,3 +592,18 @@
     animation: none;
   }
 }
+
+/* Dial loader: the open arc turns steadily; under reduced motion it stays still and the words carry the message. */
+@keyframes dial-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@utility dial-spin {
+  transform-origin: 100px 100px;
+  animation: dial-spin 1.1s linear infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
