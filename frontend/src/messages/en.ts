@@ -80,6 +80,7 @@ export const en = {
     openMenu: "Open menu",
     menuTitle: "Menu",
     menuDescription: "Site navigation and account links",
+    areaLabel: "{area} links",
     groups: {
       explore: "Explore",
       customer: "My activity",

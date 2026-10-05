@@ -324,3 +324,15 @@ test("detail pages lead back with one BackLink, and breadcrumbs mark the current
   const crumbs = read("ui/breadcrumbs.tsx");
   assert.ok(crumbs.includes('aria-current={last ? "page" : undefined}') && crumbs.includes("<nav aria-label={label}") && crumbs.includes("min-h-11"));
 });
+
+test("each signed-in area is wrapped in the dashboard shell with its own link group", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  for (const [area, group] of [["my", "customer"], ["company", "company"], ["technician", "company"], ["admin", "admin"]]) {
+    const layout = read(`app/${area}/layout.tsx`);
+    assert.ok(layout.includes(`<DashboardShell group="${group}"`), `${area} should use the ${group} links`);
+  }
+  const shell = read("components/shell/dashboard-shell.tsx");
+  assert.ok(shell.includes("hidden w-60 shrink-0 lg:block") && shell.includes("lg:hidden") && shell.includes("<Sheet"), "side column on desktop, drawer on phones");
+  assert.ok(shell.includes("useNavigation(signedIn)") && shell.includes("data-dashboard"));
+  assert.ok(shell.includes("sticky top-24"));
+});
