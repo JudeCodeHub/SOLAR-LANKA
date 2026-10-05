@@ -22,11 +22,15 @@ test("the skip link is the first stop, obviously visible when focused, and moves
   expect(style.outline).toBe("solid");
   expect(parseFloat(style.outlineWidth)).toBeGreaterThanOrEqual(3);
   // It sits above the sticky header, not under it.
-  const topmost = await page.evaluate(() => {
-    const element = document.querySelector("[data-skip-link]")!.getBoundingClientRect();
-    return document.elementFromPoint(element.x + element.width / 2, element.y + element.height / 2)?.hasAttribute("data-skip-link");
-  });
-  expect(topmost).toBe(true);
+  // While the page fades in, hit tests land on the page root, so allow that to finish.
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const element = document.querySelector("[data-skip-link]")!.getBoundingClientRect();
+        return document.elementFromPoint(element.x + element.width / 2, element.y + element.height / 2)?.hasAttribute("data-skip-link");
+      }),
+    )
+    .toBe(true);
 
   await page.keyboard.press("Enter");
   await expect(page.locator("#main-content")).toBeFocused();

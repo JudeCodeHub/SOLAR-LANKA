@@ -353,3 +353,14 @@ test("the not-found and error pages use the full-page state with the photo, and 
   }
   assert.ok(contrastRatio("#1A1511", "#FF6A1A") >= 4.5, "button text on orange");
 });
+
+test("every route group has a loading screen built from the page skeleton, announced as a status", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  for (const route of ["", "panels", "inverters", "companies", "learn", "estimator", "my", "company", "technician", "admin"]) {
+    const file = read(`app/${route ? `${route}/` : ""}loading.tsx`);
+    assert.ok(file.includes("<PageSkeleton variant="), `${route || "root"} loading screen`);
+  }
+  const skeleton = read("components/states/page-skeleton.tsx");
+  assert.ok(skeleton.includes('role="status"') && skeleton.includes('aria-busy="true"') && skeleton.includes("sr-only") && skeleton.includes("<DialLoader"));
+  for (const variant of ['"cards"', '"table"', '"form"']) assert.ok(skeleton.includes(variant), variant);
+});
