@@ -4,6 +4,7 @@ import { Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download,
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Icon, IconCircle, ICON_SIZES } from "@/components/ui/icon";
+import { Logo, LogoMark } from "@/components/brand/logo";
 import { Container } from "@/components/ui/container";
 import { KeyValue } from "@/components/ui/key-value";
 import { PageHeader } from "@/components/ui/page-header";
@@ -102,7 +103,7 @@ function Palette({ theme }: { theme: Theme }) {
 }
 
 /** The development-only design review page. */
-const SECTIONS = ["colour", "type", "buttons", "fields", "alerts", "tables", "navigation", "overlays", "loading", "states", "pages", "icons", "badges", "cards", "surfaces", "layout", "motion", "photos"] as const;
+const SECTIONS = ["brand", "colour", "type", "buttons", "fields", "alerts", "tables", "navigation", "overlays", "loading", "states", "pages", "icons", "badges", "cards", "surfaces", "layout", "motion", "photos"] as const;
 
 /** The same sample components shown inside one theme, whatever theme the page is in. */
 function ThemePreview({ theme }: { theme: "light" | "dark" }) {
@@ -147,6 +148,23 @@ export function DesignGallery() {
         <div className="grid gap-6 lg:grid-cols-2">
           <ThemePreview theme="light" />
           <ThemePreview theme="dark" />
+        </div>
+      </section>
+
+      <section id="brand" aria-labelledby="brand-title" className="space-y-6">
+        <h2 id="brand-title" className="type-heading">{text.brand.title}</h2>
+        <p className="type-body max-w-3xl text-ink-2">{text.brand.intro}</p>
+        <div className="flex flex-wrap items-end gap-8 rounded-panel border border-line bg-surface p-6">
+          {[16, 24, 48, 96, 400].map((size) => (
+            <div key={size} className="flex min-w-0 max-w-full flex-col items-center gap-2">
+              <LogoMark size={size} className="h-auto max-w-full" />
+              <span className="type-caption text-ink-2">{size}</span>
+            </div>
+          ))}
+        </div>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <div className="light rounded-panel border border-line bg-background p-8 text-foreground"><Logo height={56} /></div>
+          <div className="dark rounded-panel border border-line bg-background p-8 text-foreground"><Logo height={56} /></div>
         </div>
       </section>
 

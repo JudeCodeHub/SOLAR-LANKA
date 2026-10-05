@@ -977,6 +977,10 @@ export const en = {
     title: "Design system preview",
     intro: "A development-only page that shows the colours, type and images of the Premium Signal design in both themes. It does not exist in production.",
     contents: "Sections on this page",
+    brand: {
+      title: "Logo",
+      intro: "A meter dial with a sun at its centre. Ticks and rays appear from 32 px up; below that the mark simplifies to an arc and a sun so it still reads at 16 px. The wordmark is Fraunces SemiBold, outlined, and takes the page text colour.",
+    },
     sideBySide: {
       title: "Both themes at once",
       intro: "The same components in Ivory and Night, side by side, whichever theme the page is using.",
