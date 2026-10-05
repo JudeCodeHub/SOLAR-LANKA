@@ -49,6 +49,7 @@ def server():
         authenticator=authenticator,
         auth_required=False,
         auth_require_tls=False,
+        ready_timeout=20,
     )
     controller.start()
     try:
