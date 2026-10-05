@@ -61,8 +61,17 @@ def test_e2e_identities_are_repeatable_and_have_the_documented_roles(
     rival = database_session.get(Company, RIVAL_COMPANY[0])
     assert rival.publication_status == "approved" and rival.service_districts == ["Colombo"]
     refs = list(database_session.scalars(select(TroubleshootingReference)))
-    assert sorted(r.code for r in refs) == ["E01", "E09"]
-    assert all(r.is_sample and r.status == "published" for r in refs)
+    assert sorted(r.code for r in refs) == [
+        "Grid Overvoltage",
+        "Low Insulation Res. (Earth fault alarm)",
+        "Utility Loss",
+    ]
+    # Each was read against the manual page it cites, so none is a sample.
+    assert all(not r.is_sample and r.status == "published" and r.verified_on for r in refs)
+    assert all("sparkydirect" in r.source_url and r.source_page for r in refs)
+    assert [r.code for r in refs if r.safety_level == "hazard"] == [
+        "Low Insulation Res. (Earth fault alarm)"
+    ]
     articles = list(database_session.scalars(select(Article)))
     assert len(articles) == 7 and all(a.status == "published" for a in articles)
     # Only the three articles whose claims were read against their sources are not samples.

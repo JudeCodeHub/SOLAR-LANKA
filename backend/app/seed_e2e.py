@@ -1,4 +1,5 @@
 """Extra fictional identities for browser tests, added to the demo fixtures; safe to repeat."""
+# ruff: noqa: E501 -- readable reference text is kept on long lines
 
 from datetime import UTC, datetime
 from uuid import UUID
@@ -176,20 +177,28 @@ def seed_estimator(session: Session) -> None:
             )
 
 
-SAMPLE_SOURCE = {
-    "source_title": "Fictional demonstration reference (not a manufacturer document)",
-    "source_url": "https://example.org/fictional-troubleshooting",
-    "source_page": "1",
-    "verified_on": datetime(2026, 9, 28, tzinfo=UTC),
-    "is_sample": True,
-    "status": "published",
-}
-# The seeded inverter that has references; its sibling GW3600-DNS-30 deliberately has none.
+MANUAL_TITLE = "GoodWe Grid-Tied PV Inverter DNS Series (3.0-6.0kW) G3 User Manual, V1.5-2023-05-25"
+# A distributor-hosted copy of the manufacturer's manual; its model list includes GW3000-DNS-30.
+MANUAL_URL = "https://www.sparkydirect.com.au/assets/files/GW5000-DNS-30_Manual.pdf"
+MANUAL_CHECKED = datetime(2026, 10, 5, tzinfo=UTC)
+# The one model that has references; its sibling GW3600-DNS-30 deliberately has none.
 SAMPLE_MODEL = "GW3000-DNS-30"
 
 
+def manual_source(page: str) -> dict:
+    """Every reference below was read against the manual page it cites."""
+    return {
+        "source_title": MANUAL_TITLE,
+        "source_url": MANUAL_URL,
+        "source_page": page,
+        "verified_on": MANUAL_CHECKED,
+        "is_sample": False,
+        "status": "published",
+    }
+
+
 def seed_troubleshooting(session: Session) -> None:
-    """Two fictional references on one exact model, only when that model has none."""
+    """Three references on one exact model taken from its manual, only when it has none."""
     product = session.scalars(select(Product).where(Product.model == SAMPLE_MODEL)).first()
     admin = session.scalars(
         select(AppUser).where(AppUser.clerk_subject == "e2e_platform_admin")
@@ -205,30 +214,49 @@ def seed_troubleshooting(session: Session) -> None:
         [
             TroubleshootingReference(
                 product_id=product.id,
-                code="E01",
-                title="Display shows a grid fault code",
+                code="Utility Loss",
+                title="Display shows Utility Loss",
                 steps=[
-                    "Write down the code and the time it appeared.",
-                    "Take a photo of the display from a safe distance.",
-                    "Check whether the lights in your home are working normally.",
-                    "Do not open the inverter or touch its cables.",
+                    "Write down the fault name and the time it appeared.",
+                    "Check whether the rest of your home has power: the manual lists the utility grid failing as a cause.",
+                    "The manual says the alarm clears by itself once the grid power supply is restored, so wait for that.",
+                    "If it does not clear, tell your installer. The manual's other cause is a disconnected AC cable or a switched-off AC breaker.",
                 ],
                 safety_level="safe_observation",
                 created_by=admin.id,
-                **SAMPLE_SOURCE,
+                **manual_source("35"),
             ),
             TroubleshootingReference(
                 product_id=product.id,
-                code="E09",
-                title="Burning smell, heat or sparks",
-                steps=["Keep everyone away from the inverter and the area around it."],
+                code="Grid Overvoltage",
+                title="Display shows Grid Overvoltage",
+                steps=[
+                    "Write down the fault name, the time and how often it happens.",
+                    "If it happens only occasionally, the manual says the grid may be temporarily abnormal and the inverter recovers by itself once the grid is normal.",
+                    "If it keeps happening, tell your installer. The manual's checks involve the grid voltage and the local power company, and changing settings needs the power company's consent, so do not change settings yourself.",
+                ],
+                safety_level="safe_observation",
+                created_by=admin.id,
+                **manual_source("35"),
+            ),
+            TroubleshootingReference(
+                product_id=product.id,
+                code="Low Insulation Res. (Earth fault alarm)",
+                title="Display shows an earth fault alarm",
+                steps=[
+                    "Write down the fault name and the time it appeared.",
+                    "Take a photo of the display or the app from a safe distance.",
+                    "Keep children and others away from the inverter, and tell your installer or the manufacturer's after-sales service.",
+                ],
                 safety_level="hazard",
                 hazard_warning=(
-                    "Do not touch it. Switch off at the main isolator only if you can reach it "
-                    "safely, then call a qualified technician or the emergency services."
+                    "Do not touch it. The manual marks this equipment as a high voltage hazard with "
+                    "delayed discharge and a hot surface while it operates, and says it must be "
+                    "powered off, with a 5 minute wait, before anyone works on it. Only a qualified "
+                    "technician should check the cause: call a qualified technician."
                 ),
                 created_by=admin.id,
-                **SAMPLE_SOURCE,
+                **manual_source("38, with the safety notices on pages 4 and 34"),
             ),
         ]
     )

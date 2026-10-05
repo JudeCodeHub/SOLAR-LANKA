@@ -12,13 +12,14 @@ test.describe("troubleshooting is exact, sourced and safe", () => {
     await expect(result.locator("[data-reference]").first()).toHaveAttribute("data-reference", "hazard");
     await expect(result.locator("[data-hazard]")).toContainText("Do not touch it");
     await expect(result.locator("[data-hazard]")).toContainText("call a qualified technician");
-    // The hazard shows no routine steps; the safe reference shows observations only.
-    const safe = result.locator("[data-reference='safe_observation']");
-    await expect(safe.getByText("Do not open the inverter or touch its cables.")).toBeVisible();
+    // The hazard shows no routine steps; the safe references show observations only.
+    const safe = result.locator("[data-reference='safe_observation']").first();
+    await expect(safe.getByText(/Write down the fault name/)).toBeVisible();
     await expect(safe.getByText("Safe things to check")).toBeVisible();
-    await expect(result.locator("[data-source]")).toHaveCount(2);
-    await expect(result.getByText("Sample content, written for this demonstration.").first()).toBeVisible();
-    await expect(result.getByRole("link", { name: "Open the source" }).first()).toHaveAttribute("href", /example\.org/);
+    await expect(result.locator("[data-source]")).toHaveCount(3);
+    // These were read against the manual, so they are not labelled as sample content.
+    await expect(result.getByText("Sample content, written for this demonstration.")).toHaveCount(0);
+    await expect(result.getByRole("link", { name: "Open the source" }).first()).toHaveAttribute("href", /sparkydirect\.com\.au/);
     await expect(result.getByRole("link", { name: "Report this problem to your installer" })).toBeVisible();
   });
 
@@ -26,7 +27,7 @@ test.describe("troubleshooting is exact, sourced and safe", () => {
     signInAs(null);
     await page.goto("/troubleshooting");
     await page.getByLabel("Your model").fill("GW3000-DNS-30");
-    await page.getByLabel("Code shown (optional)").fill("e01");
+    await page.getByLabel("Code shown (optional)").fill("utility loss");
     await page.getByRole("button", { name: "Look up" }).click();
     await expect(page.locator("[data-reference]")).toHaveCount(1);
     await expect(page.locator("[data-reference]")).toHaveAttribute("data-reference", "safe_observation");
@@ -51,7 +52,7 @@ test.describe("troubleshooting is exact, sourced and safe", () => {
     await page.getByRole("button", { name: "Look up" }).click();
     await expect(page.locator("[data-result='exact']")).toBeVisible();
     await expect(page.locator("[data-reference]")).toHaveCount(0);
-    await expect(page.getByText("Display shows a grid fault code")).toHaveCount(0);
+    await expect(page.getByText("Display shows Utility Loss")).toHaveCount(0);
     await page.getByLabel("Your model").fill("  ");
     await page.getByRole("button", { name: "Look up" }).click();
     await expect(page.locator("[data-error='model']")).toBeVisible();
