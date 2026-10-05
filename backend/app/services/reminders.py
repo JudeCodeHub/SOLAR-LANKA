@@ -17,6 +17,7 @@ from app.models.quotation_request import QuotationRequest, RequestDelivery
 from app.models.site_visit import SiteVisit
 from app.models.user import AppUser
 from app.services.email_delivery import Mailer, email_once
+from app.services.notification_preferences import preferences_for
 
 QUOTATION_WINDOW = timedelta(days=3)
 VISIT_WINDOW = timedelta(hours=24)
@@ -35,7 +36,7 @@ def _send(
             AppUser.provider_state == "active",
         )
     )
-    if active is None:
+    if active is None or not preferences_for(session, recipient_id)[0]:
         return 0
     result = session.execute(
         insert(Notification)

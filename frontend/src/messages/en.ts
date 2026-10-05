@@ -692,6 +692,16 @@ export const en = {
     },
   },
   notifications: {
+    settings: {
+      title: "Your notification settings",
+      intro: "These are private to you. Updates about your own work are always shown here; you choose whether to get reminders and emails.",
+      reminders: "Reminders",
+      remindersHelp: "Offers about to expire, visits coming up and yearly check-ins. Switched off, no reminder is created or emailed.",
+      email: "Email",
+      emailHelp: "Send an email copy of each notification. Switched off, notifications still appear here.",
+      saved: "Settings saved.",
+      working: "Saving…",
+    },
     title: "Notifications",
     intro: "Updates about your accepted work. Opening one takes you to its page, which checks for itself that you are allowed to see it.",
     filterLabel: "Show",

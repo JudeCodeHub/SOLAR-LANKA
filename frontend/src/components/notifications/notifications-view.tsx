@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
+import { NotificationSettings } from "@/components/notifications/notification-settings";
 import { Pagination } from "@/components/catalogue/pagination";
 import { QueryState } from "@/components/query-state";
 import { EmptyState } from "@/components/states/empty-state";
@@ -81,6 +82,7 @@ export function NotificationsView() {
           </p>
         ) : null}
       </header>
+      <NotificationSettings />
       <nav aria-label={text.filterLabel} className="flex gap-2">
         {(["all", "unread"] as const).map((option) => (
           <Button key={option} asChild variant={filter === option ? "default" : "outline"} size="sm">

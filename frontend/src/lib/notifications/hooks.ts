@@ -48,3 +48,24 @@ export function useMarkNotification() {
     onSettled: () => client.invalidateQueries({ queryKey: queryKeys.notificationsAll }),
   });
 }
+
+const preferencesKey = ["notification-preferences"] as const;
+
+/** The signed-in person's own switches for reminders and email. */
+export function useNotificationPreferences() {
+  return useQuery({
+    queryKey: preferencesKey,
+    queryFn: () => unwrap(() => api.GET("/users/me/notification-preferences")),
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+  });
+}
+
+/** Save both switches together; the saved values are read again whatever the outcome. */
+export function useSavePreferences() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { reminders_enabled: boolean; email_enabled: boolean }) => unwrap(() => api.PUT("/users/me/notification-preferences", { body })),
+    onSettled: () => client.invalidateQueries({ queryKey: preferencesKey }),
+  });
+}

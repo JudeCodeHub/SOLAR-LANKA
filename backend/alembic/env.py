@@ -22,6 +22,7 @@ from app.models.inverter import Inverter  # noqa: F401
 from app.models.lifecycle_event import LifecycleEvent  # noqa: F401
 from app.models.media_asset import MediaAsset  # noqa: F401
 from app.models.notification import Notification  # noqa: F401
+from app.models.notification_preference import NotificationPreference  # noqa: F401
 from app.models.outbox_event import OutboxEvent  # noqa: F401
 from app.models.panel import Panel  # noqa: F401
 from app.models.product import Product  # noqa: F401
