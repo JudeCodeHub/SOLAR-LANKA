@@ -238,3 +238,13 @@ test("sheet, dialog and confirm action use the system surfaces and keep their fo
   assert.ok(confirm.includes("heading.current?.focus()") && confirm.includes("tabIndex={-1}"), "focus still moves to the question");
   assert.ok(confirm.includes("bg-orange-tint"));
 });
+
+test("empty, error and not-found states share one panel with an illustration slot and use tested tones", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", "components", path), "utf8");
+  const panel = read("states/state-panel.tsx");
+  assert.ok(panel.includes("illustration") && panel.includes("bg-orange-tint text-orange-text") && panel.includes("bg-danger-tint text-danger"));
+  for (const file of ["states/empty-state.tsx", "states/error-state.tsx", "states/not-found-state.tsx"]) assert.ok(read(file).includes("StatePanel"), file);
+  assert.ok(read("states/error-state.tsx").includes('role="alert"'));
+  assert.ok(read("states/not-found-state.tsx").includes('heading="h1"'));
+  assert.ok(read("../app/error.tsx").includes("ErrorState") && read("../app/not-found.tsx").includes("NotFoundState"));
+});

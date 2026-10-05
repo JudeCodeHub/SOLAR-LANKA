@@ -1,32 +1,24 @@
-import { Inbox } from "lucide-react";
+import { Inbox, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
+import { StatePanel } from "@/components/states/state-panel";
 import { messages } from "@/messages";
-import { cn } from "@/lib/utils";
 
-/** The empty convention: say what is missing and. */
+/** The empty convention: say what is missing and what to do next. */
 export function EmptyState({
   title = messages.states.emptyTitle,
   description = messages.states.emptyDescription,
   action,
+  icon = Inbox,
+  illustration,
   className,
 }: {
   title?: string;
   description?: string;
   action?: ReactNode;
+  icon?: LucideIcon;
+  illustration?: ReactNode;
   className?: string;
 }) {
-  return (
-    <div
-      className={cn(
-        "flex flex-col items-center gap-2 rounded-lg border border-dashed p-8 text-center",
-        className,
-      )}
-    >
-      <Inbox aria-hidden className="size-8 text-muted-foreground" />
-      <p className="font-medium">{title}</p>
-      <p className="max-w-sm text-sm text-muted-foreground">{description}</p>
-      {action ? <div className="mt-2">{action}</div> : null}
-    </div>
-  );
+  return <StatePanel icon={icon} illustration={illustration} title={title} description={description} action={action} className={className} />;
 }

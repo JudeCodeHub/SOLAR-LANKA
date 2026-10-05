@@ -1,9 +1,8 @@
 "use client";
 
-import { TriangleAlert } from "lucide-react";
 import { useEffect } from "react";
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ErrorState } from "@/components/states/error-state";
 import { Button } from "@/components/ui/button";
 import { messages } from "@/messages";
 
@@ -21,16 +20,15 @@ export default function ErrorPage({
   }, [error]);
   return (
     <div className="mx-auto w-full max-w-xl flex-1 px-4 py-16">
-      <Alert variant="destructive">
-        <TriangleAlert aria-hidden />
-        <AlertTitle>{messages.pages.error.title}</AlertTitle>
-        <AlertDescription>
-          <p>{messages.pages.error.message}</p>
-          <Button variant="outline" size="sm" className="mt-3" onClick={() => retry()}>
+      <ErrorState
+        title={messages.pages.error.title}
+        description={messages.pages.error.message}
+        action={
+          <Button variant="outline" onClick={() => retry()}>
             {messages.pages.error.retry}
           </Button>
-        </AlertDescription>
-      </Alert>
+        }
+      />
     </div>
   );
 }
