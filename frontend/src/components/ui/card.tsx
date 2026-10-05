@@ -1,19 +1,36 @@
 import * as React from "react"
+import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"
+
+/** Five surfaces: flat, raised (the default), outlined, inset and glass. Glass is for sitting over a photo or gradient; keep text on it short. */
+const cardVariants = cva(
+  "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-card py-(--card-spacing) text-sm text-card-foreground [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-card *:[img:last-child]:rounded-b-card",
+  {
+    variants: {
+      variant: {
+        flat: "border border-transparent bg-surface",
+        raised: "border border-line bg-surface shadow-e1",
+        outlined: "border border-field-border bg-transparent",
+        inset: "border border-line bg-paper-2 [box-shadow:inset_0_1px_3px_color-mix(in_srgb,var(--ds-text)_12%,transparent)]",
+        glass: "border border-line bg-surface/80 shadow-e2 backdrop-blur-xl supports-[not(backdrop-filter:blur(1px))]:bg-surface",
+      },
+    },
+    defaultVariants: { variant: "raised" },
+  }
+)
 
 function Card({
   className,
   size = "default",
+  variant = "raised",
   ...props
-}: React.ComponentProps<"div"> & { size?: "default" | "sm" }) {
+}: React.ComponentProps<"div"> & { size?: "default" | "sm" } & VariantProps<typeof cardVariants>) {
   return (
     <div
       data-slot="card"
       data-size={size}
-      className={cn(
-        "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl bg-card py-(--card-spacing) text-sm text-card-foreground ring-1 ring-foreground/10 [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
-        className
-      )}
+      data-variant={variant}
+      className={cn(cardVariants({ variant }), className)}
       {...props}
     />
   )
@@ -92,6 +109,7 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 export {
+  cardVariants,
   Card,
   CardHeader,
   CardFooter,
