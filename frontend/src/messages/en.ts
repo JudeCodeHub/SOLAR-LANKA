@@ -415,6 +415,26 @@ export const en = {
         "This company does not exist, is not currently listed, or the address is not valid.",
     },
   },
+  brand: {
+    tagline: "Size it. Compare it. Track it.",
+    heroLine: "Know your solar before you sign.",
+    heroSupport:
+      "Estimate a system for your home, compare quotations side by side and follow the installation, with honest numbers and plain words.",
+    primaryAction: "Estimate my system",
+    secondaryAction: "Browse panels",
+    trustLine: "A portfolio demonstration. Companies, prices and records are fictional samples.",
+    microcopy: {
+      working: "Working it out…",
+      saved: "Saved. You can find it under My estimates.",
+      retry: "That did not work. Your information is safe, so try again in a moment.",
+      privacy: "We use this only to size your system.",
+      indicative: "Indicative figure, not a quotation.",
+      nextStep: "Next step",
+      emptyEstimates: "No estimates yet. Start with your electricity bill.",
+      comparePrompt: "Pick up to three to compare side by side.",
+      sampleData: "Sample data for this demonstration.",
+    },
+  },
   landing: {
     hero: {
       title: "Solar Lanka",
