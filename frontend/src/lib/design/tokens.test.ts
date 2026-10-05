@@ -296,3 +296,11 @@ test("the mobile menu carries the logo, the theme choice and 44 px rows, and the
   assert.ok(header.includes('className="hidden sm:block"') && header.includes('<LogoMark size={36} className="sm:hidden"'));
   assert.ok(header.includes('<div className="hidden md:block">'), "the header theme toggle moves into the menu on phones");
 });
+
+test("the footer carries the logo, link columns from the navigation list, and the demonstration notice", () => {
+  const source = readFileSync(join(import.meta.dirname, "..", "..", "components", "site-footer.tsx"), "utf8");
+  assert.ok(source.includes("<Logo") && source.includes("messages.brand.tagline") && source.includes("data-demo-notice"));
+  assert.ok(source.includes("text.disclaimer") && source.includes("NAV_ITEMS"));
+  for (const id of ["panels", "inverters", "estimator", "companies", "learn", "troubleshooting", "support"]) assert.ok(source.includes(`"${id}"`), id);
+  assert.ok(source.includes("text-ink-2") && source.includes("bg-paper-2"), "link and notice colours come from the tested pairs");
+});
