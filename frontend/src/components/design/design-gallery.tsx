@@ -102,6 +102,24 @@ function Palette({ theme }: { theme: Theme }) {
 }
 
 /** The development-only design review page. */
+const SECTIONS = ["colour", "type", "buttons", "fields", "alerts", "tables", "navigation", "overlays", "loading", "states", "pages", "icons", "badges", "cards", "surfaces", "layout", "motion", "photos"] as const;
+
+/** The same sample components shown inside one theme, whatever theme the page is in. */
+function ThemePreview({ theme }: { theme: "light" | "dark" }) {
+  return (
+    <div className={`${theme} space-y-4 rounded-panel border border-line bg-background p-6 text-foreground`} data-theme-preview={theme}>
+      <h3 className="type-subheading">{text.sideBySide[theme]}</h3>
+      <div className="flex flex-wrap gap-3">
+        <Button>{text.sideBySide.primary}</Button>
+        <Button variant="outline">{text.sideBySide.secondary}</Button>
+        <Badge variant="success">{text.sideBySide.badge}</Badge>
+      </div>
+      <Alert role="status" variant="warning"><TriangleAlert aria-hidden /><AlertTitle>{text.sideBySide.alertTitle}</AlertTitle><AlertDescription>{text.sideBySide.alertBody}</AlertDescription></Alert>
+      <Stat label={text.sideBySide.statLabel} value="5.4" unit={text.pages.sizeUnit} />
+    </div>
+  );
+}
+
 export function DesignGallery() {
   return (
     <div className="mx-auto w-full max-w-6xl flex-1 space-y-16 px-4 py-12">
@@ -113,7 +131,26 @@ export function DesignGallery() {
         <ThemeToggle />
       </header>
 
-      <section aria-labelledby="colour-title" className="space-y-6">
+      <nav aria-label={text.contents} className="rounded-panel border border-line bg-surface p-4">
+        <ul className="flex flex-wrap gap-x-2 gap-y-1">
+          {SECTIONS.map((key) => (
+            <li key={key}>
+              <a href={`#${key}`} className="inline-flex min-h-11 items-center rounded-full px-3 text-sm font-medium text-ink-2 hover:bg-paper-2 hover:text-ink">{text[key].title}</a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <section id="sideBySide" aria-labelledby="side-title" className="space-y-6">
+        <h2 id="side-title" className="type-heading">{text.sideBySide.title}</h2>
+        <p className="type-body max-w-3xl text-ink-2">{text.sideBySide.intro}</p>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <ThemePreview theme="light" />
+          <ThemePreview theme="dark" />
+        </div>
+      </section>
+
+      <section id="colour" aria-labelledby="colour-title" className="space-y-6">
         <h2 id="colour-title" className="type-heading">{text.colour.title}</h2>
         <p className="type-body max-w-3xl text-ink-2">{text.colour.intro}</p>
         <div className="grid gap-6 lg:grid-cols-2">
@@ -122,7 +159,7 @@ export function DesignGallery() {
         </div>
       </section>
 
-      <section aria-labelledby="type-title" className="space-y-6">
+      <section id="type" aria-labelledby="type-title" className="space-y-6">
         <h2 id="type-title" className="type-heading">{text.type.title}</h2>
         <p className="type-body max-w-3xl text-ink-2">{text.type.intro}</p>
         <div className="space-y-6 rounded-2xl border border-line bg-surface p-6">
@@ -138,7 +175,7 @@ export function DesignGallery() {
         </div>
       </section>
 
-      <section aria-labelledby="buttons-title" className="space-y-6">
+      <section id="buttons" aria-labelledby="buttons-title" className="space-y-6">
         <h2 id="buttons-title" className="type-heading">{text.buttons.title}</h2>
         <div className="space-y-6 rounded-2xl border border-line bg-surface p-6">
           <div className="space-y-3">
@@ -181,7 +218,7 @@ export function DesignGallery() {
         </div>
       </section>
 
-      <section aria-labelledby="fields-title" className="space-y-6">
+      <section id="fields" aria-labelledby="fields-title" className="space-y-6">
         <h2 id="fields-title" className="type-heading">{text.fields.title}</h2>
         <p className="type-body max-w-3xl text-ink-2">{text.fields.intro}</p>
         <div className="grid gap-6 rounded-2xl border border-line bg-surface p-6 md:grid-cols-2">
@@ -248,7 +285,7 @@ export function DesignGallery() {
         </div>
       </section>
 
-      <section aria-labelledby="alerts-title" className="space-y-6">
+      <section id="alerts" aria-labelledby="alerts-title" className="space-y-6">
         <h2 id="alerts-title" className="type-heading">{text.alerts.title}</h2>
         <p className="type-body max-w-3xl text-ink-2">{text.alerts.intro}</p>
         <div className="grid gap-4 md:grid-cols-2">
@@ -263,7 +300,7 @@ export function DesignGallery() {
         </Alert>
       </section>
 
-      <section aria-labelledby="tables-title" className="space-y-6">
+      <section id="tables" aria-labelledby="tables-title" className="space-y-6">
         <h2 id="tables-title" className="type-heading">{text.tables.title}</h2>
         <p className="type-body max-w-3xl text-ink-2">{text.tables.intro}</p>
         <TableRegion label={text.tables.region} className="max-h-64">
@@ -300,7 +337,7 @@ export function DesignGallery() {
         </dl>
       </section>
 
-      <section aria-labelledby="navigation-title" className="space-y-6">
+      <section id="navigation" aria-labelledby="navigation-title" className="space-y-6">
         <h2 id="navigation-title" className="type-heading">{text.navigation.title}</h2>
         <p className="type-body max-w-3xl text-ink-2">{text.navigation.intro}</p>
         <div className="space-y-3">
@@ -330,13 +367,13 @@ export function DesignGallery() {
         </div>
       </section>
 
-      <section aria-labelledby="overlays-title" className="space-y-6">
+      <section id="overlays" aria-labelledby="overlays-title" className="space-y-6">
         <h2 id="overlays-title" className="type-heading">{text.overlays.title}</h2>
         <p className="type-body max-w-3xl text-ink-2">{text.overlays.intro}</p>
         <OverlayDemo />
       </section>
 
-      <section aria-labelledby="loading-title" className="space-y-6">
+      <section id="loading" aria-labelledby="loading-title" className="space-y-6">
         <h2 id="loading-title" className="type-heading">{text.loading.title}</h2>
         <p className="type-body max-w-3xl text-ink-2">{text.loading.intro}</p>
         <div className="grid gap-4 md:grid-cols-3">
@@ -352,7 +389,7 @@ export function DesignGallery() {
         </div>
       </section>
 
-      <section aria-labelledby="states-title" className="space-y-6">
+      <section id="states" aria-labelledby="states-title" className="space-y-6">
         <h2 id="states-title" className="type-heading">{text.states.title}</h2>
         <p className="type-body max-w-3xl text-ink-2">{text.states.intro}</p>
         <div className="grid gap-4 lg:grid-cols-3">
@@ -362,7 +399,7 @@ export function DesignGallery() {
         </div>
       </section>
 
-      <section aria-labelledby="pages-title" className="space-y-6">
+      <section id="pages" aria-labelledby="pages-title" className="space-y-6">
         <h2 id="pages-title" className="type-heading">{text.pages.title}</h2>
         <p className="type-body max-w-3xl text-ink-2">{text.pages.intro}</p>
         <div className="grid gap-6 lg:grid-cols-2">
@@ -392,7 +429,7 @@ export function DesignGallery() {
         </div>
       </section>
 
-      <section aria-labelledby="icons-title" className="space-y-6">
+      <section id="icons" aria-labelledby="icons-title" className="space-y-6">
         <h2 id="icons-title" className="type-heading">{text.icons.title}</h2>
         <p className="type-body max-w-3xl text-ink-2">{text.icons.intro}</p>
         <div className="flex flex-wrap items-end gap-8 text-ink">
@@ -410,7 +447,7 @@ export function DesignGallery() {
         </div>
       </section>
 
-      <section aria-labelledby="badges-title" className="space-y-6">
+      <section id="badges" aria-labelledby="badges-title" className="space-y-6">
         <h2 id="badges-title" className="type-heading">{text.badges.title}</h2>
         <p className="type-body max-w-3xl text-ink-2">{text.badges.intro}</p>
         <div className="space-y-6 rounded-2xl border border-line bg-surface p-6">
@@ -437,7 +474,7 @@ export function DesignGallery() {
         </div>
       </section>
 
-      <section aria-labelledby="cards-title" className="space-y-6">
+      <section id="cards" aria-labelledby="cards-title" className="space-y-6">
         <h2 id="cards-title" className="type-heading">{text.cards.title}</h2>
         <p className="type-body max-w-3xl text-ink-2">{text.cards.intro}</p>
         <div className="space-y-3">
@@ -473,7 +510,7 @@ export function DesignGallery() {
         </div>
       </section>
 
-      <section aria-labelledby="surfaces-title" className="space-y-6">
+      <section id="surfaces" aria-labelledby="surfaces-title" className="space-y-6">
         <h2 id="surfaces-title" className="type-heading">{text.surfaces.title}</h2>
         <div className="grid gap-6 md:grid-cols-3">
           <div className="space-y-2 rounded-2xl border border-line bg-surface p-6 shadow-sm">
@@ -492,7 +529,7 @@ export function DesignGallery() {
         </div>
       </section>
 
-      <section aria-labelledby="layout-title" className="space-y-8">
+      <section id="layout" aria-labelledby="layout-title" className="space-y-8">
         <h2 id="layout-title" className="type-heading">{text.layout.title}</h2>
         <p className="type-body max-w-3xl text-ink-2">{text.layout.intro}</p>
         <div className="space-y-3">
@@ -529,7 +566,7 @@ export function DesignGallery() {
         </div>
       </section>
 
-      <section aria-labelledby="motion-title" className="space-y-6">
+      <section id="motion" aria-labelledby="motion-title" className="space-y-6">
         <h2 id="motion-title" className="type-heading">{text.motion.title}</h2>
         <p className="type-body max-w-3xl text-ink-2">{text.motion.intro}</p>
         <p className="type-small type-figure text-ink-3">{text.motion.durations}</p>
@@ -541,7 +578,7 @@ export function DesignGallery() {
         </div>
       </section>
 
-      <section aria-labelledby="photos-title" className="space-y-6">
+      <section id="photos" aria-labelledby="photos-title" className="space-y-6">
         <h2 id="photos-title" className="type-heading">{text.photos.title}</h2>
         <p className="type-body max-w-3xl text-ink-2">{text.photos.intro}</p>
         <ul className="grid grid-cols-2 gap-4 lg:grid-cols-4">

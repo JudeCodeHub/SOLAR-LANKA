@@ -267,3 +267,12 @@ test("icons come from one library at one stroke weight, and discs use tested ton
   for (const tone of ["bg-orange-tint text-orange-text", "bg-success-tint text-success", "bg-warning-tint text-warning", "bg-danger-tint text-danger", "bg-info-tint text-info", "bg-paper-2 text-ink-2"]) assert.ok(source.includes(tone), tone);
   assert.ok(source.includes("aria-hidden"));
 });
+
+test("the design page lists every section, links to it, and shows both themes side by side", () => {
+  const source = readFileSync(join(import.meta.dirname, "..", "..", "components", "design", "design-gallery.tsx"), "utf8");
+  const listed = source.match(/const SECTIONS = \[([^\]]+)\]/)?.[1]?.match(/"(\w+)"/g)?.map((name) => name.slice(1, -1)) ?? [];
+  const present = [...source.matchAll(/<section id="(\w+)"/g)].map((match) => match[1]).filter((id) => id !== "sideBySide");
+  assert.deepEqual(listed, present);
+  assert.ok(listed.length >= 18);
+  assert.ok(source.includes('<ThemePreview theme="light" />') && source.includes('<ThemePreview theme="dark" />'));
+});
