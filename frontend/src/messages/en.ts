@@ -1191,6 +1191,10 @@ export const en = {
       efficiency: "Efficiency",
       warranty: "Product warranty",
     },
+    icons: {
+      title: "Icons",
+      intro: "One icon library, one stroke weight. Icons come in four sizes and sit on tinted discs in six tones. They are decorative and always sit beside words.",
+    },
     badges: {
       title: "Badges and status labels",
       intro: "Each badge pairs an icon with a word, so its meaning never rests on colour alone. Three presets cover the content labels used across the app.",

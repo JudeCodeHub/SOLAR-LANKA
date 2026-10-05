@@ -1,8 +1,9 @@
 import { Fragment } from "react";
-import { CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
+import { Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
 
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Icon, IconCircle, ICON_SIZES } from "@/components/ui/icon";
 import { Container } from "@/components/ui/container";
 import { KeyValue } from "@/components/ui/key-value";
 import { PageHeader } from "@/components/ui/page-header";
@@ -388,6 +389,24 @@ export function DesignGallery() {
               </Section>
             </Container>
           </Card>
+        </div>
+      </section>
+
+      <section aria-labelledby="icons-title" className="space-y-6">
+        <h2 id="icons-title" className="type-heading">{text.icons.title}</h2>
+        <p className="type-body max-w-3xl text-ink-2">{text.icons.intro}</p>
+        <div className="flex flex-wrap items-end gap-8 text-ink">
+          {(Object.keys(ICON_SIZES) as (keyof typeof ICON_SIZES)[]).map((size) => (
+            <div key={size} className="flex flex-col items-center gap-2">
+              <Icon icon={Sun} size={size} />
+              <span className="type-caption text-ink-2">{ICON_SIZES[size].replace("size-", "")}</span>
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-4">
+          {([["neutral", Sun], ["orange", Zap], ["success", BatteryCharging], ["warning", TriangleAlert], ["danger", OctagonAlert], ["info", ShieldCheck]] as const).map(([tone, glyph]) => (
+            <IconCircle key={tone} tone={tone} size="lg" icon={glyph} />
+          ))}
         </div>
       </section>
 
