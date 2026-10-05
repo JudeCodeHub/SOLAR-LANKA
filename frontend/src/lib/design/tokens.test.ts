@@ -248,3 +248,11 @@ test("empty, error and not-found states share one panel with an illustration slo
   assert.ok(read("states/not-found-state.tsx").includes('heading="h1"'));
   assert.ok(read("../app/error.tsx").includes("ErrorState") && read("../app/not-found.tsx").includes("NotFoundState"));
 });
+
+test("page header, figure and key-value components use the type scale and tested colours", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", "components", path), "utf8");
+  const header = read("ui/page-header.tsx");
+  assert.ok(header.includes("Heading") && header.includes('level = "h1"') && header.includes("type-display-m") && header.includes("text-orange-text"));
+  assert.ok(read("ui/stat.tsx").includes("type-figure"));
+  assert.ok(read("ui/key-value.tsx").includes("description-list") && read("ui/key-value.tsx").includes("type-figure"));
+});

@@ -3,6 +3,11 @@ import { CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAler
 
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Container } from "@/components/ui/container";
+import { KeyValue } from "@/components/ui/key-value";
+import { PageHeader } from "@/components/ui/page-header";
+import { Section } from "@/components/ui/section";
+import { Stat } from "@/components/ui/stat";
 import { EmptyState } from "@/components/states/empty-state";
 import { ErrorState } from "@/components/states/error-state";
 import { NotFoundState } from "@/components/states/not-found-state";
@@ -353,6 +358,36 @@ export function DesignGallery() {
           <EmptyState title={text.states.emptyTitle} description={text.states.emptyBody} action={<Button variant="outline">{text.states.emptyAction}</Button>} />
           <ErrorState title={text.states.errorTitle} description={text.states.errorBody} action={<Button variant="outline">{text.states.errorAction}</Button>} />
           <NotFoundState title={text.states.notFoundTitle} description={text.states.notFoundBody} action={<Button>{text.states.notFoundAction}</Button>} />
+        </div>
+      </section>
+
+      <section aria-labelledby="pages-title" className="space-y-6">
+        <h2 id="pages-title" className="type-heading">{text.pages.title}</h2>
+        <p className="type-body max-w-3xl text-ink-2">{text.pages.intro}</p>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card variant="inset" className="p-0">
+            <Container size="content" className="px-6">
+              <Section space="s" labelledBy="sample-estimate">
+                <PageHeader eyebrow={text.pages.estimateEyebrow} title={text.pages.estimateTitle} titleId="sample-estimate" description={text.pages.estimateLead} actions={<Button>{text.pages.estimateAction}</Button>} level="h2" className="[&_h2]:text-3xl" />
+              </Section>
+              <Section space="s">
+                <div className="grid grid-cols-2 gap-6">
+                  <Stat label={text.pages.size} value="5.4" unit={text.pages.sizeUnit} />
+                  <Stat label={text.pages.saving} value="38,500" unit={text.pages.savingUnit} note={text.pages.savingNote} />
+                </div>
+              </Section>
+            </Container>
+          </Card>
+          <Card variant="inset" className="p-0">
+            <Container size="content" className="px-6">
+              <Section space="s" labelledBy="sample-product">
+                <PageHeader eyebrow={text.pages.productEyebrow} title={text.pages.productTitle} titleId="sample-product" description={text.pages.productLead} level="h2" className="[&_h2]:text-3xl" />
+              </Section>
+              <Section space="s">
+                <KeyValue items={[{ term: text.pages.power, value: "545 W" }, { term: text.pages.efficiency, value: "21.1 %" }, { term: text.pages.warranty, value: "12 years" }]} />
+              </Section>
+            </Container>
+          </Card>
         </div>
       </section>
 
