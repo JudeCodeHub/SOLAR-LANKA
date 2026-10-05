@@ -264,7 +264,7 @@ Each criterion from section 11 of the project scope, with the evidence for it. "
 | 13 | Private attachments require authorisation | Met | `test_private_media_routes.py`, `test_core_journey.py` (evidence), browser: `notifications-documents.spec.ts` (everyone else refused, signed out 401). |
 | 14 | Critical workflows pass automated tests | Met | Backend suite (533 tests with `--database`), 329 frontend unit tests, 213 browser tests (see Local release gate). |
 | 15 | Works on desktop and mobile browser sizes | Met | Browser: `layout.spec.ts` (320 to 1280 px) and `accessibility.spec.ts` (axe, WCAG 2.2 AA). Emulated, not real devices. |
-| 16 | Sample identities, prices and estimates are labelled | Met | Fictional names end in "(Fictional)" (`test_demo_seed.py`); prices carry "Sample price" and claims "Company declared, not verified"; the home page states the demonstration status; estimates say they are planning aids. |
+| 16 | Sample identities, prices and estimates are labelled | Met | Fictional names end in "(Fictional)" (`test_demo_seed.py`); prices carry "Sample price" and claims "Company declared, not verified"; the footer on every page states the demonstration status; estimates say they are planning aids. |
 
 ## Phase 2 acceptance (Phases 18 and 19)
 

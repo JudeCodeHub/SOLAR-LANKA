@@ -4,6 +4,7 @@ import Link from "next/link";
 import { AccountRole } from "@/components/account-role";
 import { MobileMenu } from "@/components/shell/mobile-menu";
 import { AccountLinks, PrimaryNav } from "@/components/shell/primary-nav";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { getCurrentIdentity } from "@/lib/auth/server";
 import { messages } from "@/messages";
@@ -19,6 +20,7 @@ export async function SiteHeader() {
           {messages.app.name}
         </Link>
         <div className="ml-auto flex items-center gap-2">
+          <ThemeToggle />
           {isSignedIn ? (
             <>
               <AccountRole />
