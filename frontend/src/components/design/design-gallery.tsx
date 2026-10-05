@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Photo } from "@/components/ui/photo";
+import { Reveal } from "@/components/ui/reveal";
 import { contrastRatio } from "@/lib/design/contrast";
 import { CSS_NAMES, DARK, LIGHT, type Theme } from "@/lib/design/tokens";
 import { PHOTOS, type PhotoKey } from "@/lib/photos/photos";
@@ -24,6 +25,7 @@ const SWATCHES: [string, string][] = [
   ["field-border", "bg-field-border"],
   ["orange", "bg-orange"],
   ["orange-hover", "bg-orange-hover"],
+  ["orange-pressed", "bg-orange-pressed"],
   ["orange-text", "bg-orange-text"],
   ["orange-tint", "bg-orange-tint"],
   ["on-orange", "bg-on-orange"],
@@ -32,6 +34,12 @@ const SWATCHES: [string, string][] = [
   ["warning", "bg-warning"],
   ["danger", "bg-danger"],
   ["info", "bg-info"],
+  ["success-tint", "bg-success-tint"],
+  ["warning-tint", "bg-warning-tint"],
+  ["danger-tint", "bg-danger-tint"],
+  ["info-tint", "bg-info-tint"],
+  ["disabled-bg", "bg-disabled-bg"],
+  ["disabled-text", "bg-disabled-text"],
 ];
 
 function valueOf(theme: Theme, cssName: string): string {
@@ -152,6 +160,55 @@ export function DesignGallery() {
             {text.surfaces.info}
           </li>
         </ul>
+      </section>
+
+      <section aria-labelledby="layout-title" className="space-y-8">
+        <h2 id="layout-title" className="type-heading">{text.layout.title}</h2>
+        <p className="type-body max-w-3xl text-ink-2">{text.layout.intro}</p>
+        <div className="space-y-3">
+          <h3 className="type-subheading">{text.layout.containers}</h3>
+          <div className="space-y-2">
+            <p className="type-small max-w-content rounded-card bg-orange-tint px-3 py-2">{text.layout.content}</p>
+            <p className="type-small max-w-reading rounded-card bg-orange-tint px-3 py-2">{text.layout.reading}</p>
+            <p className="type-small max-w-wide rounded-card bg-orange-tint px-3 py-2">{text.layout.wide}</p>
+          </div>
+        </div>
+        <div className="space-y-3">
+          <h3 className="type-subheading">{text.layout.radii}</h3>
+          <div className="flex flex-wrap gap-4">
+            <p className="type-small rounded-field border border-field-border bg-surface px-4 py-6">{text.layout.field}</p>
+            <p className="type-small rounded-card border border-field-border bg-surface px-4 py-6">{text.layout.card}</p>
+            <p className="type-small rounded-panel border border-field-border bg-surface px-4 py-6">{text.layout.panel}</p>
+          </div>
+        </div>
+        <div className="space-y-3">
+          <h3 className="type-subheading">{text.layout.elevation}</h3>
+          <div className="grid gap-6 sm:grid-cols-3">
+            <p className="type-small rounded-card bg-surface p-6 shadow-e1">{text.layout.level1}</p>
+            <p className="type-small rounded-card bg-surface p-6 shadow-e2">{text.layout.level2}</p>
+            <p className="type-small rounded-card bg-surface p-6 shadow-e3">{text.layout.level3}</p>
+          </div>
+        </div>
+        <div className="space-y-3">
+          <h3 className="type-subheading">{text.layout.textures}</h3>
+          <div className="grid gap-8 md:grid-cols-3">
+            <p className="type-small grain rounded-panel border border-line bg-surface p-8">{text.layout.grain}</p>
+            <p className="type-small bg-blueprint rounded-panel border border-line bg-paper p-8">{text.layout.blueprint}</p>
+            <p className="type-small reg-marks rounded-card border border-field-border bg-surface p-8">{text.layout.marks}</p>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="motion-title" className="space-y-6">
+        <h2 id="motion-title" className="type-heading">{text.motion.title}</h2>
+        <p className="type-body max-w-3xl text-ink-2">{text.motion.intro}</p>
+        <p className="type-small type-figure text-ink-3">{text.motion.durations}</p>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Reveal><p className="type-small rounded-card border border-line bg-surface p-5 shadow-e1">{text.motion.first}</p></Reveal>
+          <Reveal delay={1}><p className="type-small rounded-card border border-line bg-surface p-5 shadow-e1">{text.motion.second}</p></Reveal>
+          <Reveal delay={2}><p className="type-small rounded-card border border-line bg-surface p-5 shadow-e1">{text.motion.third}</p></Reveal>
+          <Reveal delay={3}><p className="type-small rounded-card border border-line bg-surface p-5 shadow-e1">{text.motion.fourth}</p></Reveal>
+        </div>
       </section>
 
       <section aria-labelledby="photos-title" className="space-y-6">
