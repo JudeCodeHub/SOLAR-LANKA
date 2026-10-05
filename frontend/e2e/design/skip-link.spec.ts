@@ -4,6 +4,8 @@ test("the skip link is the first stop, obviously visible when focused, and moves
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/design");
   await page.locator("main").first().waitFor();
+  // The page fades in on first load; wait for that to finish, since clicks and hit tests land on the page root while it runs.
+  await expect.poll(() => page.evaluate(() => document.getAnimations().filter((animation) => String((animation as CSSAnimation).animationName ?? "").startsWith("page-")).length)).toBe(0);
   const skip = page.getByRole("link", { name: "Skip to main content" });
   // Off screen (clipped) until it is focused.
   expect((await skip.boundingBox())?.width ?? 0).toBeLessThan(2);

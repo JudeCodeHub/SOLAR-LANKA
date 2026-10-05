@@ -44,3 +44,13 @@ test("the skeleton shimmer animates softly and is switched off under reduced mot
   const source = readFileSync(join(import.meta.dirname, "..", "..", "components", "ui", "skeleton.tsx"), "utf8");
   assert.ok(source.includes("shimmer") && !source.includes("animate-pulse"), "the old pulse ignores reduced motion");
 });
+
+test("the page transition is a short fade, off under reduced motion, and wraps only the page content", () => {
+  const layout = readFileSync(join(import.meta.dirname, "..", "..", "app", "layout.tsx"), "utf8");
+  assert.match(layout, /<ViewTransition default="page">\{children\}<\/ViewTransition>/);
+  assert.ok(layout.indexOf("<ViewTransition") > layout.indexOf("<main"), "the header and footer stay put");
+  const block = css.slice(css.indexOf("Page transition:"));
+  assert.match(block, /::view-transition-old\(\.page\)[\s\S]*120ms/);
+  assert.match(block, /::view-transition-new\(\.page\)[\s\S]*220ms/);
+  assert.match(block.slice(block.indexOf("prefers-reduced-motion")), /animation: none !important/);
+});
