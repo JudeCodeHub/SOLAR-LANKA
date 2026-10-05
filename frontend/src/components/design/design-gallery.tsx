@@ -1,6 +1,7 @@
-import { Download, Heart } from "lucide-react";
+import { CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
 
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge, SampleBadge, TimeSensitiveBadge, VerifiedBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -229,6 +230,21 @@ export function DesignGallery() {
             </div>
           </fieldset>
         </div>
+      </section>
+
+      <section aria-labelledby="alerts-title" className="space-y-6">
+        <h2 id="alerts-title" className="type-heading">{text.alerts.title}</h2>
+        <p className="type-body max-w-3xl text-ink-2">{text.alerts.intro}</p>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Alert role="status" variant="info"><Info aria-hidden /><AlertTitle>{text.alerts.infoTitle}</AlertTitle><AlertDescription>{text.alerts.body}</AlertDescription></Alert>
+          <Alert role="status" variant="success"><CircleCheck aria-hidden /><AlertTitle>{text.alerts.successTitle}</AlertTitle><AlertDescription>{text.alerts.body}</AlertDescription></Alert>
+          <Alert role="status" variant="warning"><TriangleAlert aria-hidden /><AlertTitle>{text.alerts.warningTitle}</AlertTitle><AlertDescription>{text.alerts.body}</AlertDescription></Alert>
+          <Alert role="status" variant="danger"><CircleX aria-hidden /><AlertTitle>{text.alerts.dangerTitle}</AlertTitle><AlertDescription>{text.alerts.body}</AlertDescription></Alert>
+        </div>
+        <Alert role="status" variant="hazard">
+          <OctagonAlert aria-hidden />
+          <div className="space-y-1"><p>{text.alerts.hazardTitle}</p><p>{text.alerts.hazardBody}</p></div>
+        </Alert>
       </section>
 
       <section aria-labelledby="badges-title" className="space-y-6">

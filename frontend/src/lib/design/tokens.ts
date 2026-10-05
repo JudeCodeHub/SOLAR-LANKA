@@ -144,3 +144,11 @@ export const BADGE_VARIANTS: { variant: string; classes: string[]; pairs: [strin
   { variant: "danger", classes: ["bg-danger-tint", "text-danger"], pairs: [["danger", "danger-tint"]] },
   { variant: "info", classes: ["bg-info-tint", "text-info"], pairs: [["info", "info-tint"]] },
 ];
+
+export const ALERT_VARIANTS: { variant: string; classes: string[]; pairs: [string, string][] }[] = [
+  { variant: "info", classes: ["bg-info-tint", "text-info", "border-info"], pairs: [["info", "info-tint"], ["text", "info-tint"]] },
+  { variant: "success", classes: ["bg-success-tint", "text-success", "border-success"], pairs: [["success", "success-tint"], ["text", "success-tint"]] },
+  { variant: "warning", classes: ["bg-warning-tint", "text-warning", "border-warning"], pairs: [["warning", "warning-tint"], ["text", "warning-tint"]] },
+  { variant: "danger", classes: ["bg-danger-tint", "text-danger", "border-danger"], pairs: [["danger", "danger-tint"], ["text", "danger-tint"]] },
+  { variant: "hazard", classes: ["bg-danger-tint", "text-ink", "border-danger", "border-2"], pairs: [["text", "danger-tint"], ["danger", "danger-tint"]] },
+];

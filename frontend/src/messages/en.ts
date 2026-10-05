@@ -1093,6 +1093,17 @@ export const en = {
       fieldHelp: "Fields have a border that is easy to see.",
       fieldPlaceholder: "For example 300",
     },
+    alerts: {
+      title: "Alerts and notices",
+      intro: "Four tones for ordinary messages and one heavier hazard style for safety warnings. Every alert carries an icon and a title, so tone never rests on colour alone.",
+      infoTitle: "Good to know",
+      successTitle: "Saved",
+      warningTitle: "Check this first",
+      dangerTitle: "Something went wrong",
+      body: "A short sentence that says what happened and what to do next.",
+      hazardTitle: "Safety first: do not open the inverter cover.",
+      hazardBody: "Switch off at the isolator, keep clear and call a licensed technician.",
+    },
     badges: {
       title: "Badges and status labels",
       intro: "Each badge pairs an icon with a word, so its meaning never rests on colour alone. Three presets cover the content labels used across the app.",

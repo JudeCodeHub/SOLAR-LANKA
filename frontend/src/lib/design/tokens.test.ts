@@ -4,7 +4,7 @@ import { join } from "node:path";
 import test from "node:test";
 
 import { contrastRatio } from "./contrast.ts";
-import { BADGE_VARIANTS, BUTTON_VARIANTS, CARD_VARIANTS, CONTRAST_RULES, CSS_NAMES, DARK, DECORATIVE_ONLY_ON_LIGHT, LIGHT, type ContrastRule, type Theme } from "./tokens.ts";
+import { ALERT_VARIANTS, BADGE_VARIANTS, BUTTON_VARIANTS, CARD_VARIANTS, CONTRAST_RULES, CSS_NAMES, DARK, DECORATIVE_ONLY_ON_LIGHT, LIGHT, type ContrastRule, type Theme } from "./tokens.ts";
 
 const maps: Record<Theme, Record<string, string>> = { light: LIGHT, dark: DARK };
 
@@ -170,4 +170,25 @@ test("the Badge component has exactly these variants, built from the named class
   // The icon is drawn unconditionally, so a badge can never be colour only.
   assert.match(source, /<Icon aria-hidden \/>/);
   for (const preset of ["SampleBadge", "VerifiedBadge", "TimeSensitiveBadge"]) assert.ok(source.includes(`function ${preset}`), preset);
+});
+
+test("every alert variant keeps its title, body and icon readable in both themes", () => {
+  const problems: string[] = [];
+  for (const { variant, pairs } of ALERT_VARIANTS) {
+    for (const theme of ["light", "dark"] as const) {
+      for (const [foreground, background] of pairs) {
+        const ratio = contrastRatio(valueByCssName(theme, foreground), valueByCssName(theme, background));
+        if (ratio < 4.5) problems.push(`${variant} ${theme}: ${foreground} on ${background} is ${ratio.toFixed(2)}`);
+      }
+    }
+  }
+  assert.deepEqual(problems, []);
+});
+
+test("the Alert component builds each variant from the named classes and the hazard style is heavier", () => {
+  const source = readFileSync(join(import.meta.dirname, "..", "..", "components", "ui", "alert.tsx"), "utf8");
+  for (const { variant, classes } of ALERT_VARIANTS) {
+    const line = source.match(new RegExp(`\\s${variant}:\\s*"([^"]+)"`))?.[1] ?? "";
+    for (const name of classes) assert.ok(line.split(/\s+/).includes(name), `${variant} should use ${name}`);
+  }
 });
