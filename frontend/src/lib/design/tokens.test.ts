@@ -225,3 +225,16 @@ test("tabs, segmented controls and pagination are 44 px high and keep the focus 
   assert.ok(read("catalogue/pagination.tsx").includes("bg-orange text-on-orange"));
   assert.ok(read("ui/tabs.tsx").includes("data-[state=active]:border-orange"));
 });
+
+test("sheet, dialog and confirm action use the system surfaces and keep their focus handling", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", "components", path), "utf8");
+  for (const file of ["ui/sheet.tsx", "ui/dialog.tsx"]) {
+    const source = read(file);
+    assert.ok(source.includes("bg-surface") && source.includes("shadow-e3") && source.includes("border-line"), `${file} should use surface, border and shadow tokens`);
+    assert.ok(source.includes("bg-black/50"), `${file} should dim the page clearly`);
+  }
+  assert.ok(read("ui/dialog.tsx").includes("rounded-panel"));
+  const confirm = read("company/confirm-action.tsx");
+  assert.ok(confirm.includes("heading.current?.focus()") && confirm.includes("tabIndex={-1}"), "focus still moves to the question");
+  assert.ok(confirm.includes("bg-orange-tint"));
+});

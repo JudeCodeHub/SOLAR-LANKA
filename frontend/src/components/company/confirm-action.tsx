@@ -36,8 +36,8 @@ export function ConfirmAction({
 
   if (confirming) {
     return (
-      <div role="group" aria-labelledby={`${id}-title`} className="space-y-3 rounded-lg border p-4" data-confirm={id}>
-        <h3 id={`${id}-title`} ref={heading} tabIndex={-1} className="font-medium outline-none">
+      <div role="group" aria-labelledby={`${id}-title`} className="space-y-3 rounded-card border border-orange bg-orange-tint p-4 text-ink" data-confirm={id}>
+        <h3 id={`${id}-title`} ref={heading} tabIndex={-1} className="font-heading text-lg font-semibold">
           {title}
         </h3>
         <p className="text-sm">{body}</p>
