@@ -143,7 +143,7 @@ function Detail({
           {text.customer.title}
         </h2>
         <p className="text-sm text-muted-foreground">{text.customer.note}</p>
-        <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
+        <dl className="description-list text-sm">
           <dt className="text-muted-foreground">{text.customer.district}</dt>
           <dd>{requirements.district ?? ""}</dd>
           <dt className="text-muted-foreground">{text.customer.consumption}</dt>

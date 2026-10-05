@@ -1,3 +1,4 @@
+import { Table } from "@/components/ui/table";
 import { UnspecifiedValue } from "@/components/catalogue/detail/unspecified-value";
 import { completenessSummary, type SpecGroup } from "@/lib/catalogue/detail";
 import { format, messages } from "@/messages";
@@ -17,7 +18,7 @@ export function SpecificationTable({ groups }: { groups: SpecGroup[] }) {
         {groups.map((group) => (
           <div key={group.id} className="space-y-2">
             <h3 className="font-medium">{group.title}</h3>
-            <table className="w-full border-collapse text-sm">
+            <Table className="w-full border-collapse text-sm">
               <caption className="sr-only">{format(text.caption, { group: group.title })}</caption>
               <thead className="sr-only">
                 <tr>
@@ -37,7 +38,7 @@ export function SpecificationTable({ groups }: { groups: SpecGroup[] }) {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </Table>
             {group.note ? <p className="text-xs text-muted-foreground">{group.note}</p> : null}
           </div>
         ))}

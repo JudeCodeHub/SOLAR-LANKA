@@ -1,5 +1,6 @@
 "use client";
 
+import { Table } from "@/components/ui/table";
 import Link from "next/link";
 
 import { EstimateResults, type SubmittedValues } from "@/components/estimator/estimate-results";
@@ -71,7 +72,7 @@ export function SavedEstimateView({ id }: { id: string }) {
                 {rows.length === 0 ? (
                   <p className="text-sm text-muted-foreground">{text.settingsNone}</p>
                 ) : (
-                  <table className="w-full text-sm" data-settings>
+                  <Table className="w-full text-sm" data-settings>
                     <caption className="sr-only">{text.settingsTitle}</caption>
                     <thead>
                       <tr className="border-b text-left">
@@ -93,7 +94,7 @@ export function SavedEstimateView({ id }: { id: string }) {
                         </tr>
                       ))}
                     </tbody>
-                  </table>
+                  </Table>
                 )}
               </section>
               <Link href="/estimator" className="inline-block text-sm underline underline-offset-2">

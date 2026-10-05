@@ -1,3 +1,4 @@
+import { Table, TableRegion } from "@/components/ui/table";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
@@ -80,15 +81,8 @@ export async function ComparePage({
 
   return frame(
     <>
-      <div
-        role="region"
-        aria-label={text.tableLabel}
-        // A scrollable region must be focusable so keyboard users can scroll it (WCAG 2.1.1).
-        // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
-        tabIndex={0}
-        className="overflow-x-auto rounded-lg border outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-      >
-        <table className="w-full min-w-[40rem] border-collapse text-sm">
+      <TableRegion label={text.tableLabel}>
+        <Table className="min-w-[40rem]">
           <caption className="sr-only">{text.caption}</caption>
           <thead>
             <tr className="border-b bg-muted/40 align-top">
@@ -141,8 +135,8 @@ export async function ComparePage({
               ))}
             </tbody>
           ))}
-        </table>
-      </div>
+        </Table>
+      </TableRegion>
       <p className="text-sm text-muted-foreground">{text.shareNote}</p>
       {columns.some((column) => column.product === null) ? (
         <p role="status" className="text-sm text-muted-foreground">

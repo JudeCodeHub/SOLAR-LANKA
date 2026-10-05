@@ -1,5 +1,6 @@
 "use client";
 
+import { Table } from "@/components/ui/table";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 
@@ -81,7 +82,7 @@ export function TrackingView({
                   {text.steps}
                 </h2>
                 <p className="text-sm text-muted-foreground">{text.intro}</p>
-                <table className="w-full text-sm" data-steps>
+                <Table className="w-full text-sm" data-steps>
                   <caption className="sr-only">{text.steps}</caption>
                   <thead>
                     <tr className="border-b text-left">
@@ -115,7 +116,7 @@ export function TrackingView({
                         </tr>
                       ))}
                   </tbody>
-                </table>
+                </Table>
               </section>
               <CustomerVisits installationId={id} />
               <section

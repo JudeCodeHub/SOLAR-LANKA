@@ -1,5 +1,6 @@
 "use client";
 
+import { Table } from "@/components/ui/table";
 import { useEffect, useRef, useState } from "react";
 import { useFieldArray, useWatch } from "react-hook-form";
 
@@ -328,7 +329,7 @@ function History({ id }: { id: string }) {
         empty={<p className="text-sm text-muted-foreground">{text.history.empty}</p>}
       >
         {(entries) => (
-          <table className="w-full text-sm" data-history>
+          <Table className="w-full text-sm" data-history>
             <caption className="sr-only">{text.history.caption}</caption>
             <thead>
               <tr className="border-b text-left">
@@ -350,7 +351,7 @@ function History({ id }: { id: string }) {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </Table>
         )}
       </QueryState>
     </section>

@@ -14,7 +14,7 @@ export function SourceSection({ source }: { source: SourceInfo }) {
         {text.title}
       </h2>
       <p className="max-w-3xl text-sm text-muted-foreground">{text.intro}</p>
-      <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
+      <dl className="description-list text-sm">
         <dt className="text-muted-foreground">{text.source}</dt>
         <dd>
           {source.url ? (

@@ -1,5 +1,6 @@
 "use client";
 
+import { Table, TableRegion } from "@/components/ui/table";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -92,10 +93,8 @@ function Offer({ requestId, quotationId, revisions, companyName, now }: { reques
         <h2 id="items-title" className="font-heading text-xl font-semibold tracking-tight">
           {detail.itemsTitle}
         </h2>
-        {/* A scrollable region must be focusable so keyboard users can scroll it. */}
-        {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
-        <div role="region" aria-label={detail.itemsCaption} tabIndex={0} className="overflow-x-auto outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
-          <table className="w-full min-w-[28rem] text-sm" data-lines>
+        <TableRegion label={detail.itemsCaption}>
+          <Table className="min-w-[28rem]" data-lines>
             <caption className="sr-only">{detail.itemsCaption}</caption>
             <thead>
               <tr className="border-b text-left">
@@ -118,9 +117,9 @@ function Offer({ requestId, quotationId, revisions, companyName, now }: { reques
                 </tr>
               ))}
             </tbody>
-          </table>
-        </div>
-        <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-sm" data-totals>
+          </Table>
+        </TableRegion>
+        <dl className="description-list text-sm" data-totals>
           {money.map(([label, value]) => (
             <div key={label} className="contents">
               <dt className="text-muted-foreground">{label}</dt>
@@ -134,7 +133,7 @@ function Offer({ requestId, quotationId, revisions, companyName, now }: { reques
         <h2 id="terms-title" className="font-heading text-xl font-semibold tracking-tight">
           {detail.termsTitle}
         </h2>
-        <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm" data-terms>
+        <dl className="description-list text-sm" data-terms>
           {terms.map(([label, value]) => (
             <div key={label} className="contents">
               <dt className="text-muted-foreground">{label}</dt>
@@ -151,7 +150,7 @@ function Offer({ requestId, quotationId, revisions, companyName, now }: { reques
           {text.inclusions.title}
         </h2>
         <p className="text-sm text-muted-foreground">{text.inclusions.intro}</p>
-        <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-sm" data-inclusions>
+        <dl className="description-list text-sm" data-inclusions>
           {INCLUSION_KEYS.map((key) => (
             <div key={key} className="contents">
               <dt className="text-muted-foreground">{inclusionLabel(key)}</dt>

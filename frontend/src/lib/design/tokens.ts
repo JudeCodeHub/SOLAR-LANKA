@@ -152,3 +152,5 @@ export const ALERT_VARIANTS: { variant: string; classes: string[]; pairs: [strin
   { variant: "danger", classes: ["bg-danger-tint", "text-danger", "border-danger"], pairs: [["danger", "danger-tint"], ["text", "danger-tint"]] },
   { variant: "hazard", classes: ["bg-danger-tint", "text-ink", "border-danger", "border-2"], pairs: [["text", "danger-tint"], ["danger", "danger-tint"]] },
 ];
+
+export const TABLE_PAIRS: [string, string][] = [["text-2", "surface-2"], ["text", "surface-2"], ["text", "surface"], ["text", "orange-tint"]];

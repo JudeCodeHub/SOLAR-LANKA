@@ -484,7 +484,7 @@ function Editor({
                 {text.totals.stale}
               </p>
             ) : null}
-            <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-sm">
+            <dl className="description-list text-sm">
               {totals.map(([label, value]) => (
                 <div key={label} className="contents">
                   <dt className="text-muted-foreground">{label}</dt>

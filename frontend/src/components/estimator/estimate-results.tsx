@@ -138,7 +138,7 @@ export function EstimateResults({
         </div>
         <div className="space-y-1 text-sm">
           <h4 className="font-medium">{about.inputsTitle}</h4>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1">
+          <dl className="description-list">
             {inputRows.map(([label, value]) => (
               <div key={label} className="contents">
                 <dt className="text-muted-foreground">{label}</dt>
@@ -157,7 +157,7 @@ export function EstimateResults({
                 <li key={topic} className="rounded-md border p-3" data-source={topic}>
                   <p className="font-medium">{about.sourceNames[topic]}</p>
                   {source ? (
-                    <dl className="mt-1 grid grid-cols-[auto_1fr] gap-x-6 gap-y-1">
+                    <dl className="mt-1 description-list">
                       {source.publisher ? <Item label={about.publisher} value={source.publisher} /> : null}
                       {source.title ? <Item label={about.document} value={source.title} /> : null}
                       {source.unit ? <Item label={about.unit} value={source.unit} /> : null}

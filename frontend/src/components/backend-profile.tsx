@@ -24,7 +24,7 @@ export function BackendProfile() {
       <CardContent className="text-sm">
         {state.status === "loading" || state.status === "signed-out" ? <LoadingState /> : null}
         {state.status === "ready" && query.data ? (
-          <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2">
+          <dl className="description-list">
             <dt className="text-muted-foreground">{messages.account.role}</dt>
             <dd data-testid="backend-role">{roleLabel(state.user.role)}</dd>
             <dt className="text-muted-foreground">{messages.account.created}</dt>
