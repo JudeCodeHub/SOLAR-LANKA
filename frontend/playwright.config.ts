@@ -17,8 +17,9 @@ export default defineConfig({
   use: { baseURL: "http://localhost:3000", channel: "chrome", trace: "off" },
   projects: [
     { name: "desktop", use: { viewport: { width: 1280, height: 800 } } },
-    { name: "tablet", use: { ...devices["iPad (gen 7)"], channel: "chrome", defaultBrowserType: "chromium" } },
-    { name: "mobile", use: { ...devices["Pixel 7"], channel: "chrome" } },
+    // The layout specs set their own sizes (320 to 1280 px), so only the desktop project runs them.
+    { name: "tablet", testIgnore: /layout\.spec\.ts/, use: { ...devices["iPad (gen 7)"], channel: "chrome", defaultBrowserType: "chromium" } },
+    { name: "mobile", testIgnore: /layout\.spec\.ts/, use: { ...devices["Pixel 7"], channel: "chrome" } },
   ],
   webServer: [
     { command: "node e2e/support/stack.ts", url: "http://127.0.0.1:8000/health", reuseExistingServer: false, timeout: 120_000, stdout: "ignore", stderr: "pipe" },

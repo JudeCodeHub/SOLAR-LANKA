@@ -59,6 +59,63 @@ test.describe("axe finds no WCAG 2.2 AA violations", () => {
   });
 });
 
+test.describe("axe finds no violations on the newest screens in their changing states", () => {
+  test("estimate results for each connection scheme", async ({ page, signInAs }) => {
+    signInAs(null);
+    await page.goto("/estimator");
+    await page.getByLabel("Monthly electricity use (kWh per month)").fill("300");
+    await page.getByLabel("District").selectOption({ label: "Colombo" });
+    await page.getByLabel("Usable roof area (m²)").fill("30");
+    await page.getByLabel("Shading on the roof").selectOption({ label: "Partial" });
+    await page.getByLabel("Share of electricity used in the daytime (%)").fill("50");
+    for (const scheme of ["net_metering", "net_accounting", "net_plus"]) {
+      await page.getByLabel("Connection scheme").selectOption(scheme);
+      await page.getByRole("button", { name: "Calculate estimate" }).click();
+      await expect(page.locator("[data-scheme-note]")).toBeVisible();
+      await audit(page, `estimate results ${scheme}`);
+    }
+  });
+
+  test("the offer page while a PDF is requested, prepared and ready, and the company quotation history", async ({ page, api, signInAs, processOutbox }) => {
+    const s = await acceptedInstallation(api);
+    signInAs("estimateCustomer");
+    await page.goto(`/my/requests/${s.requestId}/offers/${s.quotationId}`);
+    await audit(page, "offer before asking for a PDF");
+    await page.locator("[data-export-request]").click();
+    await expect(page.locator("[data-export-pending]")).toBeVisible();
+    await audit(page, "offer while the PDF is prepared");
+    processOutbox();
+    await expect(page.locator("[data-export-ready]")).toBeVisible({ timeout: 15_000 });
+    await audit(page, "offer with the PDF ready");
+
+    const me = (await api("sunbirdAdmin", "GET", "/users/me")).body as { memberships: { company_id: string }[] };
+    const inbox = (await api("sunbirdAdmin", "GET", `/companies/${me.memberships[0]?.company_id}/request-deliveries?limit=50`)).body as { items: { id: string; request_id: string }[] };
+    const delivery = inbox.items.find((item) => item.request_id === s.requestId);
+    signInAs("sunbirdAdmin");
+    await page.goto(`/company/inbox/${delivery?.id}/quotation`);
+    await page.locator("[data-history] summary").first().click();
+    await expect(page.locator("[data-pdf-download]").first()).toBeVisible();
+    await audit(page, "company quotation with its history open");
+  });
+
+  test("notification settings after a change is saved", async ({ page, api, signInAs }) => {
+    signInAs("newCustomer");
+    await page.goto("/notifications");
+    await page.locator("[data-setting='reminders']").uncheck();
+    await expect(page.locator("[data-settings-status]")).toHaveText("Settings saved.");
+    await audit(page, "notification settings saved");
+    await api("newCustomer", "PUT", "/users/me/notification-preferences", { reminders_enabled: true, email_enabled: true });
+  });
+
+  test("the admin estimator editor with an export scenario chosen", async ({ page, signInAs }) => {
+    signInAs("platformAdmin");
+    await page.goto("/admin/estimator/new");
+    await page.locator("#f-scenario").selectOption("grid_net_accounting_no_backup");
+    await expect(page.locator("#f-assumptions")).toContainText("export_rate_lkr_per_kwh");
+    await audit(page, "admin estimator net accounting draft");
+  });
+});
+
 test.describe("keyboard and focus", () => {
   test("the skip link is the first stop and moves focus to the content", async ({ page, signInAs }) => {
     signInAs(null);
