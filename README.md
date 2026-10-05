@@ -219,7 +219,7 @@ Measured during Phase 17, on the core release before the Phase 2 features were a
 
 ## Local release gate
 
-Last run on 2026-10-05 on one machine with a disposable database, after the Phase 2 work. Everything passed; the numbers below come from that run.
+Last run on 2026-10-05 (21.16) on one machine with a disposable database, after the Phase 2 work. Everything passed; the numbers below come from that run.
 
 | Check | Command | Result |
 |---|---|---|
@@ -229,7 +229,7 @@ Last run on 2026-10-05 on one machine with a disposable database, after the Phas
 | Frontend lint and types | `eslint .` and `next typegen && tsc --noEmit` (the two steps of `pnpm check`) | clean |
 | Frontend unit tests | `pnpm test` | 329 passed |
 | Frontend production build | `next build` | compiles, every route generated |
-| Browser tests (desktop, tablet, mobile) | `playwright test` | 213 tests: 212 passed and 1 flaky (a mobile support test that fails its first attempt now and then and passes on the automatic retry), none failed; the layout spec runs on desktop only |
+| Browser tests (desktop, tablet, mobile) | `playwright test` | 213 tests, all passed (none flaky, none skipped; the layout spec runs on desktop only) |
 
 Not part of this gate: CI, deployment, load testing, real-device checks and the live Clerk run (see Known limitations).
 

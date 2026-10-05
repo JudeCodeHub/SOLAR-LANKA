@@ -69,8 +69,10 @@ test.describe("support requests", () => {
     await expect(page.locator("[data-safety]")).toContainText("do not touch the equipment");
     await page.getByRole("button", { name: "Send to the company" }).click();
     await expect(page.locator("[data-error='symptom']")).toBeVisible();
+    // The installation list loads after the page, and this customer has many; choose the one just made, not whichever is second.
+    await page.waitForLoadState("networkidle");
     const choice = page.locator("#installation");
-    if (await choice.count()) await choice.selectOption({ index: 1 });
+    if (await choice.count()) await choice.selectOption(s.installationId);
     await page.getByLabel("What is happening?").fill(`Inverter smells of burning ${s.requestId.slice(0, 8)}`);
     await page.getByLabel("Code shown on the equipment (optional)").fill("E09");
     await page.getByLabel("This may be dangerous right now").check();
