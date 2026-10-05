@@ -1,5 +1,6 @@
 "use client";
 
+import { BackLink } from "@/components/ui/back-link";
 import { Table } from "@/components/ui/table";
 import Link from "next/link";
 import { useRef, useState } from "react";
@@ -33,9 +34,7 @@ export function RequestView({ id }: { id: string }) {
   const query = useRequest(id);
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
-      <Link href="/my/requests" className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">
-        {text.back}
-      </Link>
+      <BackLink href="/my/requests">{text.back}</BackLink>
       <QueryState query={query}>
         {(request) => <Detail request={request} refreshing={query.isRefetching} onRefresh={() => void query.refetch()} refetch={query.refetch} />}
       </QueryState>

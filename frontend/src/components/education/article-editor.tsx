@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { BackLink } from "@/components/ui/back-link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
@@ -28,9 +28,7 @@ const toForm = (a: AdminArticle): ArticleForm => ({
 export function ArticleEditor({ id }: { id: string | null }) {
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
-      <Link href="/admin/education" className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">
-        {text.back}
-      </Link>
+      <BackLink href="/admin/education">{text.back}</BackLink>
       <PlatformGate>{(selfId) => (id === null ? <Form id={null} article={null} selfId={selfId} /> : <Loader id={id} selfId={selfId} />)}</PlatformGate>
     </div>
   );

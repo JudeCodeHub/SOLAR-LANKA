@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { BackLink } from "@/components/ui/back-link";
 import { useRef, useState } from "react";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
@@ -21,9 +21,7 @@ export function TechnicianVisit({ id }: { id: string }) {
   const query = useAssignedVisit(id);
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
-      <Link href="/technician" className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">
-        {text.back}
-      </Link>
+      <BackLink href="/technician">{text.back}</BackLink>
       <QueryState query={query}>{(visit) => <Visit id={id} visit={visit} now={query.dataUpdatedAt} />}</QueryState>
     </div>
   );

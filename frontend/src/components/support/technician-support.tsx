@@ -1,5 +1,6 @@
 "use client";
 
+import { BackLink } from "@/components/ui/back-link";
 import Link from "next/link";
 import { useRef, useState } from "react";
 
@@ -56,9 +57,7 @@ export function TechnicianCase({ id }: { id: string }) {
   const [refused, setRefused] = useState(false);
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
-      <Link href="/technician/support" className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">
-        {text.back}
-      </Link>
+      <BackLink href="/technician/support">{text.back}</BackLink>
       <QueryState query={query}>
         {(item) => (
           <>

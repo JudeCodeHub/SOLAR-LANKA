@@ -7,6 +7,8 @@ import { Icon, IconCircle, ICON_SIZES } from "@/components/ui/icon";
 import { DialLoader } from "@/components/ui/dial-loader";
 import { Dial } from "@/components/ui/dial";
 import { Logo, LogoMark } from "@/components/brand/logo";
+import { BackLink } from "@/components/ui/back-link";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Container } from "@/components/ui/container";
 import { KeyValue } from "@/components/ui/key-value";
 import { PageHeader } from "@/components/ui/page-header";
@@ -105,7 +107,7 @@ function Palette({ theme }: { theme: Theme }) {
 }
 
 /** The development-only design review page. */
-const SECTIONS = ["brand", "dials", "colour", "type", "buttons", "fields", "alerts", "tables", "navigation", "overlays", "loading", "states", "pages", "icons", "badges", "cards", "surfaces", "layout", "motion", "photos"] as const;
+const SECTIONS = ["brand", "dials", "colour", "type", "buttons", "fields", "alerts", "wayfinding", "tables", "navigation", "overlays", "loading", "states", "pages", "icons", "badges", "cards", "surfaces", "layout", "motion", "photos"] as const;
 
 /** The same sample components shown inside one theme, whatever theme the page is in. */
 function ThemePreview({ theme }: { theme: "light" | "dark" }) {
@@ -334,6 +336,15 @@ export function DesignGallery() {
           <OctagonAlert aria-hidden />
           <div className="space-y-1"><p>{text.alerts.hazardTitle}</p><p>{text.alerts.hazardBody}</p></div>
         </Alert>
+      </section>
+
+      <section id="wayfinding" aria-labelledby="wayfinding-title" className="space-y-6">
+        <h2 id="wayfinding-title" className="type-heading">{text.wayfinding.title}</h2>
+        <p className="type-body max-w-3xl text-ink-2">{text.wayfinding.intro}</p>
+        <div className="space-y-2 rounded-panel border border-line bg-surface p-6">
+          <BackLink href="#wayfinding">{text.wayfinding.back}</BackLink>
+          <Breadcrumbs label={text.wayfinding.label} items={[{ label: text.wayfinding.home, href: "/" }, { label: text.wayfinding.panels, href: "/panels" }, { label: text.wayfinding.product }]} />
+        </div>
       </section>
 
       <section id="tables" aria-labelledby="tables-title" className="space-y-6">

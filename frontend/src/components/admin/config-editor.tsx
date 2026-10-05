@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { BackLink } from "@/components/ui/back-link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
@@ -20,9 +20,7 @@ const text = messages.adminEstimator;
 export function ConfigEditor({ id }: { id: string | null }) {
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
-      <Link href="/admin/estimator" className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">
-        {text.back}
-      </Link>
+      <BackLink href="/admin/estimator">{text.back}</BackLink>
       <PlatformGate>{() => (id === null ? <NewDraft /> : <Existing id={id} />)}</PlatformGate>
     </div>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { BackLink } from "@/components/ui/back-link";
 import Link from "next/link";
 
 import { Badges, CurrencyNotice } from "@/components/education/article-notice";
@@ -17,9 +18,7 @@ export function ArticleView({ slug }: { slug: string }) {
   const query = useArticle(slug);
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
-      <Link href="/learn" className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">
-        {text.back}
-      </Link>
+      <BackLink href="/learn">{text.back}</BackLink>
       <QueryState query={query} isEmpty={() => false}>
         {(article) => (
           <article className="space-y-6" data-article-page>
