@@ -456,6 +456,7 @@ export const en = {
       how: {
         eyebrow: "How it works",
         title: "From your bill to a working system, in four steps.",
+        stepLabel: "Step {number}",
         steps: {
           estimate: { title: "Estimate", body: "Size a system from your electricity use and your roof." },
           compare: { title: "Compare", body: "Put quotations side by side, with every figure labelled." },

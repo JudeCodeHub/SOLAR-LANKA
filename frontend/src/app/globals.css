@@ -660,3 +660,19 @@
     animation: none;
   }
 }
+
+/* Drawn line: scaled from nothing to full length the first time it is in view (set --draw-from to the starting scale); drawn already under reduced motion or without scripts. */
+@utility draw-line {
+  transition: transform var(--ds-dur-sweep) var(--ds-ease);
+  @media (scripting: enabled) {
+    &:not([data-in-view="true"]) {
+      transform: var(--draw-from);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    &:not([data-in-view="true"]) {
+      transform: none;
+    }
+  }
+}

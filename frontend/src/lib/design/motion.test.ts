@@ -66,3 +66,14 @@ test("the hero entrance rises in turn, fades the photo, delays the dial sweep, a
   for (const index of [0, 1, 2, 3, 4, 5]) assert.ok(hero.includes(`step(${index})`), `step ${index}`);
   assert.ok(hero.includes("hero-fade") && hero.includes("delay={900}"));
 });
+
+test("the drawn line scales in once, uses the sweep duration, and is already drawn under reduced motion", () => {
+  const block = css.slice(css.indexOf("@utility draw-line"));
+  assert.match(block, /transition: transform var\(--ds-dur-sweep\)/);
+  assert.match(block, /@media \(scripting: enabled\)[\s\S]*transform: var\(--draw-from\)/);
+  const reduced = block.slice(block.indexOf("prefers-reduced-motion"));
+  assert.match(reduced, /transition: none/);
+  assert.match(reduced, /transform: none/);
+  const component = readFileSync(join(import.meta.dirname, "..", "..", "components", "ui", "draw-line.tsx"), "utf8");
+  assert.ok(component.includes("observer.disconnect()") && component.includes("aria-hidden"));
+});
