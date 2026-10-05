@@ -242,7 +242,7 @@ test("sheet, dialog and confirm action use the system surfaces and keep their fo
 test("empty, error and not-found states share one panel with an illustration slot and use tested tones", () => {
   const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", "components", path), "utf8");
   const panel = read("states/state-panel.tsx");
-  assert.ok(panel.includes("illustration") && panel.includes("bg-orange-tint text-orange-text") && panel.includes("bg-danger-tint text-danger"));
+  assert.ok(panel.includes("illustration") && panel.includes("IconCircle") && panel.includes('"orange" | "danger"'));
   for (const file of ["states/empty-state.tsx", "states/error-state.tsx", "states/not-found-state.tsx"]) assert.ok(read(file).includes("StatePanel"), file);
   assert.ok(read("states/error-state.tsx").includes('role="alert"'));
   assert.ok(read("states/not-found-state.tsx").includes('heading="h1"'));
@@ -255,4 +255,15 @@ test("page header, figure and key-value components use the type scale and tested
   assert.ok(header.includes("Heading") && header.includes('level = "h1"') && header.includes("type-display-m") && header.includes("text-orange-text"));
   assert.ok(read("ui/stat.tsx").includes("type-figure"));
   assert.ok(read("ui/key-value.tsx").includes("description-list") && read("ui/key-value.tsx").includes("type-figure"));
+});
+
+test("icons come from one library at one stroke weight, and discs use tested tone pairs", () => {
+  const manifest = JSON.parse(readFileSync(join(import.meta.dirname, "..", "..", "..", "package.json"), "utf8")) as { dependencies: Record<string, string> };
+  const iconLibraries = Object.keys(manifest.dependencies).filter((name) => /icon|lucide|phosphor|heroicons|tabler|fontawesome/i.test(name));
+  assert.deepEqual(iconLibraries, ["lucide-react"]);
+  const css = readFileSync(join(import.meta.dirname, "..", "..", "app", "globals.css"), "utf8");
+  assert.match(css, /svg\.lucide \{\s*stroke-width: 1\.75/);
+  const source = readFileSync(join(import.meta.dirname, "..", "..", "components", "ui", "icon.tsx"), "utf8");
+  for (const tone of ["bg-orange-tint text-orange-text", "bg-success-tint text-success", "bg-warning-tint text-warning", "bg-danger-tint text-danger", "bg-info-tint text-info", "bg-paper-2 text-ink-2"]) assert.ok(source.includes(tone), tone);
+  assert.ok(source.includes("aria-hidden"));
 });

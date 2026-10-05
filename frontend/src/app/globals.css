@@ -277,6 +277,12 @@
     outline: 2px solid var(--ds-focus);
     outline-offset: 2px;
   }
+  /* Icons: one library (lucide) at one stroke weight, rounded ends. */
+  svg.lucide {
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
   h1,
   h2,
   h3 {
