@@ -973,10 +973,23 @@ export const en = {
     dark: "Dark",
     system: "Match my device",
   },
+  dial: {
+    description: "{label}: {value} {unit}, on a scale from {min} to {max}",
+  },
   design: {
     title: "Design system preview",
     intro: "A development-only page that shows the colours, type and images of the Premium Signal design in both themes. It does not exist in production.",
     contents: "Sections on this page",
+    dials: {
+      title: "Dial",
+      intro: "The meter dial shows one figure on a scale. It sweeps once when it appears, holds still under reduced motion, and reads out as a single sentence for screen readers.",
+      size: "System size",
+      sizeUnit: "kW",
+      selfUse: "Self-use",
+      selfUseUnit: "%",
+      payback: "Payback",
+      paybackUnit: "years",
+    },
     brand: {
       title: "Logo",
       intro: "A meter dial with a sun at its centre. Ticks and rays appear from 32 px up; below that the mark simplifies to an arc and a sun so it still reads at 16 px. The wordmark is Fraunces SemiBold, outlined, and takes the page text colour.",

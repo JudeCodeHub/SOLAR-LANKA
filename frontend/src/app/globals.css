@@ -578,3 +578,17 @@
     background-image: none;
   }
 }
+
+/* Dial: the value arc sweeps from empty to its value once, then stays; it is still under reduced motion. */
+@keyframes dial-sweep {
+  from {
+    stroke-dasharray: 0 100;
+  }
+}
+
+@utility dial-sweep {
+  animation: dial-sweep var(--ds-dur-sweep) var(--ds-ease) both;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}

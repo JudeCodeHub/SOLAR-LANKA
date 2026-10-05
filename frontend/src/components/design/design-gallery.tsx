@@ -4,6 +4,7 @@ import { Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download,
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Icon, IconCircle, ICON_SIZES } from "@/components/ui/icon";
+import { Dial } from "@/components/ui/dial";
 import { Logo, LogoMark } from "@/components/brand/logo";
 import { Container } from "@/components/ui/container";
 import { KeyValue } from "@/components/ui/key-value";
@@ -103,7 +104,7 @@ function Palette({ theme }: { theme: Theme }) {
 }
 
 /** The development-only design review page. */
-const SECTIONS = ["brand", "colour", "type", "buttons", "fields", "alerts", "tables", "navigation", "overlays", "loading", "states", "pages", "icons", "badges", "cards", "surfaces", "layout", "motion", "photos"] as const;
+const SECTIONS = ["brand", "dials", "colour", "type", "buttons", "fields", "alerts", "tables", "navigation", "overlays", "loading", "states", "pages", "icons", "badges", "cards", "surfaces", "layout", "motion", "photos"] as const;
 
 /** The same sample components shown inside one theme, whatever theme the page is in. */
 function ThemePreview({ theme }: { theme: "light" | "dark" }) {
@@ -165,6 +166,16 @@ export function DesignGallery() {
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="light rounded-panel border border-line bg-background p-8 text-foreground"><Logo height={56} /></div>
           <div className="dark rounded-panel border border-line bg-background p-8 text-foreground"><Logo height={56} /></div>
+        </div>
+      </section>
+
+      <section id="dials" aria-labelledby="dials-title" className="space-y-6">
+        <h2 id="dials-title" className="type-heading">{text.dials.title}</h2>
+        <p className="type-body max-w-3xl text-ink-2">{text.dials.intro}</p>
+        <div className="flex flex-wrap items-end gap-10 rounded-panel border border-line bg-surface p-6">
+          <Dial label={text.dials.size} value={5.4} max={15} unit={text.dials.sizeUnit} />
+          <Dial label={text.dials.selfUse} value={72} max={100} unit={text.dials.selfUseUnit} />
+          <Dial label={text.dials.payback} value={4.8} max={10} unit={text.dials.paybackUnit} size={160} />
         </div>
       </section>
 
