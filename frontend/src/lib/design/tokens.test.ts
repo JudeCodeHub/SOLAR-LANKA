@@ -364,3 +364,11 @@ test("every route group has a loading screen built from the page skeleton, annou
   assert.ok(skeleton.includes('role="status"') && skeleton.includes('aria-busy="true"') && skeleton.includes("sr-only") && skeleton.includes("<DialLoader"));
   for (const variant of ['"cards"', '"table"', '"form"']) assert.ok(skeleton.includes(variant), variant);
 });
+
+test("the landing hero has the approved wording, two actions, a sample-labelled dial and the priority photo with a fade for text", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  const hero = read("components/landing/hero.tsx");
+  for (const piece of ["messages.brand.heroLine", "messages.brand.heroSupport", "messages.brand.primaryAction", "messages.brand.trustLine", "<Dial", "<SampleBadge", 'name="hero"', "priority", "type-display-xl", 'size="lg"']) assert.ok(hero.includes(piece), piece);
+  assert.ok(hero.includes("from-background") && hero.includes("lg:max-w-[48%]"), "the words sit in the faded, text-safe side");
+  assert.ok(read("app/page.tsx").indexOf("<Hero") < read("app/page.tsx").indexOf("<EntryPoints"));
+});
