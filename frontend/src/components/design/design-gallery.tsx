@@ -1,4 +1,4 @@
-import { CheckCircle2, Clock, Info, XCircle } from "lucide-react";
+import { CheckCircle2, Clock, Download, Heart, Info, XCircle } from "lucide-react";
 
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -112,16 +112,44 @@ export function DesignGallery() {
 
       <section aria-labelledby="buttons-title" className="space-y-6">
         <h2 id="buttons-title" className="type-heading">{text.buttons.title}</h2>
-        <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-surface p-6">
-          <Button>{text.buttons.primary}</Button>
-          <Button variant="secondary">{text.buttons.secondary}</Button>
-          <Button variant="outline">{text.buttons.outline}</Button>
-          <Button variant="ghost">{text.buttons.ghost}</Button>
-          <Button variant="destructive">{text.buttons.destructive}</Button>
-          <Button variant="link">{text.buttons.link}</Button>
-          <Button size="sm">{text.buttons.small}</Button>
-          <Button size="lg">{text.buttons.large}</Button>
-          <Button disabled>{text.buttons.disabled}</Button>
+        <div className="space-y-6 rounded-2xl border border-line bg-surface p-6">
+          <div className="space-y-3">
+            <h3 className="type-subheading">{text.buttons.variants}</h3>
+            <div className="flex flex-wrap items-center gap-3">
+              <Button>{text.buttons.primary}</Button>
+              <Button variant="secondary">{text.buttons.secondary}</Button>
+              <Button variant="outline">{text.buttons.outline}</Button>
+              <Button variant="ghost">{text.buttons.ghost}</Button>
+              <Button variant="destructive">{text.buttons.destructive}</Button>
+              <Button variant="link">{text.buttons.link}</Button>
+            </div>
+          </div>
+          <div className="space-y-3">
+            <h3 className="type-subheading">{text.buttons.sizes}</h3>
+            <div className="flex flex-wrap items-center gap-3">
+              <Button size="xs">{text.buttons.small}</Button>
+              <Button size="sm">{text.buttons.small}</Button>
+              <Button>{text.buttons.primary}</Button>
+              <Button size="lg">{text.buttons.large}</Button>
+              <Button size="icon" variant="outline" aria-label={text.buttons.iconLabel}>
+                <Heart aria-hidden />
+              </Button>
+              <Button variant="secondary">
+                <Download aria-hidden data-icon="inline-start" />
+                {text.buttons.withIcon}
+              </Button>
+            </div>
+          </div>
+          <div className="space-y-3">
+            <h3 className="type-subheading">{text.buttons.states}</h3>
+            <div className="flex flex-wrap items-center gap-3">
+              <Button loading>{text.buttons.loading}</Button>
+              <Button variant="outline" loading>{text.buttons.loading}</Button>
+              <Button disabled>{text.buttons.disabled}</Button>
+              <Button aria-disabled="true">{text.buttons.notAvailable}</Button>
+              <Button variant="destructive" disabled>{text.buttons.destructive}</Button>
+            </div>
+          </div>
         </div>
       </section>
 

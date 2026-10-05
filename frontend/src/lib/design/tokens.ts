@@ -20,6 +20,7 @@ export const LIGHT = {
   success: "#1F7A4D",
   warning: "#8A5A00",
   danger: "#C42B23",
+  onDanger: "#FFFFFF",
   info: "#2457B8",
   successTint: "#E3F4EA",
   warningTint: "#FFF1D6",
@@ -48,6 +49,7 @@ export const DARK = {
   success: "#5FD39A",
   warning: "#F0B440",
   danger: "#FF8077",
+  onDanger: "#0D0B09",
   info: "#7FA8FF",
   successTint: "#12261C",
   warningTint: "#2B2108",
@@ -88,6 +90,7 @@ export const CONTRAST_RULES: ContrastRule[] = [
   ...rules("light", ["onOrange"], ["orange", "orangeHover", "orangePressed"], TEXT, "label on an orange button"),
   ...rules("light", LIGHT_STATUS, LIGHT_SURFACES, TEXT, "status text"),
   ...pairs("light", STATUS_ON_TINT, TEXT, "status text on its tint"),
+  ...pairs("light", [["onDanger", "danger"]], TEXT, "label on a danger button"),
   ...pairs("light", [["disabledText", "disabledBg"]], GRAPHIC, "disabled label"),
   ...rules("light", ["fieldBorder"], LIGHT_SURFACES, GRAPHIC, "control borders"),
   ...rules("light", ["orangeText"], LIGHT_SURFACES, GRAPHIC, "dial arc and other essential orange graphics"),
@@ -97,6 +100,7 @@ export const CONTRAST_RULES: ContrastRule[] = [
   ...rules("dark", ["onOrange"], ["orange", "orangeHover", "orangePressed"], TEXT, "label on an orange button"),
   ...rules("dark", LIGHT_STATUS, DARK_SURFACES, TEXT, "status text"),
   ...pairs("dark", STATUS_ON_TINT, TEXT, "status text on its tint"),
+  ...pairs("dark", [["onDanger", "danger"]], TEXT, "label on a danger button"),
   ...pairs("dark", [["disabledText", "disabledBg"]], GRAPHIC, "disabled label"),
   ...rules("dark", ["fieldBorder"], DARK_SURFACES, GRAPHIC, "control borders"),
   ...rules("dark", ["orange"], DARK_SURFACES, GRAPHIC, "dial arc and other essential orange graphics"),
@@ -108,6 +112,16 @@ export const DECORATIVE_ONLY_ON_LIGHT = ["orange"];
 
 /** The CSS custom property (--ds-<name>) that carries each token in each theme; both themes use the same property names. */
 export const CSS_NAMES: Record<Theme, Record<string, string>> = {
-  light: { paper: "bg", paper2: "surface-2", card: "surface", ink: "text", ink2: "text-2", ink3: "muted", line: "line", fieldBorder: "field-border", orange: "orange", orangeHover: "orange-hover", orangeText: "orange-text", orangeTint: "orange-tint", onOrange: "on-orange", focus: "focus", success: "success", warning: "warning", danger: "danger", info: "info", orangePressed: "orange-pressed", disabledText: "disabled-text", disabledBg: "disabled-bg", successTint: "success-tint", warningTint: "warning-tint", dangerTint: "danger-tint", infoTint: "info-tint" },
-  dark: { bg: "bg", surface: "surface", surface2: "surface-2", text: "text", text2: "text-2", muted: "muted", line: "line", fieldBorder: "field-border", orange: "orange", orangeHover: "orange-hover", orangeText: "orange-text", orangeTint: "orange-tint", onOrange: "on-orange", focus: "focus", success: "success", warning: "warning", danger: "danger", info: "info", orangePressed: "orange-pressed", disabledText: "disabled-text", disabledBg: "disabled-bg", successTint: "success-tint", warningTint: "warning-tint", dangerTint: "danger-tint", infoTint: "info-tint" },
+  light: { paper: "bg", paper2: "surface-2", card: "surface", ink: "text", ink2: "text-2", ink3: "muted", line: "line", fieldBorder: "field-border", orange: "orange", orangeHover: "orange-hover", orangeText: "orange-text", orangeTint: "orange-tint", onOrange: "on-orange", focus: "focus", success: "success", warning: "warning", danger: "danger", info: "info", orangePressed: "orange-pressed", disabledText: "disabled-text", disabledBg: "disabled-bg", successTint: "success-tint", warningTint: "warning-tint", dangerTint: "danger-tint", infoTint: "info-tint", onDanger: "on-danger" },
+  dark: { bg: "bg", surface: "surface", surface2: "surface-2", text: "text", text2: "text-2", muted: "muted", line: "line", fieldBorder: "field-border", orange: "orange", orangeHover: "orange-hover", orangeText: "orange-text", orangeTint: "orange-tint", onOrange: "on-orange", focus: "focus", success: "success", warning: "warning", danger: "danger", info: "info", orangePressed: "orange-pressed", disabledText: "disabled-text", disabledBg: "disabled-bg", successTint: "success-tint", warningTint: "warning-tint", dangerTint: "danger-tint", infoTint: "info-tint", onDanger: "on-danger" },
 };
+
+/** What each button variant is made of (pairs use the shared CSS names), so every variant's contrast is checked and the component cannot drift from it. */
+export const BUTTON_VARIANTS: { variant: string; classes: string[]; pairs: [string, string][] }[] = [
+  { variant: "default", classes: ["bg-orange", "text-on-orange"], pairs: [["on-orange", "orange"], ["on-orange", "orange-hover"], ["on-orange", "orange-pressed"]] },
+  { variant: "secondary", classes: ["bg-paper-2", "text-ink"], pairs: [["text", "surface-2"]] },
+  { variant: "outline", classes: ["border-field-border", "text-ink"], pairs: [["text", "bg"], ["text", "surface-2"], ["field-border", "bg"]] },
+  { variant: "ghost", classes: ["text-ink", "hover:bg-paper-2"], pairs: [["text", "bg"], ["text", "surface-2"]] },
+  { variant: "destructive", classes: ["bg-danger", "text-on-danger"], pairs: [["on-danger", "danger"]] },
+  { variant: "link", classes: ["text-orange-text"], pairs: [["orange-text", "bg"], ["orange-text", "surface"]] },
+];

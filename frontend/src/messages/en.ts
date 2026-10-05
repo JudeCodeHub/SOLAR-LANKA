@@ -1025,6 +1025,13 @@ export const en = {
     },
     buttons: {
       title: "Buttons and links",
+      variants: "Variants",
+      sizes: "Sizes (all at least 44 px tall)",
+      states: "States",
+      loading: "Saving…",
+      notAvailable: "Not available yet",
+      iconLabel: "Save as favourite",
+      withIcon: "Download PDF",
       primary: "Primary action",
       secondary: "Secondary",
       outline: "Outline",
