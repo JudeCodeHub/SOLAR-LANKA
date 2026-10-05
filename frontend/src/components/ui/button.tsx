@@ -1,6 +1,6 @@
+import { DialLoader } from "@/components/ui/dial-loader"
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
-import { Loader2 } from "lucide-react"
 import { cn } from "cn"
 import { Slot } from "radix-ui"
 
@@ -72,7 +72,7 @@ function Button({
         children
       ) : (
         <>
-          {busy ? <Loader2 aria-hidden className="animate-spin motion-reduce:animate-none" /> : null}
+          {busy ? <DialLoader /> : null}
           {children}
         </>
       )}

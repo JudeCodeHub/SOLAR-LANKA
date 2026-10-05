@@ -4,6 +4,7 @@ import { Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download,
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Icon, IconCircle, ICON_SIZES } from "@/components/ui/icon";
+import { DialLoader } from "@/components/ui/dial-loader";
 import { Dial } from "@/components/ui/dial";
 import { Logo, LogoMark } from "@/components/brand/logo";
 import { Container } from "@/components/ui/container";
@@ -176,6 +177,12 @@ export function DesignGallery() {
           <Dial label={text.dials.size} value={5.4} max={15} unit={text.dials.sizeUnit} />
           <Dial label={text.dials.selfUse} value={72} max={100} unit={text.dials.selfUseUnit} />
           <Dial label={text.dials.payback} value={4.8} max={10} unit={text.dials.paybackUnit} size={160} />
+        </div>
+        <div className="flex flex-wrap items-center gap-6">
+          <DialLoader className="size-5 text-orange-text" />
+          <DialLoader className="size-8 text-orange-text" />
+          <DialLoader className="size-12 text-orange-text" />
+          <Button loading>{text.dials.saving}</Button>
         </div>
       </section>
 

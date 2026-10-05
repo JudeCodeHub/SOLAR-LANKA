@@ -989,6 +989,7 @@ export const en = {
       selfUseUnit: "%",
       payback: "Payback",
       paybackUnit: "years",
+      saving: "Saving",
     },
     brand: {
       title: "Logo",
