@@ -34,6 +34,17 @@ test.describe("axe finds no WCAG 2.2 AA violations", () => {
       await audit(page, path);
     }
   });
+  test("sign-in and sign-up, in both themes (Clerk's own widget excluded, as before)", async ({ page, signInAs }) => {
+    signInAs(null);
+    for (const scheme of ["light", "dark"] as const) {
+      await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
+      for (const path of ["/sign-in", "/sign-up"]) {
+        await page.goto(path);
+        await page.locator("[data-auth-form]").waitFor();
+        await audit(page, `${path} in the ${scheme} theme`);
+      }
+    }
+  });
   test("the landing page, with every section, in both themes", async ({ page, signInAs }) => {
     signInAs(null);
     for (const scheme of ["light", "dark"] as const) {
@@ -128,6 +139,24 @@ test.describe("axe finds no violations on the newest screens in their changing s
 });
 
 test.describe("keyboard and focus", () => {
+  test("on sign-in the skip link comes first, then the header, then Clerk's email field with a visible focus ring", async ({ page, signInAs }) => {
+    signInAs(null);
+    await page.goto("/sign-in");
+    const email = page.getByRole("textbox", { name: "Email address" });
+    await email.waitFor({ timeout: 30_000 });
+    await page.keyboard.press("Tab");
+    await expect(page.getByRole("link", { name: "Skip to main content" })).toBeFocused();
+    let reached = 0;
+    for (let press = 0; press < 40 && reached === 0; press++) {
+      await page.keyboard.press("Tab");
+      if (await email.evaluate((element) => element === document.activeElement)) reached = press + 1;
+    }
+    expect(reached, "Tab reaches the email field").toBeGreaterThan(0);
+    // The focused field shows a ring: an outline or a shadow.
+    const ring = await email.evaluate((element) => { const style = getComputedStyle(element); return { outline: style.outlineStyle !== "none" && parseFloat(style.outlineWidth) > 0, shadow: style.boxShadow !== "none" }; });
+    expect(ring.outline || ring.shadow).toBe(true);
+  });
+
   test("the skip link is the first stop and moves focus to the content", async ({ page, signInAs }) => {
     signInAs(null);
     await page.goto("/panels");
