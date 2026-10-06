@@ -80,6 +80,17 @@ test.describe("layout at the documented sizes", () => {
       }
     });
 
+    test(`the landing page shows all eleven sections and fits at ${size.name}`, async ({ page, signInAs }) => {
+      signInAs(null);
+      await page.setViewportSize({ width: size.width, height: size.height });
+      await page.goto("/");
+      await settle(page);
+      for (const marker of ["hero", "estimate-teaser", "how-it-works", "feature-grid", "catalogue-showcase", "companies-showcase", "learning-teaser", "tracking-section", "comparison-section", "safety-section", "closing-band"]) {
+        await expect(page.locator(`[data-${marker}]`), marker).toHaveCount(1);
+      }
+      await usable(page, `${size.name} /`, size.width);
+    });
+
     test(`record screens fit at ${size.name}`, async ({ page, api, signInAs }) => {
       await page.setViewportSize({ width: size.width, height: size.height });
       const s = await acceptedInstallation(api);
