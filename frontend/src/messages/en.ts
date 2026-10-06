@@ -600,6 +600,11 @@ export const en = {
     help: "Help and learning",
   },
   account: {
+    eyebrow: "Account",
+    title: "Your account",
+    lead: "Who you are on Solar Lanka, and how you sign in.",
+    signInDetails: "Sign-in details",
+    signInDetailsLead: "Your name, email address, password and connected accounts are managed here.",
     cardTitle: "Application account",
     cardDescription:
       "Your role and access are decided by the platform, not by your sign-in provider.",
