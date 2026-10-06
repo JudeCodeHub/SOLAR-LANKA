@@ -793,3 +793,12 @@ test("the keep-a-copy section keeps its request, preparing, ready and download m
   for (const needle of ["data-export-request", "data-export-pending", "data-export-ready", "data-export-download", "useRevisionExport(requestId, quotationId, revisionId, revisionNumber)", "<ApiErrorMessage", "!busy && onRequest()", "!busy && onDownload()", "text.preparing", "text.ready", "text.downloading", "export function ExportPanel", "<DialLoader"]) assert.ok(view.includes(needle), needle);
   assert.doesNotMatch(view, /text-muted-foreground|font-heading/);
 });
+
+test("the installations list keeps its paging and links, and each installation is a card with its words, a step track and a progress element", () => {
+  const dir = join(import.meta.dirname, "..", "..", "components", "installations");
+  const list = readFileSync(join(dir, "installations-view.tsx"), "utf8");
+  for (const needle of ["useInstallations(page)", "router.replace(hrefFor(lastPage))", "<Pagination", "<InstallationCard", "<PageHeader", "text.emptyTitle", "text.viewRequests"]) assert.ok(list.includes(needle), needle);
+  const card = readFileSync(join(dir, "installation-card.tsx"), "utf8");
+  for (const needle of ["progressText(item.completed_milestones, item.total_milestones)", 'href={`/my/installations/${item.id}`}', "<progress", "aria-hidden", "min-h-11", "data-segment"]) assert.ok(card.includes(needle), needle);
+  assert.doesNotMatch(list + card, /text-muted-foreground|font-heading/);
+});
