@@ -67,3 +67,44 @@ test.describe("the product card", () => {
     });
   }
 });
+
+test.describe("the inverters list matches the panels list", () => {
+  for (const theme of ["light", "dark"] as const) {
+    for (const width of [320, 1280]) {
+      test(`filters, chips and cards work at ${width} px (${theme})`, async ({ page, signInAs }) => {
+        signInAs(null);
+        await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto("/inverters");
+        const list = page.locator('[data-catalogue-list="inverter"]');
+        await expect(list.getByRole("heading", { level: 1, name: "Inverters" })).toBeVisible();
+        await expect(list.getByText("Catalogue", { exact: true })).toBeVisible();
+        await expect(list.getByRole("search")).toBeVisible();
+        expect(await list.locator("[data-product]").count()).toBeGreaterThan(0);
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+
+        // The type filter, the capacity filters and the chips that remove them.
+        await list.getByLabel("Type").selectOption("hybrid");
+        await list.getByLabel("Minimum capacity (kW)").fill("5");
+        await list.getByRole("button", { name: "Apply filters" }).click();
+        await expect(page).toHaveURL(/type=hybrid/);
+        await expect(page).toHaveURL(/min_kw=5/);
+        const chips = page.locator("[data-active-filters] a");
+        await expect(chips).toHaveCount(2);
+        await expect(page.locator("[data-active-filters]")).toContainText("Hybrid");
+        const types = await page.locator("[data-product] dd").allTextContents();
+        expect(types.filter((text) => ["On-grid", "Off-grid"].includes(text.trim()))).toEqual([]);
+        await chips.first().click();
+        await expect(page.locator("[data-active-filters] a")).toHaveCount(1);
+        // The form follows the address: the removed filter is cleared from its field, the other still shows.
+        await expect(list.getByLabel("Type")).toHaveValue("");
+        await expect(list.getByLabel("Minimum capacity (kW)")).toHaveValue("5");
+        await page.locator("[data-active-filters] a").first().click();
+        await expect(page).toHaveURL(/\/inverters$/);
+        await expect(list.getByLabel("Type")).toHaveValue("");
+        await expect(list.getByLabel("Minimum capacity (kW)")).toHaveValue("");
+        if (process.env.HERO_SHOTS && width === 1280) await page.screenshot({ path: `e2e/.tmp/inverters-${theme}.png` });
+      });
+    }
+  }
+});

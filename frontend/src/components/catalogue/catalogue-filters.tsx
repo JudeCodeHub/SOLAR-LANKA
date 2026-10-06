@@ -38,6 +38,8 @@ export function CatalogueFilters({
         {text.heading}
       </h2>
       <form
+        // A new key whenever the filters in the address change, so the fields show the current values after a chip or a link changed them.
+        key={JSON.stringify(values)}
         method="get"
         action={basePath}
         role="search"
