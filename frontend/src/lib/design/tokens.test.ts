@@ -392,3 +392,14 @@ test("the how-it-works strip has the four approved steps, a drawn line in both d
   const page = read("app/page.tsx");
   assert.ok(page.indexOf("<HowItWorks />") > page.indexOf("<EstimateTeaser />"));
 });
+
+test("the feature grid is uneven, covers the four features with a photo, icon, line and link, and sits after the strip", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  const grid = read("components/landing/feature-grid.tsx");
+  for (const id of ["estimate", "compare", "track", "learn"]) assert.ok(grid.includes(`id: "${id}"`), id);
+  assert.ok(grid.includes("lg:col-span-7") && grid.includes("lg:col-span-5"), "wide and narrow cards");
+  assert.ok(grid.includes("<Photo") && grid.includes("<IconCircle") && grid.includes("<Link") && grid.includes("min-h-11"));
+  for (const href of ["/estimator", "/panels", "/my/installations", "/learn"]) assert.ok(grid.includes(`href: "${href}"`), href);
+  const page = read("app/page.tsx");
+  assert.ok(page.indexOf("<FeatureGrid />") > page.indexOf("<HowItWorks />"));
+});
