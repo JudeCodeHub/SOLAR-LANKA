@@ -1323,6 +1323,9 @@ export const en = {
       },
     },
     navigation: {
+      dashboard: "Signed-in area",
+      dashboardIntro: "The customer links in a side column on wide screens and in a drawer on phones. The current page is marked with a bar, a tint and the current-page attribute.",
+      dashboardPage: "The page itself sits beside the links.",
       title: "Tabs, segmented controls and pagination",
       intro: "All three are 44 px high and work from the keyboard: arrow keys move between tabs, and Tab reaches each segment and page link.",
       tabs: "Tabs",
