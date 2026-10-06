@@ -787,3 +787,9 @@ test("accepting and declining still ask first about exactly the revision on scre
   for (const needle of ["heading.current?.focus()", "role=\"group\"", "data-confirm-yes={id}", "data-action={id}", "onBeforeOpen", "border-2 border-orange-text"]) assert.ok(confirm.includes(needle), needle);
   assert.doesNotMatch(confirm + decision, /text-muted-foreground|font-heading/);
 });
+
+test("the keep-a-copy section keeps its request, preparing, ready and download marks and the shared error message", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "requests", "offer-export.tsx"), "utf8");
+  for (const needle of ["data-export-request", "data-export-pending", "data-export-ready", "data-export-download", "useRevisionExport(requestId, quotationId, revisionId, revisionNumber)", "<ApiErrorMessage", "!busy && onRequest()", "!busy && onDownload()", "text.preparing", "text.ready", "text.downloading", "export function ExportPanel", "<DialLoader"]) assert.ok(view.includes(needle), needle);
+  assert.doesNotMatch(view, /text-muted-foreground|font-heading/);
+});

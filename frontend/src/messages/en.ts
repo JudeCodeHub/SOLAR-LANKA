@@ -1332,6 +1332,8 @@ export const en = {
       requests: "Request cards in each state",
       offers: "Offer cards in each state",
       compare: "Comparing offers side by side",
+      export: "Keep a copy in each state",
+      exportFailed: "The copy could not be prepared.",
       offerDetail: "An offer in full, with an earlier revision",
       dashboardPage: "The page itself sits beside the links.",
       title: "Tabs, segmented controls and pagination",

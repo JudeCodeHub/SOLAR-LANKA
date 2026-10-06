@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import { ClipboardList, FileText, Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
 
+import { ExportDemo } from "@/components/design/export-demo";
 import { DecisionDemo } from "@/components/design/decision-demo";
 import { OfferDetails } from "@/components/requests/offer-view";
 import { ComparisonTable } from "@/components/requests/compare-view";
@@ -527,6 +528,10 @@ export function DesignGallery() {
           <h3 className="type-subheading">{text.navigation.offerDetail}</h3>
           <OfferDetails revisions={OFFER_REVISIONS} companyName="Sunbird Solar" now={OFFER_NOW} />
           <DecisionDemo />
+        </div>
+        <div className="space-y-3">
+          <h3 className="type-subheading">{text.navigation.export}</h3>
+          <ExportDemo />
         </div>
         <div className="space-y-3" data-compare-sample>
           <h3 className="type-subheading">{text.navigation.compare}</h3>
