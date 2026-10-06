@@ -2825,6 +2825,7 @@ export const en = {
     nothingSent: "Nothing has been sent yet. A company receives your request only when you send it, and only the companies you choose.",
   },
   estimator: {
+    eyebrow: "Estimator",
     title: "Estimate your solar system",
     intro:
       "Tell us about your electricity use and roof to see a planning estimate of system size, yearly generation and a cost range. Nothing is saved when you calculate.",
