@@ -1,6 +1,8 @@
+import { PackageOpen, SearchX } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { CatalogueFilters } from "@/components/catalogue/catalogue-filters";
 import { Pagination } from "@/components/catalogue/pagination";
@@ -78,9 +80,12 @@ export async function CataloguePage({
                 ? `${format(text.none, { noun: copy.resultsNoun })} ${text.noneHelp}`
                 : format(text.empty, { noun: copy.resultsNoun })
             }
+            icon={filtered ? SearchX : PackageOpen}
             action={
               filtered ? (
-                <Link href={basePath} className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">{messages.catalogue.filters.clear}</Link>
+                <Button asChild variant="outline">
+                  <Link href={basePath}>{messages.catalogue.filters.clear}</Link>
+                </Button>
               ) : undefined
             }
           />
