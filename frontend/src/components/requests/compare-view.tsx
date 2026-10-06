@@ -2,8 +2,11 @@
 
 import { BackLink } from "@/components/ui/back-link";
 import { Table as DataTable, TableRegion } from "@/components/ui/table";
+import { Info } from "lucide-react";
 import Link from "next/link";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { PageHeader } from "@/components/ui/page-header";
 import { DIFFERS_EDGE, DifferenceFlag, NotSpecified, UnspecifiedFlag } from "@/components/ui/compare-marks";
 import { QueryState } from "@/components/query-state";
 import { type Cell, cellText, compareRows, type ComparisonOfferLike, expiryText, offerState, stateLabel } from "@/lib/quotation/customer";
@@ -30,10 +33,7 @@ export function CompareView({ requestId }: { requestId: string }) {
   return (
     <div className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 py-8">
       <BackLink href={`/my/requests/${requestId}`}>{text.back}</BackLink>
-      <header className="space-y-2">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">{text.title}</h1>
-        <p className="max-w-3xl text-muted-foreground">{text.intro}</p>
-      </header>
+      <PageHeader eyebrow={text.eyebrow} title={text.title} description={text.intro} />
       <QueryState query={comparison}>
         {(data) => <Table requestId={requestId} offers={data.offers as unknown as ComparisonOfferLike[]} note={data.comparison_note} now={comparison.dataUpdatedAt} />}
       </QueryState>
@@ -44,9 +44,14 @@ export function CompareView({ requestId }: { requestId: string }) {
 
 function Table({ requestId, offers, note, now }: { requestId: string; offers: ComparisonOfferLike[]; note: string; now: number }) {
   const names = useCompanyNames(offers.map((offer) => offer.company_id));
+  return <ComparisonTable requestId={requestId} offers={offers} note={note} now={now} names={names} />;
+}
+
+/** The offers side by side. `names` maps a company to its name, undefined while loading and null when it is no longer listed. */
+export function ComparisonTable({ requestId, offers, note, now, names }: { requestId: string; offers: ComparisonOfferLike[]; note: string; now: number; names: ReadonlyMap<string, string | null | undefined> }) {
   if (offers.length === 0) {
     return (
-      <p className="text-sm" data-none>
+      <p className="type-body rounded-card border border-line bg-surface p-4 text-ink-2" data-none>
         {text.none}
       </p>
     );
@@ -54,11 +59,12 @@ function Table({ requestId, offers, note, now }: { requestId: string; offers: Co
   const rows = compareRows(offers, now);
   return (
     <section aria-label={text.caption} className="space-y-3">
-      <p className="text-sm font-medium" data-note>
-        {note}
-      </p>
+      <Alert variant="info" role="note" data-note>
+        <Info aria-hidden />
+        <AlertDescription>{note}</AlertDescription>
+      </Alert>
       {offers.length === 1 ? (
-        <p className="text-sm" data-one>
+        <p className="type-body text-ink" data-one>
           {text.oneOnly}
         </p>
       ) : null}
@@ -66,15 +72,15 @@ function Table({ requestId, offers, note, now }: { requestId: string; offers: Co
         <DataTable style={{ minWidth: `${12 + offers.length * 12}rem` }} data-compare>
           <caption className="sr-only">{text.caption}</caption>
           <thead>
-            <tr className="border-b text-left">
-              <th scope="col" className="p-3 font-medium">
+            <tr className="text-left">
+              <th scope="col" className="sticky left-0 z-20 bg-paper-2 p-3 font-semibold">
                 {text.item}
               </th>
               {offers.map((offer) => {
                 const name = names.get(offer.company_id);
                 return (
-                  <th key={offer.quotation_id} scope="col" className="p-3 font-medium" data-offer-column={offer.quotation_id}>
-                    <Link href={`/my/requests/${requestId}/offers/${offer.quotation_id}`} className="inline-flex min-h-11 items-center underline underline-offset-2">
+                  <th key={offer.quotation_id} scope="col" className="min-w-48 p-3 font-semibold" data-offer-column={offer.quotation_id}>
+                    <Link href={`/my/requests/${requestId}/offers/${offer.quotation_id}`} className="inline-flex min-h-11 items-center font-semibold text-orange-text underline underline-offset-2">
                       {name === undefined ? "…" : (name ?? messages.customerOffers.list.notListed)}
                     </Link>
                   </th>
@@ -109,17 +115,17 @@ function NotCompared({ requestId, items, now }: { requestId: string; items: { qu
   const names = useCompanyNames(closed.map((item) => item.company_id));
   if (closed.length === 0) return null;
   return (
-    <section aria-labelledby="not-compared-title" className="space-y-2" data-not-compared>
-      <h2 id="not-compared-title" className="font-heading text-xl font-semibold tracking-tight">
+    <section aria-labelledby="not-compared-title" className="space-y-3" data-not-compared>
+      <h2 id="not-compared-title" className="type-heading text-ink">
         {text.excludedTitle}
       </h2>
-      <p className="text-sm text-muted-foreground">{text.excludedIntro}</p>
-      <ul className="space-y-1 text-sm">
+      <p className="type-body max-w-reading text-ink-2">{text.excludedIntro}</p>
+      <ul className="space-y-2 text-sm">
         {closed.map((item) => {
           const name = names.get(item.company_id) ?? messages.customerOffers.list.notListed;
           return (
-            <li key={item.quotation_id}>
-              <Link href={`/my/requests/${requestId}/offers/${item.quotation_id}`} className="underline underline-offset-2">
+            <li key={item.quotation_id} className="rounded-card border border-line bg-surface px-4 py-2 text-ink-2">
+              <Link href={`/my/requests/${requestId}/offers/${item.quotation_id}`} className="inline-flex min-h-11 items-center font-medium text-orange-text underline underline-offset-2">
                 {format(text.view, { name })}
               </Link>
               {format(text.excludedLine, { state: stateLabel(offerState(item, now)), expiry: expiryText(item, now) })}

@@ -764,3 +764,10 @@ test("the request page and its offers keep their marks while using the new cards
   for (const needle of ["data-offers-section", "data-offers", "data-offer=", "data-state", "data-expiry", "data-soon", "data-compare-link", "data-compare-need", "data-no-offers", "expiryText(item, now)", "isExpiringSoon(item, now)"]) assert.ok(offers.includes(needle), needle);
   assert.doesNotMatch(offers, /text-muted-foreground|font-heading/);
 });
+
+test("the offer comparison keeps its marks and its server note, ranks nothing, and is split so the table can be shown without the API", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "requests", "compare-view.tsx"), "utf8");
+  for (const needle of ["data-compare", "data-note", "data-none", "data-one", "data-offer-column", "data-row={row.id}", "data-differs={row.differs}", "data-some-unspecified={row.someUnspecified}", "DifferenceFlag", "UnspecifiedFlag", "data-not-compared", "compareRows(offers, now)", "export function ComparisonTable", "<TableRegion"]) assert.ok(view.includes(needle), needle);
+  assert.doesNotMatch(view, /\b(best|cheapest|recommended|winner)\b/i);
+  assert.doesNotMatch(view, /text-muted-foreground|font-heading/);
+});

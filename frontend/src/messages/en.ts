@@ -815,6 +815,7 @@ export const en = {
       },
     },
     compare: {
+      eyebrow: "Side by side",
       title: "Compare offers",
       back: "Back to the request",
       intro: "Open offers side by side. Rows marked Differs are not the same across offers, and Not specified means a company has not said.",
@@ -1329,6 +1330,7 @@ export const en = {
       dashboardIntro: "The customer links in a side column on wide screens and in a drawer on phones. The current page is marked with a bar, a tint and the current-page attribute.",
       requests: "Request cards in each state",
       offers: "Offer cards in each state",
+      compare: "Comparing offers side by side",
       dashboardPage: "The page itself sits beside the links.",
       title: "Tabs, segmented controls and pagination",
       intro: "All three are 44 px high and work from the keyboard: arrow keys move between tabs, and Tab reaches each segment and page link.",
