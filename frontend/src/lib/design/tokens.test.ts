@@ -411,9 +411,9 @@ test("the catalogue showcase always links both catalogues and shows placeholder 
   const showcase = read("components/landing/catalogue-showcase.tsx");
   assert.ok(showcase.includes('href="/panels"') && showcase.includes('href="/inverters"') && showcase.includes("<FeaturedProducts"));
   assert.ok(showcase.indexOf("<Button") < showcase.indexOf("<FeaturedProducts"), "the two links come before the data, so they show even when it fails");
-  const products = read("components/landing/featured-products.tsx");
+  const products = read("components/catalogue/product-card.tsx");
   assert.ok(products.includes("panelPlaceholder") && products.includes("inverterPlaceholder") && products.includes("<SampleBadge>") && products.includes("type-figure"));
-  assert.ok(products.includes("card.unspecified"), "a missing value says Not specified, not zero");
+  assert.ok(products.includes("text.unspecified"), "a missing value says Not specified, not zero");
   const page = read("app/page.tsx");
   assert.ok(page.indexOf("<CatalogueShowcase") > page.indexOf("<FeatureGrid />"));
 });
@@ -490,7 +490,7 @@ test("the closing band is solid orange with dark ink in both themes, has the sun
 test("photos are eased down in the dark theme, the bright catalogue placeholders more so", () => {
   const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
   assert.ok(read("components/ui/photo.tsx").includes('cn("dark:brightness-90", className)'));
-  assert.ok(read("components/landing/featured-products.tsx").includes("dark:brightness-[0.72]"));
+  assert.ok(read("components/catalogue/product-card.tsx").includes("dark:brightness-[0.72]"));
 });
 
 test("a priority photo is fetched at high priority and eagerly, and the display font is preloaded while its italic is not", () => {
@@ -555,4 +555,13 @@ test("the access screens explain what happened with an icon, plain words and the
   assert.ok(read("components/company/staff-gate.tsx").includes('<AccessNotice'));
   const api = read("components/api-error-message.tsx");
   assert.ok(api.includes('"signed-out" : "not-allowed"') && api.includes("<Alert variant=\"destructive\""), "forbidden and signed-out get the panel, other failures keep the alert");
+});
+
+test("one product card serves the lists and the landing page: photo, kind, linked name, two figures, sample label, and the controls only on the lists", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  const card = read("components/catalogue/product-card.tsx");
+  for (const piece of ["panelPlaceholder", "inverterPlaceholder", "<SampleBadge>", "type-figure", "text.unspecified", "after:absolute after:inset-0", "<FavouriteButton", "<ComparisonToggle", "actions = true", "headingLevel"]) assert.ok(card.includes(piece), piece);
+  assert.ok(!card.includes("Sample price"), "no price exists in the catalogue data, so no price chip is invented");
+  assert.ok(read("components/landing/featured-products.tsx").includes('actions={false}') && read("components/landing/featured-products.tsx").includes('headingLevel="h4"'));
+  assert.ok(read("components/catalogue/catalogue-page.tsx").includes("<ProductCard"));
 });

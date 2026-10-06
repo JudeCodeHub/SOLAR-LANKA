@@ -39,3 +39,31 @@ for (const theme of ["light", "dark"] as const) {
     });
   }
 }
+
+test.describe("the product card", () => {
+  for (const kind of ["panels", "inverters"] as const) {
+    test(`on the ${kind} list each card has a photo, a linked name, two figures, the sample label and both controls, and says Not specified where the data has no value`, async ({ page, signInAs }) => {
+      signInAs(null);
+      await page.setViewportSize({ width: 390, height: 900 });
+      await page.goto(`/${kind}`);
+      const cards = page.locator("[data-product]");
+      expect(await cards.count()).toBeGreaterThan(0);
+      for (let index = 0; index < Math.min(await cards.count(), 3); index++) {
+        const card = cards.nth(index);
+        await expect(card.getByRole("img").first()).toBeVisible();
+        await expect(card.getByRole("heading", { level: 3 }).getByRole("link")).toHaveAttribute("href", new RegExp(`^/${kind}/`));
+        expect(await card.locator("dd").count()).toBe(2);
+        await expect(card.getByText("Sample catalogue entry")).toBeVisible();
+        await expect(card.getByRole("checkbox", { name: /compare/i })).toBeVisible();
+        // Signed out it is a link to sign in; signed in it is a toggle button.
+        const favourite = card.getByRole("link", { name: /to favourites/i }).or(card.getByRole("button", { name: /to favourites/i }));
+        await expect(favourite).toBeVisible();
+      }
+      if (process.env.HERO_SHOTS) await page.screenshot({ path: `e2e/.tmp/cards-${kind}.png` });
+      // Whatever has no value in the catalogue says so, and nothing shows a bare zero.
+      const figures = await page.locator("[data-product] dd").allTextContents();
+      expect(figures.some((text) => text.trim() === "Not specified")).toBe(true);
+      expect(figures.every((text) => text.trim() !== "0" && text.trim() !== "0 W" && text.trim() !== "0 kW")).toBe(true);
+    });
+  }
+});
