@@ -453,3 +453,13 @@ test("the tracking section shows the eight real installation steps in order with
   const page = read("app/page.tsx");
   assert.ok(page.indexOf("<TrackingSection />") > page.indexOf("<LearningTeaser"));
 });
+
+test("the landing comparison is a real styled table with sample data, flagged and worded like the customer comparison", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  const section = read("components/landing/comparison-section.tsx");
+  assert.ok(section.includes("<TableRegion") && section.includes("<Table ") && section.includes("<caption") && section.includes('scope="col"') && section.includes('scope="row"'));
+  assert.ok(section.includes("compare.differs") && section.includes("compare.someUnspecified") && section.includes("messages.catalogue.card.unspecified"), "the app's own words");
+  assert.ok(section.includes("<SampleBadge>"));
+  const page = read("app/page.tsx");
+  assert.ok(page.indexOf("<ComparisonSection />") > page.indexOf("<TrackingSection />"));
+});
