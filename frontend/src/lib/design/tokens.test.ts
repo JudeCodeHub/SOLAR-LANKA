@@ -460,7 +460,7 @@ test("the landing comparison is a real styled table with sample data, flagged an
   const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
   const section = read("components/landing/comparison-section.tsx");
   assert.ok(section.includes("<TableRegion") && section.includes("<Table ") && section.includes("<caption") && section.includes('scope="col"') && section.includes('scope="row"'));
-  assert.ok(section.includes("compare.differs") && section.includes("compare.someUnspecified") && section.includes("messages.catalogue.card.unspecified"), "the app's own words");
+  assert.ok(section.includes("compare.differs") && section.includes("compare.someUnspecified") && section.includes("<NotSpecified />"), "the app's own words, through the shared marks");
   assert.ok(section.includes("<SampleBadge>"));
   const page = read("app/page.tsx");
   assert.ok(page.indexOf("<ComparisonSection />") > page.indexOf("<TrackingSection />"));
@@ -564,4 +564,17 @@ test("one product card serves the lists and the landing page: photo, kind, linke
   assert.ok(!card.includes("Sample price"), "no price exists in the catalogue data, so no price chip is invented");
   assert.ok(read("components/landing/featured-products.tsx").includes('actions={false}') && read("components/landing/featured-products.tsx").includes('headingLevel="h4"'));
   assert.ok(read("components/catalogue/catalogue-page.tsx").includes("<ProductCard"));
+});
+
+test("every comparison and spec table shows Not specified and the difference flags through the same shared marks", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", "components", path), "utf8");
+  const marks = read("ui/compare-marks.tsx");
+  assert.ok(marks.includes("border-dashed") && marks.includes("data-unspecified") && marks.includes('data-flag="differs"') && marks.includes('data-flag="unspecified"') && marks.includes("border-l-orange"));
+  assert.ok(marks.includes("CircleHelp") && marks.includes("ArrowLeftRight"), "an icon as well as words");
+  for (const file of ["requests/compare-view.tsx", "comparison/compare-page.tsx", "landing/comparison-section.tsx"]) {
+    const source = read(file);
+    assert.ok(source.includes("compare-marks") && source.includes("DifferenceFlag") && source.includes("UnspecifiedFlag"), file);
+    assert.ok(!source.includes("border-dashed"), `${file} no longer draws its own dashed pill`);
+  }
+  assert.ok(read("catalogue/detail/unspecified-value.tsx").includes("<NotSpecified />"));
 });

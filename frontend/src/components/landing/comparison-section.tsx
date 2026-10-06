@@ -1,3 +1,4 @@
+import { DIFFERS_EDGE, DifferenceFlag, NotSpecified, UnspecifiedFlag } from "@/components/ui/compare-marks";
 import { Container } from "@/components/ui/container";
 import { SampleBadge } from "@/components/ui/badge";
 import { Section } from "@/components/ui/section";
@@ -47,15 +48,15 @@ export function ComparisonSection() {
                 const kind = flag(data);
                 return (
                   <tr key={row} className="align-top" data-row={row} data-flag={kind}>
-                    <th scope="row" className="text-left font-normal">
+                    <th scope="row" className={cn("text-left font-normal", kind === "differs" && DIFFERS_EDGE)}>
                       <span className="block">{data.label}</span>
-                      {kind === "differs" ? <span className="mt-1 block text-xs font-medium text-ink" data-flag="differs">{compare.differs}</span> : null}
-                      {kind === "unspecified" ? <span className="mt-1 block text-xs text-ink-2" data-flag="unspecified">{compare.someUnspecified}</span> : null}
+                      {kind === "differs" ? <DifferenceFlag>{compare.differs}</DifferenceFlag> : null}
+                      {kind === "unspecified" ? <UnspecifiedFlag>{compare.someUnspecified}</UnspecifiedFlag> : null}
                     </th>
                     {OFFERS.map((id) => (
                       <td key={id} className={cn(row === "total" && "type-figure font-semibold")}>
                         {data[id] === undefined ? (
-                          <span className="rounded-full border border-dashed border-field-border px-2 py-0.5 text-xs text-ink-2" data-cell="unspecified">{messages.catalogue.card.unspecified}</span>
+                          <NotSpecified />
                         ) : (
                           data[id]
                         )}
