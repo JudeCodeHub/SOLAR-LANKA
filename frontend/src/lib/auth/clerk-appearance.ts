@@ -23,8 +23,8 @@ export const CLERK_APPEARANCE = {
     card: "border! border-line! shadow-e2!",
     headerTitle: "font-heading! font-semibold!",
     formButtonPrimary: "rounded-full! font-semibold! shadow-e1!",
-    socialButtonsBlockButton: "rounded-field! border-field-border!",
-    formFieldInput: "rounded-field!",
+    socialButtonsBlockButton: "rounded-field! border! border-field-border!",
+    formFieldInput: "rounded-field! border! border-field-border!",
     // Links use the darker orange for text, since the bright orange is too pale for words on white.
     footerActionLink: "font-semibold! text-orange-text!",
     formFieldAction: "font-semibold! text-orange-text!",
