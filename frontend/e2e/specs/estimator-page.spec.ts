@@ -75,3 +75,43 @@ test.describe("the connection scheme cards", () => {
     });
   }
 });
+
+test.describe("the validation summary", () => {
+  for (const theme of ["light", "dark"] as const) {
+    for (const width of [320, 1280]) {
+      test(`takes focus, names every problem, links to the field and passes axe at ${width} px (${theme})`, async ({ page, signInAs }) => {
+        signInAs(null);
+        await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto("/estimator");
+        // Submit with nothing filled in.
+        await page.getByRole("button", { name: "Calculate estimate" }).click();
+        const summary = page.locator("[data-error-summary]");
+        await expect(summary).toBeVisible();
+        await expect(summary).toHaveAttribute("role", "alert");
+        await expect(summary.getByRole("heading", { level: 2 })).toBeVisible();
+        // Focus moved to the summary's wrapper, so a keyboard or screen reader user lands on it.
+        await expect.poll(() => page.evaluate(() => document.activeElement?.hasAttribute("data-form-notice") ?? false)).toBe(true);
+        // Each problem is a link named by its field, and 44 px high.
+        const links = summary.getByRole("link");
+        expect(await links.count()).toBeGreaterThanOrEqual(3);
+        await expect(links.first()).toContainText("Monthly electricity use");
+        for (let i = 0; i < (await links.count()); i++) {
+          const height = await links.nth(i).evaluate((element) => element.closest("li")!.getBoundingClientRect().height);
+          expect(height).toBeGreaterThanOrEqual(43.5);
+        }
+        // The field itself is named, flagged invalid and points at its message.
+        const field = page.getByLabel(/Monthly electricity use/);
+        await expect(field).toHaveAttribute("aria-invalid", "true");
+        await expect(field).toHaveAccessibleDescription(/\S/);
+        // Following the link puts focus in the field.
+        await links.first().click();
+        await expect(field).toBeFocused();
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+        const { violations } = await new AxeBuilder({ page }).include("[data-estimator-page]").withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]).analyze();
+        expect(violations.map((v) => `${v.id}: ${v.nodes.slice(0, 2).map((n) => n.target.join(" ")).join(" | ")}`)).toEqual([]);
+        if (process.env.HERO_SHOTS) await page.screenshot({ path: `e2e/.tmp/summary-${theme}-${width}.png` });
+      });
+    }
+  }
+});

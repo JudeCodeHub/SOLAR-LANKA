@@ -51,7 +51,7 @@ export function SelectField<TInput extends FieldValues, TOutput extends FieldVal
       <FieldLabel htmlFor={id}>
         {label}
         {optional ? (
-          <span className="font-normal text-muted-foreground">{messages.forms.optionalMarker}</span>
+          <span className="font-normal text-ink-3">{messages.forms.optionalMarker}</span>
         ) : null}
       </FieldLabel>
       <select
