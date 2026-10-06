@@ -132,6 +132,11 @@ export const en = {
       sample: "Sample figures",
       dialNote: "What an estimate looks like once you have an account.",
     },
+    signInPoints: {
+      estimates: "Your saved estimates, ready to compare",
+      requests: "Your requests and the offers that came back",
+      installations: "Your installation, step by step",
+    },
     signInEyebrow: "Welcome back",
     signInLine: "Sign in to see your estimates, requests and installations.",
     signUpEyebrow: "Create your account",

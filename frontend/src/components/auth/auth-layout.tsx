@@ -1,5 +1,7 @@
+import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
+import { IconCircle } from "@/components/ui/icon";
 import { Card } from "@/components/ui/card";
 import { Dial } from "@/components/ui/dial";
 import { Photo } from "@/components/ui/photo";
@@ -9,7 +11,7 @@ import { messages } from "@/messages";
 const text = messages.auth.layout;
 
 /** The frame for sign-in and sign-up: the form on one side, a photo with a sample dial on the other; on a phone the photo becomes a strip above a single column. */
-export function AuthLayout({ photo, eyebrow, line, children }: { photo: "signIn" | "signUp"; eyebrow: string; line: string; children: ReactNode }) {
+export function AuthLayout({ photo, eyebrow, line, points = [], children }: { photo: "signIn" | "signUp"; eyebrow: string; line: string; points?: { icon: LucideIcon; text: string }[]; children: ReactNode }) {
   return (
     <div className="grid flex-1 lg:grid-cols-2" data-auth-layout>
       <div className="relative h-36 overflow-hidden sm:h-48 lg:hidden">
@@ -25,6 +27,16 @@ export function AuthLayout({ photo, eyebrow, line, children }: { photo: "signIn"
           <div className="flex justify-center lg:justify-start" data-auth-form>
             {children}
           </div>
+          {points.length > 0 ? (
+            <ul className="space-y-3 pt-2" data-auth-points>
+              {points.map((point) => (
+                <li key={point.text} className="flex items-center gap-3">
+                  <IconCircle icon={point.icon} size="sm" tone="orange" />
+                  <span className="type-small text-ink-2">{point.text}</span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </div>
       </div>
       <div className="relative hidden overflow-hidden lg:block" data-auth-photo>
