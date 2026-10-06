@@ -115,7 +115,7 @@ export async function ComparePage({
             <tbody key={section.id}>
               <tr className="bg-paper-2">
                 <th scope="rowgroup" colSpan={columns.length + 1} className="type-caption text-left font-semibold tracking-widest text-ink-3 uppercase">
-                  {section.title}
+                  <span className="sticky left-3 inline-block">{section.title}</span>
                 </th>
               </tr>
               {section.rows.map((row) => {

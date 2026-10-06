@@ -47,11 +47,35 @@ for (const theme of ["light", "dark"] as const) {
   }
 }
 
-test("the inverters compare page uses the same layout", async ({ page, signInAs }) => {
-  signInAs(null);
-  await page.setViewportSize({ width: 1280, height: 800 });
-  await page.goto(await compareUrl(page, "inverters", 2));
-  const table = page.locator("[data-compare-table]");
-  await expect(table.getByRole("columnheader")).toHaveCount(3);
-  expect(await table.locator("[data-row]").count()).toBeGreaterThan(3);
-});
+for (const theme of ["light", "dark"] as const) {
+  for (const width of [390, 1280]) {
+    test(`three inverters compare like panels at ${width} px (${theme}): flags, pinned labels, 44 px remove links`, async ({ page, signInAs }) => {
+      signInAs(null);
+      await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
+      await page.setViewportSize({ width, height: 800 });
+      await page.goto(await compareUrl(page, "inverters", 3));
+      const root = page.locator("[data-compare-page]");
+      await expect(root.getByRole("heading", { level: 1, name: "Compare inverters" })).toBeVisible();
+      const table = root.locator("[data-compare-table]");
+      await expect(table.getByRole("columnheader")).toHaveCount(4);
+      // Two of the three have a rated capacity and one does not, so that row says so in words rather than comparing a blank.
+      const capacity = table.locator("[data-row]", { hasText: "Rated capacity" });
+      await expect(capacity).toHaveAttribute("data-relation", "unspecified");
+      await expect(capacity.locator('[data-flag="unspecified"]')).toHaveText("Not specified for some products");
+      await expect(capacity.locator("[data-unspecified]")).toHaveCount(1);
+      expect(await table.locator("[data-unspecified]").count()).toBeGreaterThan(0);
+      const remove = await table.getByRole("link", { name: /^Remove / }).first().evaluate((element) => element.getBoundingClientRect().height);
+      expect(remove).toBeGreaterThanOrEqual(44);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      if (width === 390) {
+        const region = root.locator("[data-compare-region]");
+        await region.evaluate((element) => { element.scrollLeft = 200; });
+        const [labelBox, regionBox] = await Promise.all([capacity.locator("th").first().boundingBox(), region.boundingBox()]);
+        expect(labelBox && regionBox && Math.abs(labelBox.x - regionBox.x) < 3, "labels stay at the left edge").toBe(true);
+      }
+      const { violations } = await new AxeBuilder({ page }).include("[data-compare-page]").withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]).analyze();
+      expect(violations.map((v) => `${v.id}: ${v.nodes.slice(0, 2).map((n) => n.target.join(" ")).join(" | ")}`)).toEqual([]);
+      if (process.env.HERO_SHOTS && width === 390) await page.screenshot({ path: `e2e/.tmp/inv-compare-${theme}.png` });
+    });
+  }
+}
