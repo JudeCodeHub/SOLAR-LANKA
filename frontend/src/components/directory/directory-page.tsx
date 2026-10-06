@@ -1,6 +1,8 @@
+import { Building2, SearchX } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { Button } from "@/components/ui/button";
 import { Photo } from "@/components/ui/photo";
 import { Pagination } from "@/components/catalogue/pagination";
 import { CompanyCard } from "@/components/directory/company-card";
@@ -70,9 +72,12 @@ export async function DirectoryPage({ searchParams }: { searchParams: RawParams 
           <EmptyState
             title={filtered ? text.results.noneTitle : text.results.emptyTitle}
             description={filtered ? text.results.none : text.results.empty}
+            icon={filtered ? SearchX : Building2}
             action={
               filtered ? (
-                <Link href={DIRECTORY_PATH} className="inline-flex min-h-11 items-center text-sm underline underline-offset-2">{text.filters.clear}</Link>
+                <Button asChild variant="outline">
+                  <Link href={DIRECTORY_PATH}>{text.filters.clear}</Link>
+                </Button>
               ) : undefined
             }
           />

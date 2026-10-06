@@ -1,5 +1,7 @@
 import { BackLink } from "@/components/ui/back-link";
+import { Button } from "@/components/ui/button";
 import { Table, TableRegion } from "@/components/ui/table";
+import { Scale } from "lucide-react";
 import Link from "next/link";
 
 import { UnspecifiedValue } from "@/components/catalogue/detail/unspecified-value";
@@ -65,7 +67,18 @@ export async function ComparePage({
   );
 
   if (!canCompare(ids)) {
-    return frame(<EmptyState title={text.needTwoTitle} description={text.needTwoHelp} />);
+    return frame(
+      <EmptyState
+        icon={Scale}
+        title={text.needTwoTitle}
+        description={text.needTwoHelp}
+        action={
+          <Button asChild variant="outline">
+            <Link href={BASE_PATH[kind]}>{messages.detail.back[kind]}</Link>
+          </Button>
+        }
+      />,
+    );
   }
   if (results.some((result) => result.status === "error")) {
     return frame(<SectionUnavailable />);
