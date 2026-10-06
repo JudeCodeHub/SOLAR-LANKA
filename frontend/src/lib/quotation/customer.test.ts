@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { type ComparisonOfferLike, compareRows, cellText, daysLeft, expiryText, inclusionsFromLines, isExpiringSoon, offerState, stateLabel } from "./customer.ts";
+import { type ComparisonOfferLike, compareRows, cellText, daysLeft, expiryText, inclusionsFromLines, isExpiringSoon, offerState, stateLabel, stateTone } from "./customer.ts";
 
 const NOW = Date.parse("2026-10-10T00:00:00Z");
 const sent = (valid_until: string | null) => ({ status: "sent", valid_until });
@@ -105,4 +105,14 @@ test("each offer's expiry is shown in its own words and the missing-information 
   assert.equal(get(rows, "valid_until").differs, true);
   assert.equal(cellText(get(rows, "missing").cells[0]!), "Nothing missing");
   assert.equal(cellText(get(rows, "missing").cells[1]!), "warranty terms, total");
+});
+
+test("each offer state has a colour family, and the words stay different for every state", () => {
+  assert.equal(stateTone("active"), "success");
+  assert.equal(stateTone("accepted"), "success");
+  assert.equal(stateTone("expired"), "warning");
+  assert.equal(stateTone("draft"), "info");
+  for (const state of ["declined", "withdrawn", "replaced"] as const) assert.equal(stateTone(state), "neutral");
+  const words = (["active", "expired", "accepted", "declined", "withdrawn", "replaced", "draft"] as const).map(stateLabel);
+  assert.equal(new Set(words).size, words.length);
 });

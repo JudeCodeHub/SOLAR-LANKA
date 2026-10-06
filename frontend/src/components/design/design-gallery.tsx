@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import { ClipboardList, FileText, Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
 
+import { OfferCard } from "@/components/requests/offers-section";
 import { RequestCard } from "@/components/requests/request-card";
 import { HomeHeader, NextSteps, SummaryCard } from "@/components/dashboard/dashboard-parts";
 import { DashboardFrame } from "@/components/shell/dashboard-shell";
@@ -44,6 +45,16 @@ import { PHOTOS, type PhotoKey } from "@/lib/photos/photos";
 import { format, messages, plural } from "@/messages";
 
 const text = messages.design;
+
+const OFFER_NOW = Date.parse("2026-10-06T00:00:00Z");
+const offer = (n: number, name: string, status: "sent" | "accepted", validUntil: string, total: string, revisions: number) => ({ quotation_id: `q${n}`, company_id: `c${n}`, revision_id: `v${n}`, revision_number: revisions, sent_at: "2026-09-25T08:00:00Z", sent_revision_count: revisions, status, total, valid_until: validUntil, name });
+/** Four offers, one in each state, for the sample of offer cards. */
+const OFFER_SAMPLES = [
+  offer(1, "Sunbird Solar", "sent", "2026-11-01T00:00:00Z", "1640000.00", 1),
+  offer(2, "Ceylon Roofs", "sent", "2026-10-08T00:00:00Z", "1580000.00", 2),
+  offer(3, "Lanka Watts", "accepted", "2026-11-01T00:00:00Z", "1720000.00", 1),
+  offer(4, "Green Grid", "sent", "2026-09-20T00:00:00Z", "1495000.00", 1),
+];
 
 const delivery = (status: string, index: number) => ({ id: `d${index}`, company_id: `c${index}`, status, created_at: "2026-09-01T08:00:00Z", viewed_at: null });
 /** One request in each state, for the sample of request cards. */
@@ -456,6 +467,16 @@ export function DesignGallery() {
             {REQUEST_SAMPLES.map((item) => (
               <li key={item.id}>
                 <RequestCard item={item} />
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="space-y-3" data-offers-sample>
+          <h3 className="type-subheading">{text.navigation.offers}</h3>
+          <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {OFFER_SAMPLES.map((item) => (
+              <li key={item.quotation_id}>
+                <OfferCard requestId="r1" item={item} name={item.name} now={OFFER_NOW} />
               </li>
             ))}
           </ul>
