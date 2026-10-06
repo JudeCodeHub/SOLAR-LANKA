@@ -620,3 +620,19 @@ test("the save panel uses real buttons and alerts, and the stale warning is a bo
   assert.match(results, /variant="warning"[^>]*border-2[^>]*data-stale/);
   assert.match(results, /text\.staleTitle/);
 });
+
+test("My estimates and the saved estimate use the page header, figure cards and a scrollable settings table", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", "components", "estimates", path), "utf8");
+  const list = read("estimates-view.tsx");
+  assert.match(list, /<PageHeader/);
+  assert.match(list, /type-figure/);
+  assert.match(list, /min-h-11/);
+  assert.match(list, /motion-reduce:transition-none/);
+  assert.doesNotMatch(list, /text-muted-foreground|font-heading/);
+  const detail = read("saved-estimate-view.tsx");
+  assert.match(detail, /<PageHeader/);
+  assert.match(detail, /<TableRegion label=/);
+  assert.match(detail, /text\.savedOn/);
+  assert.match(detail, /text\.settingsIntro/);
+  assert.doesNotMatch(detail, /text-muted-foreground|font-heading/);
+});
