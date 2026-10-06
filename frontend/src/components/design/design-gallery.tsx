@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import { ClipboardList, FileText, Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
 
+import { InstallationTimeline } from "@/components/installations/installation-timeline";
 import { InstallationCard } from "@/components/installations/installation-card";
 import { ExportDemo } from "@/components/design/export-demo";
 import { DecisionDemo } from "@/components/design/decision-demo";
@@ -73,6 +74,13 @@ const OFFER_REVISIONS = [
   },
 ] as never;
 
+const TIMELINE_KINDS = ["site_survey", "system_design", "permits_and_approvals", "equipment_delivery", "installation_work", "inspection_and_testing", "commissioning", "customer_handover"];
+/** Eight steps: three complete, one in progress (with a delay and a next action) and four not started. */
+const TIMELINE_STEPS = TIMELINE_KINDS.map((kind, index) => ({ id: `m${index + 1}`, kind, position: index + 1, status: index < 3 ? "completed" : index === 3 ? "in_progress" : "pending", evidence: index < 2 ? [{}, {}] : [] }));
+const TIMELINE_HISTORY = [
+  { id: "u1", milestone_id: "m1", created_at: "2026-09-12T08:00:00Z", from_status: "pending", to_status: "completed", reason: null, next_action: null, delay_until: null },
+  { id: "u2", milestone_id: "m4", created_at: "2026-10-01T08:00:00Z", from_status: "pending", to_status: "in_progress", reason: "Panels shipped from the port", next_action: "Confirm a delivery day", delay_until: "2026-10-12T00:00:00Z" },
+];
 const INSTALLATION_SAMPLES = [
   { id: "i1", created_at: "2026-09-28T08:00:00Z", completed_milestones: 0, total_milestones: 8 },
   { id: "i2", created_at: "2026-09-20T08:00:00Z", completed_milestones: 3, total_milestones: 8 },
@@ -520,6 +528,10 @@ export function DesignGallery() {
               </li>
             ))}
           </ul>
+        </div>
+        <div className="space-y-3" data-timeline-sample>
+          <h3 className="type-subheading">{text.navigation.timeline}</h3>
+          <InstallationTimeline milestones={TIMELINE_STEPS} history={TIMELINE_HISTORY} now={OFFER_NOW} />
         </div>
         <div className="space-y-3" data-installations-sample>
           <h3 className="type-subheading">{text.navigation.installations}</h3>

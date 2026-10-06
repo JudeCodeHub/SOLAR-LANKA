@@ -802,3 +802,12 @@ test("the installations list keeps its paging and links, and each installation i
   for (const needle of ["progressText(item.completed_milestones, item.total_milestones)", 'href={`/my/installations/${item.id}`}', "<progress", "aria-hidden", "min-h-11", "data-segment"]) assert.ok(card.includes(needle), needle);
   assert.doesNotMatch(list + card, /text-muted-foreground|font-heading/);
 });
+
+test("the tracking page keeps its marks, and the timeline shows each step as a node on a line with its photo, notes, delays, evidence and updates", () => {
+  const dir = join(import.meta.dirname, "..", "..", "components", "installations");
+  const view = readFileSync(join(dir, "tracking-view.tsx"), "utf8");
+  for (const needle of ["data-accepted", "data-progress", "data-steps", "data-step={milestone.status}", "<CustomerVisits installationId={id}", "<InstallationTimeline", "heading.current?.focus()", "<TableRegion", "progressText(", "currentStepText("]) assert.ok(view.includes(needle), needle);
+  const line = readFileSync(join(dir, "installation-timeline.tsx"), "utf8");
+  for (const needle of ["data-timeline", "data-milestone={status}", "data-status", "data-next-action", "data-delay=", "data-evidence", "data-no-updates", "data-update=", "updatesFor(history, milestone.id)", "scheduleFor(updates, now)", "stepPhoto(milestone.kind)", "aria-hidden", "hidden md:block", "<DialLoader"]) assert.ok(line.includes(needle), needle);
+  assert.doesNotMatch(view + line, /text-muted-foreground|font-heading/);
+});

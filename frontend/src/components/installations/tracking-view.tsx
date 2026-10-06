@@ -1,7 +1,11 @@
 "use client";
 
 import { BackLink } from "@/components/ui/back-link";
-import { Table } from "@/components/ui/table";
+import { Table, TableRegion } from "@/components/ui/table";
+import { CircleCheck } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { InstallationTimeline } from "@/components/installations/installation-timeline";
+import { StepTrack } from "@/components/installations/installation-card";
 import { useEffect, useRef } from "react";
 
 import { CustomerVisits } from "@/components/visits/customer-visits";
@@ -9,16 +13,9 @@ import { QueryState } from "@/components/query-state";
 import {
   currentStepText,
   progressText,
-  stepName,
 } from "@/lib/installations/progress";
 import { useInstallation } from "@/lib/quotation/customer-hooks";
-import { formatLongDate } from "@/lib/catalogue/detail";
-import {
-  isStatusChange,
-  scheduleFor,
-  updatesFor,
-} from "@/lib/installations/timeline";
-import { format, messages, plural } from "@/messages";
+import { messages } from "@/messages";
 
 const text = messages.tracking;
 
@@ -36,28 +33,27 @@ export function TrackingView({
     if (justAccepted) heading.current?.focus();
   }, [justAccepted]);
   return (
-    <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
+    <div className="mx-auto w-full max-w-4xl flex-1 space-y-6 px-4 py-8">
       <BackLink href="/my/installations">{text.back}</BackLink>
-      <h1
-        ref={heading}
-        tabIndex={-1}
-        className="font-heading text-3xl font-semibold tracking-tight outline-none"
-      >
-        {text.title}
-      </h1>
-      {justAccepted ? (
-        <p role="status" className="text-sm font-medium" data-accepted>
-          {text.accepted}
-        </p>
-      ) : null}
+      <header className="space-y-3 rounded-panel border border-line bg-surface p-6 shadow-e1" data-tracking-header>
+        <p className="type-caption font-semibold tracking-widest text-orange-text uppercase">{text.eyebrow}</p>
+        <h1 ref={heading} tabIndex={-1} className="type-display-m text-ink outline-none">
+          {text.title}
+        </h1>
+        {justAccepted ? (
+          <Alert variant="success" role="status" data-accepted>
+            <CircleCheck aria-hidden />
+            <AlertDescription>{text.accepted}</AlertDescription>
+          </Alert>
+        ) : null}
+      </header>
       <QueryState query={query}>
         {(installation) => {
           const now = query.dataUpdatedAt;
-          const date = (iso: string) => formatLongDate(iso) ?? iso;
           return (
             <>
-              <section aria-labelledby="steps-title" className="space-y-2">
-                <p className="text-sm font-medium" data-progress>
+              <section aria-labelledby="steps-title" className="space-y-3 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6">
+                <p className="type-body font-medium text-ink" data-progress>
                   <span className="block">
                     {progressText(
                       installation.milestones.filter(
@@ -70,13 +66,15 @@ export function TrackingView({
                     {currentStepText(installation.milestones)}
                   </span>
                 </p>
-                <h2
-                  id="steps-title"
-                  className="font-heading text-xl font-semibold tracking-tight"
-                >
+                <StepTrack
+                  completed={installation.milestones.filter((m) => m.status === "completed").length}
+                  total={installation.milestones.length}
+                />
+                <h2 id="steps-title" className="type-heading text-ink">
                   {text.steps}
                 </h2>
-                <p className="text-sm text-muted-foreground">{text.intro}</p>
+                <p className="type-small text-ink-2">{text.intro}</p>
+                <TableRegion label={text.steps}>
                 <Table className="w-full text-sm" data-steps>
                   <caption className="sr-only">{text.steps}</caption>
                   <thead>
@@ -112,140 +110,10 @@ export function TrackingView({
                       ))}
                   </tbody>
                 </Table>
+                </TableRegion>
               </section>
               <CustomerVisits installationId={id} />
-              <section
-                aria-labelledby="timeline-title"
-                className="space-y-3"
-                data-timeline
-              >
-                <h2
-                  id="timeline-title"
-                  className="font-heading text-xl font-semibold tracking-tight"
-                >
-                  {text.timeline.title}
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  {text.timeline.intro}
-                </p>
-                <ol className="space-y-3">
-                  {[...installation.milestones]
-                    .sort((a, b) => a.position - b.position)
-                    .map((milestone) => {
-                      const updates = updatesFor(
-                        installation.history,
-                        milestone.id,
-                      );
-                      const schedule = scheduleFor(updates, now);
-                      const evidence = milestone.evidence?.length ?? 0;
-                      return (
-                        <li
-                          key={milestone.id}
-                          className="space-y-2 rounded-lg border p-3 text-sm"
-                          data-milestone={milestone.status}
-                        >
-                          <h3 className="font-medium">
-                            {stepName(milestone.kind)}
-                            <span
-                              className="ml-2 rounded-full border px-2 py-0.5 text-xs font-normal"
-                              data-status
-                            >
-                              {text.statuses[milestone.status] ??
-                                milestone.status}
-                            </span>
-                          </h3>
-                          {schedule?.nextAction ? (
-                            <p data-next-action>
-                              {format(text.timeline.nextAction, {
-                                action: schedule.nextAction,
-                              })}
-                            </p>
-                          ) : null}
-                          {schedule?.delayUntil ? (
-                            <p
-                              className="font-medium"
-                              data-delay={schedule.delayed ? "current" : "past"}
-                            >
-                              {format(
-                                schedule.delayed
-                                  ? text.timeline.delayedUntil
-                                  : text.timeline.wasDelayedUntil,
-                                { date: date(schedule.delayUntil) },
-                              )}
-                            </p>
-                          ) : null}
-                          <p className="text-muted-foreground" data-evidence>
-                            {evidence > 0
-                              ? format(
-                                  plural(text.timeline.evidence, evidence),
-                                  { count: evidence },
-                                )
-                              : text.timeline.noEvidence}
-                          </p>
-                          {updates.length === 0 ? (
-                            <p
-                              className="text-muted-foreground"
-                              data-no-updates
-                            >
-                              {text.timeline.noUpdates}
-                            </p>
-                          ) : (
-                            <ul
-                              className="space-y-1 border-l pl-3"
-                              aria-label={text.timeline.updates}
-                            >
-                              {updates.map((entry) => (
-                                <li
-                                  key={entry.id}
-                                  data-update={
-                                    isStatusChange(entry) ? "status" : "note"
-                                  }
-                                >
-                                  <span className="block text-muted-foreground">
-                                    {date(entry.created_at)}
-                                  </span>
-                                  <span className="block">
-                                    {isStatusChange(entry)
-                                      ? format(text.timeline.moved, {
-                                          from:
-                                            text.statuses[entry.from_status] ??
-                                            entry.from_status,
-                                          to:
-                                            text.statuses[entry.to_status] ??
-                                            entry.to_status,
-                                        })
-                                      : text.timeline.note}
-                                  </span>
-                                  {entry.reason ? (
-                                    <span className="block">
-                                      {format(text.timeline.reason, {
-                                        reason: entry.reason,
-                                      })}
-                                    </span>
-                                  ) : null}
-                                  {entry.next_action ? (
-                                    <span className="block">
-                                      {format(text.timeline.nextAction, {
-                                        action: entry.next_action,
-                                      })}
-                                    </span>
-                                  ) : null}
-                                  {entry.delay_until ? (
-                                    <span className="block">
-                                      {format(text.timeline.delayedUntil, {
-                                        date: date(entry.delay_until),
-                                      })}
-                                    </span>
-                                  ) : null}
-                                </li>
-                              ))}
-                            </ul>
-                          )}
-                        </li>
-                      );
-                    })}
-                </ol>
-              </section>
+              <InstallationTimeline milestones={installation.milestones} history={installation.history} now={now} />
             </>
           );
         }}
