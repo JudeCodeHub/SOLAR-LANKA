@@ -1341,6 +1341,7 @@ export const en = {
       favourites: "Saved products on the favourites page",
       support: "Support: the safety card, cases and the unsafe box",
       notifications: "Unread and read notifications",
+      settings: "Notification switches with a saved status",
       exportFailed: "The copy could not be prepared.",
       offerDetail: "An offer in full, with an earlier revision",
       dashboardPage: "The page itself sits beside the links.",

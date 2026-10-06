@@ -5,6 +5,7 @@ import { InstallationTimeline } from "@/components/installations/installation-ti
 import { InstallationCard } from "@/components/installations/installation-card";
 import { ExportDemo } from "@/components/design/export-demo";
 import { ProductCard } from "@/components/catalogue/product-card";
+import { SettingsDemo } from "@/components/design/settings-demo";
 import { NotificationsDemo } from "@/components/design/notifications-demo";
 import { SupportDemo } from "@/components/design/support-demo";
 import { VisitsDemo } from "@/components/design/visits-demo";
@@ -550,6 +551,10 @@ export function DesignGallery() {
         <div className="space-y-3">
           <h3 className="type-subheading">{text.navigation.notifications}</h3>
           <NotificationsDemo />
+        </div>
+        <div className="space-y-3">
+          <h3 className="type-subheading">{text.navigation.settings}</h3>
+          <SettingsDemo />
         </div>
         <div className="space-y-3" data-favourites-sample>
           <h3 className="type-subheading">{text.navigation.favourites}</h3>
