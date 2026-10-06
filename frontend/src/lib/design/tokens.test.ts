@@ -811,3 +811,12 @@ test("the tracking page keeps its marks, and the timeline shows each step as a n
   for (const needle of ["data-timeline", "data-milestone={status}", "data-status", "data-next-action", "data-delay=", "data-evidence", "data-no-updates", "data-update=", "updatesFor(history, milestone.id)", "scheduleFor(updates, now)", "stepPhoto(milestone.kind)", "aria-hidden", "hidden md:block", "<DialLoader"]) assert.ok(line.includes(needle), needle);
   assert.doesNotMatch(view + line, /text-muted-foreground|font-heading/);
 });
+
+test("the customer's site visits keep every action, guard and mark, and show status chips, the confirmed time and the time zone", () => {
+  const dir = join(import.meta.dirname, "..", "..", "components", "visits");
+  const visits = readFileSync(join(dir, "customer-visits.tsx"), "utf8");
+  for (const needle of ["busy.current", "data-visits", "data-notice", "data-refused", "data-none", "data-waiting", "data-request-form", "data-action=\"request-visit\"", "data-action=\"accept-time\"", "data-action=\"reschedule\"", "data-action=\"reschedule-send\"", "data-visit={visit.status}", "data-visit-status", "data-confirmed", "data-offered", "data-summary", "<ConfirmAction", "actions.cancel.mutate(visit.id", "slotRequest(rows)", "export function VisitStatusBlock"]) assert.ok(visits.includes(needle), needle);
+  const fields = readFileSync(join(dir, "slot-fields.tsx"), "utf8");
+  for (const needle of ["data-slots", "data-slot-row", "data-error", "aria-invalid", "text.zoneNote", "data-zone-note", "MAX_SLOTS"]) assert.ok(fields.includes(needle), needle);
+  assert.doesNotMatch(visits + fields, /text-muted-foreground|font-heading|text-destructive/);
+});

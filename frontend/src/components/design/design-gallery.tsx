@@ -4,6 +4,7 @@ import { ClipboardList, FileText, Zap, Sun, BatteryCharging, ShieldCheck, Circle
 import { InstallationTimeline } from "@/components/installations/installation-timeline";
 import { InstallationCard } from "@/components/installations/installation-card";
 import { ExportDemo } from "@/components/design/export-demo";
+import { VisitsDemo } from "@/components/design/visits-demo";
 import { DecisionDemo } from "@/components/design/decision-demo";
 import { OfferDetails } from "@/components/requests/offer-view";
 import { ComparisonTable } from "@/components/requests/compare-view";
@@ -552,6 +553,10 @@ export function DesignGallery() {
               </li>
             ))}
           </ul>
+        </div>
+        <div className="space-y-3">
+          <h3 className="type-subheading">{text.navigation.visits}</h3>
+          <VisitsDemo />
         </div>
         <div className="space-y-6" data-offer-sample>
           <h3 className="type-subheading">{text.navigation.offerDetail}</h3>

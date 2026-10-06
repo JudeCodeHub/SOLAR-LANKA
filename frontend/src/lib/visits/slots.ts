@@ -47,6 +47,14 @@ export function statusLabel(status: string): string {
   return (text.statuses as Record<string, string>)[status] ?? status;
 }
 
+/** The colour family of a visit's status chip; the words always say the same thing, and "other times offered" is the one that waits for the customer. */
+export function visitTone(status: string): "info" | "warning" | "success" | "neutral" {
+  if (status === "requested") return "info";
+  if (status === "alternatives_offered") return "warning";
+  if (status === "confirmed" || status === "completed") return "success";
+  return "neutral";
+}
+
 export function actionLabel(action: string): string {
   return (text.actions as Record<string, string>)[action] ?? action;
 }
