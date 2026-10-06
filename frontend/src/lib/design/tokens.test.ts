@@ -720,3 +720,15 @@ test("the area's dashboard link is current only on its own page, not on every pa
   assert.match(shell, /exact=\{area\.items\.some/);
   assert.match(link, /exact \? current === item\.href/);
 });
+
+test("the customer home has a greeting header with the evening photo and three summary cards that each link to their list and keep their empty texts", () => {
+  const dir = join(import.meta.dirname, "..", "..", "components", "dashboard");
+  const home = readFileSync(join(dir, "customer-dashboard.tsx"), "utf8");
+  const parts = readFileSync(join(dir, "dashboard-parts.tsx"), "utf8");
+  assert.match(home, /<HomeHeader/);
+  assert.match(parts, /name="homeEvening"/);
+  assert.equal((home.match(/<SummaryCard /g) ?? []).length, 3);
+  for (const href of ['"/my/requests", label: text.viewRequests', '"/my/requests", label: text.viewOffers', '"/my/installations", label: text.viewInstallations']) assert.ok(home.includes(href), href);
+  for (const empty of ["text.requestsNone", "text.offersNone", "text.installationsNone"]) assert.ok(home.includes(empty), empty);
+  assert.match(parts, /min-h-14/);
+});
