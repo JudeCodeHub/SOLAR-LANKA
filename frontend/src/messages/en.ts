@@ -1327,6 +1327,7 @@ export const en = {
     navigation: {
       dashboard: "Signed-in area",
       dashboardIntro: "The customer links in a side column on wide screens and in a drawer on phones. The current page is marked with a bar, a tint and the current-page attribute.",
+      requests: "Request cards in each state",
       dashboardPage: "The page itself sits beside the links.",
       title: "Tabs, segmented controls and pagination",
       intro: "All three are 44 px high and work from the keyboard: arrow keys move between tabs, and Tab reaches each segment and page link.",
@@ -2053,6 +2054,7 @@ export const en = {
     list: {
       title: "My requests",
       intro: "The quotation requests you have sent, newest first, and how far each company has got.",
+      eyebrow: "Your requests",
       showing: "Showing {from} to {to} of {total} requests",
       emptyTitle: "No requests yet",
       emptyDescription: "When you send a quotation request, you can follow it here.",

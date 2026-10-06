@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import { ClipboardList, FileText, Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
 
+import { RequestCard } from "@/components/requests/request-card";
 import { HomeHeader, NextSteps, SummaryCard } from "@/components/dashboard/dashboard-parts";
 import { DashboardFrame } from "@/components/shell/dashboard-shell";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
@@ -43,6 +44,15 @@ import { PHOTOS, type PhotoKey } from "@/lib/photos/photos";
 import { format, messages, plural } from "@/messages";
 
 const text = messages.design;
+
+const delivery = (status: string, index: number) => ({ id: `d${index}`, company_id: `c${index}`, status, created_at: "2026-09-01T08:00:00Z", viewed_at: null });
+/** One request in each state, for the sample of request cards. */
+const REQUEST_SAMPLES = [
+  { id: "r1", status: "submitted", created_at: "2026-09-01T08:00:00Z", deliveries: [delivery("submitted", 1), delivery("viewed", 2)] },
+  { id: "r2", status: "submitted", created_at: "2026-09-03T08:00:00Z", deliveries: [delivery("responding", 1), delivery("viewed", 2), delivery("submitted", 3)] },
+  { id: "r3", status: "closed", created_at: "2026-08-20T08:00:00Z", deliveries: [delivery("closed", 1)] },
+  { id: "r4", status: "cancelled", created_at: "2026-08-10T08:00:00Z", deliveries: [delivery("cancelled", 1), delivery("cancelled", 2)] },
+];
 
 /** The links a customer sees in their own area, for the sample of the side column. */
 const customerArea = navigationFor({ role: "customer", memberships: [] }, true).find((group) => group.id === "customer")!;
@@ -439,6 +449,16 @@ export function DesignGallery() {
               </div>
             </DashboardFrame>
           </div>
+        </div>
+        <div className="space-y-3" data-requests-sample>
+          <h3 className="type-subheading">{text.navigation.requests}</h3>
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {REQUEST_SAMPLES.map((item) => (
+              <li key={item.id}>
+                <RequestCard item={item} />
+              </li>
+            ))}
+          </ul>
         </div>
         <div className="space-y-3">
           <h3 className="type-subheading">{text.navigation.pagination}</h3>
