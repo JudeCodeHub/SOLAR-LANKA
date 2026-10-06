@@ -1,13 +1,11 @@
 "use client";
 
 import { TriangleAlert } from "lucide-react";
-import Link from "next/link";
 
+import { AccessNotice } from "@/components/states/access-notice";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { type ApiError, describeError } from "@/lib/api/errors";
-import { signInHref } from "@/lib/redirect";
-import { useReturnPath } from "@/lib/use-return-path";
 import { messages } from "@/messages";
 
 /** Readable name for the field an issue points at, e.g. ["body", "district"] -> "district". */
@@ -29,7 +27,9 @@ export function ApiErrorMessage({
   className?: string;
 }) {
   const description = describeError(error);
-  const returnPath = useReturnPath();
+  if (description.kind === "signed-out" || description.kind === "forbidden") {
+    return <AccessNotice kind={description.kind === "signed-out" ? "signed-out" : "not-allowed"} title={description.title} description={description.message} className={className} />;
+  }
   return (
     <Alert variant="destructive" className={className}>
       <TriangleAlert aria-hidden />
@@ -48,11 +48,6 @@ export function ApiErrorMessage({
               );
             })}
           </ul>
-        )}
-        {description.kind === "signed-out" && (
-          <Button asChild variant="outline" size="sm" className="mt-3">
-            <Link href={signInHref(returnPath)}>{messages.auth.signIn}</Link>
-          </Button>
         )}
         {description.retryable && onRetry && (
           <Button

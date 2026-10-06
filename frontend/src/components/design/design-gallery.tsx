@@ -14,6 +14,7 @@ import { KeyValue } from "@/components/ui/key-value";
 import { PageHeader } from "@/components/ui/page-header";
 import { Section } from "@/components/ui/section";
 import { Stat } from "@/components/ui/stat";
+import { AccessNotice } from "@/components/states/access-notice";
 import { EmptyState } from "@/components/states/empty-state";
 import { ErrorState } from "@/components/states/error-state";
 import { NotFoundState } from "@/components/states/not-found-state";
@@ -448,6 +449,12 @@ export function DesignGallery() {
           <EmptyState title={text.states.emptyTitle} description={text.states.emptyBody} action={<Button variant="outline">{text.states.emptyAction}</Button>} />
           <ErrorState title={text.states.errorTitle} description={text.states.errorBody} action={<Button variant="outline">{text.states.errorAction}</Button>} />
           <NotFoundState title={text.states.notFoundTitle} description={text.states.notFoundBody} action={<Button>{text.states.notFoundAction}</Button>} />
+        </div>
+        <div className="grid gap-4 md:grid-cols-2" data-access-notices>
+          <AccessNotice kind="signed-out" title={messages.errors.signedOut.title} description={messages.errors.signedOut.message} />
+          <AccessNotice kind="not-allowed" title={messages.errors.forbidden.title} description={messages.errors.forbidden.message} />
+          <AccessNotice kind="inactive" title={messages.session.inactive.title} description={messages.session.inactive.message} />
+          <AccessNotice kind="rejected" title={messages.session.rejected.title} description={messages.session.rejected.message} />
         </div>
       </section>
 

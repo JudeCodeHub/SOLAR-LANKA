@@ -543,3 +543,16 @@ test("the account page uses the shared header, shows the role as a badge, and pu
   const profile = read("components/backend-profile.tsx");
   assert.ok(profile.includes('data-testid="backend-role"') && profile.includes('<Badge variant="orange">'), "the role badge keeps its test id for the browser specs");
 });
+
+test("the access screens explain what happened with an icon, plain words and the next step, in the new panel style", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  const notice = read("components/states/access-notice.tsx");
+  for (const kind of ['"signed-out"', '"not-allowed"', "inactive", "rejected"]) assert.ok(notice.includes(kind), kind);
+  assert.ok(notice.includes("StatePanel") && notice.includes("signInHref(returnPath)") && notice.includes("SignOutButton") && notice.includes("messages.auth.createAccount"));
+  assert.ok(notice.includes('"alert" : "status"'), "errors announce themselves, the others do not interrupt");
+  assert.ok(read("components/session-problem.tsx").includes("<AccessNotice"));
+  assert.ok(read("components/admin/platform-gate.tsx").includes('<AccessNotice kind="not-allowed"'));
+  assert.ok(read("components/company/staff-gate.tsx").includes('<AccessNotice'));
+  const api = read("components/api-error-message.tsx");
+  assert.ok(api.includes('"signed-out" : "not-allowed"') && api.includes("<Alert variant=\"destructive\""), "forbidden and signed-out get the panel, other failures keep the alert");
+});
