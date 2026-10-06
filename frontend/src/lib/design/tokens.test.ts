@@ -210,7 +210,7 @@ test("the table region is focusable, scrolls on its own and the table has a stic
   const source = readFileSync(join(import.meta.dirname, "..", "..", "components", "ui", "table.tsx"), "utf8");
   assert.match(source, /tabIndex=\{0\}/);
   assert.match(source, /role="region"/);
-  assert.ok(source.includes("overflow-auto"));
+  assert.ok(source.includes("relative overflow-auto"), "positioned, so hidden text inside is clipped with the table");
   assert.ok(source.includes("sticky"));
   assert.ok(source.includes("nth-child(even)"));
   assert.ok(!source.includes("outline-none"), "the global focus ring must stay visible");

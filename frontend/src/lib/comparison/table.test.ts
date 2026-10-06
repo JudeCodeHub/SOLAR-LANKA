@@ -83,3 +83,14 @@ test("nothing to compare when no product could be loaded", () => {
   assert.deepEqual(buildComparison([]), []);
   assert.deepEqual(buildComparison([null, null]), []);
 });
+
+test("rowRelation says whether a row is the same, differs, or has values not specified, ignoring products that could not be loaded", async () => {
+  const { rowRelation } = await import("./table.ts");
+  const value = (text: string) => ({ kind: "value" as const, text });
+  assert.equal(rowRelation([value("415 W"), value("415 W")]), "same");
+  assert.equal(rowRelation([value("415 W"), value("420 W"), value("415 W")]), "differs");
+  assert.equal(rowRelation([value("415 W"), { kind: "unspecified" }]), "unspecified");
+  assert.equal(rowRelation([{ kind: "unspecified" }, { kind: "unspecified" }]), "none");
+  assert.equal(rowRelation([value("415 W"), { kind: "unavailable" }]), "same");
+  assert.equal(rowRelation([value("1"), value("2"), { kind: "unavailable" }]), "differs");
+});
