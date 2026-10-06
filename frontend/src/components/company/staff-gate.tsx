@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { QueryState } from "@/components/query-state";
-import { EmptyState } from "@/components/states/empty-state";
+import { AccessNotice } from "@/components/states/access-notice";
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/lib/api/hooks";
 import { type MembershipLike, resolveCompany } from "@/lib/company/profile";
@@ -31,7 +31,8 @@ export function StaffGate({
         const resolution = resolveCompany(profile.memberships, requested);
         if (resolution.kind === "none") {
           return (
-            <EmptyState
+            <AccessNotice
+              kind="not-allowed"
               title={text.notStaff.title}
               description={resolution.technicianOnly ? text.notStaff.technician : text.notStaff.message}
             />
