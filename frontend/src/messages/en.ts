@@ -1782,6 +1782,7 @@ export const en = {
       refused: "That could not be done because the request has changed. The page now shows where it stands.",
     },
     public: {
+      eyebrow: "Help",
       title: "Support",
       intro: "Having a problem with your solar equipment? Start with what is safe to check, then ask your installer.",
       step1: "Look up your exact model for sourced guidance on what is safe to observe.",

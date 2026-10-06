@@ -694,3 +694,12 @@ test("troubleshooting results put hazards first, never give a hazard steps, and 
   assert.doesNotMatch(view, /hazard \? \(\s*<ol/);
   for (const needle of ["data-source", "text.hazardEscalate", "text.open", "text.report", "data-no-references"]) assert.ok(view.includes(needle), needle);
 });
+
+test("the public support page puts the safety message before the steps and the actions", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "support", "public-support.tsx"), "utf8");
+  const at = (needle: string) => view.indexOf(needle);
+  assert.ok(at("data-safety-first") > 0 && at("data-safety-first") < at("data-steps") && at("data-steps") < at('href="/troubleshooting"'));
+  assert.match(view, /border-2 border-danger/);
+  assert.match(view, /<Photo name="safetyVisit"/);
+  assert.match(view, /messages\.support\.safety\.body/);
+});
