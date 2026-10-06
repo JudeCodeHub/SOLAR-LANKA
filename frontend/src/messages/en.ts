@@ -1887,6 +1887,7 @@ export const en = {
     timeSensitiveBadge: "Time-sensitive",
     overdueBadge: "Needs re-checking",
     sampleBadge: "Sample content",
+    verifiedBadge: "Checked against its sources",
     published: "Published {date}",
     back: "Back to the guides",
     notFound: "This article was not found. It may not be published.",

@@ -4,7 +4,7 @@ import { BackLink } from "@/components/ui/back-link";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-import { Badges, CurrencyNotice } from "@/components/education/article-notice";
+import { Badges, CurrencyNotice, ReviewLine, SampleNotice } from "@/components/education/article-notice";
 import { QueryState } from "@/components/query-state";
 import { Photo } from "@/components/ui/photo";
 import { formatLongDate } from "@/lib/catalogue/detail";
@@ -33,13 +33,11 @@ export function ArticleView({ slug }: { slug: string }) {
                 <p className="type-caption font-semibold tracking-widest text-orange-text uppercase">{article.category_name}</p>
                 <h1 className="type-display-m text-ink">{article.title}</h1>
                 <p className="type-body text-ink-2">{article.summary}</p>
-                <p className="type-small text-ink-2">
-                  {format(text.publishedReviewed, { published: day(article.published_at), reviewed: day(article.reviewed_on) })}
-                </p>
+                <ReviewLine article={article} published={day(article.published_at)} reviewed={day(article.reviewed_on)} />
                 <Badges article={article} />
               </header>
               <CurrencyNotice article={article} />
-              {article.is_sample ? <p className="type-small text-ink-2">{text.sampleNote}</p> : null}
+              {article.is_sample ? <SampleNotice /> : null}
               <div id="article-body" className="scroll-mt-40 space-y-5" lang={article.language} data-body>
                 {paragraphs(article.body).map((paragraph, index) => (
                   <p key={index} className="type-body whitespace-pre-line text-lg leading-8 text-ink">
