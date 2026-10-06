@@ -1334,6 +1334,7 @@ export const en = {
       compare: "Comparing offers side by side",
       export: "Keep a copy in each state",
       installations: "Installation cards at each stage",
+      timeline: "The installation timeline",
       exportFailed: "The copy could not be prepared.",
       offerDetail: "An offer in full, with an earlier revision",
       dashboardPage: "The page itself sits beside the links.",
@@ -2015,6 +2016,7 @@ export const en = {
     steps: "Installation steps",
     step: "Step",
     status: "Status",
+    eyebrow: "Your installation",
     statuses: { pending: "Not started", in_progress: "In progress", completed: "Completed" } as Record<string, string>,
     kinds: {
       site_survey: "Site survey",

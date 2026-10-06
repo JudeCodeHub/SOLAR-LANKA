@@ -9,7 +9,7 @@ import { format, messages } from "@/messages";
 const text = messages.tracking.list;
 
 /** One segment for each step: filled when done, outlined for the step that is next, empty after that. Decoration only, the words say the same. */
-function StepTrack({ completed, total }: { completed: number; total: number }) {
+export function StepTrack({ completed, total }: { completed: number; total: number }) {
   return (
     <div aria-hidden className="flex gap-1" data-track>
       {Array.from({ length: total }, (_, index) => (
