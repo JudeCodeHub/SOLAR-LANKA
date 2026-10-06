@@ -151,6 +151,7 @@ test.describe("phase 2 workflows run beside the core release", () => {
     await chooseScheme(page, "net_plus");
     await page.getByRole("button", { name: "Calculate estimate" }).click();
     await expect(page.locator("[data-scheme-note]")).toContainText("Net plus");
+    await page.getByText("Sources and their limits").click();
     await expect(page.locator("[data-source='export']")).toBeVisible();
 
     await chooseScheme(page, "net_metering");

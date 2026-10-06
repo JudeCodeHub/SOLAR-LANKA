@@ -6,6 +6,7 @@ import type { ReactNode, Ref } from "react";
 import { ExternalLink } from "@/components/catalogue/detail/external-link";
 import { ResultsHero } from "@/components/estimator/results-hero";
 import { ResultTable } from "@/components/estimator/result-table";
+import { AccordionItem } from "@/components/ui/accordion";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { formatLongDate, safeExternalUrl } from "@/lib/catalogue/detail";
 import {
@@ -127,38 +128,33 @@ export function EstimateResults({
         </div>
       ) : null}
 
-      <section aria-labelledby="assumptions-title" className="space-y-4">
+      <section aria-labelledby="assumptions-title" className="space-y-3" data-assumptions>
         <h3 id="assumptions-title" className="font-heading text-xl font-semibold tracking-tight">
           {about.title}
         </h3>
-        <div className="space-y-1 text-sm">
-          <h4 className="font-medium">{about.fixedTitle}</h4>
-          <p className="text-muted-foreground">{about.fixed}</p>
-          <p className="text-muted-foreground" data-scheme-note>{about.schemes[values.connection_scheme]}</p>
-          <p className="text-muted-foreground">
-            {format(about.version, { version: preview.config_version })}
-          </p>
-        </div>
-        <div className="space-y-1 text-sm">
-          <h4 className="font-medium">{about.inputsTitle}</h4>
+        <AccordionItem title={about.fixedTitle} hint={about.fixedHint} open>
+          <p className="text-ink-2">{about.fixed}</p>
+          <p className="text-ink-2" data-scheme-note>{about.schemes[values.connection_scheme]}</p>
+          <p className="text-ink-2">{format(about.version, { version: preview.config_version })}</p>
+        </AccordionItem>
+        <AccordionItem title={about.inputsTitle} hint={about.inputsHint}>
           <dl className="description-list">
             {inputRows.map(([label, value]) => (
               <div key={label} className="contents">
-                <dt className="text-muted-foreground">{label}</dt>
+                <dt className="text-ink-2">{label}</dt>
                 <dd>{value}</dd>
               </div>
             ))}
           </dl>
-        </div>
-        <div className="space-y-3 text-sm">
-          <h4 className="font-medium">{about.sourcesTitle}</h4>
+        </AccordionItem>
+        <AccordionItem title={about.sourcesTitle} hint={about.sourcesHint} data-sources-panel>
           <ul className="space-y-3">
             {(["yield", "tariff", "cost", "export"] as const).filter((topic) => topic !== "export" || preview.sources.export !== undefined).map((topic) => {
               const source = preview.sources[topic];
               const link = safeExternalUrl(source?.url);
               return (
-                <li key={topic} className="rounded-md border p-3" data-source={topic}>
-                  <p className="font-medium">{about.sourceNames[topic]}</p>
+                <li key={topic} className="rounded-field border border-line bg-paper p-3" data-source={topic}>
+                  <p className="font-medium text-ink">{about.sourceNames[topic]}</p>
                   {source ? (
                     <dl className="mt-1 description-list">
                       {source.publisher ? <Item label={about.publisher} value={source.publisher} /> : null}
@@ -173,7 +169,7 @@ export function EstimateResults({
                       {source.limitation ? <Item label={about.limitation} value={source.limitation} /> : null}
                       {link ? (
                         <>
-                          <dt className="text-muted-foreground">{about.link}</dt>
+                          <dt className="text-ink-2">{about.link}</dt>
                           <dd>
                             <ExternalLink href={link}>{source.publisher ?? about.link}</ExternalLink>
                           </dd>
@@ -181,14 +177,14 @@ export function EstimateResults({
                       ) : null}
                     </dl>
                   ) : (
-                    <p className="text-muted-foreground">{about.sourceNone}</p>
+                    <p className="text-ink-2">{about.sourceNone}</p>
                   )}
                 </li>
               );
             })}
           </ul>
-        </div>
-        <p className="text-xs text-muted-foreground">{preview.disclaimer}</p>
+        </AccordionItem>
+        <p className="type-small text-ink-2">{preview.disclaimer}</p>
       </section>
     </section>
   );
@@ -197,7 +193,7 @@ export function EstimateResults({
 function Item({ label, value }: { label: string; value: string }) {
   return (
     <>
-      <dt className="text-muted-foreground">{label}</dt>
+      <dt className="text-ink-2">{label}</dt>
       <dd>{value}</dd>
     </>
   );

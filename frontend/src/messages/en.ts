@@ -3074,6 +3074,7 @@ export const en = {
       assumptions: {
         title: "Assumptions and sources",
         fixedTitle: "Fixed by the estimator",
+        fixedHint: "What the estimator assumes for every estimate.",
         fixed: "On-grid system, no battery backup.",
         schemes: {
           net_metering: "Net metering: surplus energy is banked as credit, not paid in cash, so your bill is worked out on what you import after your generation is taken off.",
@@ -3081,6 +3082,7 @@ export const en = {
           net_plus: "Net plus: everything generated is sold at the feed-in rate and your own bill is unchanged. Compared with net metering, the value is income rather than a smaller bill.",
         } as Record<string, string>,
         inputsTitle: "Inputs you gave",
+        inputsHint: "The values this estimate was calculated from.",
         inputs: {
           scheme: "Connection scheme",
           consumption: "Monthly electricity use",
@@ -3093,6 +3095,7 @@ export const en = {
         unknown: "Unknown",
         version: "Calculated with estimator settings version {version}.",
         sourcesTitle: "Sources and their limits",
+        sourcesHint: "Where the yield, tariff and cost figures come from, and what they cannot tell you.",
         sourceNames: { yield: "Generation yield", tariff: "Electricity tariff", cost: "Installed cost", export: "Feed-in rate for exports" },
         sourceNone: "No source information is published for this item.",
         publisher: "Publisher",
