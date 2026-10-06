@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { SectionUnavailable } from "@/components/landing/section-unavailable";
+import { SampleBadge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DIRECTORY_PATH, profileHref } from "@/lib/directory/links";
 import { formatOfferPrice } from "@/lib/catalogue/detail";
@@ -13,18 +14,18 @@ const text = messages.detail.offers;
 export function OffersSection({ offers }: { offers: OffersResult }) {
   return (
     <section aria-labelledby="offers-title" className="space-y-3">
-      <h2 id="offers-title" className="font-heading text-2xl font-semibold tracking-tight">
+      <h2 id="offers-title" className="type-heading text-ink">
         {text.title}
       </h2>
-      <p className="max-w-3xl text-sm text-muted-foreground">{text.intro}</p>
+      <p className="type-small max-w-3xl text-ink-2">{text.intro}</p>
       {!offers.ok ? (
         <SectionUnavailable />
       ) : offers.items.length === 0 ? (
-        <p className="text-sm text-muted-foreground" data-no-offers>
+        <p className="type-small text-ink-2" data-no-offers>
           {text.none}
         </p>
       ) : (
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {offers.items.map((offer) => {
             const price = formatOfferPrice(offer);
             return (
@@ -45,12 +46,8 @@ export function OffersSection({ offers }: { offers: OffersResult }) {
                   <CardContent className="space-y-2 text-sm">
                     <p>
                       <span className="font-medium">{text.price}: </span>
-                      {price ?? <span data-no-price>{text.noPrice}</span>}
-                      {price && offer.is_demo_price ? (
-                        <span className="ml-2 rounded-full border px-2 py-0.5 text-xs text-muted-foreground">
-                          {text.sample}
-                        </span>
-                      ) : null}
+                      {price ? <span className="type-figure font-semibold">{price}</span> : <span data-no-price>{text.noPrice}</span>}
+                      {price && offer.is_demo_price ? <SampleBadge className="ml-2">{text.sample}</SampleBadge> : null}
                     </p>
                     <p>
                       <span className="font-medium">{text.claim}: </span>

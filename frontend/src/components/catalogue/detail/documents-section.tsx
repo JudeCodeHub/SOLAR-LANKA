@@ -6,21 +6,21 @@ const text = messages.detail.documents;
 
 export function DocumentsSection({ groups }: { groups: DocumentGroup[] }) {
   return (
-    <section aria-labelledby="documents-title" className="space-y-3">
-      <h2 id="documents-title" className="font-heading text-2xl font-semibold tracking-tight">
+    <section aria-labelledby="documents-title" className="space-y-3 rounded-card border border-line bg-surface p-5">
+      <h2 id="documents-title" className="type-heading text-ink">
         {text.title}
       </h2>
       {groups.length === 0 ? (
-        <p className="text-sm text-muted-foreground" data-no-documents>
+        <p className="type-small text-ink-2" data-no-documents>
           {text.none}
         </p>
       ) : (
         groups.map((group) => (
           <div key={group.id} className="space-y-1">
-            <h3 className="font-medium">{group.title}</h3>
-            <ul className="list-disc space-y-1 pl-5 text-sm">
+            <h3 className="type-subheading text-ink">{group.title}</h3>
+            <ul className="space-y-1 pl-0 text-sm">
               {group.links.map((link) => (
-                <li key={link.href}>
+                <li key={link.href} className="flex min-h-11 items-center">
                   <ExternalLink href={link.href}>{link.label}</ExternalLink>
                 </li>
               ))}

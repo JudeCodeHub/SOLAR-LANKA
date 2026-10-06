@@ -9,13 +9,13 @@ const text = messages.detail.source;
 export function SourceSection({ source }: { source: SourceInfo }) {
   const verified = formatLongDate(source.verifiedAt);
   return (
-    <section aria-labelledby="source-title" className="space-y-3">
-      <h2 id="source-title" className="font-heading text-2xl font-semibold tracking-tight">
+    <section aria-labelledby="source-title" className="space-y-3 rounded-card border border-line bg-paper-2 p-5">
+      <h2 id="source-title" className="type-heading text-ink">
         {text.title}
       </h2>
-      <p className="max-w-3xl text-sm text-muted-foreground">{text.intro}</p>
+      <p className="type-small max-w-3xl text-ink-2">{text.intro}</p>
       <dl className="description-list text-sm">
-        <dt className="text-muted-foreground">{text.source}</dt>
+        <dt>{text.source}</dt>
         <dd>
           {source.url ? (
             <ExternalLink href={source.url}>{text.open}</ExternalLink>
@@ -23,7 +23,7 @@ export function SourceSection({ source }: { source: SourceInfo }) {
             <span data-no-source>{text.noSource}</span>
           )}
         </dd>
-        <dt className="text-muted-foreground">{text.verified}</dt>
+        <dt>{text.verified}</dt>
         <dd>{verified ?? <UnspecifiedValue />}</dd>
       </dl>
     </section>

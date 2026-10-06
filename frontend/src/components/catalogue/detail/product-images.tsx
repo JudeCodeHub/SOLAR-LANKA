@@ -9,9 +9,9 @@ export function ProductImages({ images, name }: { images: DocumentLink[]; name: 
     return null;
   }
   return (
-    <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {images.map((image) => (
-        <li key={image.href} className="relative aspect-[4/3] overflow-hidden rounded-lg border bg-muted">
+        <li key={image.href} className="relative aspect-[4/3] overflow-hidden rounded-card border border-line bg-paper-2 shadow-e1">
           <Image
             src={image.href}
             alt={format(messages.detail.images.alt, { name })}
