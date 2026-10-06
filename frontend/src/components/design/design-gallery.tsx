@@ -1,5 +1,5 @@
 import { Fragment } from "react";
-import { ClipboardList, FileText, Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
+import { Building2, ClipboardList, FileText, Inbox, Wrench, Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
 
 import { InstallationTimeline } from "@/components/installations/installation-timeline";
 import { InstallationCard } from "@/components/installations/installation-card";
@@ -546,6 +546,24 @@ export function DesignGallery() {
                 </DashboardFrame>
               </div>
             ))}
+          </div>
+        </div>
+        <div className="space-y-6" data-company-home-sample>
+          <h3 className="type-subheading">{text.navigation.companyHome}</h3>
+          <NextSteps actions={[{ id: "new", label: "Open 2 new enquiries", href: "/company/inbox" }, { id: "profile", label: "Finish your company profile and submit it for review", href: "/company/profile" }]} partial={false} />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <SummaryCard id="co-profile" icon={Building2} title={messages.dashboard.company.profileTitle} link={{ href: "/company/profile", label: messages.nav.items.companyProfile }}>
+              <p>{format(messages.dashboard.company.profileLine, { status: "Draft" })}</p>
+            </SummaryCard>
+            <SummaryCard id="co-inbox" icon={Inbox} figure="3" title={messages.dashboard.company.inboxTitle} link={{ href: "/company/inbox", label: messages.nav.items.companyInbox }}>
+              <p>{format(plural(messages.dashboard.company.inboxLine, 3), { count: 3, fresh: 2 })}</p>
+            </SummaryCard>
+            <SummaryCard id="co-installations" icon={Wrench} figure="0" title={messages.dashboard.company.installationsTitle} link={{ href: "/company/installations", label: messages.nav.items.companyInstallations }}>
+              <p data-empty>{messages.dashboard.company.installationsNone}</p>
+            </SummaryCard>
+            <SummaryCard id="co-offers" icon={FileText} figure="12" title={messages.dashboard.company.offersTitle} link={{ href: "/company/offers", label: messages.nav.items.companyOffers }}>
+              <p>{format(plural(messages.dashboard.company.offersLine, 12), { count: 12 })}</p>
+            </SummaryCard>
           </div>
         </div>
         <div className="space-y-3" data-requests-sample>
