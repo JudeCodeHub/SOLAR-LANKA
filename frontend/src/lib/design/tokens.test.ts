@@ -866,3 +866,13 @@ test("the product card's title link is a 44 px target even though a stretched ar
   const card = readFileSync(join(import.meta.dirname, "..", "..", "components", "catalogue", "product-card.tsx"), "utf8");
   assert.match(card, /inline-flex min-h-11 items-center underline-offset-4[^"]*after:absolute after:inset-0/);
 });
+
+test("the company and technician areas use the same dashboard shell, each role's links come from the navigation list, and every link has an icon", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  for (const area of ["company", "technician"]) assert.match(read(`app/${area}/layout.tsx`), /<DashboardShell group="company"/);
+  const shell = read("components/shell/dashboard-shell.tsx");
+  assert.match(shell, /useNavigation\(signedIn\)/);
+  assert.match(shell, /exact=\{area\.items\.some/);
+  const icons = read("components/shell/nav-icons.tsx");
+  for (const id of ["company-dashboard", "company-support", "company-inbox", "company-offers", "company-installations", "company-profile", "technician-visits", "technician-support"]) assert.ok(icons.includes(`"${id}"`), id);
+});
