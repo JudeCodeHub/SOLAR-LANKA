@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
 
-import { arcPath, DIAL_TICKS, fraction, ticks } from "./dial.ts";
+import { arcPath, band, DIAL_TICKS, fraction, niceMax, ticks } from "./dial.ts";
 import { format, messages } from "../../messages/index.ts";
 
 test("the value covers its share of the range and is held inside it", () => {
@@ -54,4 +54,23 @@ test("the loader is a dial that turns, holds still under reduced motion, and the
   assert.ok(read("components/ui/dial-loader.tsx").includes("aria-hidden"));
   assert.ok(read("components/ui/button.tsx").includes("<DialLoader />") && !read("components/ui/button.tsx").includes("Loader2"));
   assert.ok(read("components/states/loading-state.tsx").includes("<DialLoader"));
+});
+
+test("niceMax gives a round scale top with room above the value", () => {
+  assert.equal(niceMax(5.4), 10);
+  assert.equal(niceMax(7), 10);
+  assert.equal(niceMax(8.5), 20);
+  assert.equal(niceMax(3000), 5000);
+  assert.equal(niceMax(7300), 10000);
+  assert.equal(niceMax(0), 1);
+  assert.equal(niceMax(Number.NaN), 1);
+  for (const value of [0.4, 1, 2.2, 13, 480, 9100]) assert.ok(niceMax(value) >= value * 1.25, String(value));
+});
+
+test("a band on the dial runs from the lower to the higher value, and a single value still shows as a mark", () => {
+  assert.deepEqual(band(2, 4, 0, 10), { start: 20, length: 20 });
+  assert.deepEqual(band(4, 2, 0, 10), { start: 20, length: 20 });
+  const single = band(5, 5, 0, 10);
+  assert.equal(single.start, 50);
+  assert.ok(single.length > 0 && single.length < 2, "a thin mark, not nothing");
 });

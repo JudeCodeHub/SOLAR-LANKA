@@ -2985,6 +2985,12 @@ export const en = {
     },
     submit: "Calculate estimate",
     results: {
+      hero: {
+        capacity: "System size",
+        capacityUnit: "kWp",
+        annual: "Yearly generation",
+        annualUnit: "kWh per year",
+      },
       title: "Your estimate",
       range: "{low} to {high}",
       planning:
