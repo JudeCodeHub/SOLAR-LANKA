@@ -1,11 +1,12 @@
+import { X } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { DISTRICTS, SERVICES } from "@/lib/directory/options";
-import type { DirectoryState } from "@/lib/directory/params";
+import { buildDirectoryHref, type DirectoryState } from "@/lib/directory/params";
 import { serviceLabel } from "@/lib/landing/format";
-import { messages } from "@/messages";
+import { format, messages } from "@/messages";
 
 const selectClass = "field-control field-select h-11 w-full min-w-0 px-3.5 py-2";
 
@@ -66,11 +67,13 @@ export function DirectoryFilters({ basePath, state }: { basePath: string; state:
         {text.heading}
       </h2>
       <form
+        // A new key whenever the filters in the address change, so the fields follow a chip or link.
+        key={JSON.stringify(values)}
         method="get"
         action={basePath}
         role="search"
         aria-label={text.label}
-        className="space-y-4 rounded-lg border bg-card p-4"
+        className="space-y-5 rounded-card border border-line bg-surface p-5 shadow-e1"
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <Choice
@@ -97,6 +100,30 @@ export function DirectoryFilters({ basePath, state }: { basePath: string; state:
           ) : null}
         </div>
       </form>
+      {Object.keys(values).length > 0 ? (
+        <ul aria-label={text.active} className="mt-3 flex flex-wrap gap-2" data-active-filters>
+          {Object.entries(values).map(([key, value]) => {
+            const without = { ...values };
+            delete without[key as keyof typeof without];
+            const label = key === "district" ? text.district : text.service;
+            const shown = key === "service" ? serviceLabel(value) : value;
+            return (
+              <li key={key}>
+                <Link
+                  href={buildDirectoryHref(basePath, { values: without, page: 1 })}
+                  aria-label={format(text.remove, { filter: label, value: shown })}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-paper-2 px-4 text-sm font-medium text-ink hover:bg-orange-tint"
+                >
+                  <span>
+                    {label}: {shown}
+                  </span>
+                  <X aria-hidden className="size-4 text-ink-3" />
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
     </section>
   );
 }
