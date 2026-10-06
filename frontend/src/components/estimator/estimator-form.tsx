@@ -7,6 +7,7 @@ import { SaveEstimate } from "@/components/estimates/save-estimate";
 import { EstimateResults, type SubmittedValues } from "@/components/estimator/estimate-results";
 import { UnsupportedNotice } from "@/components/estimator/unsupported-notice";
 import { AppForm } from "@/components/forms/app-form";
+import { RadioCardsField } from "@/components/forms/radio-cards-field";
 import { SelectField } from "@/components/forms/select-field";
 import { FormSubmitButton } from "@/components/forms/submit-button";
 import { TextField } from "@/components/forms/text-field";
@@ -163,12 +164,12 @@ export function EstimatorForm() {
           <span aria-hidden className="grid size-8 place-items-center rounded-full bg-orange-tint text-orange-text type-figure">{3}</span>
           {text.sections.scenario}
         </legend>
-        <SelectField
+        <RadioCardsField
           form={form}
           name="connection_scheme"
           label={fields.scheme}
           description={fields.schemeHelp}
-          options={options(fields.schemeOptions)}
+          cards={Object.entries(fields.schemeCards).map(([value, card]) => ({ value, ...card }))}
         />
         <SelectField
           form={form}

@@ -4,6 +4,7 @@ import type { Page } from "@playwright/test";
 import { expect, test } from "../fixtures.ts";
 import type { IdentityName } from "../identities.ts";
 import { acceptedInstallation } from "../support/scenario.ts";
+import { chooseScheme } from "../support/estimator.ts";
 
 // Each test visits several pages, and the development server compiles a page the first time it is asked for.
 test.describe.configure({ timeout: 180_000 });
@@ -120,7 +121,7 @@ test.describe("axe finds no violations on the newest screens in their changing s
     await page.getByLabel("Shading on the roof").selectOption({ label: "Partial" });
     await page.getByLabel("Share of electricity used in the daytime (%)").fill("50");
     for (const scheme of ["net_metering", "net_accounting", "net_plus"]) {
-      await page.getByLabel("Connection scheme").selectOption(scheme);
+      await chooseScheme(page, scheme as Parameters<typeof chooseScheme>[1]);
       await page.getByRole("button", { name: "Calculate estimate" }).click();
       await expect(page.locator("[data-scheme-note]")).toBeVisible();
       // The button dims while it is working; audit only once it has settled.

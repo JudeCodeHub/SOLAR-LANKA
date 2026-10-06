@@ -36,7 +36,8 @@ test("every checkbox and radio uses the shared look", () => {
     lines.forEach((line, index) => {
       if (!/type="(checkbox|radio)"/.test(line)) return;
       const window = lines.slice(Math.max(0, index - 2), index + 9).join(" ");
-      if (!/field-(check|radio|switch)/.test(window)) problems.push(`${file}:${index + 1}`);
+      // A radio hidden inside a selectable card ("peer sr-only") draws its look on the card instead.
+      if (!/field-(check|radio|switch)/.test(window) && !/peer sr-only/.test(window)) problems.push(`${file}:${index + 1}`);
     });
   }
   assert.deepEqual(problems, []);

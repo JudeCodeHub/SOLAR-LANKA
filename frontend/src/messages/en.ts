@@ -2878,6 +2878,12 @@ export const en = {
       billHelp: "Used to estimate savings. Leave blank if unknown.",
       scheme: "Connection scheme",
       schemeHelp: "Net metering banks surplus energy, net accounting pays for exports and offsets your daytime use, net plus sells everything you generate.",
+      schemeCards: {
+        net_metering: { title: "Net metering", line: "Surplus energy is banked as credit against what you import.", tag: "Supported" },
+        net_accounting: { title: "Net accounting", line: "Daytime use offsets imports, and exports are paid at the feed-in rate.", tag: "Supported" },
+        net_plus: { title: "Net plus", line: "Everything you generate is sold at the feed-in rate; your own bill stays as it is.", tag: "Supported" },
+        net_plus_plus: { title: "Net plus plus", line: "A further scheme that is not calculated yet.", tag: "Not supported yet" },
+      },
       schemeOptions: {
         net_metering: "Net metering (supported)",
         net_accounting: "Net accounting (supported)",
