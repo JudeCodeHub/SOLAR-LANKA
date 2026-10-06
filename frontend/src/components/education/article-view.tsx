@@ -1,9 +1,8 @@
 "use client";
 
 import { BackLink } from "@/components/ui/back-link";
-import { ArrowRight } from "lucide-react";
-import Link from "next/link";
 
+import { ArticleCard } from "@/components/education/article-card";
 import { Badges, CurrencyNotice, ReviewLine, SampleNotice } from "@/components/education/article-notice";
 import { QueryState } from "@/components/query-state";
 import { Photo } from "@/components/ui/photo";
@@ -67,13 +66,10 @@ export function ArticleView({ slug }: { slug: string }) {
                 {article.related.length === 0 ? (
                   <p className="type-small text-ink-2">{text.noRelated}</p>
                 ) : (
-                  <ul className="space-y-2" data-related>
-                    {article.related.map((item) => (
+                  <ul className="grid gap-5 sm:grid-cols-2" data-related>
+                    {article.related.map((item, index) => (
                       <li key={item.id}>
-                        <Link href={`/learn/${item.slug}`} className="flex min-h-11 items-center justify-between gap-3 rounded-card border border-line bg-surface px-4 py-2 font-medium text-ink hover:bg-orange-tint">
-                          {item.title}
-                          <ArrowRight aria-hidden className="size-4 shrink-0 text-ink-3" />
-                        </Link>
+                        <ArticleCard item={item} position={index + 1} featured={false} />
                       </li>
                     ))}
                   </ul>

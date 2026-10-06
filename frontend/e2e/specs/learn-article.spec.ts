@@ -21,7 +21,10 @@ const ARTICLE = {
   is_sample: true,
   body: `${HOSTILE}\n\nThe second paragraph is longer and carries on for a while so the reading column has a few lines to wrap onto, which is what a real guide looks like when someone reads it on a phone or a wide screen.\n\nA third one.`,
   sources: [{ title: "Fictional guide", publisher: "Demo Publisher", url: "https://example.org/guide", accessed_on: "2026-09-28" }],
-  related: [{ id: "00000000-0000-4000-8000-000000000002", slug: "reading-a-datasheet", title: "Reading a datasheet" }],
+  related: [
+    { id: "00000000-0000-4000-8000-000000000002", slug: "reading-a-datasheet", title: "Reading a datasheet", summary: "What the lines on a panel sheet mean.", category_name: "Solar basics", category_slug: "solar-basics", published_at: "2026-09-01T08:00:00Z", valid_as_of: null, time_sensitive: false, review_overdue: false, is_sample: true },
+    { id: "00000000-0000-4000-8000-000000000003", slug: "understanding-your-electricity-bill", title: "Understanding your electricity bill", summary: "Where the charges come from.", category_name: "Costs and tariffs", category_slug: "costs-and-tariffs", published_at: "2026-09-01T08:00:00Z", valid_as_of: "2026-08-01", time_sensitive: true, review_overdue: false, is_sample: true },
+  ],
 };
 
 async function open(page: Page, changes: Record<string, unknown> = {}) {
@@ -51,8 +54,20 @@ for (const theme of ["light", "dark"] as const) {
       expect(column).toBeLessThanOrEqual(46);
       expect((await page.locator("[data-sources] a").first().boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
       await expect(page.locator("[data-sources] a").first()).toHaveAttribute("href", "https://example.org/guide");
-      await expect(page.locator("[data-related] a")).toHaveAttribute("href", "/learn/reading-a-datasheet");
-      expect((await page.locator("[data-related] a").boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
+      await expect(page.locator("[data-related] a")).toHaveCount(2);
+      await expect(page.locator("[data-related] a").first()).toHaveAttribute("href", "/learn/reading-a-datasheet");
+      await expect(page.locator("[data-related] a").nth(1)).toHaveAttribute("href", "/learn/understanding-your-electricity-bill");
+      await expect(page.locator("[data-related] [data-article='reading-a-datasheet']")).toContainText("What the lines on a panel sheet mean.");
+      await expect(page.locator("[data-related] [data-article='understanding-your-electricity-bill'] [data-badge='time-sensitive']")).toBeVisible();
+      await expect(page.locator("[data-related] img")).toHaveCount(2);
+      expect((await page.locator("[data-related] a").first().boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
+      // A related card opens its guide.
+      await page.route("**/education/articles/reading-a-datasheet", (route) => route.fulfill({ json: { ...ARTICLE, slug: "reading-a-datasheet", title: "Reading a datasheet", related: [] } }));
+      await page.locator("[data-related] a").first().click();
+      await expect(page).toHaveURL(/\/learn\/reading-a-datasheet$/);
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText("Reading a datasheet");
+      await expect(page.getByText("No other articles on this topic yet.")).toBeVisible();
+      await open(page);
       // The contents list shows on wide screens only.
       if (width >= 1024) {
         const contents = page.getByRole("navigation", { name: "On this page" });
