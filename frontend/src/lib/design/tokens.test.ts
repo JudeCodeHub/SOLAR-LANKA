@@ -431,3 +431,12 @@ test("the companies showcase labels its companies as fictional, links the direct
   assert.ok(page.indexOf("<CompaniesShowcase") > page.indexOf("<CatalogueShowcase"));
   assert.ok(!page.includes("FeaturedCompanies"));
 });
+
+test("the learning teaser shows up to three real guides with a photo, category, summary and link, and loads them with the landing data", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  const teaser = read("components/landing/learning-teaser.tsx");
+  assert.ok(teaser.includes("slice(0, 3)") && teaser.includes("articlePhoto(") && teaser.includes("`/learn/${article.slug}`") && teaser.includes("article.category_name") && teaser.includes("article.summary"));
+  assert.ok(read("lib/landing/load.ts").includes('"/education/articles"'));
+  const page = read("app/page.tsx");
+  assert.ok(page.indexOf("<LearningTeaser") > page.indexOf("<CompaniesShowcase"));
+});

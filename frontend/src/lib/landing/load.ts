@@ -24,10 +24,11 @@ async function load<T>(
 /** The public data shown on the landing page. Each section fails independently. */
 export async function loadLanding() {
   const query = { params: { query: { limit: FEATURED_COUNT } } };
-  const [panels, inverters, companies] = await Promise.all([
+  const [panels, inverters, companies, articles] = await Promise.all([
     load((api) => api.GET("/catalogue/panels", query)),
     load((api) => api.GET("/catalogue/inverters", query)),
     load((api) => api.GET("/public/companies", query)),
+    load((api) => api.GET("/education/articles", query)),
   ]);
-  return { panels, inverters, companies };
+  return { panels, inverters, companies, articles };
 }
