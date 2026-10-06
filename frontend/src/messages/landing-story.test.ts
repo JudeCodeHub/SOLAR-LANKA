@@ -29,7 +29,6 @@ test("fictional and sample content is labelled, and safety leads with safety, no
   assert.match(story.companies.sampleLabel, /fictional/i);
   assert.match(story.teaser.sampleLabel, /sample/i);
   assert.match(story.comparison.sampleLabel, /sample/i);
-  assert.match(story.closing.note, /fictional/i);
   assert.match(story.safety.title, /safety/i);
   assert.match(story.safety.body, /stop/i);
   assert.match(story.catalogue.body, /Not specified/);

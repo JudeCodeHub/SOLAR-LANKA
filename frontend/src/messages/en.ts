@@ -528,7 +528,6 @@ export const en = {
         title: "Start with your electricity bill.",
         body: "It takes a minute, costs nothing and commits you to nothing.",
         action: "Estimate my system",
-        note: "Portfolio demonstration with fictional data.",
       },
     },
     hero: {

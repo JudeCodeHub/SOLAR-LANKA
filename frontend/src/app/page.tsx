@@ -1,7 +1,7 @@
 import { CatalogueShowcase } from "@/components/landing/catalogue-showcase";
 import { CompaniesShowcase } from "@/components/landing/companies-showcase";
+import { ClosingBand } from "@/components/landing/closing-band";
 import { ComparisonSection } from "@/components/landing/comparison-section";
-import { EntryPoints } from "@/components/landing/entry-points";
 import { EstimateTeaser } from "@/components/landing/estimate-teaser";
 import { FeatureGrid } from "@/components/landing/feature-grid";
 import { Hero } from "@/components/landing/hero";
@@ -29,9 +29,7 @@ export default async function Home() {
       <TrackingSection />
       <ComparisonSection />
       <SafetySection />
-      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-10 px-4 py-8">
-        <EntryPoints />
-      </div>
+      <ClosingBand />
     </>
   );
 }
