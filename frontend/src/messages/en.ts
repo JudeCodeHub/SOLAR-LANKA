@@ -766,6 +766,7 @@ export const en = {
       notListed: "A company that is no longer listed",
     },
     detail: {
+      eyebrow: "Quotation",
       title: "Offer from {name}",
       back: "Back to the request",
       revision: "Revision {number}",
@@ -1331,6 +1332,7 @@ export const en = {
       requests: "Request cards in each state",
       offers: "Offer cards in each state",
       compare: "Comparing offers side by side",
+      offerDetail: "An offer in full, with an earlier revision",
       dashboardPage: "The page itself sits beside the links.",
       title: "Tabs, segmented controls and pagination",
       intro: "All three are 44 px high and work from the keyboard: arrow keys move between tabs, and Tab reaches each segment and page link.",

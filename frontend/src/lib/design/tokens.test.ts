@@ -771,3 +771,10 @@ test("the offer comparison keeps its marks and its server note, ranks nothing, a
   assert.doesNotMatch(view, /\b(best|cheapest|recommended|winner)\b/i);
   assert.doesNotMatch(view, /text-muted-foreground|font-heading/);
 });
+
+test("the offer page shows the stored values and marks, with the decision and the PDF still below them", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "requests", "offer-view.tsx"), "utf8");
+  for (const needle of ["data-state", "data-expiry", "data-soon", "data-expired-note", "data-lines", "data-totals", "data-terms", "data-unspecified", "data-inclusions", "data-inclusion=", "data-earlier", "data-earlier-revision", "formatMoney(line.line_total)", "formatMoney(value)", "inclusionsFromLines(current.lines)", "totalChange(revision.total, newer.total)", "<OfferExport key={current.id}", "<OfferDecision key={current.id}", "export function OfferDetails", "<TableRegion", "<AccordionItem"]) assert.ok(view.includes(needle), needle);
+  assert.ok(view.indexOf("<OfferDetails") < view.indexOf("<OfferExport") && view.indexOf("<OfferExport") < view.indexOf("<OfferDecision"));
+  assert.doesNotMatch(view, /text-muted-foreground|font-heading/);
+});
