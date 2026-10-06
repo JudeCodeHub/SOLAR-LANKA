@@ -49,7 +49,7 @@ export function EstimateTeaser() {
               <dt className="type-small text-ink-2">{text.cost}</dt>
               <dd className="type-figure text-3xl font-semibold text-ink">
                 <CountUp value={1.7} decimals={1} />
-                <span className="ml-1.5 text-base font-medium text-ink-2">{text.costUnit}</span>
+                <span className="ml-1.5 text-base font-medium whitespace-nowrap text-ink-2">{text.costUnit}</span>
               </dd>
             </div>
           </dl>

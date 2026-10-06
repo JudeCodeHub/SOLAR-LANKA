@@ -68,7 +68,7 @@ export function FeaturedProducts({
                 <Photo
                   name={product.kind === "panel" ? "panelPlaceholder" : "inverterPlaceholder"}
                   sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"
-                  className="aspect-[4/3] w-full object-cover"
+                  className="aspect-[4/3] w-full object-cover dark:brightness-[0.72]"
                 />
                 <div className="flex flex-1 flex-col gap-3 p-5">
                   <p className="type-caption font-semibold tracking-widest text-ink-3 uppercase">{text.kind[product.kind]}</p>

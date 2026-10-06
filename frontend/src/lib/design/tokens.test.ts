@@ -486,3 +486,9 @@ test("the closing band is solid orange with dark ink in both themes, has the sun
   assert.ok(page.trimEnd().endsWith("}") && page.indexOf("<ClosingBand />") > page.indexOf("<SafetySection />") && !page.includes("</div>"), "the band is the last thing on the page, straight above the footer");
   assert.ok(!page.includes("EntryPoints"));
 });
+
+test("photos are eased down in the dark theme, the bright catalogue placeholders more so", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  assert.ok(read("components/ui/photo.tsx").includes('cn("dark:brightness-90", className)'));
+  assert.ok(read("components/landing/featured-products.tsx").includes("dark:brightness-[0.72]"));
+});
