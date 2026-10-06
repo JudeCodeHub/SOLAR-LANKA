@@ -1,5 +1,6 @@
 "use client";
 
+import { CircleCheck } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 
@@ -18,21 +19,22 @@ export function SentConfirmation({ sent }: { sent: SentRequest }) {
     heading.current?.focus();
   }, []);
   return (
-    <section aria-labelledby="sent-title" className="space-y-4" data-sent>
+    <section aria-labelledby="sent-title" className="space-y-4 rounded-card border border-success bg-success-tint p-5 sm:p-6" data-sent>
       <h2
         id="sent-title"
         ref={heading}
         tabIndex={-1}
-        className="font-heading text-2xl font-semibold tracking-tight outline-none"
+        className="type-heading flex items-center gap-2 text-ink outline-none"
       >
+        <CircleCheck aria-hidden className="size-6 shrink-0 text-success" />
         {text.title}
       </h2>
       {sent.replayed ? (
-        <p role="status" className="text-sm font-medium" data-replayed>
+        <p role="status" className="text-sm font-medium text-ink" data-replayed>
           {text.replayed}
         </p>
       ) : null}
-      <p className="text-sm">{text.intro}</p>
+      <p className="type-body text-ink">{text.intro}</p>
       <ul className="list-disc space-y-1 pl-5 text-sm" data-sent-companies>
         {sent.companies.map((company) => (
           <li key={company.id}>
@@ -40,16 +42,16 @@ export function SentConfirmation({ sent }: { sent: SentRequest }) {
           </li>
         ))}
       </ul>
-      <p className="text-sm text-muted-foreground">{format(text.reference, { id: sent.id })}</p>
-      <p className="text-sm text-muted-foreground">{text.next}</p>
+      <p className="type-small text-ink-2">{format(text.reference, { id: sent.id })}</p>
+      <p className="type-small text-ink-2">{text.next}</p>
       <div className="flex flex-wrap gap-2">
-        <Button asChild size="sm">
+        <Button asChild>
           <Link href={`/my/requests/${sent.id}`}>{text.follow}</Link>
         </Button>
-        <Button type="button" variant="outline" size="sm" onClick={reset}>
+        <Button type="button" variant="outline" onClick={reset}>
           {text.another}
         </Button>
-        <Button asChild variant="outline" size="sm">
+        <Button asChild variant="outline">
           <Link href="/companies">{text.browse}</Link>
         </Button>
       </div>
