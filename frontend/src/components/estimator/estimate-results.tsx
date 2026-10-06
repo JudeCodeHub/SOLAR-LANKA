@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import type { ReactNode, Ref } from "react";
 
 import { ExternalLink } from "@/components/catalogue/detail/external-link";
+import { ResultsHero } from "@/components/estimator/results-hero";
 import { ResultTable } from "@/components/estimator/result-table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { formatLongDate, safeExternalUrl } from "@/lib/catalogue/detail";
@@ -90,6 +91,8 @@ export function EstimateResults({
           <AlertDescription>{text.stale}</AlertDescription>
         </Alert>
       ) : null}
+
+      <ResultsHero preview={preview} />
 
       <section aria-labelledby="sizing-title" className="space-y-3">
         <h3 id="sizing-title" className="font-heading text-xl font-semibold tracking-tight">
