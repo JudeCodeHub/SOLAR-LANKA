@@ -826,3 +826,11 @@ test("the favourites page lists saved products with the shared product card, and
   for (const needle of ["useFavouritesPage(page)", "router.replace(hrefFor(lastPage))", "<Pagination", '<ProductCard product={product} listHref="/my/favourites"', "<PageHeader", "text.emptyTitle", "text.browsePanels", "text.browseInverters", "data-favourites"]) assert.ok(view.includes(needle), needle);
   assert.doesNotMatch(view, /<Card\b|FavouriteControl|text-muted-foreground|font-heading/);
 });
+
+test("the customer support list and report form keep the safety card, the unsafe box with its warning and the guarded send", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "support", "customer-support.tsx"), "utf8");
+  const top = view.slice(0, view.indexOf("export function CustomerCase"));
+  for (const needle of ["data-safety", "export function SafetyBox", "<SafetyBox />", "export function UnsafeField", 'type="checkbox"', "data-unsafe-warning", 'role="alert"', "variant=\"hazard\"", "safety.unsafeBox", "safety.unsafeHelp", "busy.current", "unsafe_now: unsafe", "data-action=\"report\"", "data-limit", "data-error=\"symptom\"", "data-error=\"installation\"", "data-no-installations", "data-sent", "data-cases", "data-case={item.status}", "data-unsafe-chip", "export function CaseCard"]) assert.ok(top.includes(needle), needle);
+  assert.ok(top.indexOf("<SafetyBox />") < top.indexOf("<QueryState query={cases}"));
+  assert.doesNotMatch(top, /text-muted-foreground|font-heading|text-destructive/);
+});

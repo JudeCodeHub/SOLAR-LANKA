@@ -1338,6 +1338,7 @@ export const en = {
       timeline: "The installation timeline",
       visits: "Site visit statuses and preferred times",
       favourites: "Saved products on the favourites page",
+      support: "Support: the safety card, cases and the unsafe box",
       exportFailed: "The copy could not be prepared.",
       offerDetail: "An offer in full, with an earlier revision",
       dashboardPage: "The page itself sits beside the links.",
@@ -1722,6 +1723,7 @@ export const en = {
     updateStatus: "Status changed from {from} to {to}",
     byline: "{role}, {date}",
     customer: {
+      eyebrow: "Help with your system",
       title: "Support",
       intro: "Report a problem with your installation. Only the company that installed it sees your request.",
       none: "You have not reported any problems.",

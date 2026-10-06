@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { customerMoves, lookupQuery, ordered, staffMoves, stepsFromText, supportDestination } from "./support.ts";
+import { caseTone, customerMoves, statusLabel, lookupQuery, ordered, staffMoves, stepsFromText, supportDestination } from "./support.ts";
 
 test("staff move a case forward, and closing early needs a reason", () => {
   assert.deepEqual(staffMoves("open").map((m) => [m.to, m.needsReason]), [["in_progress", false], ["closed", true]]);
@@ -34,4 +34,13 @@ test("a support notification leads each person to their own side", () => {
   assert.equal(supportDestination([]), "/my/support");
   assert.equal(supportDestination(["technician"]), "/technician/support");
   assert.equal(supportDestination(["sales", "technician"]), "/company/support");
+});
+
+test("each case status has a colour family and its own words", () => {
+  assert.equal(caseTone("open"), "info");
+  assert.equal(caseTone("in_progress"), "warning");
+  assert.equal(caseTone("resolved"), "success");
+  assert.equal(caseTone("closed"), "neutral");
+  const words = ["open", "in_progress", "resolved", "closed"].map(statusLabel);
+  assert.equal(new Set(words).size, words.length);
 });

@@ -9,6 +9,14 @@ export function statusLabel(status: string): string {
   return (text.statuses as Record<string, string>)[status] ?? status;
 }
 
+/** The colour family of a case's status chip; the words always say the same thing. */
+export function caseTone(status: string): "info" | "warning" | "success" | "neutral" {
+  if (status === "open") return "info";
+  if (status === "in_progress") return "warning";
+  if (status === "resolved") return "success";
+  return "neutral";
+}
+
 export function roleLabel(role: string | null): string {
   const names: Record<string, string> = text.roles;
   return role === null ? (names.unknown ?? "") : (names[role] ?? role);
