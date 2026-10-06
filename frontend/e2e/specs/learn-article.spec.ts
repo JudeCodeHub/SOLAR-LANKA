@@ -24,8 +24,8 @@ const ARTICLE = {
   related: [{ id: "00000000-0000-4000-8000-000000000002", slug: "reading-a-datasheet", title: "Reading a datasheet" }],
 };
 
-async function open(page: Page) {
-  await page.route("**/education/articles/how-rooftop-solar-works", (route) => route.fulfill({ json: ARTICLE }));
+async function open(page: Page, changes: Record<string, unknown> = {}) {
+  await page.route("**/education/articles/how-rooftop-solar-works", (route) => route.fulfill({ json: { ...ARTICLE, ...changes } }));
   await page.goto("/learn/how-rooftop-solar-works");
   await page.locator("[data-article-page]").waitFor();
 }
@@ -67,6 +67,50 @@ for (const theme of ["light", "dark"] as const) {
       const { violations } = await new AxeBuilder({ page }).include("main").withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
       expect(violations.map((v) => `${v.id}: ${v.nodes.slice(0, 2).map((n) => n.target.join(" ")).join(" | ")}`)).toEqual([]);
       if (process.env.HERO_SHOTS) await page.screenshot({ path: `e2e/.tmp/article-${theme}-${width}.png`, fullPage: true });
+    });
+  }
+}
+
+const CASES = {
+  "time-sensitive": { time_sensitive: true, review_overdue: false, valid_as_of: "2026-08-01", review_by: "2027-02-01", is_sample: false },
+  overdue: { time_sensitive: true, review_overdue: true, valid_as_of: "2026-03-01", review_by: "2026-09-01", is_sample: false },
+} as const;
+
+for (const theme of ["light", "dark"] as const) {
+  for (const width of [320, 1280]) {
+    test(`the time-sensitive, overdue, sample and verified notices each look different and keep their dates at ${width} px (${theme})`, async ({ page, signInAs }) => {
+      signInAs(null);
+      await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
+      await page.setViewportSize({ width, height: 900 });
+      const looks: Record<string, string> = {};
+      for (const [name, changes] of Object.entries(CASES)) {
+        await page.unrouteAll();
+        await open(page, changes);
+        const notice = page.locator(`[data-currency='${name}']`);
+        await expect(notice).toBeVisible();
+        await expect(notice).toHaveAttribute("role", "note");
+        await expect(notice).toContainText("This depends on rules or prices that can change");
+        await expect(notice).toContainText("1 August 2026".replace("1 August 2026", name === "overdue" ? "1 March 2026" : "1 August 2026"));
+        if (name === "overdue") await expect(notice).toContainText("due to be checked again by 1 September 2026");
+        else await expect(notice).not.toContainText("due to be checked again");
+        await expect(notice.locator("svg")).toHaveCount(1);
+        looks[name] = await notice.evaluate((element) => `${getComputedStyle(element).borderTopColor}|${getComputedStyle(element).backgroundColor}`);
+        await expect(page.locator("[data-review-line] [data-badge='verified']")).toBeVisible();
+        await expect(page.locator("[data-notice='sample']")).toHaveCount(0);
+        const { violations } = await new AxeBuilder({ page }).include("main").withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+        expect(violations.map((v) => `${v.id}: ${v.nodes.slice(0, 2).map((n) => n.target.join(" ")).join(" | ")}`)).toEqual([]);
+        if (process.env.HERO_SHOTS) await page.locator("[data-currency]").screenshot({ path: `e2e/.tmp/notice-${name}-${theme}-${width}.png` });
+      }
+      expect(looks["time-sensitive"]).not.toBe(looks.overdue);
+      // A sample article gets the sample notice and no verified badge; its review line keeps both dates.
+      await page.unrouteAll();
+      await open(page);
+      await expect(page.locator("[data-notice='sample']")).toContainText("This is sample content");
+      await expect(page.locator("[data-currency]")).toHaveCount(0);
+      await expect(page.locator("[data-review-line] [data-badge='verified']")).toHaveCount(0);
+      await expect(page.locator("[data-review-line]")).toContainText("Published 1 September 2026. Reviewed on 2 September 2026.");
+      const { violations } = await new AxeBuilder({ page }).include("main").withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+      expect(violations.map((v) => `${v.id}: ${v.nodes.slice(0, 2).map((n) => n.target.join(" ")).join(" | ")}`)).toEqual([]);
     });
   }
 }

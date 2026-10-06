@@ -656,3 +656,14 @@ test("the article page keeps its text as plain paragraphs in a reading column, w
   assert.match(view, /<Photo /);
   assert.match(view, /id="article-body"/);
 });
+
+test("the article notices are alerts with their own variant and icon, and keep their date wording", () => {
+  const notice = readFileSync(join(import.meta.dirname, "..", "..", "components", "education", "article-notice.tsx"), "utf8");
+  assert.match(notice, /variant=\{overdue \? "danger" : "warning"\}/);
+  assert.match(notice, /variant="info"/);
+  assert.match(notice, /<VerifiedBadge/);
+  assert.match(notice, /text\.timeSensitiveBody/);
+  assert.match(notice, /text\.overdueBody/);
+  assert.match(notice, /text\.publishedReviewed/);
+  assert.match(notice, /role="note"/);
+});
