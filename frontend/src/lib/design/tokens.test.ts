@@ -861,3 +861,8 @@ test("the notification settings keep their two switches, immediate save, guard a
   for (const needle of ["useNotificationPreferences()", "useSavePreferences()", "busy.current", "save.mutate(", "reminders_enabled", "email_enabled", "data-settings", "data-setting={name}", "data-settings-status", 'role="status"', 'role="switch"', "field-switch", "aria-describedby={`setting-${name}-help`}", "min-h-14", "<ApiErrorMessage", "text.saved", "text.working"]) assert.ok(view.includes(needle), needle);
   assert.doesNotMatch(view, /text-muted-foreground|font-heading|field-check/);
 });
+
+test("the product card's title link is a 44 px target even though a stretched area covers the card", () => {
+  const card = readFileSync(join(import.meta.dirname, "..", "..", "components", "catalogue", "product-card.tsx"), "utf8");
+  assert.match(card, /inline-flex min-h-11 items-center underline-offset-4[^"]*after:absolute after:inset-0/);
+});

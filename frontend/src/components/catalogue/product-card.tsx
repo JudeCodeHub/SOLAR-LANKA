@@ -66,7 +66,7 @@ export function ProductCard({
         <Heading className="type-subheading text-ink">
           <Link
             href={detailHref(product.kind, product.id, listHref)}
-            className="underline-offset-4 outline-none after:absolute after:inset-0 hover:underline focus-visible:underline"
+            className="inline-flex min-h-11 items-center underline-offset-4 outline-none after:absolute after:inset-0 hover:underline focus-visible:underline"
           >
             {name}
           </Link>
