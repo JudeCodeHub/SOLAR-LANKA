@@ -237,6 +237,7 @@ export const en = {
     limit: "You can save up to {max} favourites. Remove one to add another.",
     failed: "Could not update favourites.",
     page: {
+      eyebrow: "Saved products",
       title: "Favourites",
       intro: "Products you have saved. They are kept with your account, so they are here on any device.",
       showing: "Showing {from} to {to} of {total} favourites",
@@ -1336,6 +1337,7 @@ export const en = {
       installations: "Installation cards at each stage",
       timeline: "The installation timeline",
       visits: "Site visit statuses and preferred times",
+      favourites: "Saved products on the favourites page",
       exportFailed: "The copy could not be prepared.",
       offerDetail: "An offer in full, with an earlier revision",
       dashboardPage: "The page itself sits beside the links.",

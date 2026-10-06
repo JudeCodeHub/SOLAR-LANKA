@@ -820,3 +820,9 @@ test("the customer's site visits keep every action, guard and mark, and show sta
   for (const needle of ["data-slots", "data-slot-row", "data-error", "aria-invalid", "text.zoneNote", "data-zone-note", "MAX_SLOTS"]) assert.ok(fields.includes(needle), needle);
   assert.doesNotMatch(visits + fields, /text-muted-foreground|font-heading|text-destructive/);
 });
+
+test("the favourites page lists saved products with the shared product card, and keeps its paging and empty state", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "favourites", "favourites-view.tsx"), "utf8");
+  for (const needle of ["useFavouritesPage(page)", "router.replace(hrefFor(lastPage))", "<Pagination", '<ProductCard product={product} listHref="/my/favourites"', "<PageHeader", "text.emptyTitle", "text.browsePanels", "text.browseInverters", "data-favourites"]) assert.ok(view.includes(needle), needle);
+  assert.doesNotMatch(view, /<Card\b|FavouriteControl|text-muted-foreground|font-heading/);
+});
