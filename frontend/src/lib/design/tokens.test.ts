@@ -678,3 +678,8 @@ test("related guides use the same card as the learn list, so both link the same 
   assert.match(card, /href=\{`\/learn\/\$\{item\.slug\}`\}/);
   assert.match(card, /min-h-11/);
 });
+
+test("the lookup form keeps its ids, labels and checks while using the page header, a card and a find-your-model aid", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "support", "troubleshooting-view.tsx"), "utf8");
+  for (const needle of ['htmlFor="model"', 'id="model"', 'htmlFor="code"', 'id="code"', "lookupQuery({ model, code, productId })", "text.needModel", 'data-error="model"', "aria-invalid={Boolean(problem)}", "<PageHeader", "data-find-model", "text-danger"]) assert.ok(view.includes(needle), needle);
+});
