@@ -507,7 +507,7 @@ test("sign-in and sign-up share one auth layout: form beside a photo with a samp
   const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
   const layout = read("components/auth/auth-layout.tsx");
   assert.ok(layout.includes("lg:grid-cols-2") && layout.includes("<Dial") && layout.includes("<SampleBadge>") && layout.includes("lg:hidden") && layout.includes("hidden overflow-hidden lg:block"));
-  assert.ok(read("app/sign-in/[[...sign-in]]/page.tsx").includes('<AuthLayout photo="signIn"'));
+  assert.ok(read("app/sign-in/[[...sign-in]]/page.tsx").includes("<AuthLayout") && read("app/sign-in/[[...sign-in]]/page.tsx").includes('photo="signIn"'));
   assert.ok(read("app/sign-up/[[...sign-up]]/page.tsx").includes('<AuthLayout photo="signUp"'));
   assert.ok(read("app/sign-up/[[...sign-up]]/page.tsx").includes("customerOnlyNote"), "the customer-only note stays");
 });
@@ -519,4 +519,11 @@ test("Clerk takes the site's colour variables, so it follows the theme, and its 
   assert.ok(appearance.includes("rounded-full!") && appearance.includes("text-orange-text!") && appearance.includes("--font-body"));
   assert.ok(read("app/layout.tsx").includes("appearance={CLERK_APPEARANCE}"));
   assert.ok(contrastRatio("#B33D00", "#FFFFFF") >= 4.5, "link text on the white card");
+});
+
+test("the sign-in page gives the welcome line and three reasons to sign in beside Clerk's own form", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  const page = read("app/sign-in/[[...sign-in]]/page.tsx");
+  assert.ok(page.includes("<SignIn />") && page.includes("signInPoints.estimates") && page.includes("signInPoints.requests") && page.includes("signInPoints.installations") && page.includes('photo="signIn"'));
+  assert.ok(read("components/auth/auth-layout.tsx").indexOf("{children}") < read("components/auth/auth-layout.tsx").indexOf("data-auth-points"), "the form comes before the list in reading order");
 });
