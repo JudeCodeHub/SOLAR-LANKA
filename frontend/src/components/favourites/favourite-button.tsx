@@ -16,7 +16,7 @@ import { format, messages } from "@/messages";
 
 const text = messages.favourites;
 const buttonClass =
-  "inline-flex size-8 items-center justify-center rounded-full border bg-background outline-none transition-colors hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50";
+  "inline-flex size-11 items-center justify-center rounded-full border border-line bg-surface text-ink transition-colors hover:bg-orange-tint motion-reduce:transition-none";
 
 /** The heart on a product. */
 export function FavouriteButton({ id, name }: { id: string; name: string }) {
@@ -47,7 +47,7 @@ export function FavouriteControl({
   if (signedIn === false) {
     return (
       <Link href={signInHref(returnPath)} className={buttonClass}>
-        <Heart aria-hidden className="size-4" />
+        <Heart aria-hidden className="size-5" />
         <span className="sr-only">{format(text.signInToSave, { name })}</span>
       </Link>
     );
@@ -92,10 +92,10 @@ export function FavouriteControl({
         aria-busy={set.isPending}
         className={cn(buttonClass, set.isPending && "opacity-70")}
       >
-        <Heart aria-hidden className={cn("size-4", favourite && "fill-current text-rose-600")} />
+        <Heart aria-hidden className={cn("size-5", favourite && "fill-current text-danger")} />
         <span className="sr-only">{format(text.save, { name })}</span>
       </button>
-      <span role="status" className={cn(problem ? "max-w-48 text-right text-xs text-destructive" : "sr-only")}>
+      <span role="status" className={cn(problem ? "max-w-48 text-right text-xs font-medium text-danger" : "sr-only")}>
         {message}
       </span>
     </div>

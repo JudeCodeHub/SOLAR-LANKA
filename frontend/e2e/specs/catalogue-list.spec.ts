@@ -58,6 +58,8 @@ test.describe("the product card", () => {
         // Signed out it is a link to sign in; signed in it is a toggle button.
         const favourite = card.getByRole("link", { name: /to favourites/i }).or(card.getByRole("button", { name: /to favourites/i }));
         await expect(favourite).toBeVisible();
+        const size = await favourite.evaluate((element) => { const box = element.getBoundingClientRect(); return Math.min(box.width, box.height); });
+        expect(size, "favourite control size").toBeGreaterThanOrEqual(44);
       }
       if (process.env.HERO_SHOTS) await page.screenshot({ path: `e2e/.tmp/cards-${kind}.png` });
       // Whatever has no value in the catalogue says so, and nothing shows a bare zero.
@@ -106,5 +108,36 @@ test.describe("the inverters list matches the panels list", () => {
         if (process.env.HERO_SHOTS && width === 1280) await page.screenshot({ path: `e2e/.tmp/inverters-${theme}.png` });
       });
     }
+  }
+});
+
+test.describe("the compare tray", () => {
+  for (const theme of ["light", "dark"] as const) {
+    test(`appears when two panels are ticked, with 44 px controls and a link to compare (${theme})`, async ({ page, signInAs }) => {
+      signInAs(null);
+      await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
+      await page.setViewportSize({ width: 390, height: 900 });
+      await page.goto("/panels");
+      await expect(page.locator("[data-compare-tray]")).toHaveCount(0);
+      const boxes = page.locator("[data-product]").getByRole("checkbox", { name: /compare/i });
+      await boxes.nth(0).check();
+      const tray = page.locator("[data-compare-tray]");
+      await expect(tray).toBeVisible();
+      await expect(tray.getByText(/select at least 2 to compare/i).first()).toBeVisible();
+      await boxes.nth(1).check();
+      const go = tray.getByRole("link", { name: "Compare now" });
+      await expect(go).toBeVisible();
+      await expect(go).toHaveAttribute("href", /\/panels\/compare\?ids=/);
+      for (const control of [go, ...(await tray.getByRole("button").all())]) {
+        const height = await control.evaluate((element) => element.getBoundingClientRect().height);
+        expect(height).toBeGreaterThanOrEqual(43.5);
+      }
+      expect(await tray.getByRole("button", { name: /^Remove / }).count()).toBe(2);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      if (process.env.HERO_SHOTS) await page.screenshot({ path: `e2e/.tmp/tray-${theme}.png` });
+      // Removing one from the tray unticks it in the list.
+      await tray.getByRole("button", { name: /^Remove / }).first().click();
+      await expect(tray.getByRole("button", { name: /^Remove / })).toHaveCount(1);
+    });
   }
 });
