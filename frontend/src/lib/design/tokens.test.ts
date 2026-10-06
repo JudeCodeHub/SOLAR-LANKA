@@ -609,3 +609,14 @@ test("the estimate assumptions are folded into accordion items built on the deta
   const results = readFileSync(join(dir, "estimator", "estimate-results.tsx"), "utf8");
   assert.equal((results.match(/<AccordionItem/g) ?? []).length, 3);
 });
+
+test("the save panel uses real buttons and alerts, and the stale warning is a bordered warning with an icon and a title", () => {
+  const dir = join(import.meta.dirname, "..", "..", "components");
+  const save = readFileSync(join(dir, "estimates", "save-estimate.tsx"), "utf8");
+  assert.match(save, /buttonVariants\(\)/);
+  assert.match(save, /variant="success"/);
+  assert.doesNotMatch(save, /underline/);
+  const results = readFileSync(join(dir, "estimator", "estimate-results.tsx"), "utf8");
+  assert.match(results, /variant="warning"[^>]*border-2[^>]*data-stale/);
+  assert.match(results, /text\.staleTitle/);
+});
