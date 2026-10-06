@@ -578,3 +578,14 @@ test("every comparison and spec table shows Not specified and the difference fla
   }
   assert.ok(read("catalogue/detail/unspecified-value.tsx").includes("<NotSpecified />"));
 });
+
+test("the connection scheme is one labelled radio group of cards with a one-line explanation and a check mark each", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  const cards = read("components/forms/radio-cards-field.tsx");
+  for (const piece of ['role="radiogroup"', "aria-label={label}", "<legend", 'type="radio"', "has-[:checked]:border-orange", "has-[:focus-visible]:outline-3", "<Check", "min-h-24"]) assert.ok(cards.includes(piece), piece);
+  const form = read("components/estimator/estimator-form.tsx");
+  assert.ok(form.includes('name="connection_scheme"') && form.includes("<RadioCardsField") && form.includes("fields.schemeCards"));
+  const schemes = Object.keys(messages.estimator.fields.schemeCards);
+  assert.deepEqual(schemes, Object.keys(messages.estimator.fields.schemeOptions), "a card for every scheme the form knows");
+  for (const card of Object.values(messages.estimator.fields.schemeCards)) assert.ok(card.line.length > 20 && card.line.length < 110, card.line);
+});

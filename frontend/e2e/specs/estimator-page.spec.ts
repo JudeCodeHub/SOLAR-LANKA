@@ -40,3 +40,38 @@ for (const theme of ["light", "dark"] as const) {
     });
   }
 }
+
+test.describe("the connection scheme cards", () => {
+  for (const theme of ["light", "dark"] as const) {
+    test(`are one labelled radio group, work from the keyboard and explain each choice (${theme})`, async ({ page, signInAs }) => {
+      signInAs(null);
+      await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
+      await page.setViewportSize({ width: 390, height: 900 });
+      await page.goto("/estimator");
+      const group = page.getByRole("radiogroup", { name: "Connection scheme" });
+      await expect(group).toBeVisible();
+      const radios = group.getByRole("radio");
+      await expect(radios).toHaveCount(4);
+      // Each card names its scheme and says in one line what it means.
+      for (const [name, line] of [["Net metering", "Surplus energy is banked"], ["Net accounting", "Daytime use offsets imports"], ["Net plus", "Everything you generate is sold"], ["Net plus plus", "not calculated yet"]] as const) {
+        const card = group.locator("label", { hasText: line });
+        await expect(card).toContainText(name);
+        expect((await card.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(96);
+      }
+      // The default is the supported net metering.
+      await expect(group.getByRole("radio", { name: /^Net metering/ })).toBeChecked();
+      // Keyboard: focus the group's checked radio and use the arrow keys.
+      await group.getByRole("radio", { name: /^Net metering/ }).focus();
+      await page.keyboard.press("ArrowDown");
+      await expect(group.getByRole("radio", { name: /^Net accounting/ })).toBeChecked();
+      await expect(group.getByRole("radio", { name: /^Net accounting/ })).toBeFocused();
+      const ring = await group.locator("label", { has: page.locator("input:focus-visible") }).evaluate((element) => getComputedStyle(element).outlineStyle);
+      expect(ring).toBe("solid");
+      // Pointer: choosing the unsupported card shows the explanation that nothing is estimated.
+      await group.locator("label", { hasText: "not calculated yet" }).click();
+      await expect(group.getByRole("radio", { name: /^Net plus plus/ })).toBeChecked();
+      await expect(page.getByText("This combination cannot be estimated yet")).toBeVisible();
+      if (process.env.HERO_SHOTS) await group.screenshot({ path: `e2e/.tmp/schemes-${theme}.png` });
+    });
+  }
+});

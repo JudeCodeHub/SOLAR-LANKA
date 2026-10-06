@@ -7,6 +7,7 @@ import { expect, test } from "../fixtures.ts";
 import type { IdentityName } from "../identities.ts";
 import { TMP_DIR } from "../support/paths.ts";
 import { acceptedInstallation } from "../support/scenario.ts";
+import { chooseScheme } from "../support/estimator.ts";
 
 const LABEL = process.env.SCREENS_LABEL ?? "current";
 const WIDTHS = (process.env.SCREENS_WIDTHS ?? "390,768,1280").split(",").map(Number);
@@ -95,7 +96,7 @@ test("public", async ({ page, signInAs }) => {
   await page.getByLabel("Usable roof area (m²)").fill("30");
   await page.getByLabel("Shading on the roof").selectOption({ label: "Partial" });
   await page.getByLabel("Share of electricity used in the daytime (%)").fill("50");
-  await page.getByLabel("Connection scheme").selectOption("net_accounting");
+  await chooseScheme(page, "net_accounting");
   await page.getByRole("button", { name: "Calculate estimate" }).click();
   await expect(page.locator("[data-scheme-note]")).toBeVisible();
   await expect(page.getByRole("button", { name: "Calculate estimate" })).not.toHaveAttribute("aria-disabled", "true");

@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { expect, test } from "../fixtures.ts";
 import { BACKEND_DIR } from "../support/paths.ts";
 import { acceptedInstallation, sentOffer } from "../support/scenario.ts";
+import { chooseScheme } from "../support/estimator.ts";
 
 /** The messages the local mail sink holds for one person, by subject. */
 function mailFor(subject: string, who: string): number {
@@ -140,25 +141,25 @@ test.describe("phase 2 workflows run beside the core release", () => {
     await page.getByLabel("Shading on the roof").selectOption({ label: "Partial" });
     await page.getByLabel("Share of electricity used in the daytime (%)").fill("50");
 
-    await page.getByLabel("Connection scheme").selectOption("net_accounting");
+    await chooseScheme(page, "net_accounting");
     await page.getByRole("button", { name: "Calculate estimate" }).click();
     await expect(page.getByRole("heading", { name: "Your estimate" })).toBeVisible();
     await expect(page.locator("[data-scheme-note]")).toContainText("Net accounting");
     await expect(page.locator("[data-source='export']")).toContainText("Feed-in rate for exports");
 
     // Changing the scheme marks the shown estimate as out of date until it is calculated again.
-    await page.getByLabel("Connection scheme").selectOption("net_plus");
+    await chooseScheme(page, "net_plus");
     await page.getByRole("button", { name: "Calculate estimate" }).click();
     await expect(page.locator("[data-scheme-note]")).toContainText("Net plus");
     await expect(page.locator("[data-source='export']")).toBeVisible();
 
-    await page.getByLabel("Connection scheme").selectOption("net_metering");
+    await chooseScheme(page, "net_metering");
     await page.getByRole("button", { name: "Calculate estimate" }).click();
     await expect(page.locator("[data-scheme-note]")).toContainText("Net metering");
     await expect(page.locator("[data-source='export']")).toHaveCount(0);
 
     // Net plus plus is explained and not sent.
-    await page.getByLabel("Connection scheme").selectOption("net_plus_plus");
+    await chooseScheme(page, "net_plus_plus");
     await expect(page.getByText("This combination cannot be estimated yet")).toBeVisible();
     await page.getByRole("button", { name: "Calculate estimate" }).click();
     await expect(page.locator("[data-slot=field-error]").filter({ hasText: "Choose Net metering, Net accounting or Net plus" })).toBeVisible();
