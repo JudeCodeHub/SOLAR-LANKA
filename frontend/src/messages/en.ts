@@ -503,6 +503,18 @@ export const en = {
         title: "Quotes you can actually compare.",
         body: "Same rows, same units, and a flag wherever offers differ or a value is not specified.",
         sampleLabel: "Sample data",
+        caption: "Three sample quotations compared side by side",
+        region: "Sample quotation comparison",
+        item: "Item",
+        offers: { a: "Offer A", b: "Offer B", c: "Offer C" },
+        rows: {
+          size: { label: "System size", a: "5.4 kW", b: "5.4 kW", c: "5.4 kW" },
+          panels: { label: "Panels", a: "10 x 545 W", b: "10 x 545 W", c: "12 x 450 W" },
+          inverter: { label: "Inverter", a: "Hybrid 5 kW", b: "Grid-tied 5 kW", c: "Hybrid 5 kW" },
+          battery: { label: "Battery", b: "5 kWh" },
+          warranty: { label: "Product warranty", a: "10 years", b: "12 years", c: "10 years" },
+          total: { label: "Total price", a: "LKR 1,640,000", b: "LKR 1,580,000", c: "LKR 1,720,000" },
+        },
       },
       safety: {
         eyebrow: "Safety",

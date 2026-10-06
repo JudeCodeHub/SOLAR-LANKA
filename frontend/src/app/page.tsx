@@ -1,5 +1,6 @@
 import { CatalogueShowcase } from "@/components/landing/catalogue-showcase";
 import { CompaniesShowcase } from "@/components/landing/companies-showcase";
+import { ComparisonSection } from "@/components/landing/comparison-section";
 import { EntryPoints } from "@/components/landing/entry-points";
 import { EstimateTeaser } from "@/components/landing/estimate-teaser";
 import { FeatureGrid } from "@/components/landing/feature-grid";
@@ -25,6 +26,7 @@ export default async function Home() {
       <CompaniesShowcase section={companies} />
       <LearningTeaser section={articles} />
       <TrackingSection />
+      <ComparisonSection />
       <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-10 px-4 py-8">
         <EntryPoints />
       </div>
