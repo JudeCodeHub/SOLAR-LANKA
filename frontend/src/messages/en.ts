@@ -564,9 +564,6 @@ export const en = {
   footer: {
     products: "Products",
     help: "Help and learning",
-    noticeTitle: "Portfolio demonstration",
-    disclaimer:
-      "Solar Lanka is a portfolio demonstration. Companies, prices and customer records are fictional samples, and estimates are planning aids, not installation designs or guaranteed savings.",
   },
   account: {
     cardTitle: "Application account",

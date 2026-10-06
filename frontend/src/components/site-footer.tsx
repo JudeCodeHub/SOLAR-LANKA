@@ -1,4 +1,3 @@
-import { Info } from "lucide-react";
 import Link from "next/link";
 
 import { Logo } from "@/components/brand/logo";
@@ -12,7 +11,7 @@ const COLUMNS = [
   { id: "help", title: text.help, items: ["learn", "troubleshooting", "support"] },
 ] as const;
 
-/** The footer: the brand, two link columns and the demonstration notice, which every page carries. */
+/** The footer: the brand and two link columns. */
 export function SiteFooter() {
   return (
     <footer className="border-t border-line bg-paper-2">
@@ -42,15 +41,6 @@ export function SiteFooter() {
             </ul>
           </nav>
         ))}
-      </div>
-      <div className="mx-auto w-full max-w-6xl px-4 pb-10">
-        <div className="flex items-start gap-3 rounded-panel border border-line bg-surface p-4" data-demo-notice>
-          <Info aria-hidden className="mt-0.5 size-5 shrink-0 text-orange-text" />
-          <div className="space-y-1">
-            <p className="type-small font-semibold text-ink">{text.noticeTitle}</p>
-            <p className="type-small text-ink-2">{text.disclaimer}</p>
-          </div>
-        </div>
       </div>
     </footer>
   );

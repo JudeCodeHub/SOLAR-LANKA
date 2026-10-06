@@ -296,12 +296,12 @@ test("the mobile menu carries the logo, the theme choice and 44 px rows, and the
   assert.ok(header.includes('<div className="hidden md:block">'), "the header theme toggle moves into the menu on phones");
 });
 
-test("the footer carries the logo, link columns from the navigation list, and the demonstration notice", () => {
+test("the footer carries the logo and link columns from the navigation list, and no demonstration banner", () => {
   const source = readFileSync(join(import.meta.dirname, "..", "..", "components", "site-footer.tsx"), "utf8");
-  assert.ok(source.includes("<Logo") && source.includes("messages.brand.tagline") && source.includes("data-demo-notice"));
-  assert.ok(source.includes("text.disclaimer") && source.includes("NAV_ITEMS"));
+  assert.ok(source.includes("<Logo") && source.includes("messages.brand.tagline") && source.includes("NAV_ITEMS"));
+  assert.ok(!source.includes("data-demo-notice") && !source.includes("text.disclaimer"), "the notice panel was removed at the owner's request");
   for (const id of ["panels", "inverters", "estimator", "companies", "learn", "troubleshooting", "support"]) assert.ok(source.includes(`"${id}"`), id);
-  assert.ok(source.includes("text-ink-2") && source.includes("bg-paper-2"), "link and notice colours come from the tested pairs");
+  assert.ok(source.includes("text-ink-2") && source.includes("bg-paper-2"), "link colours come from the tested pairs");
 });
 
 test("the skip link is a visible orange pill above the sticky header when focused, and the layout puts it before the header", () => {
@@ -402,4 +402,22 @@ test("the feature grid is uneven, covers the four features with a photo, icon, l
   for (const href of ["/estimator", "/panels", "/my/installations", "/learn"]) assert.ok(grid.includes(`href: "${href}"`), href);
   const page = read("app/page.tsx");
   assert.ok(page.indexOf("<FeatureGrid />") > page.indexOf("<HowItWorks />"));
+});
+
+test("the catalogue showcase always links both catalogues and shows placeholder photos, two figures and a sample label per product", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  const showcase = read("components/landing/catalogue-showcase.tsx");
+  assert.ok(showcase.includes('href="/panels"') && showcase.includes('href="/inverters"') && showcase.includes("<FeaturedProducts"));
+  assert.ok(showcase.indexOf("<Button") < showcase.indexOf("<FeaturedProducts"), "the two links come before the data, so they show even when it fails");
+  const products = read("components/landing/featured-products.tsx");
+  assert.ok(products.includes("panelPlaceholder") && products.includes("inverterPlaceholder") && products.includes("<SampleBadge>") && products.includes("type-figure"));
+  assert.ok(products.includes("card.unspecified"), "a missing value says Not specified, not zero");
+  const page = read("app/page.tsx");
+  assert.ok(page.indexOf("<CatalogueShowcase") > page.indexOf("<FeatureGrid />"));
+});
+
+test("the signed-out landing page has no second navigation row, while other pages keep it", () => {
+  const nav = readFileSync(join(import.meta.dirname, "..", "..", "components", "shell", "primary-nav.tsx"), "utf8");
+  assert.ok(nav.includes('!signedIn && pathname === "/"'));
+  assert.ok(nav.includes("usePathname"));
 });
