@@ -5,15 +5,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 import { Pagination } from "@/components/catalogue/pagination";
+import { RequestCard } from "@/components/requests/request-card";
 import { QueryState } from "@/components/query-state";
 import { EmptyState } from "@/components/states/empty-state";
 import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatLongDate } from "@/lib/catalogue/detail";
+import { PageHeader } from "@/components/ui/page-header";
 import { pageInfo, parsePageParam } from "@/lib/catalogue/params";
 import { useRequests } from "@/lib/requests/hooks";
-import { headline, requestStatusLabel } from "@/lib/requests/progress";
-import { format, messages, plural } from "@/messages";
+import { format, messages } from "@/messages";
 
 const text = messages.requests.list;
 const hrefFor = (page: number) => (page > 1 ? `/my/requests?page=${page}` : "/my/requests");
@@ -33,11 +32,17 @@ export function RequestsView() {
   }, [data, lastPage, page, router]);
 
   return (
-    <div className="mx-auto w-full max-w-4xl flex-1 space-y-6 px-4 py-8">
-      <header className="space-y-2">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">{text.title}</h1>
-        <p className="max-w-3xl text-muted-foreground">{text.intro}</p>
-      </header>
+    <div className="mx-auto w-full max-w-5xl flex-1 space-y-6 px-4 py-8">
+      <PageHeader
+        eyebrow={text.eyebrow}
+        title={text.title}
+        description={text.intro}
+        actions={
+          <Button asChild>
+            <Link href="/my/requests/new">{text.start}</Link>
+          </Button>
+        }
+      />
       <QueryState
         query={query}
         isEmpty={(result) => result.total === 0}
@@ -46,7 +51,7 @@ export function RequestsView() {
             title={text.emptyTitle}
             description={text.emptyDescription}
             action={
-              <Button asChild variant="outline" size="sm">
+              <Button asChild>
                 <Link href="/my/requests/new">{text.start}</Link>
               </Button>
             }
@@ -57,33 +62,11 @@ export function RequestsView() {
           const info = pageInfo(result.total, page);
           return (
             <section aria-label={text.title} className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                {format(text.showing, { from: info.from, to: info.to, total: result.total })}
-              </p>
-              <ul className="grid gap-3 sm:grid-cols-2">
+              <p className="type-small text-ink-2">{format(text.showing, { from: info.from, to: info.to, total: result.total })}</p>
+              <ul className="grid gap-4 sm:grid-cols-2" data-requests>
                 {result.items.map((item) => (
                   <li key={item.id}>
-                    <Card className="relative h-full">
-                      <CardHeader>
-                        <CardTitle>
-                          <h2 className="text-base">
-                            <Link
-                              href={`/my/requests/${item.id}`}
-                              className="underline-offset-2 outline-none after:absolute after:inset-0 hover:underline focus-visible:underline"
-                            >
-                              {format(text.sentOn, { date: formatLongDate(item.created_at) ?? item.created_at })}
-                            </Link>
-                          </h2>
-                        </CardTitle>
-                        <CardDescription className="space-y-1">
-                          <span className="block font-medium text-foreground">{requestStatusLabel(item.status)}</span>
-                          <span className="block">
-                            {format(plural(text.companies, item.deliveries.length), { count: item.deliveries.length })}
-                          </span>
-                          <span className="block">{headline(item)}</span>
-                        </CardDescription>
-                      </CardHeader>
-                    </Card>
+                    <RequestCard item={item} />
                   </li>
                 ))}
               </ul>
@@ -95,3 +78,4 @@ export function RequestsView() {
     </div>
   );
 }
+

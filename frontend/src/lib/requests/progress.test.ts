@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { countDeliveries, deliveryStatusLabel, headline, requestStatusLabel, staleMessage, withdrawal } from "./progress.ts";
+import { countDeliveries, deliveryStatusLabel, headline, requestChip, requestStatusLabel, staleMessage, withdrawal } from "./progress.ts";
 
 const d = (status: string, viewed: string | null = null) => ({
   id: status + Math.random(),
@@ -55,4 +55,12 @@ test("after a refused withdrawal the message comes from the fresh state, not the
   assert.match(staleMessage(undefined), /could not be withdrawn/);
   // Still eligible on fresh data (the refusal was something else): a general message.
   assert.match(staleMessage(req("submitted", "submitted")), /could not be withdrawn/);
+});
+
+test("the chip shows sent, preparing a response, closed or withdrawn, with a tone for each", () => {
+  assert.deepEqual(requestChip(req("submitted", "submitted", "viewed")), { label: "Sent", tone: "info", state: "sent" });
+  assert.deepEqual(requestChip(req("submitted", "viewed", "responding")), { label: "Preparing a response", tone: "success", state: "responding" });
+  assert.deepEqual(requestChip(req("closed", "closed")), { label: "Closed", tone: "neutral", state: "closed" });
+  assert.deepEqual(requestChip(req("cancelled", "cancelled")), { label: "Withdrawn", tone: "neutral", state: "withdrawn" });
+  assert.equal(requestChip(req("something_new")).label, "something_new");
 });

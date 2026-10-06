@@ -48,6 +48,19 @@ export function countDeliveries(deliveries: readonly DeliveryLike[]): Counts {
   return counts;
 }
 
+export type ChipTone = "info" | "success" | "neutral";
+
+/** The chip on a request: its state in the same words as before, and "Preparing a response" once a company is answering. The tone never carries the meaning alone. */
+export function requestChip(request: RequestLike): { label: string; tone: ChipTone; state: "sent" | "responding" | "closed" | "withdrawn" | "other" } {
+  if (request.status === "closed") return { label: requestStatusLabel("closed"), tone: "neutral", state: "closed" };
+  if (request.status === "cancelled") return { label: requestStatusLabel("cancelled"), tone: "neutral", state: "withdrawn" };
+  if (request.status === "submitted") {
+    if (countDeliveries(request.deliveries).responding > 0) return { label: deliveryStatusLabel("responding"), tone: "success", state: "responding" };
+    return { label: requestStatusLabel("submitted"), tone: "info", state: "sent" };
+  }
+  return { label: requestStatusLabel(request.status), tone: "neutral", state: "other" };
+}
+
 /** One sentence on where the request stands. */
 export function headline(request: RequestLike): string {
   const t = text.headline;
