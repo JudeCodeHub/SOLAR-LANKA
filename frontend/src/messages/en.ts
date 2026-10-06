@@ -1335,6 +1335,7 @@ export const en = {
       export: "Keep a copy in each state",
       installations: "Installation cards at each stage",
       timeline: "The installation timeline",
+      visits: "Site visit statuses and preferred times",
       exportFailed: "The copy could not be prepared.",
       offerDetail: "An offer in full, with an earlier revision",
       dashboardPage: "The page itself sits beside the links.",

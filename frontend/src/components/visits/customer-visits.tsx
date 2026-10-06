@@ -1,14 +1,17 @@
 "use client";
 
+import { CalendarCheck, CircleCheck, Clock, TriangleAlert } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
 import { ConfirmAction } from "@/components/company/confirm-action";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { QueryState } from "@/components/query-state";
 import { SlotFields } from "@/components/visits/slot-fields";
 import { Button } from "@/components/ui/button";
 import type { ApiError } from "@/lib/api/errors";
-import { actionLabel, customerCan, emptyRow, formatRange, slotRequest, type SlotRow, statusLabel } from "@/lib/visits/slots";
+import { actionLabel, customerCan, emptyRow, formatRange, slotRequest, type SlotRow, statusLabel, visitTone } from "@/lib/visits/slots";
 import { type SiteVisit, useCustomerVisitActions, useMyVisits, useVisitOutcome } from "@/lib/visits/hooks";
 import { format, messages } from "@/messages";
 
@@ -50,23 +53,25 @@ export function CustomerVisits({ installationId }: { installationId: string }) {
 
   const open = (query.data ?? []).some((visit) => visit.status === "requested" || visit.status === "alternatives_offered");
   return (
-    <section aria-labelledby="visits-title" className="space-y-3" data-visits>
-      <h2 id="visits-title" className="font-heading text-xl font-semibold tracking-tight">
+    <section aria-labelledby="visits-title" className="space-y-4 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6" data-visits>
+      <h2 id="visits-title" className="type-heading text-ink">
         {text.title}
       </h2>
-      <p className="text-sm text-muted-foreground">{text.intro}</p>
+      <p className="type-body max-w-reading text-ink-2">{text.intro}</p>
       {notice ? (
-        <p role="status" className="text-sm font-medium" data-notice>
-          {notice}
-        </p>
+        <Alert variant="success" role="status" data-notice>
+          <CircleCheck aria-hidden />
+          <AlertDescription>{notice}</AlertDescription>
+        </Alert>
       ) : null}
       {refused ? (
-        <p role="alert" className="text-sm font-medium" data-refused>
-          {text.refused}
-        </p>
+        <Alert variant="warning" role="alert" data-refused>
+          <TriangleAlert aria-hidden />
+          <AlertDescription>{text.refused}</AlertDescription>
+        </Alert>
       ) : null}
       {failure ? <ApiErrorMessage error={failure} /> : null}
-      <QueryState query={query} isEmpty={(items) => items.length === 0} empty={<p className="text-sm text-muted-foreground" data-none>{text.none}</p>}>
+      <QueryState query={query} isEmpty={(items) => items.length === 0} empty={<p className="type-body text-ink-2" data-none>{text.none}</p>}>
         {(items) => (
           <ul className="space-y-3">
             {items.map((visit) => (
@@ -76,13 +81,14 @@ export function CustomerVisits({ installationId }: { installationId: string }) {
         )}
       </QueryState>
       {open ? (
-        <p className="text-sm text-muted-foreground" data-waiting>
-          {text.waiting}
-        </p>
+        <Alert variant="info" role="note" data-waiting>
+          <Clock aria-hidden />
+          <AlertDescription>{text.waiting}</AlertDescription>
+        </Alert>
       ) : (
         <form
           noValidate
-          className="space-y-3 rounded-lg border p-3 text-sm"
+          className="space-y-4 rounded-card border border-line bg-paper p-4 text-sm sm:p-5"
           data-request-form
           onSubmit={(event) => {
             event.preventDefault();
@@ -109,11 +115,11 @@ export function CustomerVisits({ installationId }: { installationId: string }) {
         >
           <SlotFields id="request" rows={rows} errors={errors} onChange={setRows} />
           <div className="space-y-1">
-            <label htmlFor="visit-note" className="block font-medium">
+            <label htmlFor="visit-note" className="block font-medium text-ink">
               {text.noteLabel}
             </label>
             <textarea id="visit-note" value={note} onChange={(event) => setNote(event.target.value)} rows={2} maxLength={1000} aria-describedby="visit-note-help" className="w-full field-control p-2" />
-            <p id="visit-note-help" className="text-muted-foreground">
+            <p id="visit-note-help" className="text-ink-2">
               {text.noteHelp}
             </p>
           </div>
@@ -136,30 +142,17 @@ function VisitCard({ visit, installationId, start, handlers, actions }: { visit:
   const proposed = visit.slots.filter((slot) => slot.kind === "proposed");
   const preferred = visit.slots.filter((slot) => slot.kind === "preferred");
   return (
-    <li className="space-y-2 rounded-lg border p-3 text-sm" data-visit={visit.status}>
-      <p className="font-medium" data-visit-status>
-        {statusLabel(visit.status)}
-      </p>
-      {visit.confirmed_starts_at && visit.confirmed_ends_at && visit.status !== "cancelled" ? (
-        <p data-confirmed>{format(text.confirmedLine, { range: formatRange(visit.confirmed_starts_at, visit.confirmed_ends_at, visit.timezone) })}</p>
-      ) : null}
-      {visit.status === "requested" ? (
-        <ul className="list-disc pl-5">
-          {preferred.map((slot) => (
-            <li key={slot.id}>{formatRange(slot.starts_at, slot.ends_at, visit.timezone)}</li>
-          ))}
-        </ul>
-      ) : null}
+    <li className="space-y-3 rounded-card border border-line bg-paper p-4 text-sm" data-visit={visit.status}>
+      <VisitStatusBlock visit={visit} preferred={preferred} />
       {can.accept ? (
         <div className="space-y-2" data-offered>
-          <p>{text.offered}</p>
+          <p className="font-medium text-ink">{text.offered}</p>
           <ul className="space-y-2">
             {proposed.map((slot) => (
-              <li key={slot.id} className="flex flex-wrap items-center gap-2">
-                <span>{formatRange(slot.starts_at, slot.ends_at, visit.timezone)}</span>
+              <li key={slot.id} className="flex flex-wrap items-center justify-between gap-3 rounded-field border border-line bg-surface p-3">
+                <span className="font-medium text-ink">{formatRange(slot.starts_at, slot.ends_at, visit.timezone)}</span>
                 <Button
                   type="button"
-                  size="sm"
                   aria-disabled={actions.accept.isPending}
                   data-action="accept-time"
                   onClick={() => {
@@ -174,10 +167,10 @@ function VisitCard({ visit, installationId, start, handlers, actions }: { visit:
           </ul>
         </div>
       ) : null}
-      {finished && outcome.data?.completion_summary ? <p data-summary>{format(text.completedLine, { summary: outcome.data.completion_summary })}</p> : null}
+      {finished && outcome.data?.completion_summary ? <p className="text-ink" data-summary>{format(text.completedLine, { summary: outcome.data.completion_summary })}</p> : null}
       {outcome.data && outcome.data.history.length > 0 ? (
         <details>
-          <summary className="cursor-pointer">{text.history}</summary>
+          <summary className="inline-flex min-h-11 cursor-pointer items-center font-medium text-orange-text">{text.history}</summary>
           <ul className="mt-1 space-y-1">
             {outcome.data.history.map((entry, index) => (
               <li key={index}>{format(text.historyLine, { action: actionLabel(entry.action), date: new Date(entry.created_at).toLocaleDateString("en-GB", { dateStyle: "long", timeZone: visit.timezone }) })}</li>
@@ -233,5 +226,29 @@ function VisitCard({ visit, installationId, start, handlers, actions }: { visit:
         ) : null}
       </div>
     </li>
+  );
+}
+
+/** The top of a visit: its status as a chip, the confirmed time (the thing most people look for) and, while it waits, the times that were asked for. */
+export function VisitStatusBlock({ visit, preferred }: { visit: Pick<SiteVisit, "status" | "confirmed_starts_at" | "confirmed_ends_at" | "timezone">; preferred: readonly { id: string; starts_at: string; ends_at: string }[] }) {
+  return (
+    <>
+      <Badge variant={visitTone(visit.status)} data-visit-status>
+        {statusLabel(visit.status)}
+      </Badge>
+      {visit.confirmed_starts_at && visit.confirmed_ends_at && visit.status !== "cancelled" ? (
+        <p className="flex items-start gap-2 rounded-field bg-success-tint p-3 font-medium text-ink" data-confirmed>
+          <CalendarCheck aria-hidden className="mt-0.5 size-5 shrink-0 text-success" />
+          {format(text.confirmedLine, { range: formatRange(visit.confirmed_starts_at, visit.confirmed_ends_at, visit.timezone) })}
+        </p>
+      ) : null}
+      {visit.status === "requested" ? (
+        <ul className="list-disc pl-5 text-ink">
+          {preferred.map((slot) => (
+            <li key={slot.id}>{formatRange(slot.starts_at, slot.ends_at, visit.timezone)}</li>
+          ))}
+        </ul>
+      ) : null}
+    </>
   );
 }

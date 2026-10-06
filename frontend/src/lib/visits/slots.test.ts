@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { canComplete, customerCan, emptyRow, formatRange, slotRequest, staffCan } from "./slots.ts";
+import { canComplete, customerCan, emptyRow, formatRange, slotRequest, staffCan, statusLabel, visitTone } from "./slots.ts";
 
 test("complete rows become explicit slots with the Colombo offset", () => {
   const result = slotRequest([{ date: "2026-10-12", start: "09:00", end: "11:00" }]);
@@ -40,4 +40,14 @@ test("completion needs a confirmed visit that has started", () => {
   assert.equal(canComplete({ status: "confirmed", confirmed_starts_at: "2026-10-12T03:30:00Z" }, now), true);
   assert.equal(canComplete({ status: "confirmed", confirmed_starts_at: "2026-10-12T05:00:00Z" }, now), false);
   assert.equal(canComplete({ status: "completed", confirmed_starts_at: "2026-10-12T03:30:00Z" }, now), false);
+});
+
+test("each visit status has a colour family and its own words, and only offered times wait for the customer", () => {
+  assert.equal(visitTone("requested"), "info");
+  assert.equal(visitTone("alternatives_offered"), "warning");
+  assert.equal(visitTone("confirmed"), "success");
+  assert.equal(visitTone("completed"), "success");
+  assert.equal(visitTone("cancelled"), "neutral");
+  const words = ["requested", "alternatives_offered", "confirmed", "cancelled", "completed"].map(statusLabel);
+  assert.equal(new Set(words).size, words.length);
 });
