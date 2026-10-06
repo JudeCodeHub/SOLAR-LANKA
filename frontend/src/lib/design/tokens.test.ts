@@ -335,7 +335,8 @@ test("each signed-in area is wrapped in the dashboard shell with its own link gr
   const shell = read("components/shell/dashboard-shell.tsx");
   assert.ok(shell.includes("hidden w-60 shrink-0 lg:block") && shell.includes("lg:hidden") && shell.includes("<Sheet"), "side column on desktop, drawer on phones");
   assert.ok(shell.includes("useNavigation(signedIn)") && shell.includes("data-dashboard"));
-  assert.ok(shell.includes("sticky top-24"));
+  // The column sticks below the two-row header, not behind it.
+  assert.ok(shell.includes("sticky top-40"));
 });
 
 test("the not-found and error pages use the full-page state with the photo, and the root error page carries tested colours", () => {
@@ -702,4 +703,20 @@ test("the public support page puts the safety message before the steps and the a
   assert.match(view, /border-2 border-danger/);
   assert.match(view, /<Photo name="safetyVisit"/);
   assert.match(view, /messages\.support\.safety\.body/);
+});
+
+test("every link in a signed-in area has an icon, and the customer area lists all its links", async () => {
+  const { NAV_ITEMS } = await import("../navigation.ts");
+  const icons = readFileSync(join(import.meta.dirname, "..", "..", "components", "shell", "nav-icons.tsx"), "utf8");
+  const missing = NAV_ITEMS.filter((item) => ["customer", "company", "admin"].includes(item.group)).filter((item) => !icons.includes(`"${item.id}":`));
+  assert.deepEqual(missing.map((item) => item.id), []);
+  const customer = NAV_ITEMS.filter((item) => item.group === "customer").map((item) => item.href);
+  assert.deepEqual(customer, ["/my", "/my/support", "/my/estimates", "/my/requests", "/my/installations", "/my/favourites"]);
+});
+
+test("the area's dashboard link is current only on its own page, not on every page below it", () => {
+  const shell = readFileSync(join(import.meta.dirname, "..", "..", "components", "shell", "dashboard-shell.tsx"), "utf8");
+  const link = readFileSync(join(import.meta.dirname, "..", "..", "components", "shell", "nav-link.tsx"), "utf8");
+  assert.match(shell, /exact=\{area\.items\.some/);
+  assert.match(link, /exact \? current === item\.href/);
 });

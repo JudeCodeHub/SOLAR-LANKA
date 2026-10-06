@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import { Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
 
+import { DashboardFrame } from "@/components/shell/dashboard-shell";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Icon, IconCircle, ICON_SIZES } from "@/components/ui/icon";
@@ -35,10 +36,14 @@ import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui
 import { Reveal } from "@/components/ui/reveal";
 import { contrastRatio } from "@/lib/design/contrast";
 import { CSS_NAMES, DARK, LIGHT, type Theme } from "@/lib/design/tokens";
+import { navigationFor } from "@/lib/navigation";
 import { PHOTOS, type PhotoKey } from "@/lib/photos/photos";
 import { format, messages } from "@/messages";
 
 const text = messages.design;
+
+/** The links a customer sees in their own area, for the sample of the side column. */
+const customerArea = navigationFor({ role: "customer", memberships: [] }, true).find((group) => group.id === "customer")!;
 
 /** Each swatch as a literal class (so Tailwind finds it), in the order they are shown. */
 const SWATCHES: [string, string][] = [
@@ -409,6 +414,15 @@ export function DesignGallery() {
             <button type="button" aria-pressed="false" className={segmentedItemClass(false)}>{text.navigation.yearly}</button>
             <button type="button" aria-pressed="false" className={segmentedItemClass(false)}>{text.navigation.lifetime}</button>
           </Segmented>
+        </div>
+        <div className="space-y-3" data-dashboard-sample>
+          <h3 className="type-subheading">{text.navigation.dashboard}</h3>
+          <p className="type-body max-w-3xl text-ink-2">{text.navigation.dashboardIntro}</p>
+          <div className="rounded-card border border-line bg-paper-2">
+            <DashboardFrame area={customerArea} group="customer" current="/my/requests">
+              <p className="type-body py-8 text-ink-2">{text.navigation.dashboardPage}</p>
+            </DashboardFrame>
+          </div>
         </div>
         <div className="space-y-3">
           <h3 className="type-subheading">{text.navigation.pagination}</h3>
