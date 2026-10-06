@@ -18,6 +18,26 @@ async function audit(page: Page, label: string) {
   expect(violations.map((v) => `${v.id}: ${v.nodes.slice(0, 2).map((n) => n.target.join(" ")).join(" | ")}`), label).toEqual([]);
 }
 
+
+/** The catalogue addresses worth checking, found from the lists themselves so they work with whatever sample data is loaded. */
+async function catalogueAddresses(page: Page): Promise<string[]> {
+  const idsOf = async (list: string) => {
+    await page.goto(list);
+    const hrefs = await page.locator("[data-product] h3 a").evaluateAll((links) => links.map((link) => (link.getAttribute("href") ?? "").split("?")[0]!));
+    return hrefs.slice(0, 3);
+  };
+  const panels = await idsOf("/panels");
+  const inverters = await idsOf("/inverters");
+  await page.goto("/companies");
+  const company = (await page.locator("[data-company] h3 a").first().getAttribute("href")) ?? "/companies";
+  const compare = (kind: string, hrefs: string[]) => `/${kind}/compare?ids=${hrefs.map((href) => href.split("/").pop()).join(",")}`;
+  return [
+    "/panels", "/inverters", "/companies",
+    "/panels?q=zzzzqq", "/companies?district=Colombo&service=battery_installation&q=x",
+    panels[0]!, inverters[0]!, compare("panels", panels), compare("inverters", inverters), "/panels/compare", company,
+  ];
+}
+
 const PUBLIC = ["/", "/panels", "/inverters", "/estimator", "/companies", "/learn", "/learn/net-metering-and-other-schemes", "/troubleshooting", "/support", "/sign-in"];
 const BY_ROLE: [IdentityName, string[]][] = [
   ["customer", ["/my", "/my/requests", "/my/estimates", "/my/installations", "/my/requests/new", "/my/support", "/notifications"]],
@@ -41,6 +61,17 @@ test.describe("axe finds no WCAG 2.2 AA violations", () => {
       for (const path of ["/sign-in", "/sign-up"]) {
         await page.goto(path);
         await page.locator("[data-auth-form]").waitFor();
+        await audit(page, `${path} in the ${scheme} theme`);
+      }
+    }
+  });
+  test("every catalogue page (lists, details, compares, directory, company, empty states) in both themes", async ({ page, signInAs }) => {
+    signInAs(null);
+    const addresses = await catalogueAddresses(page);
+    for (const scheme of ["light", "dark"] as const) {
+      await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
+      for (const path of addresses) {
+        await page.goto(path);
         await audit(page, `${path} in the ${scheme} theme`);
       }
     }

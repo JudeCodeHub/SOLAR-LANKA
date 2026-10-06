@@ -10,7 +10,7 @@ export function ExternalLink({ href, children }: { href: string; children: React
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-1 underline underline-offset-2 outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+      className="inline-flex min-h-11 items-center gap-1 underline underline-offset-4 hover:text-orange-text"
     >
       {children}
       <ExternalLinkIcon aria-hidden className="size-3.5" />
