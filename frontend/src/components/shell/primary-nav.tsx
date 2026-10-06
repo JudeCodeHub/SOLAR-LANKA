@@ -1,15 +1,18 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+
 import { NavLink } from "@/components/shell/nav-link";
 import { useNavigation } from "@/lib/api/use-shell-user";
 import { messages } from "@/messages";
 
-/** Desktop page navigation, shown as its own row under the header bar. */
+/** Desktop page navigation, shown as its own row under the header bar; the signed-out landing page leaves it out, since its own sections lead everywhere. */
 export function PrimaryNav({ signedIn }: { signedIn: boolean }) {
+  const pathname = usePathname();
   const items = useNavigation(signedIn)
     .filter((group) => group.id !== "account")
     .flatMap((group) => group.items);
-  if (items.length <= 1) {
+  if (items.length <= 1 || (!signedIn && pathname === "/")) {
     return null;
   }
   return (
