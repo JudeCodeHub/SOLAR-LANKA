@@ -5,7 +5,7 @@ const RULES = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 const LINKS: [string, string, string][] = [
   ["estimate", "Start an estimate", "/estimator"],
   ["compare", "See how comparison works", "/panels"],
-  ["track", "See the steps", "/my/installations"],
+  ["track", "See the steps", "#tracking"],
   ["learn", "Open the learning centre", "/learn"],
 ];
 

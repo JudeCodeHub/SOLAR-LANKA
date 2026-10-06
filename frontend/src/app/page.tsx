@@ -7,6 +7,7 @@ import { Hero } from "@/components/landing/hero";
 import { HowItWorks } from "@/components/landing/how-it-works";
 import { getCurrentIdentity } from "@/lib/auth/server";
 import { LearningTeaser } from "@/components/landing/learning-teaser";
+import { TrackingSection } from "@/components/landing/tracking-section";
 import { loadLanding } from "@/lib/landing/load";
 
 export default async function Home() {
@@ -23,6 +24,7 @@ export default async function Home() {
       <CatalogueShowcase panels={panels} inverters={inverters} />
       <CompaniesShowcase section={companies} />
       <LearningTeaser section={articles} />
+      <TrackingSection />
       <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-10 px-4 py-8">
         <EntryPoints />
       </div>

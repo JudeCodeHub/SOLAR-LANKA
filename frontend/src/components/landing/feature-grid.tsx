@@ -19,7 +19,7 @@ type Feature = { id: "estimate" | "compare" | "track" | "learn"; icon: LucideIco
 const FEATURES: Feature[] = [
   { id: "estimate", icon: Calculator, photo: "aerial", href: "/estimator", span: "lg:col-span-7", tall: true },
   { id: "compare", icon: Scale, photo: "panelMacro", href: "/panels", span: "lg:col-span-5", tall: false },
-  { id: "track", icon: Route, photo: "installers", href: "/my/installations", span: "lg:col-span-5", tall: false },
+  { id: "track", icon: Route, photo: "installers", href: "#tracking", span: "lg:col-span-5", tall: false },
   { id: "learn", icon: BookOpen, photo: "consultation", href: "/learn", span: "lg:col-span-7", tall: true },
 ];
 
