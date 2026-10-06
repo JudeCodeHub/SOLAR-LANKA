@@ -372,7 +372,7 @@ test("the landing hero has the approved wording, two actions, a sample-labelled 
   const hero = read("components/landing/hero.tsx");
   for (const piece of ["messages.brand.heroLine", "messages.brand.heroSupport", "messages.brand.primaryAction", "messages.brand.trustLine", "<Dial", "<SampleBadge", 'name="hero"', "priority", "type-display-xl", 'size="lg"']) assert.ok(hero.includes(piece), piece);
   assert.ok(hero.includes("from-background") && hero.includes("lg:max-w-[48%]"), "the words sit in the faded, text-safe side");
-  assert.ok(read("app/page.tsx").indexOf("<Hero") < read("app/page.tsx").indexOf("<EntryPoints"));
+  assert.ok(read("app/page.tsx").indexOf("<Hero") < read("app/page.tsx").indexOf("<EstimateTeaser"));
 });
 
 test("the estimate teaser labels its figures as a sample, writes them in the figure face and counts them up", () => {
@@ -474,4 +474,15 @@ test("the safety section leads with the stop rule, uses the hazard style and the
   const words = JSON.stringify(messages.landing.story.safety).toLowerCase();
   for (const sales of ["buy", "save", "discount", "offer", "deal"]) assert.ok(!words.includes(sales), sales);
   assert.ok(read("app/page.tsx").indexOf("<SafetySection />") > read("app/page.tsx").indexOf("<ComparisonSection />"));
+});
+
+test("the closing band is solid orange with dark ink in both themes, has the sunrise photo and one action, and ends the page", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  const band = read("components/landing/closing-band.tsx");
+  assert.ok(band.includes("bg-orange text-on-orange") && band.includes('name="sunrise"') && band.includes('href="/estimator"') && band.includes("text.title"));
+  assert.ok(contrastRatio("#1A1511", "#FF6A1A") >= 4.5 && contrastRatio("#0D0B09", "#FF6A1A") >= 4.5, "ink on orange in both themes");
+  assert.ok(contrastRatio("#FBF8F3", "#1A1511") >= 4.5 && contrastRatio("#FBF8F3", "#0D0B09") >= 4.5, "the button's text on its dark fill in both themes");
+  const page = read("app/page.tsx");
+  assert.ok(page.trimEnd().endsWith("}") && page.indexOf("<ClosingBand />") > page.indexOf("<SafetySection />") && !page.includes("</div>"), "the band is the last thing on the page, straight above the footer");
+  assert.ok(!page.includes("EntryPoints"));
 });
