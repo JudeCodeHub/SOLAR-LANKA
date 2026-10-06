@@ -683,3 +683,14 @@ test("the lookup form keeps its ids, labels and checks while using the page head
   const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "support", "troubleshooting-view.tsx"), "utf8");
   for (const needle of ['htmlFor="model"', 'id="model"', 'htmlFor="code"', 'id="code"', "lookupQuery({ model, code, productId })", "text.needModel", 'data-error="model"', "aria-invalid={Boolean(problem)}", "<PageHeader", "data-find-model", "text-danger"]) assert.ok(view.includes(needle), needle);
 });
+
+test("troubleshooting results put hazards first, never give a hazard steps, and keep the sources", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "support", "troubleshooting-view.tsx"), "utf8");
+  assert.match(view, /ordered\(data\.references\)/);
+  assert.match(view, /variant="hazard"/);
+  assert.match(view, /border-2 border-danger/);
+  // Steps are drawn only for a safe observation.
+  assert.match(view, /reference\.safety_level === "safe_observation" \? \(\s*<ol/);
+  assert.doesNotMatch(view, /hazard \? \(\s*<ol/);
+  for (const needle of ["data-source", "text.hazardEscalate", "text.open", "text.report", "data-no-references"]) assert.ok(view.includes(needle), needle);
+});
