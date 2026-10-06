@@ -533,3 +533,13 @@ test("the sign-up page matches sign-in: the P11 photo, three reasons, and the cu
   assert.ok(page.includes("<SignUp />") && page.includes('photo="signUp"') && page.includes("signUpPoints.save") && page.includes("signUpPoints.ask") && page.includes("signUpPoints.follow"));
   assert.ok(page.includes("customerOnlyNote") && page.includes("text-ink-2"));
 });
+
+test("the account page uses the shared header, shows the role as a badge, and puts Clerk's profile in a full-width framed card", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  const page = read("app/account/[[...user-profile]]/page.tsx");
+  assert.ok(page.includes("<PageHeader") && page.includes("<BackendProfile />") && page.includes('<UserProfile path="/account"') && page.includes("data-account-page"));
+  assert.ok(page.indexOf("<BackendProfile />") < page.indexOf("<UserProfile"), "the app's own record comes first");
+  assert.ok(page.includes("rounded-card!") && page.includes("w-full!"));
+  const profile = read("components/backend-profile.tsx");
+  assert.ok(profile.includes('data-testid="backend-role"') && profile.includes('<Badge variant="orange">'), "the role badge keeps its test id for the browser specs");
+});
