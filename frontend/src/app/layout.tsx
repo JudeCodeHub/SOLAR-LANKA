@@ -10,6 +10,7 @@ import { SessionWatcher } from "@/components/session-watcher";
 import { SiteFooter } from "@/components/site-footer";
 import { SkipLink } from "@/components/shell/skip-link";
 import { SiteHeader } from "@/components/site-header";
+import { CLERK_APPEARANCE } from "@/lib/auth/clerk-appearance";
 import { BRAND_COLOURS } from "@/lib/brand/logo";
 import { THEME_SCRIPT } from "@/lib/theme/theme";
 import { messages } from "@/messages";
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {THEME_SCRIPT}
         </Script>
         <ClerkProvider
+          appearance={CLERK_APPEARANCE}
           afterSignOutUrl="/"
           signInFallbackRedirectUrl="/"
           signUpFallbackRedirectUrl="/"

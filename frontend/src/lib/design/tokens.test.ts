@@ -511,3 +511,12 @@ test("sign-in and sign-up share one auth layout: form beside a photo with a samp
   assert.ok(read("app/sign-up/[[...sign-up]]/page.tsx").includes('<AuthLayout photo="signUp"'));
   assert.ok(read("app/sign-up/[[...sign-up]]/page.tsx").includes("customerOnlyNote"), "the customer-only note stays");
 });
+
+test("Clerk takes the site's colour variables, so it follows the theme, and its links use the readable orange", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  const appearance = read("lib/auth/clerk-appearance.ts");
+  for (const variable of ["--ds-orange", "--ds-on-orange", "--ds-text", "--ds-surface", "--ds-field-border", "--ds-danger", "--ds-focus"]) assert.ok(appearance.includes(`var(${variable})`), variable);
+  assert.ok(appearance.includes("rounded-full!") && appearance.includes("text-orange-text!") && appearance.includes("--font-body"));
+  assert.ok(read("app/layout.tsx").includes("appearance={CLERK_APPEARANCE}"));
+  assert.ok(contrastRatio("#B33D00", "#FFFFFF") >= 4.5, "link text on the white card");
+});
