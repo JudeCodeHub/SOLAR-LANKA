@@ -851,6 +851,7 @@ export const en = {
     },
   },
   notifications: {
+    eyebrow: "Updates for you",
     settings: {
       title: "Your notification settings",
       intro: "These are private to you. Updates about your own work are always shown here; you choose whether to get reminders and emails.",
@@ -1339,6 +1340,7 @@ export const en = {
       visits: "Site visit statuses and preferred times",
       favourites: "Saved products on the favourites page",
       support: "Support: the safety card, cases and the unsafe box",
+      notifications: "Unread and read notifications",
       exportFailed: "The copy could not be prepared.",
       offerDetail: "An offer in full, with an earlier revision",
       dashboardPage: "The page itself sits beside the links.",

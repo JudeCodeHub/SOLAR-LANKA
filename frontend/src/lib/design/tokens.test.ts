@@ -846,3 +846,12 @@ test("a support case keeps its shared updates, messages, photos and moves, and t
   for (const needle of ["data-photos", "data-download", "useDownloadPhoto(fetchPhoto)", "<ApiErrorMessage"]) assert.ok(photos.includes(needle), needle);
   assert.doesNotMatch(case_ + updates + photos, /text-muted-foreground|font-heading|text-destructive/);
 });
+
+test("the notifications list keeps its filters, paging, guard and marks, and unread notifications carry a bar, a tint and a word", () => {
+  const dir = join(import.meta.dirname, "..", "..", "components", "notifications");
+  const view = readFileSync(join(dir, "notifications-view.tsx"), "utf8");
+  for (const needle of ["useNotifications(filter, page)", "busy.current", "router.replace(hrefFor(filter, lastPage))", "<Pagination", "data-unread-count", "data-filter={option}", 'aria-current={filter === option ? "page" : undefined}', "data-status", 'role="status"', "<NotificationSettings />", "destinationFor(item", "mark.mutate(", "<NotificationCard", "text.gone"]) assert.ok(view.includes(needle), needle);
+  const card = readFileSync(join(dir, "notification-card.tsx"), "utf8");
+  for (const needle of ["data-notification={unread", "data-badge=", "data-action={unread", "text.unreadBadge", "text.readBadge", "text.markRead", "text.markUnread", "text.working", "inset_4px_0_0_var(--ds-orange-text),var(--ds-shadow-1)", "min-h"]) assert.ok(card.includes(needle) || needle === "min-h", needle);
+  assert.doesNotMatch(view + card, /text-muted-foreground|font-heading/);
+});

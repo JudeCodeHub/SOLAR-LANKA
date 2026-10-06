@@ -5,14 +5,15 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
+import { NotificationCard } from "@/components/notifications/notification-card";
 import { NotificationSettings } from "@/components/notifications/notification-settings";
 import { Pagination } from "@/components/catalogue/pagination";
 import { QueryState } from "@/components/query-state";
 import { EmptyState } from "@/components/states/empty-state";
-import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
+import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/lib/api/hooks";
 import type { ApiError } from "@/lib/api/errors";
-import { formatLongDate } from "@/lib/catalogue/detail";
 import { pageInfo, parsePageParam } from "@/lib/catalogue/params";
 import { useMarkNotification, useNotifications, useUnreadCount } from "@/lib/notifications/hooks";
 import { destinationFor, type Filter, parseFilter } from "@/lib/notifications/notifications";
@@ -73,26 +74,36 @@ export function NotificationsView() {
 
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
-      <header className="space-y-2">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">{text.title}</h1>
-        <p className="max-w-3xl text-muted-foreground">{text.intro}</p>
-        {unread.data !== undefined ? (
-          <p className="text-sm font-medium" data-unread-count>
-            {unread.data > 0 ? format(text.unreadCount, { count: unread.data }) : text.allRead}
-          </p>
-        ) : null}
-      </header>
+      <PageHeader
+        eyebrow={text.eyebrow}
+        title={text.title}
+        description={text.intro}
+        actions={
+          unread.data !== undefined ? (
+            <p className="inline-flex min-h-8 items-center rounded-full border border-orange-text/30 bg-orange-tint px-3.5 text-sm font-medium text-orange-text" data-unread-count>
+              {unread.data > 0 ? format(text.unreadCount, { count: unread.data }) : text.allRead}
+            </p>
+          ) : null
+        }
+      />
       <NotificationSettings />
       <nav aria-label={text.filterLabel} className="flex gap-2">
         {(["all", "unread"] as const).map((option) => (
-          <Button key={option} asChild variant={filter === option ? "default" : "outline"} size="sm">
-            <Link href={hrefFor(option, 1)} aria-current={filter === option ? "page" : undefined} data-filter={option}>
-              {text[option]}
-            </Link>
-          </Button>
+          <Link
+            key={option}
+            href={hrefFor(option, 1)}
+            aria-current={filter === option ? "page" : undefined}
+            data-filter={option}
+            className={cn(
+              "inline-flex min-h-11 items-center rounded-full border px-5 text-sm font-medium",
+              filter === option ? "border-orange bg-orange text-on-orange" : "border-line bg-paper-2 text-ink hover:bg-orange-tint",
+            )}
+          >
+            {text[option]}
+          </Link>
         ))}
       </nav>
-      <p ref={statusRef} role="status" className="min-h-5 text-sm font-medium" data-status>
+      <p ref={statusRef} role="status" className="min-h-6 text-sm font-medium text-ink" data-status>
         {status}
       </p>
       {error ? <ApiErrorMessage error={error} /> : null}
@@ -110,42 +121,18 @@ export function NotificationsView() {
           const info = pageInfo(result.total, page);
           return (
             <section aria-label={text.title} className="space-y-4">
-              <p className="text-sm text-muted-foreground">{format(text.showing, { from: info.from, to: info.to, total: result.total })}</p>
+              <p className="type-small text-ink-2">{format(text.showing, { from: info.from, to: info.to, total: result.total })}</p>
               <ul className="space-y-3">
-                {result.items.map((item) => {
-                  const unreadItem = item.read_at === null;
-                  const destination = destinationFor(item, me.data?.memberships ?? []);
-                  const working = mark.isPending && mark.variables?.id === item.id;
-                  return (
-                    <li key={item.id} className="space-y-2 rounded-lg border p-4 text-sm" data-notification={unreadItem ? "unread" : "read"}>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <h2 className={unreadItem ? "text-base font-semibold" : "text-base font-medium"}>{item.title}</h2>
-                        <span className="rounded-full border px-2 py-0.5 text-xs" data-badge={unreadItem ? "unread" : "read"}>
-                          {unreadItem ? text.unreadBadge : text.readBadge}
-                        </span>
-                      </div>
-                      <p>{item.body}</p>
-                      <p className="text-muted-foreground">{format(text.received, { date: formatLongDate(item.created_at) ?? item.created_at })}</p>
-                      <div className="flex flex-wrap gap-2">
-                        {destination ? (
-                          <Button asChild size="sm">
-                            <Link href={destination.href}>{destination.label}</Link>
-                          </Button>
-                        ) : null}
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          aria-disabled={mark.isPending}
-                          data-action={unreadItem ? "mark-read" : "mark-unread"}
-                          onClick={() => toggle(item.id, unreadItem)}
-                        >
-                          {working ? text.working : unreadItem ? text.markRead : text.markUnread}
-                        </Button>
-                      </div>
-                    </li>
-                  );
-                })}
+                {result.items.map((item) => (
+                  <li key={item.id}>
+                    <NotificationCard
+                      item={item}
+                      destination={destinationFor(item, me.data?.memberships ?? [])}
+                      working={mark.isPending && mark.variables?.id === item.id}
+                      onToggle={toggle}
+                    />
+                  </li>
+                ))}
               </ul>
               <Pagination hrefFor={(target) => hrefFor(filter, target)} page={info.page} pageCount={info.pageCount} />
             </section>
