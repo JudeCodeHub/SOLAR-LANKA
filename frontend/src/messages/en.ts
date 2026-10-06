@@ -2930,6 +2930,7 @@ export const en = {
       prepare: "Use it to prepare a quotation request",
     },
     saved: {
+      eyebrow: "Saved estimates",
       title: "My estimates",
       intro:
         "Estimates you saved. Each keeps the inputs and the settings it was calculated with, so it stays as it was even when the estimator is updated.",
@@ -2942,10 +2943,12 @@ export const en = {
           one: "{capacity} kWp system, {panels} panel",
           other: "{capacity} kWp system, {panels} panels",
         },
+        unit: "kWp",
         saved: "Saved {date}",
         version: "Settings version {version}",
       },
       detail: {
+        eyebrow: "Saved snapshot",
         title: "Saved estimate",
         savedOn: "Saved on {date}. It is shown exactly as it was calculated.",
         back: "Back to my estimates",

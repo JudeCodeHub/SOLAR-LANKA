@@ -1,7 +1,8 @@
 "use client";
 
 import { BackLink } from "@/components/ui/back-link";
-import { Table } from "@/components/ui/table";
+import { PageHeader } from "@/components/ui/page-header";
+import { Table, TableRegion } from "@/components/ui/table";
 import Link from "next/link";
 
 import { EstimateResults, type SubmittedValues } from "@/components/estimator/estimate-results";
@@ -40,37 +41,33 @@ export function SavedEstimateView({ id }: { id: string }) {
           const rows = settingRows(saved.configuration.assumptions);
           return (
             <>
-              <header className="space-y-2">
-                <h1 className="font-heading text-3xl font-semibold tracking-tight">{text.title}</h1>
-                <p className="text-sm text-muted-foreground">
-                  {format(text.savedOn, { date: formatLongDate(saved.created_at) ?? saved.created_at })}
-                </p>
-              </header>
+              <PageHeader eyebrow={text.eyebrow} title={text.title} description={format(text.savedOn, { date: formatLongDate(saved.created_at) ?? saved.created_at })} />
               <EstimateResults
                 preview={saved.estimate}
                 values={values}
                 actions={
-                  <div className="space-y-1">
-                    <Button asChild>
+                  <div className="flex flex-col gap-3 rounded-card border border-line bg-surface p-4 shadow-e1" data-prepare-panel>
+                    <Button asChild className="w-fit">
                       <Link href={prepareHref(saved.id)}>{text.prepare}</Link>
                     </Button>
-                    <p className="text-sm text-muted-foreground">{text.prepareHint}</p>
+                    <p className="type-small text-ink-2">{text.prepareHint}</p>
                   </div>
                 }
               />
               <section aria-labelledby="settings-title" className="space-y-3">
-                <h2 id="settings-title" className="font-heading text-2xl font-semibold tracking-tight">
+                <h2 id="settings-title" className="type-display-s text-ink">
                   {text.settingsTitle}
                 </h2>
-                <p className="max-w-3xl text-sm text-muted-foreground">
+                <p className="type-body max-w-reading text-ink-2">
                   {format(text.settingsIntro, {
                     version: saved.configuration.version,
                     date: formatLongDate(saved.configuration.published_at) ?? saved.configuration.published_at,
                   })}
                 </p>
                 {rows.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">{text.settingsNone}</p>
+                  <p className="type-body text-ink-2">{text.settingsNone}</p>
                 ) : (
+                  <TableRegion label={text.settingsTitle}>
                   <Table className="w-full text-sm" data-settings>
                     <caption className="sr-only">{text.settingsTitle}</caption>
                     <thead>
@@ -94,9 +91,10 @@ export function SavedEstimateView({ id }: { id: string }) {
                       ))}
                     </tbody>
                   </Table>
+                  </TableRegion>
                 )}
               </section>
-              <Link href="/estimator" className="inline-block text-sm underline underline-offset-2">
+              <Link href="/estimator" className="inline-flex min-h-11 items-center text-sm font-medium text-orange-text underline underline-offset-2">
                 {text.newEstimate}
               </Link>
             </>
