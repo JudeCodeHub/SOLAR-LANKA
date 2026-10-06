@@ -1333,6 +1333,7 @@ export const en = {
       offers: "Offer cards in each state",
       compare: "Comparing offers side by side",
       export: "Keep a copy in each state",
+      installations: "Installation cards at each stage",
       exportFailed: "The copy could not be prepared.",
       offerDetail: "An offer in full, with an earlier revision",
       dashboardPage: "The page itself sits beside the links.",
@@ -2048,6 +2049,7 @@ export const en = {
       noEvidence: "No evidence attached",
     },
     list: {
+      eyebrow: "Your installations",
       title: "My installations",
       intro: "Work you have accepted, newest first. Open one to see where each step stands.",
       emptyTitle: "No installations yet",

@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import { ClipboardList, FileText, Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
 
+import { InstallationCard } from "@/components/installations/installation-card";
 import { ExportDemo } from "@/components/design/export-demo";
 import { DecisionDemo } from "@/components/design/decision-demo";
 import { OfferDetails } from "@/components/requests/offer-view";
@@ -72,6 +73,12 @@ const OFFER_REVISIONS = [
   },
 ] as never;
 
+const INSTALLATION_SAMPLES = [
+  { id: "i1", created_at: "2026-09-28T08:00:00Z", completed_milestones: 0, total_milestones: 8 },
+  { id: "i2", created_at: "2026-09-20T08:00:00Z", completed_milestones: 3, total_milestones: 8 },
+  { id: "i3", created_at: "2026-09-10T08:00:00Z", completed_milestones: 7, total_milestones: 8 },
+  { id: "i4", created_at: "2026-08-01T08:00:00Z", completed_milestones: 8, total_milestones: 8 },
+];
 const OFFER_NOW = Date.parse("2026-10-06T00:00:00Z");
 const offer = (n: number, name: string, status: "sent" | "accepted", validUntil: string, total: string, revisions: number) => ({ quotation_id: `q${n}`, company_id: `c${n}`, revision_id: `v${n}`, revision_number: revisions, sent_at: "2026-09-25T08:00:00Z", sent_revision_count: revisions, status, total, valid_until: validUntil, name });
 /** Four offers, one in each state, for the sample of offer cards. */
@@ -510,6 +517,16 @@ export function DesignGallery() {
             {REQUEST_SAMPLES.map((item) => (
               <li key={item.id}>
                 <RequestCard item={item} />
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="space-y-3" data-installations-sample>
+          <h3 className="type-subheading">{text.navigation.installations}</h3>
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {INSTALLATION_SAMPLES.map((item) => (
+              <li key={item.id}>
+                <InstallationCard item={item} />
               </li>
             ))}
           </ul>
