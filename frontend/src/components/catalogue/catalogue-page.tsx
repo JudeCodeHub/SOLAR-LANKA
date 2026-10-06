@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { PageHeader } from "@/components/ui/page-header";
 import { CatalogueFilters } from "@/components/catalogue/catalogue-filters";
 import { Pagination } from "@/components/catalogue/pagination";
 import { ProductCard } from "@/components/catalogue/product-card";
@@ -53,11 +54,8 @@ export async function CataloguePage({
   const info = result.ok ? pageInfo(result.total, state.page) : null;
 
   return (
-    <div className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 py-8">
-      <header className="space-y-2">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">{copy.title}</h1>
-        <p className="max-w-3xl text-muted-foreground">{copy.intro}</p>
-      </header>
+    <div className="mx-auto w-full max-w-6xl flex-1 space-y-8 px-4 py-10 sm:px-6" data-catalogue-list={kind}>
+      <PageHeader eyebrow={copy.eyebrow} title={copy.title} description={copy.intro} />
 
       <CatalogueFilters kind={kind} basePath={basePath} state={state} />
 
@@ -66,7 +64,7 @@ export async function CataloguePage({
           {text.heading}
         </h2>
         {hasInvalid ? (
-          <p role="status" className="text-sm text-destructive">
+          <p role="status" className="text-sm font-medium text-danger">
             {messages.catalogue.errors.invalidIgnored}
           </p>
         ) : null}
@@ -88,7 +86,7 @@ export async function CataloguePage({
           />
         ) : (
           <>
-            <p className="text-sm text-muted-foreground">
+            <p className="type-small text-ink-2">
               {format(text.showing, {
                 from: info?.from ?? 0,
                 to: info?.to ?? 0,
@@ -96,7 +94,7 @@ export async function CataloguePage({
                 noun: copy.resultsNoun,
               })}
             </p>
-            <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {result.items.map((product) => (
                 <li key={product.id}>
                   <ProductCard product={product} listHref={listHref} />

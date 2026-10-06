@@ -162,12 +162,14 @@ export const en = {
   },
   catalogue: {
     panels: {
+      eyebrow: "Catalogue",
       title: "Solar panels",
       intro:
         "Sample panel entries from the demonstration catalogue. Search by brand or model and narrow by power and efficiency.",
       resultsNoun: "solar panels",
     },
     inverters: {
+      eyebrow: "Catalogue",
       title: "Inverters",
       intro:
         "Sample inverter entries from the demonstration catalogue. Search by brand or model and narrow by type and capacity.",
@@ -188,6 +190,14 @@ export const en = {
       maxCapacity: "Maximum capacity (kW)",
       apply: "Apply filters",
       clear: "Clear all filters",
+      active: "Filters in use",
+      remove: "Remove filter {filter}: {value}",
+      chipSearch: "Search",
+      chipMinPower: "From (W)",
+      chipMaxPower: "Up to (W)",
+      chipMinEfficiency: "Efficiency from (%)",
+      chipMinCapacity: "From (kW)",
+      chipMaxCapacity: "Up to (kW)",
     },
     errors: {
       rangeOrder: "The maximum must not be less than the minimum.",
