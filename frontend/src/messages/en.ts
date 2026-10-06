@@ -892,6 +892,8 @@ export const en = {
     unread: { one: "Read {count} unread notification", other: "Read {count} unread notifications" },
     open: "Open",
     customer: {
+      eyebrow: "Welcome back",
+      viewOffers: "See offers on your requests",
       title: "Your dashboard",
       intro: "Where your requests, offers and installations stand, and what to do next.",
       expiring: { one: "Decide on {count} offer ending soon", other: "Decide on {count} offers ending soon" },

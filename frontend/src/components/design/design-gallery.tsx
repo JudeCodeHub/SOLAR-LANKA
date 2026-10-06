@@ -1,6 +1,7 @@
 import { Fragment } from "react";
-import { Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
+import { ClipboardList, FileText, Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
 
+import { HomeHeader, NextSteps, SummaryCard } from "@/components/dashboard/dashboard-parts";
 import { DashboardFrame } from "@/components/shell/dashboard-shell";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -36,9 +37,10 @@ import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui
 import { Reveal } from "@/components/ui/reveal";
 import { contrastRatio } from "@/lib/design/contrast";
 import { CSS_NAMES, DARK, LIGHT, type Theme } from "@/lib/design/tokens";
+import { progressText } from "@/lib/installations/progress";
 import { navigationFor } from "@/lib/navigation";
 import { PHOTOS, type PhotoKey } from "@/lib/photos/photos";
-import { format, messages } from "@/messages";
+import { format, messages, plural } from "@/messages";
 
 const text = messages.design;
 
@@ -420,7 +422,21 @@ export function DesignGallery() {
           <p className="type-body max-w-3xl text-ink-2">{text.navigation.dashboardIntro}</p>
           <div className="rounded-card border border-line bg-paper-2">
             <DashboardFrame area={customerArea} group="customer" current="/my/requests">
-              <p className="type-body py-8 text-ink-2">{text.navigation.dashboardPage}</p>
+              <div className="space-y-6 py-6">
+                <HomeHeader eyebrow={messages.dashboard.customer.eyebrow} title={messages.dashboard.customer.title} intro={messages.dashboard.customer.intro} />
+                <NextSteps actions={[{ id: "offers", label: "Review 2 open offers", href: "/my/requests" }, { id: "installations", label: messages.dashboard.customer.installations, href: "/my/installations" }]} partial={false} />
+                <div className="grid gap-4 md:grid-cols-3">
+                  <SummaryCard id="sample-requests" icon={ClipboardList} figure="3" title={messages.dashboard.customer.requestsTitle} link={{ href: "/my/requests", label: messages.dashboard.customer.viewRequests }}>
+                    <p>{format(plural(messages.dashboard.customer.requestsLine, 3), { active: 2, count: 3 })}</p>
+                  </SummaryCard>
+                  <SummaryCard id="sample-offers" icon={FileText} figure="0" title={messages.dashboard.customer.offersTitle} link={{ href: "/my/requests", label: messages.dashboard.customer.viewOffers }}>
+                    <p data-empty>{messages.dashboard.customer.offersNone}</p>
+                  </SummaryCard>
+                  <SummaryCard id="sample-installations" icon={Sun} figure="1" title={messages.dashboard.customer.installationsTitle} link={{ href: "/my/installations", label: messages.dashboard.customer.viewInstallations }}>
+                    <p>{progressText(3, 8)}</p>
+                  </SummaryCard>
+                </div>
+              </div>
             </DashboardFrame>
           </div>
         </div>
