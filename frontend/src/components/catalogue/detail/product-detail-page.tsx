@@ -1,6 +1,8 @@
 import { BackLink } from "@/components/ui/back-link";
 import { notFound } from "next/navigation";
 
+import { SampleBadge } from "@/components/ui/badge";
+import { Photo } from "@/components/ui/photo";
 import { FavouriteButton } from "@/components/favourites/favourite-button";
 import { ComparisonToggle } from "@/components/comparison/comparison-toggle";
 import { DocumentsSection } from "@/components/catalogue/detail/documents-section";
@@ -38,7 +40,7 @@ export async function ProductDetailPage({
   );
   if (result.status === "error") {
     return (
-      <div className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 py-8">
+      <div className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 py-10 sm:px-6">
         {back}
         <SectionUnavailable />
       </div>
@@ -46,22 +48,39 @@ export async function ProductDetailPage({
   }
   const { product, offers } = result;
   const name = productName(product);
+  const images = productImages(product);
   return (
-    <div className="mx-auto w-full max-w-6xl flex-1 space-y-10 px-4 py-8">
-      <header className="space-y-2">
-        {back}
-        <p className="text-sm text-muted-foreground">{messages.landing.products.kind[product.kind]}</p>
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">{name}</h1>
-        <p className="text-sm text-muted-foreground">{messages.detail.sampleEntry}</p>
-        <div className="flex flex-wrap items-center gap-4">
-          <FavouriteButton id={product.id} name={name} />
-          <ComparisonToggle kind={product.kind} id={product.id} name={name} />
+    <div className="mx-auto w-full max-w-6xl flex-1 space-y-14 px-4 py-10 sm:px-6" data-product-detail={product.kind}>
+      <header className="grid items-center gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
+        <div className="space-y-5">
+          {back}
+          <p className="type-caption font-semibold tracking-widest text-orange-text uppercase">{messages.landing.products.kind[product.kind]}</p>
+          <h1 className="type-display-m text-ink">{name}</h1>
+          <div>
+            <SampleBadge>{messages.detail.sampleEntry}</SampleBadge>
+          </div>
+          <div className="flex flex-wrap items-center gap-4 rounded-card border border-line bg-surface p-3 sm:w-fit">
+            <FavouriteButton id={product.id} name={name} />
+            <ComparisonToggle kind={product.kind} id={product.id} name={name} />
+          </div>
         </div>
+        {images.length === 0 ? (
+          <div className="overflow-hidden rounded-panel border border-line shadow-e2">
+            <Photo
+              name={product.kind === "panel" ? "panelPlaceholder" : "inverterPlaceholder"}
+              sizes="(min-width: 1024px) 40vw, 100vw"
+              priority
+              className="aspect-[4/3] w-full object-cover dark:brightness-[0.72]"
+            />
+          </div>
+        ) : null}
       </header>
-      <ProductImages images={productImages(product)} name={name} />
+      <ProductImages images={images} name={name} />
       <SpecificationTable groups={specificationGroups(product)} />
-      <SourceSection source={sourceInfo(product)} />
-      <DocumentsSection groups={documentGroups(product)} />
+      <div className="grid gap-10 lg:grid-cols-2">
+        <SourceSection source={sourceInfo(product)} />
+        <DocumentsSection groups={documentGroups(product)} />
+      </div>
       <OffersSection offers={offers} />
     </div>
   );
