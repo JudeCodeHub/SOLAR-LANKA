@@ -265,29 +265,38 @@ export function CustomerCase({ id }: { id: string }) {
       <QueryState query={caseQuery}>
         {(item) => (
           <>
-            <h1 className="font-heading text-3xl font-semibold tracking-tight">{item.symptom.slice(0, 80)}</h1>
-            <p className="text-sm font-medium" data-status>
-              {statusLabel(item.status)}
-            </p>
-            {item.safety_notice ? (
-              <p role="alert" className="rounded-lg border-2 border-destructive p-3 text-sm font-medium" data-safety-notice>
-                {item.safety_notice}
+            <header className="space-y-3 rounded-panel border border-line bg-surface p-6 shadow-e1" data-case-header>
+              <p className="type-caption font-semibold tracking-widest text-orange-text uppercase">{text.eyebrow}</p>
+              <h1 className="type-display-m text-ink">{item.symptom.slice(0, 80)}</h1>
+              <p data-status>
+                <Badge variant={caseTone(item.status)}>{statusLabel(item.status)}</Badge>
               </p>
+              {item.safety_notice ? (
+                <Alert variant="hazard" role="alert" data-safety-notice>
+                  <OctagonAlert aria-hidden />
+                  <AlertDescription className="font-medium text-ink">{item.safety_notice}</AlertDescription>
+                </Alert>
+              ) : null}
+              {item.equipment ? <p className="type-body text-ink">{format(text.equipment, { name: `${item.equipment.brand} ${item.equipment.model}` })}</p> : null}
+              {item.observed_code ? <p className="type-figure text-ink-2">{item.observed_code}</p> : null}
+            </header>
+            {refused ? (
+              <Alert variant="warning" role="alert" data-refused>
+                <TriangleAlert aria-hidden />
+                <AlertDescription>{text.refused}</AlertDescription>
+              </Alert>
             ) : null}
-            {item.equipment ? <p className="text-sm">{format(text.equipment, { name: `${item.equipment.brand} ${item.equipment.model}` })}</p> : null}
-            {item.observed_code ? <p className="text-sm">{item.observed_code}</p> : null}
-            {refused ? <p role="alert" className="text-sm font-medium" data-refused>{text.refused}</p> : null}
             {failure ? <ApiErrorMessage error={failure} /> : null}
 
-            <section aria-labelledby="updates-title" className="space-y-2">
-              <h2 id="updates-title" className="font-heading text-xl font-semibold tracking-tight">
+            <section aria-labelledby="updates-title" className="space-y-4">
+              <h2 id="updates-title" className="type-heading text-ink">
                 {text.updatesTitle}
               </h2>
               <QueryState query={updates}>{(list) => <UpdatesList updates={list} companySide={false} />}</QueryState>
               {item.status !== "closed" ? (
                 <form
                   noValidate
-                  className="space-y-2"
+                  className="space-y-3 rounded-card border border-line bg-surface p-5 shadow-e1"
                   onSubmit={(event) => {
                     event.preventDefault();
                     if (message.trim() === "") {
@@ -299,11 +308,11 @@ export function CustomerCase({ id }: { id: string }) {
                     actions.message.mutate({ body: message.trim(), key }, handlers(() => setMessage("")));
                   }}
                 >
-                  <label htmlFor="message" className="block text-sm font-medium">
+                  <label htmlFor="message" className="block text-sm font-medium text-ink">
                     {text.messageLabel}
                   </label>
-                  <textarea id="message" rows={3} value={message} maxLength={2000} onChange={(event) => setMessage(event.target.value)} aria-invalid={Boolean(problem)} className="w-full field-control p-2 text-sm" />
-                  {problem ? <p role="alert" className="text-sm font-medium text-destructive" data-error="message">{problem}</p> : null}
+                  <textarea id="message" rows={3} value={message} maxLength={2000} onChange={(event) => setMessage(event.target.value)} aria-invalid={Boolean(problem)} className="w-full field-control p-3 text-sm" />
+                  {problem ? <p role="alert" className="flex items-center gap-1.5 text-sm font-medium text-danger" data-error="message"><CircleAlert aria-hidden className="size-4 shrink-0" />{problem}</p> : null}
                   <Button type="submit" variant="outline" aria-disabled={actions.message.isPending} data-action="send-message">
                     {text.send}
                   </Button>
@@ -311,15 +320,15 @@ export function CustomerCase({ id }: { id: string }) {
               ) : null}
             </section>
 
-            <section aria-labelledby="photos-title" className="space-y-2">
-              <h2 id="photos-title" className="font-heading text-xl font-semibold tracking-tight">
+            <section aria-labelledby="photos-title" className="space-y-3 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6">
+              <h2 id="photos-title" className="type-heading text-ink">
                 {text.photosTitle}
               </h2>
-              <p className="text-sm text-muted-foreground">{text.photosHelp}</p>
+              <p className="type-small text-ink-2">{text.photosHelp}</p>
               <PhotoList photos={item.attachments} fetchPhoto={customerPhoto(id)} label={text.photoDownload} none={text.noPhotos} />
               {item.status !== "resolved" && item.status !== "closed" ? (
                 <>
-                  <label htmlFor="photo" className="block text-sm font-medium">
+                  <label htmlFor="photo" className="block text-sm font-medium text-ink">
                     {text.photoLabel}
                   </label>
                   <input
@@ -363,8 +372,8 @@ export function CustomerCase({ id }: { id: string }) {
               ))}
             </div>
             {customerMoves(item.status).length > 0 ? (
-              <div className="space-y-1">
-                <label htmlFor="reason" className="block text-sm font-medium">
+              <div className="space-y-2">
+                <label htmlFor="reason" className="block text-sm font-medium text-ink">
                   {text.closeNote}
                 </label>
                 <input id="reason" value={reason} maxLength={2000} onChange={(event) => setReason(event.target.value)} className="h-11 w-full field-control px-3 text-sm" />
