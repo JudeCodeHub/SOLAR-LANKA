@@ -732,3 +732,13 @@ test("the customer home has a greeting header with the evening photo and three s
   for (const empty of ["text.requestsNone", "text.offersNone", "text.installationsNone"]) assert.ok(home.includes(empty), empty);
   assert.match(parts, /min-h-14/);
 });
+
+test("the prepare-a-request form keeps its fields, validation and send path while using the page header, numbered section cards and selectable estimate cards", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "requests", "prepare-view.tsx"), "utf8");
+  for (const needle of ["requirementsSchema", "useAppForm(requirementsSchema", 'name="district"', 'name="monthly_consumption_kwh"', 'name="details"', "maxLength={MAX_DETAILS}", "text.estimate.loadingDetails", "onConfirm(requirements)", "<RecipientsStep requirements={draft} />", 'type="radio"', "data-nothing-sent", "data-filled", "data-locked-district", "data-estimate-error"]) assert.ok(view.includes(needle), needle);
+  assert.match(view, /<PageHeader/);
+  assert.equal((view.match(/data-section=/g) ?? []).length, 2);
+  assert.match(view, /has-\[:checked\]:border-orange-text/);
+  assert.match(view, /min-h-11/);
+  assert.doesNotMatch(view, /text-muted-foreground|font-heading|text-destructive/);
+});
