@@ -1,5 +1,6 @@
 "use client";
 
+import { CircleCheck } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
@@ -41,11 +42,11 @@ export function NotificationSettings() {
   };
 
   return (
-    <section aria-labelledby="settings-title" className="space-y-3 rounded-lg border p-4" data-settings>
-      <h2 id="settings-title" className="font-heading text-xl font-semibold tracking-tight">
+    <section aria-labelledby="settings-title" className="space-y-4 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6" data-settings>
+      <h2 id="settings-title" className="type-heading text-ink">
         {text.title}
       </h2>
-      <p className="text-sm text-muted-foreground">{text.intro}</p>
+      <p className="type-body text-ink-2">{text.intro}</p>
       <QueryState query={query}>
         {(current) => (
           <div className="space-y-3">
@@ -55,23 +56,39 @@ export function NotificationSettings() {
                 ["email_enabled", text.email, text.emailHelp, "email"],
               ] as const
             ).map(([key, label, help, name]) => (
-              <div key={key} className="space-y-1">
-                <label className="flex min-h-11 items-center gap-3 text-sm font-medium">
-                  <input type="checkbox" className="field-check size-6 shrink-0" checked={(shown ?? current)[key]} aria-disabled={save.isPending} aria-describedby={`setting-${name}-help`} data-setting={name} onChange={(event) => change(current, key, event.target.checked)} />
-                  <span>{label}</span>
-                </label>
-                <p id={`setting-${name}-help`} className="pl-9 text-sm text-muted-foreground">
-                  {help}
-                </p>
-              </div>
+              <SettingRow key={key} name={name} label={label} help={help} checked={(shown ?? current)[key]} disabled={save.isPending} onChange={(value) => change(current, key, value)} />
             ))}
-            <p role="status" className="min-h-5 text-sm font-medium" data-settings-status>
-              {save.isPending ? text.working : status}
-            </p>
+            <SettingsStatus working={save.isPending} saved={status} />
             {save.error ? <ApiErrorMessage error={save.error} /> : null}
           </div>
         )}
       </QueryState>
     </section>
+  );
+}
+
+/** One switch with its label and help, the whole row pressable; the switch is a native checkbox shown as a switch, so it works from the keyboard and is announced as one. */
+export function SettingRow({ name, label, help, checked, disabled, onChange }: { name: string; label: string; help: string; checked: boolean; disabled: boolean; onChange: (value: boolean) => void }) {
+  return (
+    <div className="rounded-card border border-line bg-paper p-4 has-[:checked]:border-orange-text/40 has-[:checked]:bg-orange-tint" data-setting-row={name}>
+      <label className="flex min-h-14 cursor-pointer items-center justify-between gap-4 text-base font-medium text-ink">
+        <span>{label}</span>
+        <input type="checkbox" role="switch" className="field-switch mr-1 origin-right scale-125" checked={checked} aria-disabled={disabled} aria-describedby={`setting-${name}-help`} data-setting={name} onChange={(event) => onChange(event.target.checked)} />
+      </label>
+      <p id={`setting-${name}-help`} className="type-small max-w-reading text-ink-2">
+        {help}
+      </p>
+    </div>
+  );
+}
+
+/** The saved status: always present so a screen reader hears it, and shown with a tick once the change is saved. */
+export function SettingsStatus({ working, saved }: { working: boolean; saved: string | null }) {
+  const message = working ? text.working : saved;
+  return (
+    <p role="status" className="flex min-h-6 items-center gap-2 text-sm font-medium text-ink" data-settings-status>
+      {message && !working ? <CircleCheck aria-hidden className="size-4 text-success" /> : null}
+      {message}
+    </p>
   );
 }

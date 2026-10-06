@@ -855,3 +855,9 @@ test("the notifications list keeps its filters, paging, guard and marks, and unr
   for (const needle of ["data-notification={unread", "data-badge=", "data-action={unread", "text.unreadBadge", "text.readBadge", "text.markRead", "text.markUnread", "text.working", "inset_4px_0_0_var(--ds-orange-text),var(--ds-shadow-1)", "min-h"]) assert.ok(card.includes(needle) || needle === "min-h", needle);
   assert.doesNotMatch(view + card, /text-muted-foreground|font-heading/);
 });
+
+test("the notification settings keep their two switches, immediate save, guard and status, now as large labelled switches", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "notifications", "notification-settings.tsx"), "utf8");
+  for (const needle of ["useNotificationPreferences()", "useSavePreferences()", "busy.current", "save.mutate(", "reminders_enabled", "email_enabled", "data-settings", "data-setting={name}", "data-settings-status", 'role="status"', 'role="switch"', "field-switch", "aria-describedby={`setting-${name}-help`}", "min-h-14", "<ApiErrorMessage", "text.saved", "text.working"]) assert.ok(view.includes(needle), needle);
+  assert.doesNotMatch(view, /text-muted-foreground|font-heading|field-check/);
+});
