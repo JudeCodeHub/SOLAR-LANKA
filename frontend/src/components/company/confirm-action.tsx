@@ -1,5 +1,6 @@
 "use client";
 
+import { CircleHelp } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -36,12 +37,13 @@ export function ConfirmAction({
 
   if (confirming) {
     return (
-      <div role="group" aria-labelledby={`${id}-title`} className="space-y-3 rounded-card border border-orange bg-orange-tint p-4 text-ink" data-confirm={id}>
-        <h3 id={`${id}-title`} ref={heading} tabIndex={-1} className="font-heading text-lg font-semibold">
+      <div role="group" aria-labelledby={`${id}-title`} className="space-y-3 rounded-card border-2 border-orange-text bg-orange-tint p-5 text-ink shadow-e2" data-confirm={id}>
+        <h3 id={`${id}-title`} ref={heading} tabIndex={-1} className="type-subheading flex items-start gap-2 text-ink outline-none">
+          <CircleHelp aria-hidden className="mt-0.5 size-5 shrink-0 text-orange-text" />
           {title}
         </h3>
-        <p className="text-sm">{body}</p>
-        <div className="flex flex-wrap gap-2">
+        <p className="type-body text-ink">{body}</p>
+        <div className="flex flex-wrap gap-3">
           <Button
             type="button"
             onClick={() => {
@@ -60,7 +62,7 @@ export function ConfirmAction({
     );
   }
   return (
-    <div className="space-y-1">
+    <div className="space-y-2">
       <Button
         type="button"
         variant={variant}
@@ -75,7 +77,7 @@ export function ConfirmAction({
       >
         {label}
       </Button>
-      {help ? <p className="text-sm text-muted-foreground">{help}</p> : null}
+      {help ? <p className="type-small max-w-xs text-ink-2">{help}</p> : null}
     </div>
   );
 }

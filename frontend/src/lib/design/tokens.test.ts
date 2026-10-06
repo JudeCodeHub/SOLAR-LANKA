@@ -778,3 +778,12 @@ test("the offer page shows the stored values and marks, with the decision and th
   assert.ok(view.indexOf("<OfferDetails") < view.indexOf("<OfferExport") && view.indexOf("<OfferExport") < view.indexOf("<OfferDecision"));
   assert.doesNotMatch(view, /text-muted-foreground|font-heading/);
 });
+
+test("accepting and declining still ask first about exactly the revision on screen, with the guard and the refusal explained", () => {
+  const dir = join(import.meta.dirname, "..", "..", "components");
+  const decision = readFileSync(join(dir, "requests", "offer-decision.tsx"), "utf8");
+  for (const needle of ["busy.current", "decisionBlocker(", "format(text.acceptTitle, vars)", "format(text.acceptBody, vars)", "format(text.declineTitle, vars)", "const vars = { number: revision.revision_number, name: companyName, total, date }", "useDecision(requestId, quotationId, revision.id)", "data-declined", "data-refused", "data-not-open", "blockerText(refusal)", "text.noteStale", "?accepted=1"]) assert.ok(decision.includes(needle), needle);
+  const confirm = readFileSync(join(dir, "company", "confirm-action.tsx"), "utf8");
+  for (const needle of ["heading.current?.focus()", "role=\"group\"", "data-confirm-yes={id}", "data-action={id}", "onBeforeOpen", "border-2 border-orange-text"]) assert.ok(confirm.includes(needle), needle);
+  assert.doesNotMatch(confirm + decision, /text-muted-foreground|font-heading/);
+});

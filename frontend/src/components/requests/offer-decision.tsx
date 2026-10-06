@@ -1,9 +1,11 @@
 "use client";
 
+import { CircleX, TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ConfirmAction } from "@/components/company/confirm-action";
 import type { ApiError } from "@/lib/api/errors";
 import { formatLongDate } from "@/lib/catalogue/detail";
@@ -87,25 +89,29 @@ export function OfferDecision({
   const vars = { number: revision.revision_number, name: companyName, total, date };
 
   return (
-    <section aria-labelledby="decide-title" className="space-y-3" data-decision>
-      <h2 id="decide-title" className="font-heading text-xl font-semibold tracking-tight">
+    <section aria-labelledby="decide-title" className="space-y-4 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6" data-decision>
+      <h2 id="decide-title" className="type-heading text-ink">
         {text.title}
       </h2>
       {declined ? (
-        <p ref={statusRef} tabIndex={-1} role="status" className="text-sm font-medium outline-none" data-declined>
+        <p ref={statusRef} tabIndex={-1} role="status" className="flex items-center gap-2 text-base font-medium text-ink outline-none" data-declined>
+          <CircleX aria-hidden className="size-5 shrink-0 text-ink-2" />
           {text.declined}
         </p>
       ) : null}
       {refused ? (
-        <p role="alert" className="text-sm font-medium" data-refused>
-          {blockerText(refusal)} {text.noteStale}
-        </p>
+        <Alert variant="warning" role="alert" data-refused>
+          <TriangleAlert aria-hidden />
+          <AlertDescription>
+            {blockerText(refusal)} {text.noteStale}
+          </AlertDescription>
+        </Alert>
       ) : null}
       {error ? <ApiErrorMessage error={error} /> : null}
       {open ? (
         <>
-          <p className="text-sm text-muted-foreground">{text.intro}</p>
-          <div className="flex flex-wrap items-start gap-3">
+          <p className="type-body text-ink-2">{text.intro}</p>
+          <div className="flex flex-wrap items-start gap-x-6 gap-y-4">
             <ConfirmAction
               id="accept"
               variant="default"
@@ -132,7 +138,7 @@ export function OfferDecision({
           </div>
         </>
       ) : !declined && !refused ? (
-        <p className="text-sm" data-not-open>
+        <p className="type-body text-ink" data-not-open>
           {blocker ? blockerText(blocker) : text.notOpen}
         </p>
       ) : null}
