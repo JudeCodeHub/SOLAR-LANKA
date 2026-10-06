@@ -1871,6 +1871,7 @@ export const en = {
     },
   },
   education: {
+    eyebrow: "Learn",
     title: "Learning centre",
     intro: "Plain-language guides to solar basics, costs and tariffs, and staying safe. Each article names its sources and says when it was reviewed.",
     searchLabel: "Search the guides",

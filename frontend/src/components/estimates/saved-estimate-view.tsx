@@ -55,7 +55,7 @@ export function SavedEstimateView({ id }: { id: string }) {
                 }
               />
               <section aria-labelledby="settings-title" className="space-y-3">
-                <h2 id="settings-title" className="type-display-s text-ink">
+                <h2 id="settings-title" className="type-heading text-ink">
                   {text.settingsTitle}
                 </h2>
                 <p className="type-body max-w-reading text-ink-2">

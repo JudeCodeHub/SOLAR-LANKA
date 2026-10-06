@@ -1,5 +1,6 @@
 "use client";
 
+import { Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -9,10 +10,13 @@ import { Badges } from "@/components/education/article-notice";
 import { QueryState } from "@/components/query-state";
 import { EmptyState } from "@/components/states/empty-state";
 import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/ui/page-header";
+import { Photo } from "@/components/ui/photo";
 import { formatLongDate } from "@/lib/catalogue/detail";
 import { pageInfo, parsePageParam } from "@/lib/catalogue/params";
-import { PAGE_SIZE, useArticles, useCategories } from "@/lib/education/hooks";
+import { PAGE_SIZE, useArticles, useCategories, type ArticleSummary } from "@/lib/education/hooks";
+import { articlePhoto } from "@/lib/landing/format";
+import { cn } from "@/lib/utils";
 import { format, messages } from "@/messages";
 
 const text = messages.education;
@@ -39,81 +43,73 @@ export function LearnView() {
   void PAGE_SIZE;
 
   return (
-    <div className="mx-auto w-full max-w-4xl flex-1 space-y-6 px-4 py-8">
-      <header className="space-y-2">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">{text.title}</h1>
-        <p className="max-w-3xl text-muted-foreground">{text.intro}</p>
-      </header>
+    <div className="mx-auto w-full max-w-5xl flex-1 space-y-6 px-4 py-8">
+      <PageHeader eyebrow={text.eyebrow} title={text.title} description={text.intro} />
       <form
         role="search"
-        className="space-y-1"
+        className="space-y-2 rounded-card border border-line bg-surface p-5 shadow-e1"
         onSubmit={(event) => {
           event.preventDefault();
           router.push(hrefFor(draft.trim(), category, 1));
         }}
       >
-        <label htmlFor="learn-search" className="block font-medium">
+        <label htmlFor="learn-search" className="type-subheading block text-ink">
           {text.searchLabel}
         </label>
-        <div className="flex gap-2">
-          <input id="learn-search" value={draft} maxLength={100} onChange={(event) => setDraft(event.target.value)} aria-describedby="learn-search-help" className="h-11 min-w-0 flex-1 field-control px-3" />
-          <Button type="submit" variant="outline">
-            {text.search}
-          </Button>
+        <div className="flex flex-wrap gap-3">
+          <div className="relative min-w-0 flex-1 basis-60">
+            <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3.5 size-5 -translate-y-1/2 text-ink-3" />
+            <input id="learn-search" value={draft} maxLength={100} onChange={(event) => setDraft(event.target.value)} aria-describedby="learn-search-help" className="field-control h-11 w-full pr-3 pl-11" />
+          </div>
+          <Button type="submit">{text.search}</Button>
           {search ? (
             <Button asChild variant="outline">
               <Link href={hrefFor("", category, 1)}>{text.clear}</Link>
             </Button>
           ) : null}
         </div>
-        <p id="learn-search-help" className="text-sm text-muted-foreground">
+        <p id="learn-search-help" className="type-small text-ink-2">
           {text.searchHelp}
         </p>
       </form>
-      <nav aria-label={text.categoriesLabel} className="flex flex-wrap gap-2">
-        <Button asChild variant={category === "" ? "default" : "outline"} size="sm">
-          <Link href={hrefFor(search, "", 1)} aria-current={category === "" ? "page" : undefined}>
-            {text.all}
-          </Link>
-        </Button>
-        {(categories.data ?? []).map((item) => (
-          <Button key={item.slug} asChild variant={category === item.slug ? "default" : "outline"} size="sm">
-            <Link href={hrefFor(search, item.slug, 1)} aria-current={category === item.slug ? "page" : undefined}>
-              {format(text.categoryLine, { name: item.name, count: item.article_count })}
-            </Link>
-          </Button>
-        ))}
+      <nav aria-label={text.categoriesLabel}>
+        <ul className="flex flex-wrap gap-2">
+          {[{ slug: "", label: text.all }, ...(categories.data ?? []).map((item) => ({ slug: item.slug, label: format(text.categoryLine, { name: item.name, count: item.article_count }) }))].map((item) => {
+            const current = category === item.slug;
+            return (
+              <li key={item.slug || "all"}>
+                <Link
+                  href={hrefFor(search, item.slug, 1)}
+                  aria-current={current ? "page" : undefined}
+                  className={cn(
+                    "inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-medium",
+                    current ? "border-orange bg-orange text-on-orange" : "border-line bg-paper-2 text-ink hover:bg-orange-tint",
+                  )}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       </nav>
       <QueryState query={articles} isEmpty={(result) => result.total === 0} empty={<EmptyState title={text.none} description={text.noneHelp} />}>
         {(result) => {
           const info = pageInfo(result.total, page);
           return (
             <section aria-label={text.title} className="space-y-4">
-              <p className="text-sm text-muted-foreground" role="status">
+              <p className="type-small text-ink-2" role="status">
                 {format(text.showing, { from: info.from, to: info.to, total: result.total })}
               </p>
-              <ul className="grid gap-3 sm:grid-cols-2" data-articles>
-                {result.items.map((item) => (
-                  <li key={item.id}>
-                    <Card className="relative h-full" data-article={item.slug}>
-                      <CardHeader>
-                        <CardTitle>
-                          <h2 className="text-base">
-                            <Link href={`/learn/${item.slug}`} className="underline-offset-2 outline-none after:absolute after:inset-0 hover:underline focus-visible:underline">
-                              {item.title}
-                            </Link>
-                          </h2>
-                        </CardTitle>
-                        <CardDescription className="space-y-1">
-                          <span className="block">{item.summary}</span>
-                          <span className="block">{item.category_name}</span>
-                          <span className="block">{format(text.published, { date: formatLongDate(item.published_at) ?? item.published_at })}</span>
-                          <Badges article={item} />
-                        </CardDescription>
-                      </CardHeader>
-                    </Card>
-                  </li>
-                ))}
+              <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3" data-articles>
+                {result.items.map((item, index) => {
+                  const featured = index === 0 && page === 1 && search === "" && category === "" && result.items.length > 1;
+                  return (
+                    <li key={item.id} className={featured ? "sm:col-span-2 lg:col-span-3" : undefined}>
+                      <ArticleCard item={item} position={index} featured={featured} />
+                    </li>
+                  );
+                })}
               </ul>
               <Pagination hrefFor={(target) => hrefFor(search, category, target)} page={info.page} pageCount={info.pageCount} />
             </section>
@@ -121,5 +117,31 @@ export function LearnView() {
         }}
       </QueryState>
     </div>
+  );
+}
+
+/** One guide: its photo, topic, title, summary, date and notices; the whole card opens it, and the first guide can be shown large. */
+function ArticleCard({ item, position, featured }: { item: ArticleSummary; position: number; featured: boolean }) {
+  return (
+    <article
+      data-article={item.slug}
+      data-featured={featured ? "" : undefined}
+      className={cn("group relative flex h-full overflow-hidden rounded-card border border-line bg-surface shadow-e1 transition-shadow hover:shadow-e2 motion-reduce:transition-none", featured ? "flex-col md:flex-row" : "flex-col")}
+    >
+      <div aria-hidden className={cn("overflow-hidden bg-paper-2", featured ? "md:w-1/2" : "")}>
+        <Photo name={articlePhoto(item.slug, position)} sizes={featured ? "(min-width: 768px) 50vw, 100vw" : "(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"} className="aspect-[16/10] h-full w-full object-cover" />
+      </div>
+      <div className={cn("flex flex-1 flex-col gap-2 p-5", featured ? "md:w-1/2 md:justify-center md:p-8" : "")}>
+        <p className="type-caption font-semibold tracking-widest text-orange-text uppercase">{item.category_name}</p>
+        <h2 className={featured ? "type-heading text-ink" : "type-subheading text-ink"}>
+          <Link href={`/learn/${item.slug}`} className="rounded-field outline-none after:absolute after:inset-0 after:rounded-card hover:underline focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-orange-text">
+            {item.title}
+          </Link>
+        </h2>
+        <p className="type-body text-ink-2">{item.summary}</p>
+        <p className="type-small mt-auto text-ink-2">{format(text.published, { date: formatLongDate(item.published_at) ?? item.published_at })}</p>
+        <Badges article={item} />
+      </div>
+    </article>
   );
 }
