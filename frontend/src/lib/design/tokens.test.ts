@@ -399,7 +399,7 @@ test("the feature grid is uneven, covers the four features with a photo, icon, l
   for (const id of ["estimate", "compare", "track", "learn"]) assert.ok(grid.includes(`id: "${id}"`), id);
   assert.ok(grid.includes("lg:col-span-7") && grid.includes("lg:col-span-5"), "wide and narrow cards");
   assert.ok(grid.includes("<Photo") && grid.includes("<IconCircle") && grid.includes("<Link") && grid.includes("min-h-11"));
-  for (const href of ["/estimator", "/panels", "/my/installations", "/learn"]) assert.ok(grid.includes(`href: "${href}"`), href);
+  for (const href of ["/estimator", "/panels", "#tracking", "/learn"]) assert.ok(grid.includes(`href: "${href}"`), href);
   const page = read("app/page.tsx");
   assert.ok(page.indexOf("<FeatureGrid />") > page.indexOf("<HowItWorks />"));
 });
@@ -439,4 +439,17 @@ test("the learning teaser shows up to three real guides with a photo, category, 
   assert.ok(read("lib/landing/load.ts").includes('"/education/articles"'));
   const page = read("app/page.tsx");
   assert.ok(page.indexOf("<LearningTeaser") > page.indexOf("<CompaniesShowcase"));
+});
+
+test("the tracking section shows the eight real installation steps in order with an icon and a word for each status, and the Track card links to it", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  const section = read("components/landing/tracking-section.tsx");
+  const order = ["site_survey", "system_design", "permits_and_approvals", "equipment_delivery", "installation_work", "inspection_and_testing", "commissioning", "customer_handover"];
+  const listed = [...section.matchAll(/\{ kind: "(\w+)", state/g)].map((match) => match[1]);
+  assert.deepEqual(listed, order);
+  assert.ok(section.includes("messages.tracking.kinds") && section.includes("messages.tracking.statuses"), "the same words as the tracking page");
+  assert.ok(section.includes("CircleCheck") && section.includes("Clock") && section.includes("Circle,") && section.includes("<SampleBadge>"));
+  assert.ok(section.includes('id="tracking"'));
+  const page = read("app/page.tsx");
+  assert.ok(page.indexOf("<TrackingSection />") > page.indexOf("<LearningTeaser"));
 });

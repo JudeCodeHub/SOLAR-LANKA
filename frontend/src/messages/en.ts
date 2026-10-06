@@ -496,6 +496,7 @@ export const en = {
         eyebrow: "Transparency",
         title: "Eight steps, always visible.",
         body: "Your installer updates each step and you see it as it happens.",
+        sampleLabel: "Sample progress",
       },
       comparison: {
         eyebrow: "Quotations",
