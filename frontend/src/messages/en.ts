@@ -445,6 +445,8 @@ export const en = {
       services: "Services offered",
       servicesNone: "This company has not listed any services.",
       back: "Back to the directory",
+      requestAction: "Start a quotation request",
+      requestHelp: "Describe what you need once, then choose which companies receive it, including this one.",
     },
     notFound: {
       title: "Company not found",
