@@ -4,6 +4,7 @@ import { ClipboardList, FileText, Zap, Sun, BatteryCharging, ShieldCheck, Circle
 import { InstallationTimeline } from "@/components/installations/installation-timeline";
 import { InstallationCard } from "@/components/installations/installation-card";
 import { ExportDemo } from "@/components/design/export-demo";
+import { ProductCard } from "@/components/catalogue/product-card";
 import { VisitsDemo } from "@/components/design/visits-demo";
 import { DecisionDemo } from "@/components/design/decision-demo";
 import { OfferDetails } from "@/components/requests/offer-view";
@@ -81,6 +82,12 @@ const TIMELINE_STEPS = TIMELINE_KINDS.map((kind, index) => ({ id: `m${index + 1}
 const TIMELINE_HISTORY = [
   { id: "u1", milestone_id: "m1", created_at: "2026-09-12T08:00:00Z", from_status: "pending", to_status: "completed", reason: null, next_action: null, delay_until: null },
   { id: "u2", milestone_id: "m4", created_at: "2026-10-01T08:00:00Z", from_status: "pending", to_status: "in_progress", reason: "Panels shipped from the port", next_action: "Confirm a delivery day", delay_until: "2026-10-12T00:00:00Z" },
+];
+/** Saved products as the favourites page lists them: two panels and an inverter. */
+const FAVOURITE_SAMPLES = [
+  { id: "00000000-0000-4000-8000-0000000000a1", kind: "panel" as const, brand: "Trina", model: "TSM-545", wattage_w: "545", efficiency_percent: "21.1", media: [] },
+  { id: "00000000-0000-4000-8000-0000000000a2", kind: "panel" as const, brand: "Jinko", model: "Tiger Neo 580", wattage_w: null, efficiency_percent: "22.4", media: [] },
+  { id: "00000000-0000-4000-8000-0000000000a3", kind: "inverter" as const, brand: "GoodWe", model: "GW5000-DNS", category: "on_grid" as const, capacity_kw: "5", media: [] },
 ];
 const INSTALLATION_SAMPLES = [
   { id: "i1", created_at: "2026-09-28T08:00:00Z", completed_milestones: 0, total_milestones: 8 },
@@ -533,6 +540,16 @@ export function DesignGallery() {
         <div className="space-y-3" data-timeline-sample>
           <h3 className="type-subheading">{text.navigation.timeline}</h3>
           <InstallationTimeline milestones={TIMELINE_STEPS} history={TIMELINE_HISTORY} now={OFFER_NOW} />
+        </div>
+        <div className="space-y-3" data-favourites-sample>
+          <h3 className="type-subheading">{text.navigation.favourites}</h3>
+          <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {FAVOURITE_SAMPLES.map((product) => (
+              <li key={product.id}>
+                <ProductCard product={product} listHref="/my/favourites" headingLevel="h3" />
+              </li>
+            ))}
+          </ul>
         </div>
         <div className="space-y-3" data-installations-sample>
           <h3 className="type-subheading">{text.navigation.installations}</h3>

@@ -5,15 +5,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 import { Pagination } from "@/components/catalogue/pagination";
-import { FavouriteControl } from "@/components/favourites/favourite-button";
+import { ProductCard } from "@/components/catalogue/product-card";
 import { QueryState } from "@/components/query-state";
 import { EmptyState } from "@/components/states/empty-state";
 import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BASE_PATH, detailHref } from "@/lib/catalogue/links";
+import { PageHeader } from "@/components/ui/page-header";
 import { pageInfo, parsePageParam } from "@/lib/catalogue/params";
 import { useFavouritesPage } from "@/lib/favourites/hooks";
-import { productName } from "@/lib/landing/format";
 import { format, messages } from "@/messages";
 
 const text = messages.favourites.page;
@@ -36,10 +34,7 @@ export function FavouritesView() {
 
   return (
     <div className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 py-8">
-      <header className="space-y-2">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">{text.title}</h1>
-        <p className="max-w-3xl text-muted-foreground">{text.intro}</p>
-      </header>
+      <PageHeader eyebrow={text.eyebrow} title={text.title} description={text.intro} />
       <QueryState
         query={query}
         isEmpty={(result) => result.total === 0}
@@ -48,11 +43,11 @@ export function FavouritesView() {
             title={text.emptyTitle}
             description={text.emptyDescription}
             action={
-              <div className="flex flex-wrap justify-center gap-2">
-                <Button asChild variant="outline" size="sm">
+              <div className="flex flex-wrap justify-center gap-3">
+                <Button asChild>
                   <Link href="/panels">{text.browsePanels}</Link>
                 </Button>
-                <Button asChild variant="outline" size="sm">
+                <Button asChild variant="outline">
                   <Link href="/inverters">{text.browseInverters}</Link>
                 </Button>
               </div>
@@ -64,30 +59,11 @@ export function FavouritesView() {
           const info = pageInfo(result.total, page);
           return (
             <section aria-label={text.title} className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                {format(text.showing, { from: info.from, to: info.to, total: result.total })}
-              </p>
-              <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <p className="type-small text-ink-2">{format(text.showing, { from: info.from, to: info.to, total: result.total })}</p>
+              <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3" data-favourites>
                 {result.items.map((product) => (
                   <li key={product.id}>
-                    <Card className="relative h-full">
-                      <CardHeader>
-                        <CardDescription>{messages.landing.products.kind[product.kind]}</CardDescription>
-                        <CardTitle>
-                          <h2 className="text-base">
-                            <Link
-                              href={detailHref(product.kind, product.id, BASE_PATH[product.kind])}
-                              className="underline-offset-2 outline-none after:absolute after:inset-0 hover:underline focus-visible:underline"
-                            >
-                              {productName(product)}
-                            </Link>
-                          </h2>
-                        </CardTitle>
-                      </CardHeader>
-                      <div className="absolute top-3 right-3 z-10">
-                        <FavouriteControl id={product.id} name={productName(product)} signedIn />
-                      </div>
-                    </Card>
+                    <ProductCard product={product} listHref="/my/favourites" headingLevel="h3" />
                   </li>
                 ))}
               </ul>
