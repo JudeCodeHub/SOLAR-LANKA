@@ -598,3 +598,14 @@ test("the estimator charts use theme colours and a different pattern for each ki
   assert.match(chart, /<pattern id=\{`\$\{chart\}-base`\}/);
   assert.match(chart, /<pattern id=\{`\$\{chart\}-low`\}/);
 });
+
+test("the estimate assumptions are folded into accordion items built on the details element", () => {
+  const dir = join(import.meta.dirname, "..", "..", "components");
+  const accordion = readFileSync(join(dir, "ui", "accordion.tsx"), "utf8");
+  assert.match(accordion, /<details/);
+  assert.match(accordion, /<summary/);
+  assert.match(accordion, /min-h-11/);
+  assert.match(accordion, /motion-reduce:transition-none/);
+  const results = readFileSync(join(dir, "estimator", "estimate-results.tsx"), "utf8");
+  assert.equal((results.match(/<AccordionItem/g) ?? []).length, 3);
+});

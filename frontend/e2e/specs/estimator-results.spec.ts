@@ -132,3 +132,37 @@ for (const theme of ["light", "dark"] as const) {
     if (process.env.HERO_SHOTS) await charts.first().screenshot({ path: `e2e/.tmp/chart-${theme}.png` });
   });
 }
+
+for (const theme of ["light", "dark"] as const) {
+  for (const width of [320, 1280]) {
+    test(`assumptions and sources sit in three accordion items that open from the keyboard at ${width} px (${theme})`, async ({ page, signInAs }) => {
+      signInAs(null);
+      await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
+      await page.setViewportSize({ width, height: 900 });
+      await calculate(page, true);
+      const items = page.locator("[data-assumptions] details");
+      await expect(items).toHaveCount(3);
+      // The fixed assumptions are open, the inputs and the sources are folded away until asked for.
+      await expect(items.nth(0)).toHaveJSProperty("open", true);
+      await expect(items.nth(1)).toHaveJSProperty("open", false);
+      await expect(items.nth(2)).toHaveJSProperty("open", false);
+      await expect(page.locator("[data-source='yield']")).toBeHidden();
+      const summary = items.nth(2).locator("summary");
+      expect((await summary.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
+      await summary.focus();
+      await page.keyboard.press("Enter");
+      await expect(items.nth(2)).toHaveJSProperty("open", true);
+      await expect(page.locator("[data-source='yield']")).toBeVisible();
+      await expect(page.locator("[data-source='yield']")).toContainText("Sample publisher");
+      await page.keyboard.press("Space");
+      await expect(items.nth(2)).toHaveJSProperty("open", false);
+      await items.nth(1).locator("summary").click();
+      await expect(items.nth(1)).toContainText("Colombo");
+      await items.nth(2).locator("summary").click();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      const { violations } = await new AxeBuilder({ page }).include("[data-assumptions]").withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+      expect(violations.map((v) => `${v.id}: ${v.nodes.slice(0, 2).map((n) => n.target.join(" ")).join(" | ")}`)).toEqual([]);
+      if (process.env.HERO_SHOTS) await page.locator("[data-assumptions]").screenshot({ path: `e2e/.tmp/accordion-${theme}-${width}.png` });
+    });
+  }
+}
