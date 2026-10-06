@@ -22,5 +22,5 @@ export function Photo({ name, sizes, priority = false, className = "" }: { name:
   if (!entry) {
     return <div role="img" aria-label={alt} className={`aspect-[3/2] bg-gradient-to-br from-orange-tint to-paper-2 ${className}`} />;
   }
-  return <Image loader={loader} src={file} width={entry.width} height={entry.height} alt={alt} sizes={sizes} priority={priority} placeholder="blur" blurDataURL={entry.blur} className={cn("dark:brightness-90", className)} />;
+  return <Image loader={loader} src={file} width={entry.width} height={entry.height} alt={alt} sizes={sizes} priority={priority} {...(priority ? { fetchPriority: "high" as const, loading: "eager" as const } : {})} placeholder="blur" blurDataURL={entry.blur} className={cn("dark:brightness-90", className)} />;
 }

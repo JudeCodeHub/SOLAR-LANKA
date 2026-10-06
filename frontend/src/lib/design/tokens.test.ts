@@ -492,3 +492,13 @@ test("photos are eased down in the dark theme, the bright catalogue placeholders
   assert.ok(read("components/ui/photo.tsx").includes('cn("dark:brightness-90", className)'));
   assert.ok(read("components/landing/featured-products.tsx").includes("dark:brightness-[0.72]"));
 });
+
+test("a priority photo is fetched at high priority and eagerly, and the display font is preloaded while its italic is not", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  assert.ok(read("components/ui/photo.tsx").includes('fetchPriority: "high"') && read("components/ui/photo.tsx").includes('loading: "eager"'));
+  const fonts = read("fonts/fonts.ts");
+  const display = fonts.slice(fonts.indexOf("export const displayFont"), fonts.indexOf("/** The italic"));
+  assert.ok(display.includes("preload: true") && !display.includes("italic"));
+  const italic = fonts.slice(fonts.indexOf("export const displayItalicFont"), fonts.indexOf("export const figureFont"));
+  assert.ok(italic.includes("preload: false"));
+});

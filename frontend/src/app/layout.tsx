@@ -3,7 +3,7 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { ViewTransition } from "react";
 import "./globals.css";
-import { bodyFont, displayFont, figureFont } from "@/fonts/fonts";
+import { bodyFont, displayFont, displayItalicFont, figureFont } from "@/fonts/fonts";
 import { ComparisonTray } from "@/components/comparison/comparison-tray";
 import { Providers } from "@/components/providers";
 import { SessionWatcher } from "@/components/session-watcher";
@@ -35,7 +35,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${bodyFont.variable} ${displayFont.variable} ${figureFont.variable} h-full antialiased`}
+      className={`${bodyFont.variable} ${displayFont.variable} ${displayItalicFont.variable} ${figureFont.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <Script id="theme-init" strategy="beforeInteractive">
