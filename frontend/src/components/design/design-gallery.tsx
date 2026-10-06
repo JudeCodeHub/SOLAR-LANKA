@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import { ClipboardList, FileText, Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
 
+import { ComparisonTable } from "@/components/requests/compare-view";
 import { OfferCard } from "@/components/requests/offers-section";
 import { RequestCard } from "@/components/requests/request-card";
 import { HomeHeader, NextSteps, SummaryCard } from "@/components/dashboard/dashboard-parts";
@@ -40,6 +41,7 @@ import { Reveal } from "@/components/ui/reveal";
 import { contrastRatio } from "@/lib/design/contrast";
 import { CSS_NAMES, DARK, LIGHT, type Theme } from "@/lib/design/tokens";
 import { progressText } from "@/lib/installations/progress";
+import { INCLUSION_KEYS } from "@/lib/quotation/customer";
 import { navigationFor } from "@/lib/navigation";
 import { PHOTOS, type PhotoKey } from "@/lib/photos/photos";
 import { format, messages, plural } from "@/messages";
@@ -55,6 +57,23 @@ const OFFER_SAMPLES = [
   offer(3, "Lanka Watts", "accepted", "2026-11-01T00:00:00Z", "1720000.00", 1),
   offer(4, "Green Grid", "sent", "2026-09-20T00:00:00Z", "1495000.00", 1),
 ];
+
+const offerFor = (n: number, total: string | null, kwp: string | null, warranty: string | null, status: "included" | "excluded" | "not_specified", missing: string[]) => ({
+  quotation_id: `q${n}`,
+  company_id: `c${n}`,
+  sent_at: "2026-09-25T08:00:00Z",
+  valid_until: "2026-11-01T00:00:00Z",
+  total_lkr: total,
+  capacity_kwp: kwp,
+  warranty_terms: warranty,
+  exclusions: null,
+  equipment: [{ kind: "panel", brand: "Trina", model: "TSM-545", description: "Panel", quantity: "10" }],
+  inclusions: Object.fromEntries(INCLUSION_KEYS.map((key) => [key, status])) as never,
+  missing_fields: missing,
+});
+/** Two offers that differ and one that does not say, for the sample of the comparison table. */
+const COMPARE_OFFERS = [offerFor(1, "1640000.00", "5.45", "10 years on panels", "included", []), offerFor(2, "1580000.00", "5.45", "12 years on panels", "excluded", []), offerFor(3, null, null, null, "not_specified", ["total_lkr", "capacity_kwp"])];
+const COMPARE_NAMES = new Map<string, string | null>([["c1", "Sunbird Solar"], ["c2", "Ceylon Roofs"], ["c3", "Lanka Watts"]]);
 
 const delivery = (status: string, index: number) => ({ id: `d${index}`, company_id: `c${index}`, status, created_at: "2026-09-01T08:00:00Z", viewed_at: null });
 /** One request in each state, for the sample of request cards. */
@@ -480,6 +499,10 @@ export function DesignGallery() {
               </li>
             ))}
           </ul>
+        </div>
+        <div className="space-y-3" data-compare-sample>
+          <h3 className="type-subheading">{text.navigation.compare}</h3>
+          <ComparisonTable requestId="r1" offers={COMPARE_OFFERS} note={messages.customerOffers.compare.title} now={OFFER_NOW} names={COMPARE_NAMES} />
         </div>
         <div className="space-y-3">
           <h3 className="type-subheading">{text.navigation.pagination}</h3>
