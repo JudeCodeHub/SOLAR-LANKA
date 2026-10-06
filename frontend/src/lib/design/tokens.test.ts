@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
 
@@ -635,4 +635,14 @@ test("My estimates and the saved estimate use the page header, figure cards and 
   assert.match(detail, /text\.savedOn/);
   assert.match(detail, /text\.settingsIntro/);
   assert.doesNotMatch(detail, /text-muted-foreground|font-heading/);
+});
+
+test("every type-* class used in a component is a defined utility", () => {
+  const css = readFileSync(join(import.meta.dirname, "..", "..", "app", "globals.css"), "utf8");
+  const defined = new Set([...css.matchAll(/@utility (type-[a-z-]+)/g)].map((match) => match[1]));
+  const walk = (dir: string): string[] => readdirSync(dir).flatMap((name) => (statSync(join(dir, name)).isDirectory() ? walk(join(dir, name)) : name.endsWith(".tsx") ? [join(dir, name)] : []));
+  // "type-title" is an element id in the design gallery, not a class.
+  const unknown = new Set<string>();
+  for (const file of walk(join(import.meta.dirname, "..", ".."))) for (const match of readFileSync(file, "utf8").matchAll(/\btype-[a-z]+(?:-[a-z]+)?\b/g)) if (!defined.has(match[0]) && match[0] !== "type-title") unknown.add(`${match[0]} in ${file.split("/src/")[1]}`);
+  assert.deepEqual([...unknown], []);
 });
