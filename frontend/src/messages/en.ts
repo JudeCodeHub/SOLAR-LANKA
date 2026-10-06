@@ -920,6 +920,7 @@ export const en = {
       viewInstallations: "All installations",
     },
     company: {
+      eyebrow: "Company workspace",
       title: "Company dashboard",
       intro: "What needs your company's attention.",
       profileDraft: "Finish your company profile and submit it for review",
@@ -1331,6 +1332,7 @@ export const en = {
     navigation: {
       dashboard: "Signed-in area",
       companyShell: "The company workspace by role",
+      companyHome: "The company home",
       dashboardIntro: "The customer links in a side column on wide screens and in a drawer on phones. The current page is marked with a bar, a tint and the current-page attribute.",
       requests: "Request cards in each state",
       offers: "Offer cards in each state",

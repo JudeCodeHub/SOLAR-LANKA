@@ -876,3 +876,10 @@ test("the company and technician areas use the same dashboard shell, each role's
   const icons = read("components/shell/nav-icons.tsx");
   for (const id of ["company-dashboard", "company-support", "company-inbox", "company-offers", "company-installations", "company-profile", "technician-visits", "technician-support"]) assert.ok(icons.includes(`"${id}"`), id);
 });
+
+test("the company home keeps its staff gate, counts, empty texts and links, and shows each queue as a card with an icon and a figure", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "dashboard", "company-dashboard.tsx"), "utf8");
+  for (const needle of ["<StaffGate basePath=\"/company\"", "companyActions(", "data-company-name", "<NextSteps", "text.inboxNone", "text.installationsNone", "text.offersNone", "text.profileLine", "fresh: fresh ?? 0", "active: active ?? 0", "`/company/inbox?company=${companyId}`", "`/company/installations?company=${companyId}`", "`/company/profile?company=${companyId}`", '"/company/offers"', "<PageHeader", "figure="]) assert.ok(view.includes(needle), needle);
+  assert.equal((view.match(/<SummaryCard /g) ?? []).length, 4);
+  assert.doesNotMatch(view, /text-muted-foreground|font-heading/);
+});
