@@ -392,6 +392,7 @@ export const en = {
     sampleEntry: "Sample catalogue entry",
   },
   directory: {
+    eyebrow: "Directory",
     title: "Solar companies",
     intro:
       "Fictional companies for this demonstration. Find installers by the district they serve and the service you need. A listing means the platform approved the profile; it does not verify registration or qualifications.",
@@ -404,6 +405,8 @@ export const en = {
       serviceAny: "Any service",
       apply: "Apply filters",
       clear: "Clear all filters",
+      active: "Filters in use",
+      remove: "Remove filter {filter}: {value}",
     },
     invalidIgnored: "A filter value was not valid and has not been applied.",
     results: {
