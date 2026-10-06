@@ -502,3 +502,12 @@ test("a priority photo is fetched at high priority and eagerly, and the display 
   const italic = fonts.slice(fonts.indexOf("export const displayItalicFont"), fonts.indexOf("export const figureFont"));
   assert.ok(italic.includes("preload: false"));
 });
+
+test("sign-in and sign-up share one auth layout: form beside a photo with a sample dial, a photo strip on phones", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  const layout = read("components/auth/auth-layout.tsx");
+  assert.ok(layout.includes("lg:grid-cols-2") && layout.includes("<Dial") && layout.includes("<SampleBadge>") && layout.includes("lg:hidden") && layout.includes("hidden overflow-hidden lg:block"));
+  assert.ok(read("app/sign-in/[[...sign-in]]/page.tsx").includes('<AuthLayout photo="signIn"'));
+  assert.ok(read("app/sign-up/[[...sign-up]]/page.tsx").includes('<AuthLayout photo="signUp"'));
+  assert.ok(read("app/sign-up/[[...sign-up]]/page.tsx").includes("customerOnlyNote"), "the customer-only note stays");
+});

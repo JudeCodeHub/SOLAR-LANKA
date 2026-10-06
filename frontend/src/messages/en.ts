@@ -126,6 +126,16 @@ export const en = {
     signIn: "Sign in",
     createAccount: "Create account",
     signOut: "Sign out",
+    layout: {
+      dialLabel: "Sample system size",
+      dialUnit: "kW",
+      sample: "Sample figures",
+      dialNote: "What an estimate looks like once you have an account.",
+    },
+    signInEyebrow: "Welcome back",
+    signInLine: "Sign in to see your estimates, requests and installations.",
+    signUpEyebrow: "Create your account",
+    signUpLine: "Save estimates, ask companies for quotations and follow your installation.",
     customerOnlyNote:
       "New accounts are customer accounts. Company and administrator access is granted separately by the platform and cannot be chosen here.",
   },
