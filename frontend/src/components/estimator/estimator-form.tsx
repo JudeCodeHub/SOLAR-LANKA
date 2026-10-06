@@ -81,8 +81,19 @@ export function EstimatorForm() {
         });
       }}
     >
-      <fieldset className="space-y-4">
-        <legend className="font-heading text-lg font-semibold tracking-tight">
+      <ol aria-hidden className="flex items-center gap-2 sm:gap-4" data-progress>
+        {[text.sections.usage, text.sections.roof, text.sections.scenario].map((title, index) => (
+          <li key={title} className="flex flex-1 items-center gap-2 text-xs font-medium text-ink-2 sm:text-sm">
+            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-orange-tint text-orange-text type-figure">{index + 1}</span>
+            <span className="hidden sm:inline">{title}</span>
+            <span className="h-px flex-1 bg-line last:hidden" />
+          </li>
+        ))}
+      </ol>
+
+      <fieldset className="space-y-4 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6" data-section="usage">
+        <legend className="type-subheading float-left mb-4 flex w-full items-center gap-3 text-ink">
+          <span aria-hidden className="grid size-8 place-items-center rounded-full bg-orange-tint text-orange-text type-figure">{1}</span>
           {text.sections.usage}
         </legend>
         <TextField
@@ -112,8 +123,9 @@ export function EstimatorForm() {
         />
       </fieldset>
 
-      <fieldset className="space-y-4">
-        <legend className="font-heading text-lg font-semibold tracking-tight">
+      <fieldset className="space-y-4 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6" data-section="roof">
+        <legend className="type-subheading float-left mb-4 flex w-full items-center gap-3 text-ink">
+          <span aria-hidden className="grid size-8 place-items-center rounded-full bg-orange-tint text-orange-text type-figure">{2}</span>
           {text.sections.roof}
         </legend>
         <SelectField
@@ -146,8 +158,9 @@ export function EstimatorForm() {
         />
       </fieldset>
 
-      <fieldset className="space-y-4">
-        <legend className="font-heading text-lg font-semibold tracking-tight">
+      <fieldset className="space-y-4 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6" data-section="scenario">
+        <legend className="type-subheading float-left mb-4 flex w-full items-center gap-3 text-ink">
+          <span aria-hidden className="grid size-8 place-items-center rounded-full bg-orange-tint text-orange-text type-figure">{3}</span>
           {text.sections.scenario}
         </legend>
         <SelectField
