@@ -2995,6 +2995,7 @@ export const en = {
       range: "{low} to {high}",
       planning:
         "This is a planning estimate in ranges, not an installation design, a quotation or a guaranteed saving. Real systems, weather and tariffs differ.",
+      staleTitle: "These figures are out of date",
       stale:
         "You have changed the inputs since this estimate. The figures below are for the earlier inputs. Calculate again to update them.",
       roofLimited: "The system size uses all the roof space that fits {count} panels, so a larger roof would allow a larger system.",

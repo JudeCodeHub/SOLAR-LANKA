@@ -166,3 +166,32 @@ for (const theme of ["light", "dark"] as const) {
     });
   }
 }
+
+for (const theme of ["light", "dark"] as const) {
+  for (const width of [320, 1280]) {
+    test(`the save panel and the out-of-date warning are plain to see at ${width} px (${theme})`, async ({ page, signInAs }) => {
+      signInAs(null);
+      await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
+      await page.setViewportSize({ width, height: 900 });
+      await calculate(page, true);
+      // Signed out, the save area is a panel with a button-sized sign-in link and its note.
+      const panel = page.locator("[data-save-panel]");
+      await expect(panel).toBeVisible();
+      const link = panel.getByRole("link", { name: "Sign in to save this estimate" });
+      expect((await link.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
+      await expect(page.locator("[data-stale]")).toHaveCount(0);
+      // Changing an input makes the warning appear, with a title, a message and an icon, and a double border.
+      await page.getByLabel(/Monthly electricity use/).fill("500");
+      const stale = page.locator("[data-stale]");
+      await expect(stale).toBeVisible();
+      await expect(stale).toContainText("These figures are out of date");
+      await expect(stale).toContainText("Calculate again");
+      await expect(stale.locator("svg")).toHaveCount(1);
+      expect(await stale.evaluate((element) => parseFloat(getComputedStyle(element).borderTopWidth))).toBeGreaterThanOrEqual(2);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      const { violations } = await new AxeBuilder({ page }).include("[data-results]").withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+      expect(violations.map((v) => `${v.id}: ${v.nodes.slice(0, 2).map((n) => n.target.join(" ")).join(" | ")}`)).toEqual([]);
+      if (process.env.HERO_SHOTS) await page.locator("[data-results] > header").screenshot({ path: `e2e/.tmp/save-${theme}-${width}.png` });
+    });
+  }
+}

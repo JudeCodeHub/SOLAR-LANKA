@@ -1,5 +1,6 @@
 "use client";
 
+import { TriangleAlert } from "lucide-react";
 import dynamic from "next/dynamic";
 import type { ReactNode, Ref } from "react";
 
@@ -7,7 +8,7 @@ import { ExternalLink } from "@/components/catalogue/detail/external-link";
 import { ResultsHero } from "@/components/estimator/results-hero";
 import { ResultTable } from "@/components/estimator/result-table";
 import { AccordionItem } from "@/components/ui/accordion";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { formatLongDate, safeExternalUrl } from "@/lib/catalogue/detail";
 import {
   chartSpecs,
@@ -88,7 +89,9 @@ export function EstimateResults({
       </header>
 
       {stale ? (
-        <Alert role="status" data-stale>
+        <Alert variant="warning" role="status" className="border-2" data-stale>
+          <TriangleAlert aria-hidden />
+          <AlertTitle>{text.staleTitle}</AlertTitle>
           <AlertDescription>{text.stale}</AlertDescription>
         </Alert>
       ) : null}
