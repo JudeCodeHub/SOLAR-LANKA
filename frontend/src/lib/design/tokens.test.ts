@@ -667,3 +667,14 @@ test("the article notices are alerts with their own variant and icon, and keep t
   assert.match(notice, /text\.publishedReviewed/);
   assert.match(notice, /role="note"/);
 });
+
+test("related guides use the same card as the learn list, so both link the same way", () => {
+  const dir = join(import.meta.dirname, "..", "..", "components", "education");
+  const view = readFileSync(join(dir, "article-view.tsx"), "utf8");
+  const list = readFileSync(join(dir, "learn-view.tsx"), "utf8");
+  const card = readFileSync(join(dir, "article-card.tsx"), "utf8");
+  assert.match(view, /<ArticleCard item=\{item\}/);
+  assert.match(list, /<ArticleCard item=\{item\}/);
+  assert.match(card, /href=\{`\/learn\/\$\{item\.slug\}`\}/);
+  assert.match(card, /min-h-11/);
+});
