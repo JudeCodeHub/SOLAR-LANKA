@@ -9,13 +9,19 @@ export const bodyFont = localFont({
   adjustFontFallback: "Arial",
 });
 
-/** Display headlines; it is not preloaded until a page actually uses it (step U1.05). */
+/** Display headlines: the landing hero is set in it, so it is preloaded and the first paint already has the right face. */
 export const displayFont = localFont({
-  src: [
-    { path: "./fraunces/fraunces-latin-opsz-normal.woff2", style: "normal", weight: "100 900" },
-    { path: "./fraunces/fraunces-latin-opsz-italic.woff2", style: "italic", weight: "100 900" },
-  ],
+  src: [{ path: "./fraunces/fraunces-latin-opsz-normal.woff2", style: "normal", weight: "100 900" }],
   variable: "--font-display",
+  display: "swap",
+  preload: true,
+  adjustFontFallback: "Times New Roman",
+});
+
+/** The italic of the display face, for emphasis; it is not preloaded and is only fetched when a page uses it. */
+export const displayItalicFont = localFont({
+  src: [{ path: "./fraunces/fraunces-latin-opsz-italic.woff2", style: "italic", weight: "100 900" }],
+  variable: "--font-display-italic",
   display: "swap",
   preload: false,
   adjustFontFallback: "Times New Roman",
