@@ -34,6 +34,15 @@ test.describe("axe finds no WCAG 2.2 AA violations", () => {
       await audit(page, path);
     }
   });
+  test("the landing page, with every section, in both themes", async ({ page, signInAs }) => {
+    signInAs(null);
+    for (const scheme of ["light", "dark"] as const) {
+      await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
+      await page.goto("/");
+      await page.locator("[data-closing-band]").waitFor();
+      await audit(page, `/ in the ${scheme} theme`);
+    }
+  });
   for (const [who, paths] of BY_ROLE) {
     test(`${who} screens`, async ({ page, signInAs }) => {
       signInAs(who);
