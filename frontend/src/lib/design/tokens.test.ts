@@ -421,3 +421,13 @@ test("the signed-out landing page has no second navigation row, while other page
   assert.ok(nav.includes('!signedIn && pathname === "/"'));
   assert.ok(nav.includes("usePathname"));
 });
+
+test("the companies showcase labels its companies as fictional, links the directory and each profile, and follows the catalogue", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  const showcase = read("components/landing/companies-showcase.tsx");
+  assert.ok(showcase.includes("<SampleBadge>{text.sampleLabel}</SampleBadge>") && showcase.includes("DIRECTORY_PATH") && showcase.includes("profileHref(") && showcase.includes("companyCover"));
+  assert.ok(showcase.includes("messages.directory.approval.badge"), "the approval wording stays as the directory words it");
+  const page = read("app/page.tsx");
+  assert.ok(page.indexOf("<CompaniesShowcase") > page.indexOf("<CatalogueShowcase"));
+  assert.ok(!page.includes("FeaturedCompanies"));
+});

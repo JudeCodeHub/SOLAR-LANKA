@@ -1,8 +1,8 @@
 import { CatalogueShowcase } from "@/components/landing/catalogue-showcase";
+import { CompaniesShowcase } from "@/components/landing/companies-showcase";
 import { EntryPoints } from "@/components/landing/entry-points";
 import { EstimateTeaser } from "@/components/landing/estimate-teaser";
 import { FeatureGrid } from "@/components/landing/feature-grid";
-import { FeaturedCompanies } from "@/components/landing/featured-companies";
 import { Hero } from "@/components/landing/hero";
 import { HowItWorks } from "@/components/landing/how-it-works";
 import { getCurrentIdentity } from "@/lib/auth/server";
@@ -20,9 +20,9 @@ export default async function Home() {
       <HowItWorks />
       <FeatureGrid />
       <CatalogueShowcase panels={panels} inverters={inverters} />
+      <CompaniesShowcase section={companies} />
       <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-10 px-4 py-8">
         <EntryPoints />
-        <FeaturedCompanies section={companies} />
       </div>
     </>
   );
