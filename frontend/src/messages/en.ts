@@ -521,6 +521,8 @@ export const en = {
         title: "Safety comes first.",
         body: "If an inverter shows an error, look up the code. Some faults are dangerous: for those we say stop, keep clear and call a licensed technician.",
         action: "Look up an error code",
+        lookTip: "Read the code on the display from a safe distance and look it up. Do not open the equipment or touch cables.",
+        callTip: "If you smell burning, see smoke or damage, or the guidance says stop, keep clear and call a licensed technician.",
       },
       closing: {
         title: "Start with your electricity bill.",

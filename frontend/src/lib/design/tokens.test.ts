@@ -3,6 +3,8 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
 
+import { messages } from "../../messages/index.ts";
+
 import { contrastRatio } from "./contrast.ts";
 import { ALERT_VARIANTS, TABLE_PAIRS, BADGE_VARIANTS, BUTTON_VARIANTS, CARD_VARIANTS, CONTRAST_RULES, CSS_NAMES, DARK, DECORATIVE_ONLY_ON_LIGHT, LIGHT, type ContrastRule, type Theme } from "./tokens.ts";
 
@@ -462,4 +464,14 @@ test("the landing comparison is a real styled table with sample data, flagged an
   assert.ok(section.includes("<SampleBadge>"));
   const page = read("app/page.tsx");
   assert.ok(page.indexOf("<ComparisonSection />") > page.indexOf("<TrackingSection />"));
+});
+
+test("the safety section leads with the stop rule, uses the hazard style and the app's own wording, and the sales words stay out", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  const section = read("components/landing/safety-section.tsx");
+  assert.ok(section.includes('variant="hazard"') && section.includes("guidance.hazardTitle") && section.includes("guidance.hazardEscalate") && section.includes('name="safetyVisit"'));
+  assert.ok(section.indexOf("<Alert") < section.indexOf("text.action"), "the rule comes before the link");
+  const words = JSON.stringify(messages.landing.story.safety).toLowerCase();
+  for (const sales of ["buy", "save", "discount", "offer", "deal"]) assert.ok(!words.includes(sales), sales);
+  assert.ok(read("app/page.tsx").indexOf("<SafetySection />") > read("app/page.tsx").indexOf("<ComparisonSection />"));
 });
