@@ -38,6 +38,26 @@ async function usable(page: Page, label: string, width: number) {
   }
 }
 
+
+/** The catalogue addresses worth checking, found from the lists themselves so they work with whatever sample data is loaded. */
+async function catalogueAddresses(page: Page): Promise<string[]> {
+  const idsOf = async (list: string) => {
+    await page.goto(list);
+    const hrefs = await page.locator("[data-product] h3 a").evaluateAll((links) => links.map((link) => (link.getAttribute("href") ?? "").split("?")[0]!));
+    return hrefs.slice(0, 3);
+  };
+  const panels = await idsOf("/panels");
+  const inverters = await idsOf("/inverters");
+  await page.goto("/companies");
+  const company = (await page.locator("[data-company] h3 a").first().getAttribute("href")) ?? "/companies";
+  const compare = (kind: string, hrefs: string[]) => `/${kind}/compare?ids=${hrefs.map((href) => href.split("/").pop()).join(",")}`;
+  return [
+    "/panels", "/inverters", "/companies",
+    "/panels?q=zzzzqq", "/companies?district=Colombo&service=battery_installation&q=x",
+    panels[0]!, inverters[0]!, compare("panels", panels), compare("inverters", inverters), "/panels/compare", company,
+  ];
+}
+
 const PAGES: [IdentityName | null, string][] = [
   [null, "/"],
   [null, "/panels"],
@@ -74,6 +94,17 @@ test.describe("layout at the documented sizes", () => {
       await page.setViewportSize({ width: size.width, height: size.height });
       for (const [who, path] of PAGES) {
         signInAs(who);
+        await page.goto(path);
+        await settle(page);
+        await usable(page, `${size.name} ${path}`, size.width);
+      }
+    });
+
+    test(`every catalogue page fits at ${size.name}`, async ({ page, signInAs }) => {
+      signInAs(null);
+      await page.setViewportSize({ width: size.width, height: size.height });
+      const addresses = await catalogueAddresses(page);
+      for (const path of addresses) {
         await page.goto(path);
         await settle(page);
         await usable(page, `${size.name} ${path}`, size.width);
