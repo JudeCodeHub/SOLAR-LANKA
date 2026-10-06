@@ -4,6 +4,7 @@ import { BackLink } from "@/components/ui/back-link";
 import { Table as DataTable, TableRegion } from "@/components/ui/table";
 import Link from "next/link";
 
+import { DIFFERS_EDGE, DifferenceFlag, NotSpecified, UnspecifiedFlag } from "@/components/ui/compare-marks";
 import { QueryState } from "@/components/query-state";
 import { type Cell, cellText, compareRows, type ComparisonOfferLike, expiryText, offerState, stateLabel } from "@/lib/quotation/customer";
 import { useComparison, useRequestOffers } from "@/lib/quotation/customer-hooks";
@@ -14,17 +15,10 @@ const text = messages.customerOffers.compare;
 
 function CellView({ cell }: { cell: Cell }) {
   if (cell.kind === "value") return <span className="whitespace-pre-wrap">{cell.text}</span>;
-  const label = cellText(cell);
-  if (cell.kind === "unspecified") {
-    return (
-      <span className="rounded-full border border-dashed px-2 py-0.5 text-xs text-muted-foreground" data-cell="unspecified">
-        {label}
-      </span>
-    );
-  }
+  if (cell.kind === "unspecified") return <NotSpecified />;
   return (
-    <span className="rounded-full border px-2 py-0.5 text-xs" data-cell={cell.kind}>
-      {label}
+    <span className="inline-flex items-center rounded-full border border-line bg-surface px-2.5 py-0.5 text-xs font-medium text-ink" data-cell={cell.kind}>
+      {cellText(cell)}
     </span>
   );
 }
@@ -90,14 +84,14 @@ function Table({ requestId, offers, note, now }: { requestId: string; offers: Co
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.id} className="border-b align-top last:border-0" data-row={row.id} data-differs={row.differs} data-some-unspecified={row.someUnspecified}>
-                <th scope="row" className="p-3 text-left font-normal">
+              <tr key={row.id} className="align-top" data-row={row.id} data-differs={row.differs} data-some-unspecified={row.someUnspecified}>
+                <th scope="row" className={`sticky left-0 z-10 bg-surface text-left font-normal text-ink-2 ${offers.length > 1 && row.differs ? DIFFERS_EDGE : ""}`}>
                   <span className="block">{row.label}</span>
-                  {offers.length > 1 && row.differs ? <span className="mt-1 block text-xs font-medium" data-flag="differs">{text.differs}</span> : null}
-                  {offers.length > 1 && row.someUnspecified ? <span className="mt-1 block text-xs text-muted-foreground" data-flag="unspecified">{text.someUnspecified}</span> : null}
+                  {offers.length > 1 && row.differs ? <DifferenceFlag>{text.differs}</DifferenceFlag> : null}
+                  {offers.length > 1 && row.someUnspecified ? <UnspecifiedFlag>{text.someUnspecified}</UnspecifiedFlag> : null}
                 </th>
                 {row.cells.map((cell, index) => (
-                  <td key={offers[index]?.quotation_id ?? index} className="p-3">
+                  <td key={offers[index]?.quotation_id ?? index}>
                     <CellView cell={cell} />
                   </td>
                 ))}

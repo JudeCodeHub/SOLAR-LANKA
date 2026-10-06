@@ -3,6 +3,7 @@ import { Table, TableRegion } from "@/components/ui/table";
 import Link from "next/link";
 
 import { UnspecifiedValue } from "@/components/catalogue/detail/unspecified-value";
+import { DIFFERS_EDGE, DifferenceFlag, UnspecifiedFlag } from "@/components/ui/compare-marks";
 import { ExternalLink } from "@/components/catalogue/detail/external-link";
 import { SectionUnavailable } from "@/components/landing/section-unavailable";
 import { EmptyState } from "@/components/states/empty-state";
@@ -122,14 +123,10 @@ export async function ComparePage({
                 const relation = rowRelation(row.cells);
                 return (
                   <tr key={row.key} className="align-top" data-row={row.key} data-relation={relation}>
-                    <th scope="row" className={`sticky left-0 z-10 bg-surface text-left font-normal text-ink-2 ${relation === "differs" ? "border-l-4 border-l-orange" : ""}`}>
+                    <th scope="row" className={`sticky left-0 z-10 bg-surface text-left font-normal text-ink-2 ${relation === "differs" ? DIFFERS_EDGE : ""}`}>
                       <span className="block">{row.label}</span>
-                      {relation === "differs" ? (
-                        <span className="mt-1 block text-xs font-medium text-ink" data-flag="differs">{text.differs}</span>
-                      ) : null}
-                      {relation === "unspecified" || relation === "none" ? (
-                        <span className="mt-1 block text-xs text-ink-2" data-flag="unspecified">{relation === "none" ? text.noneSpecified : text.someUnspecified}</span>
-                      ) : null}
+                      {relation === "differs" ? <DifferenceFlag>{text.differs}</DifferenceFlag> : null}
+                      {relation === "unspecified" || relation === "none" ? <UnspecifiedFlag>{relation === "none" ? text.noneSpecified : text.someUnspecified}</UnspecifiedFlag> : null}
                     </th>
                     {row.cells.map((cell, index) => (
                       <td key={columns[index]?.id ?? index} className={relation === "differs" ? "type-figure font-semibold text-ink" : "type-figure"}>

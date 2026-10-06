@@ -1,13 +1,6 @@
-import { messages } from "@/messages";
+import { NotSpecified } from "@/components/ui/compare-marks";
 
-/** How an unknown value is shown everywhere: dashed, muted, in words. */
+/** How an unknown value is shown everywhere: the shared dashed "Not specified" pill. */
 export function UnspecifiedValue() {
-  return (
-    <span
-      data-unspecified
-      className="inline-block rounded border border-dashed px-1.5 py-0.5 text-muted-foreground italic"
-    >
-      {messages.catalogue.card.unspecified}
-    </span>
-  );
+  return <NotSpecified />;
 }
