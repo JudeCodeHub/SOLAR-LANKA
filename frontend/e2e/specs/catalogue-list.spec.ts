@@ -141,3 +141,19 @@ test.describe("the compare tray", () => {
     });
   }
 });
+
+test("product, company and detail photos are eased down in the dark theme and untouched in the light theme", async ({ page, signInAs }) => {
+  signInAs(null);
+  await page.setViewportSize({ width: 1280, height: 900 });
+  const filters = async (path: string, selector: string) => {
+    await page.goto(path);
+    await page.locator(selector).first().waitFor();
+    return page.evaluate((query) => getComputedStyle(document.querySelector(query)!).filter, selector);
+  };
+  await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
+  expect(await filters("/panels", "[data-product] img")).toBe("none");
+  await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+  expect(await filters("/panels", "[data-product] img")).toBe("brightness(0.72)");
+  expect(await filters("/inverters", "[data-product] img")).toBe("brightness(0.72)");
+  expect(await filters("/companies", "[data-company] img")).toBe("brightness(0.9)");
+});
