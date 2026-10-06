@@ -18,7 +18,7 @@ async function settle(page: Page) {
   await page.waitForLoadState("networkidle");
 }
 
-/** The page never scrolls sideways, and every control that is shown is big enough to press. */
+/** The page never scrolls sideways, and every control that is shown is big enough to press (Clerk's own widget, whose links and logo are not ours to size, is left out). */
 async function usable(page: Page, label: string, width: number) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   const wide = overflow > 0 ? await page.evaluate(() => [...document.querySelectorAll("main *")].filter((el) => el.getBoundingClientRect().right > document.documentElement.clientWidth + 1).slice(0, 3).map((el) => el.outerHTML.slice(0, 100))) : [];
@@ -30,7 +30,7 @@ async function usable(page: Page, label: string, width: number) {
           // A card title link stretched over its whole card (after:inset-0) is pressed anywhere on the card.
           const box = el.getBoundingClientRect();
           const inline = [...(el.parentElement?.childNodes ?? [])].some((n) => n.nodeType === 3 && (n.textContent ?? "").trim() !== "");
-          return box.width > 0 && box.height > 0 && (box.height < 24 || box.width < 24) && !inline && !el.closest("p, li > span") && !el.className.toString().includes("after:inset-0");
+          return box.width > 0 && box.height > 0 && (box.height < 24 || box.width < 24) && !inline && !el.closest("p, li > span") && !el.closest('[class^="cl-"], [class*=" cl-"]') && !el.className.toString().includes("after:inset-0");
         })
         .map((el) => el.outerHTML.slice(0, 90)),
     );
@@ -75,6 +75,18 @@ test.describe("layout at the documented sizes", () => {
       for (const [who, path] of PAGES) {
         signInAs(who);
         await page.goto(path);
+        await settle(page);
+        await usable(page, `${size.name} ${path}`, size.width);
+      }
+    });
+
+    test(`the sign-in and sign-up pages fit at ${size.name}`, async ({ page, signInAs }) => {
+      signInAs(null);
+      await page.setViewportSize({ width: size.width, height: size.height });
+      for (const path of ["/sign-in", "/sign-up"]) {
+        await page.goto(path);
+        await page.locator("[data-auth-form]").waitFor();
+        await page.getByRole("textbox", { name: "Email address" }).waitFor({ timeout: 30_000 });
         await settle(page);
         await usable(page, `${size.name} ${path}`, size.width);
       }
