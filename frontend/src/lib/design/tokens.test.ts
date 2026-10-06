@@ -834,3 +834,15 @@ test("the customer support list and report form keep the safety card, the unsafe
   assert.ok(top.indexOf("<SafetyBox />") < top.indexOf("<QueryState query={cases}"));
   assert.doesNotMatch(top, /text-muted-foreground|font-heading|text-destructive/);
 });
+
+test("a support case keeps its shared updates, messages, photos and moves, and the shared lists show who acted and what is internal", () => {
+  const dir = join(import.meta.dirname, "..", "..", "components", "support");
+  const detail = readFileSync(join(dir, "customer-support.tsx"), "utf8");
+  const case_ = detail.slice(detail.indexOf("export function CustomerCase"));
+  for (const needle of ["data-case-header", "data-status", "data-safety-notice", "data-refused", "data-error=\"message\"", "data-action=\"send-message\"", "<UpdatesList updates={list} companySide={false}", "<PhotoList photos={item.attachments}", "customerPhoto(id)", "evidenceProblem(file)", "newKey()", "customerMoves(item.status)", "<ConfirmAction", "begin()", "busy.current"]) assert.ok(case_.includes(needle), needle);
+  const updates = readFileSync(join(dir, "updates-list.tsx"), "utf8");
+  for (const needle of ["data-updates", "data-update={update.kind}", "data-shared={update.shared}", "companySide ?", "text.company.sharedTag", "text.company.internal", "aria-hidden"]) assert.ok(updates.includes(needle), needle);
+  const photos = readFileSync(join(dir, "photo-list.tsx"), "utf8");
+  for (const needle of ["data-photos", "data-download", "useDownloadPhoto(fetchPhoto)", "<ApiErrorMessage"]) assert.ok(photos.includes(needle), needle);
+  assert.doesNotMatch(case_ + updates + photos, /text-muted-foreground|font-heading|text-destructive/);
+});
