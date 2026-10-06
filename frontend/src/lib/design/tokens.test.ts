@@ -646,3 +646,13 @@ test("every type-* class used in a component is a defined utility", () => {
   for (const file of walk(join(import.meta.dirname, "..", ".."))) for (const match of readFileSync(file, "utf8").matchAll(/\btype-[a-z]+(?:-[a-z]+)?\b/g)) if (!defined.has(match[0]) && match[0] !== "type-title") unknown.add(`${match[0]} in ${file.split("/src/")[1]}`);
   assert.deepEqual([...unknown], []);
 });
+
+test("the article page keeps its text as plain paragraphs in a reading column, with a contents list on wide screens", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "education", "article-view.tsx"), "utf8");
+  assert.doesNotMatch(view, /dangerouslySetInnerHTML/);
+  assert.match(view, /paragraphs\(article\.body\)/);
+  assert.match(view, /max-w-reading/);
+  assert.match(view, /hidden lg:block/);
+  assert.match(view, /<Photo /);
+  assert.match(view, /id="article-body"/);
+});
