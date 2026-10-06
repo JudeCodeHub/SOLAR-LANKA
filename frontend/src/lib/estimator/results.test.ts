@@ -156,3 +156,7 @@ test("a range of one value reads as one value and its range has the same two end
   assert.deepEqual(capacity?.range, { low: 6, high: 6 });
   assert.equal(rangeDisplay({ minimum: "6.00", maximum: "6" }, 2), "6");
 });
+
+test("every chart bar says whether it is a starting point, a low end or a high end, so each can have its own pattern", () => {
+  for (const spec of chartSpecs(full, "300")) assert.deepEqual(spec.bars.map((bar) => bar.kind), ["base", "low", "high"]);
+});
