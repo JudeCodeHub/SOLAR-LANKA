@@ -139,6 +139,11 @@ export const en = {
     },
     signInEyebrow: "Welcome back",
     signInLine: "Sign in to see your estimates, requests and installations.",
+    signUpPoints: {
+      save: "Save estimates and compare them later",
+      ask: "Send one request to several companies",
+      follow: "Follow your installation from survey to handover",
+    },
     signUpEyebrow: "Create your account",
     signUpLine: "Save estimates, ask companies for quotations and follow your installation.",
     customerOnlyNote:

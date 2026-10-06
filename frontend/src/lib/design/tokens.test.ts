@@ -508,7 +508,7 @@ test("sign-in and sign-up share one auth layout: form beside a photo with a samp
   const layout = read("components/auth/auth-layout.tsx");
   assert.ok(layout.includes("lg:grid-cols-2") && layout.includes("<Dial") && layout.includes("<SampleBadge>") && layout.includes("lg:hidden") && layout.includes("hidden overflow-hidden lg:block"));
   assert.ok(read("app/sign-in/[[...sign-in]]/page.tsx").includes("<AuthLayout") && read("app/sign-in/[[...sign-in]]/page.tsx").includes('photo="signIn"'));
-  assert.ok(read("app/sign-up/[[...sign-up]]/page.tsx").includes('<AuthLayout photo="signUp"'));
+  assert.ok(read("app/sign-up/[[...sign-up]]/page.tsx").includes("<AuthLayout") && read("app/sign-up/[[...sign-up]]/page.tsx").includes('photo="signUp"'));
   assert.ok(read("app/sign-up/[[...sign-up]]/page.tsx").includes("customerOnlyNote"), "the customer-only note stays");
 });
 
@@ -526,4 +526,10 @@ test("the sign-in page gives the welcome line and three reasons to sign in besid
   const page = read("app/sign-in/[[...sign-in]]/page.tsx");
   assert.ok(page.includes("<SignIn />") && page.includes("signInPoints.estimates") && page.includes("signInPoints.requests") && page.includes("signInPoints.installations") && page.includes('photo="signIn"'));
   assert.ok(read("components/auth/auth-layout.tsx").indexOf("{children}") < read("components/auth/auth-layout.tsx").indexOf("data-auth-points"), "the form comes before the list in reading order");
+});
+
+test("the sign-up page matches sign-in: the P11 photo, three reasons, and the customer-accounts-only note kept", () => {
+  const page = readFileSync(join(import.meta.dirname, "..", "..", "app", "sign-up", "[[...sign-up]]", "page.tsx"), "utf8");
+  assert.ok(page.includes("<SignUp />") && page.includes('photo="signUp"') && page.includes("signUpPoints.save") && page.includes("signUpPoints.ask") && page.includes("signUpPoints.follow"));
+  assert.ok(page.includes("customerOnlyNote") && page.includes("text-ink-2"));
 });
