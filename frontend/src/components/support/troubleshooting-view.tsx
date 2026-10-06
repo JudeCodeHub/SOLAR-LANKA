@@ -1,12 +1,14 @@
 "use client";
 
-import { OctagonAlert } from "lucide-react";
+import { CircleAlert, OctagonAlert } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
+import { Photo } from "@/components/ui/photo";
 import { type Lookup, useLookup } from "@/lib/support/hooks";
 import { lookupQuery, ordered } from "@/lib/support/support";
 import { formatLongDate } from "@/lib/catalogue/detail";
@@ -29,46 +31,58 @@ export function TroubleshootingView() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
-      <header className="space-y-2">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">{text.title}</h1>
-        <p className="max-w-3xl text-muted-foreground">{text.intro}</p>
-      </header>
-      <form
-        noValidate
-        className="space-y-3"
-        onSubmit={(event) => {
-          event.preventDefault();
-          ask();
-        }}
-      >
-        <div className="space-y-1">
-          <label htmlFor="model" className="block font-medium">
-            {text.modelLabel}
-          </label>
-          <input id="model" value={model} onChange={(event) => setModel(event.target.value)} maxLength={100} aria-invalid={Boolean(problem)} aria-describedby={`model-help${problem ? " model-error" : ""}`} autoComplete="off" className="h-11 w-full field-control px-3" />
-          <p id="model-help" className="text-sm text-muted-foreground">
-            {text.modelHelp}
-          </p>
-          {problem ? (
-            <p id="model-error" role="alert" className="text-sm font-medium text-destructive" data-error="model">
-              {problem}
+    <div className="mx-auto w-full max-w-5xl flex-1 space-y-6 px-4 py-8">
+      <PageHeader eyebrow={text.eyebrow} title={text.title} description={text.intro} />
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <form
+          noValidate
+          className="space-y-5 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6"
+          data-lookup-form
+          onSubmit={(event) => {
+            event.preventDefault();
+            ask();
+          }}
+        >
+          <div className="space-y-1.5">
+            <label htmlFor="model" className="type-subheading block text-ink">
+              {text.modelLabel}
+            </label>
+            <input id="model" value={model} onChange={(event) => setModel(event.target.value)} maxLength={100} aria-invalid={Boolean(problem)} aria-describedby={`model-help${problem ? " model-error" : ""}`} autoComplete="off" className="field-control h-11 w-full px-3.5" />
+            <p id="model-help" className="type-small text-ink-2">
+              {text.modelHelp}
             </p>
-          ) : null}
-        </div>
-        <div className="space-y-1">
-          <label htmlFor="code" className="block font-medium">
-            {text.codeLabel}
-          </label>
-          <input id="code" value={code} onChange={(event) => setCode(event.target.value)} maxLength={64} aria-describedby="code-help" autoComplete="off" className="h-11 w-full field-control px-3" />
-          <p id="code-help" className="text-sm text-muted-foreground">
-            {text.codeHelp}
-          </p>
-        </div>
-        <Button type="submit" aria-disabled={result.isFetching} data-action="lookup">
-          {result.isFetching ? text.searching : text.search}
-        </Button>
-      </form>
+            {problem ? (
+              <p id="model-error" role="alert" className="flex items-center gap-2 text-sm font-medium text-danger" data-error="model">
+                <CircleAlert aria-hidden className="size-4 shrink-0" />
+                {problem}
+              </p>
+            ) : null}
+          </div>
+          <div className="space-y-1.5">
+            <label htmlFor="code" className="type-subheading block text-ink">
+              {text.codeLabel}
+            </label>
+            <input id="code" value={code} onChange={(event) => setCode(event.target.value)} maxLength={64} aria-describedby="code-help" autoComplete="off" className="field-control h-11 w-full px-3.5" />
+            <p id="code-help" className="type-small text-ink-2">
+              {text.codeHelp}
+            </p>
+          </div>
+          <Button type="submit" aria-disabled={result.isFetching} data-action="lookup">
+            {result.isFetching ? text.searching : text.search}
+          </Button>
+        </form>
+        <aside aria-labelledby="find-title" className="overflow-hidden rounded-card border border-line bg-surface shadow-e1" data-find-model>
+          <div aria-hidden>
+            <Photo name="photographDisplay" sizes="(min-width: 1024px) 320px, 100vw" className="aspect-[16/10] w-full object-cover" />
+          </div>
+          <div className="space-y-2 p-5">
+            <h2 id="find-title" className="type-subheading text-ink">
+              {text.findTitle}
+            </h2>
+            <p className="type-small text-ink-2">{text.findBody}</p>
+          </div>
+        </aside>
+      </div>
       {result.error ? <ApiErrorMessage error={result.error} /> : null}
       {result.data && query ? <Result data={result.data} choose={ask} /> : null}
     </div>

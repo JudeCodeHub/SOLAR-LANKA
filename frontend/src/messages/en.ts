@@ -1793,6 +1793,9 @@ export const en = {
     },
   },
   troubleshooting: {
+    eyebrow: "Help",
+    findTitle: "Finding your model",
+    findBody: "Read it from the label on the equipment or from its display, standing at a safe distance. Do not open the equipment or touch cables to find it.",
     title: "Troubleshooting",
     intro: "Guidance for your exact equipment, taken from a named source. If we have nothing for your exact model we say so: we never show instructions written for a different model.",
     modelLabel: "Your model",
