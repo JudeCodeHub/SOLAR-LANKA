@@ -1900,6 +1900,9 @@ export const en = {
     sourceLine: "{title}, {publisher}. Read on {date}.",
     openSource: "Open source: {title}",
     relatedTitle: "More on this topic",
+    contentsLabel: "On this page",
+    contentsTitle: "On this page",
+    contentsArticle: "The guide",
     noRelated: "No other articles on this topic yet.",
   },
   adminEducation: {
