@@ -742,3 +742,15 @@ test("the prepare-a-request form keeps its fields, validation and send path whil
   assert.match(view, /min-h-11/);
   assert.doesNotMatch(view, /text-muted-foreground|font-heading|text-destructive/);
 });
+
+test("choosing companies shows a visible count, selectable cards and a review card, and keeps the guarded send", () => {
+  const dir = join(import.meta.dirname, "..", "..", "components", "requests");
+  const step = readFileSync(join(dir, "recipients-step.tsx"), "utf8");
+  for (const needle of ["inFlight.current", "buildRequestBody(requirements, ids)", "keyFor(fingerprintOf(requirements, ids))", "MAX_RECIPIENTS", "aria-disabled={blocked}", "data-count", "data-companies", "data-recipients", "data-send", "data-missing", "data-uncertain", "data-changed", "role=\"status\""]) assert.ok(step.includes(needle), needle);
+  assert.match(step, /has-\[:checked\]:border-orange-text/);
+  assert.match(step, /rounded-full border border-orange-text\/30 bg-orange-tint/);
+  assert.doesNotMatch(step, /text-muted-foreground|font-heading|text-destructive/);
+  const sent = readFileSync(join(dir, "sent-confirmation.tsx"), "utf8");
+  for (const needle of ["data-sent", "data-replayed", "data-sent-companies", "heading.current?.focus()"]) assert.ok(sent.includes(needle), needle);
+  assert.doesNotMatch(sent, /text-muted-foreground|font-heading/);
+});
