@@ -5,6 +5,7 @@ import { InstallationTimeline } from "@/components/installations/installation-ti
 import { InstallationCard } from "@/components/installations/installation-card";
 import { ExportDemo } from "@/components/design/export-demo";
 import { ProductCard } from "@/components/catalogue/product-card";
+import { SupportDemo } from "@/components/design/support-demo";
 import { VisitsDemo } from "@/components/design/visits-demo";
 import { DecisionDemo } from "@/components/design/decision-demo";
 import { OfferDetails } from "@/components/requests/offer-view";
@@ -540,6 +541,10 @@ export function DesignGallery() {
         <div className="space-y-3" data-timeline-sample>
           <h3 className="type-subheading">{text.navigation.timeline}</h3>
           <InstallationTimeline milestones={TIMELINE_STEPS} history={TIMELINE_HISTORY} now={OFFER_NOW} />
+        </div>
+        <div className="space-y-3">
+          <h3 className="type-subheading">{text.navigation.support}</h3>
+          <SupportDemo />
         </div>
         <div className="space-y-3" data-favourites-sample>
           <h3 className="type-subheading">{text.navigation.favourites}</h3>

@@ -1,6 +1,7 @@
 "use client";
 
 import { BackLink } from "@/components/ui/back-link";
+import { CircleAlert, CircleCheck, OctagonAlert, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
@@ -10,25 +11,77 @@ import { ConfirmAction } from "@/components/company/confirm-action";
 import { PhotoList } from "@/components/support/photo-list";
 import { UpdatesList } from "@/components/support/updates-list";
 import { QueryState } from "@/components/query-state";
-import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
 import type { ApiError } from "@/lib/api/errors";
 import { formatLongDate } from "@/lib/catalogue/detail";
 import { evidenceProblem } from "@/lib/installations/evidence";
-import { customerMoves, newKey, statusLabel } from "@/lib/support/support";
+import { cn } from "@/lib/utils";
+import { caseTone, customerMoves, newKey, statusLabel } from "@/lib/support/support";
 import { customerPhoto, useCustomerSupport, useMyCase, useMyCases, useMyInstallations, useMyUpdates, useOpenCase } from "@/lib/support/hooks";
 import { format, messages } from "@/messages";
 
 const text = messages.support.customer;
 const safety = messages.support.safety;
 
-function SafetyBox() {
+/** The safety message, first on every support screen: a red card, never a footnote. */
+export function SafetyBox() {
   return (
-    <section aria-labelledby="safety-title" className="space-y-1 rounded-lg border-2 border-destructive p-3 text-sm" data-safety>
-      <h2 id="safety-title" className="font-semibold">
+    <section aria-labelledby="safety-title" className="flex flex-col gap-3 rounded-card border-2 border-danger bg-danger-tint p-5 sm:p-6" data-safety>
+      <OctagonAlert aria-hidden className="size-7 text-danger" />
+      <h2 id="safety-title" className="type-heading text-ink">
         {safety.title}
       </h2>
-      <p>{safety.body}</p>
+      <p className="type-body text-ink">{safety.body}</p>
     </section>
+  );
+}
+
+/** One support request in the list: its status as a chip, its words, a warning when it was reported as unsafe, and the way in. */
+export function CaseCard({ item }: { item: { id: string; status: string; symptom: string; unsafe_now: boolean } }) {
+  return (
+    <article className="relative flex flex-col gap-2 rounded-card border border-line bg-surface p-5 text-sm shadow-e1" data-case={item.status}>
+      <div className="flex flex-wrap items-center gap-2">
+        <Badge variant={caseTone(item.status)} data-case-status>
+          {statusLabel(item.status)}
+        </Badge>
+        {item.unsafe_now ? (
+          <Badge variant="danger" icon={OctagonAlert} data-unsafe-chip>
+            {safety.unsafeBox}
+          </Badge>
+        ) : null}
+      </div>
+      <h3 className="type-subheading text-ink">
+        <Link href={`/my/support/${item.id}`} className="inline-flex min-h-11 items-center rounded-field outline-none after:absolute after:inset-0 after:rounded-card hover:underline focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-orange-text">
+          {format(text.open, { symptom: item.symptom.slice(0, 80) })}
+        </Link>
+      </h3>
+    </article>
+  );
+}
+
+/** The "this may be dangerous right now" box and, once ticked, the danger warning that says what to do. */
+export function UnsafeField({ checked, onChange }: { checked: boolean; onChange: (checked: boolean) => void }) {
+  return (
+    <>
+      <div className="space-y-2 rounded-card border-2 border-danger/60 bg-paper p-4 has-[:checked]:border-danger has-[:checked]:bg-danger-tint">
+        <label className="flex min-h-11 items-center gap-3 font-medium text-ink">
+          <input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} aria-describedby="unsafe-help" className="field-check size-6 shrink-0" />
+          <span>{safety.unsafeBox}</span>
+        </label>
+        <p id="unsafe-help" className="type-small text-ink-2">
+          {safety.unsafeHelp}
+        </p>
+      </div>
+      {checked ? (
+        <Alert variant="hazard" role="alert" data-unsafe-warning>
+          <OctagonAlert aria-hidden />
+          <AlertDescription className="font-medium text-ink">{safety.body}</AlertDescription>
+        </Alert>
+      ) : null}
+    </>
   );
 }
 
@@ -50,50 +103,46 @@ export function CustomerSupport() {
 
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
-      <header className="space-y-2">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">{text.title}</h1>
-        <p className="max-w-3xl text-muted-foreground">{text.intro}</p>
-      </header>
+      <PageHeader eyebrow={text.eyebrow} title={text.title} description={text.intro} />
       <SafetyBox />
-      <Link href="/troubleshooting" className="inline-flex min-h-11 items-center font-medium underline underline-offset-2">
+      <Link href="/troubleshooting" className={cn(buttonVariants({ variant: "secondary" }), "w-fit")}>
         {text.troubleshoot}
       </Link>
       {sent ? (
-        <div role="status" className="space-y-1 text-sm font-medium" data-sent>
-          <p>{text.opened}</p>
-          {sent.unsafe ? <p>{safety.body}</p> : null}
-          <Link href={`/my/support/${sent.id}`} className="inline-flex min-h-11 items-center underline underline-offset-2">
-            {text.back}
-          </Link>
-        </div>
+        <Alert variant="success" role="status" data-sent>
+          <CircleCheck aria-hidden />
+          <AlertDescription className="space-y-1 text-ink">
+            <p className="font-medium">{text.opened}</p>
+            {sent.unsafe ? <p>{safety.body}</p> : null}
+            <Link href={`/my/support/${sent.id}`} className="inline-flex min-h-11 items-center font-medium text-orange-text underline underline-offset-2">
+              {text.back}
+            </Link>
+          </AlertDescription>
+        </Alert>
       ) : null}
-      <QueryState query={cases} isEmpty={(items) => items.length === 0} empty={<p className="text-sm text-muted-foreground" data-none>{text.none}</p>}>
+      <QueryState query={cases} isEmpty={(items) => items.length === 0} empty={<p className="type-body rounded-card border border-line bg-surface p-4 text-ink-2" data-none>{text.none}</p>}>
         {(items) => (
-          <ul className="space-y-2" data-cases>
+          <ul className="grid gap-4 sm:grid-cols-2" data-cases>
             {items.map((item) => (
-              <li key={item.id} className="rounded-lg border p-3 text-sm" data-case={item.status}>
-                <Link href={`/my/support/${item.id}`} className="inline-flex min-h-11 items-center font-medium underline underline-offset-2">
-                  {format(text.open, { symptom: item.symptom.slice(0, 80) })}
-                </Link>
-                <p className="text-muted-foreground">{statusLabel(item.status)}</p>
-                {item.unsafe_now ? <p className="font-medium">{safety.unsafeBox}</p> : null}
+              <li key={item.id}>
+                <CaseCard item={item} />
               </li>
             ))}
           </ul>
         )}
       </QueryState>
-      <section aria-labelledby="new-title" className="space-y-3">
-        <h2 id="new-title" className="font-heading text-xl font-semibold tracking-tight">
+      <section aria-labelledby="new-title" className="space-y-4 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6">
+        <h2 id="new-title" className="type-heading text-ink">
           {text.newTitle}
         </h2>
         {installations.data && installations.data.items.length === 0 ? (
-          <p className="text-sm" data-no-installations>
+          <p className="type-body text-ink" data-no-installations>
             {text.noInstallations}
           </p>
         ) : (
           <form
             noValidate
-            className="space-y-3 text-sm"
+            className="space-y-5 text-sm"
             onSubmit={(event) => {
               event.preventDefault();
               if (busy.current) return;
@@ -125,10 +174,10 @@ export function CustomerSupport() {
           >
             {installations.data && installations.data.items.length > 1 ? (
               <div className="space-y-1">
-                <label htmlFor="installation" className="block font-medium">
+                <label htmlFor="installation" className="block font-medium text-ink">
                   {text.installation}
                 </label>
-                <select id="installation" value={installation} onChange={(event) => setInstallation(event.target.value)} aria-invalid={Boolean(errors.installation)} className="h-11 field-control field-select px-2">
+                <select id="installation" value={installation} onChange={(event) => setInstallation(event.target.value)} aria-invalid={Boolean(errors.installation)} className="h-11 w-full field-control field-select px-3">
                   <option value="">{text.installation}</option>
                   {installations.data.items.map((item) => (
                     <option key={item.id} value={item.id}>
@@ -136,50 +185,38 @@ export function CustomerSupport() {
                     </option>
                   ))}
                 </select>
-                {errors.installation ? <p className="font-medium text-destructive" data-error="installation">{errors.installation}</p> : null}
+                {errors.installation ? <p className="flex items-center gap-1.5 font-medium text-danger" data-error="installation"><CircleAlert aria-hidden className="size-4 shrink-0" />{errors.installation}</p> : null}
               </div>
             ) : null}
             <div className="space-y-1">
-              <label htmlFor="symptom" className="block font-medium">
+              <label htmlFor="symptom" className="block font-medium text-ink">
                 {text.symptom}
               </label>
-              <textarea id="symptom" rows={4} value={symptom} maxLength={2000} onChange={(event) => setSymptom(event.target.value)} aria-invalid={Boolean(errors.symptom)} aria-describedby={`symptom-help${errors.symptom ? " symptom-error" : ""}`} className="w-full field-control p-2" />
-              <p id="symptom-help" className="text-muted-foreground">
+              <textarea id="symptom" rows={4} value={symptom} maxLength={2000} onChange={(event) => setSymptom(event.target.value)} aria-invalid={Boolean(errors.symptom)} aria-describedby={`symptom-help${errors.symptom ? " symptom-error" : ""}`} className="w-full field-control p-3" />
+              <p id="symptom-help" className="text-ink-2">
                 {text.symptomHelp}
               </p>
               {errors.symptom ? (
-                <p id="symptom-error" className="font-medium text-destructive" data-error="symptom">
+                <p id="symptom-error" className="flex items-center gap-1.5 font-medium text-danger" data-error="symptom">
+                  <CircleAlert aria-hidden className="size-4 shrink-0" />
                   {errors.symptom}
                 </p>
               ) : null}
             </div>
             <div className="space-y-1">
-              <label htmlFor="code" className="block font-medium">
+              <label htmlFor="code" className="block font-medium text-ink">
                 {text.code}
               </label>
               <input id="code" value={code} maxLength={64} onChange={(event) => setCode(event.target.value)} aria-describedby="code-help" className="h-11 w-full field-control px-3" />
-              <p id="code-help" className="text-muted-foreground">
+              <p id="code-help" className="text-ink-2">
                 {text.codeHelp}
               </p>
             </div>
-            <div className="space-y-1">
-              <label className="flex min-h-11 items-center gap-3 font-medium">
-                <input type="checkbox" checked={unsafe} onChange={(event) => setUnsafe(event.target.checked)} aria-describedby="unsafe-help" className="field-check size-6 shrink-0" />
-                <span>{safety.unsafeBox}</span>
-              </label>
-              <p id="unsafe-help" className="text-muted-foreground">
-                {safety.unsafeHelp}
-              </p>
-            </div>
-            {unsafe ? (
-              <p role="alert" className="font-medium" data-unsafe-warning>
-                {safety.body}
-              </p>
-            ) : null}
-            <Button type="submit" aria-disabled={open.isPending} data-action="report">
+            <UnsafeField checked={unsafe} onChange={setUnsafe} />
+            <Button type="submit" size="lg" aria-disabled={open.isPending} data-action="report">
               {open.isPending ? text.sending : text.submit}
             </Button>
-            {failure ? (failure.status === 409 ? <p role="alert" className="font-medium" data-limit>{text.limit}</p> : <ApiErrorMessage error={failure} />) : null}
+            {failure ? (failure.status === 409 ? <Alert variant="warning" role="alert" data-limit><TriangleAlert aria-hidden /><AlertDescription>{text.limit}</AlertDescription></Alert> : <ApiErrorMessage error={failure} />) : null}
           </form>
         )}
       </section>
