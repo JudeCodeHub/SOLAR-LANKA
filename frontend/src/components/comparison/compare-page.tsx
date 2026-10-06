@@ -11,7 +11,7 @@ import { BASE_PATH, detailHref } from "@/lib/catalogue/links";
 import { loadProductDetail } from "@/lib/catalogue/load-detail";
 import type { CatalogueKind } from "@/lib/catalogue/params";
 import { canCompare, compareHref, parseCompareIds } from "@/lib/comparison/selection";
-import { buildComparison, type CompareCell } from "@/lib/comparison/table";
+import { buildComparison, type CompareCell, rowRelation } from "@/lib/comparison/table";
 import { productName } from "@/lib/landing/format";
 import { format, messages, plural } from "@/messages";
 
@@ -45,19 +45,19 @@ export async function ComparePage({
     <BackLink href={BASE_PATH[kind]}>{messages.detail.back[kind]}</BackLink>
   );
   const header = (
-    <header className="space-y-2">
+    <header className="space-y-3">
       {backLink}
-      <h1 className="font-heading text-3xl font-semibold tracking-tight">{copy.title}</h1>
-      <p className="max-w-3xl text-muted-foreground">{copy.intro}</p>
+      <h1 className="type-display-m text-ink">{copy.title}</h1>
+      <p className="type-body max-w-3xl text-ink-2">{copy.intro}</p>
       {ignored > 0 ? (
-        <p role="status" className="text-sm text-destructive">
+        <p role="status" className="text-sm font-medium text-danger">
           {format(plural(text.ignored, ignored), { count: ignored })}
         </p>
       ) : null}
     </header>
   );
   const frame = (children: React.ReactNode) => (
-    <div className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 py-8">
+    <div className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 py-10 sm:px-6" data-compare-page>
       {header}
       {children}
     </div>
@@ -78,30 +78,30 @@ export async function ComparePage({
 
   return frame(
     <>
-      <TableRegion label={text.tableLabel}>
-        <Table className="min-w-[40rem]">
+      <TableRegion label={text.tableLabel} className="max-h-[75vh]" data-compare-region>
+        <Table className="min-w-[40rem]" data-compare-table>
           <caption className="sr-only">{text.caption}</caption>
           <thead>
-            <tr className="border-b bg-muted/40 align-top">
-              <th scope="col" className="w-48 p-3 text-left font-medium">
+            <tr className="align-top">
+              <th scope="col" className="sticky left-0 z-20 w-28 text-left sm:w-48">
                 {text.property}
               </th>
               {columns.map(({ id, product }) => {
                 const name = product ? productName(product) : text.unavailable;
                 return (
-                  <th key={id} scope="col" className="p-3 text-left font-medium">
+                  <th key={id} scope="col" className="text-left">
                     {product ? (
-                      <Link href={detailHref(kind, id, BASE_PATH[kind])} className="underline underline-offset-2">
+                      <Link href={detailHref(kind, id, BASE_PATH[kind])} className="type-subheading text-ink underline-offset-4 hover:underline">
                         {name}
                       </Link>
                     ) : (
-                      <span className="text-muted-foreground italic">{name}</span>
+                      <span className="text-ink-2 italic">{name}</span>
                     )}
-                    <div className="mt-1 text-xs font-normal">
+                    <div className="text-xs font-normal">
                       <Link
                         href={compareHref(kind, ids.filter((other) => other !== id))}
                         aria-label={format(text.remove, { name })}
-                        className="text-muted-foreground underline underline-offset-2"
+                        className="inline-flex min-h-11 items-center text-ink-2 underline underline-offset-4 hover:text-ink"
                       >
                         {text.removeShort}
                       </Link>
@@ -113,30 +113,39 @@ export async function ComparePage({
           </thead>
           {sections.map((section) => (
             <tbody key={section.id}>
-              <tr className="bg-muted/30">
-                <th scope="rowgroup" colSpan={columns.length + 1} className="p-3 text-left font-medium">
+              <tr className="bg-paper-2">
+                <th scope="rowgroup" colSpan={columns.length + 1} className="type-caption text-left font-semibold tracking-widest text-ink-3 uppercase">
                   {section.title}
                 </th>
               </tr>
-              {section.rows.map((row) => (
-                <tr key={row.key} className="border-t align-top">
-                  <th scope="row" className="p-3 text-left font-normal text-muted-foreground">
-                    {row.label}
-                  </th>
-                  {row.cells.map((cell, index) => (
-                    <td key={columns[index]?.id ?? index} className="p-3">
-                      <Cell cell={cell} />
-                    </td>
-                  ))}
-                </tr>
-              ))}
+              {section.rows.map((row) => {
+                const relation = rowRelation(row.cells);
+                return (
+                  <tr key={row.key} className="align-top" data-row={row.key} data-relation={relation}>
+                    <th scope="row" className={`sticky left-0 z-10 bg-surface text-left font-normal text-ink-2 ${relation === "differs" ? "border-l-4 border-l-orange" : ""}`}>
+                      <span className="block">{row.label}</span>
+                      {relation === "differs" ? (
+                        <span className="mt-1 block text-xs font-medium text-ink" data-flag="differs">{text.differs}</span>
+                      ) : null}
+                      {relation === "unspecified" || relation === "none" ? (
+                        <span className="mt-1 block text-xs text-ink-2" data-flag="unspecified">{relation === "none" ? text.noneSpecified : text.someUnspecified}</span>
+                      ) : null}
+                    </th>
+                    {row.cells.map((cell, index) => (
+                      <td key={columns[index]?.id ?? index} className={relation === "differs" ? "type-figure font-semibold text-ink" : "type-figure"}>
+                        <Cell cell={cell} />
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })}
             </tbody>
           ))}
         </Table>
       </TableRegion>
-      <p className="text-sm text-muted-foreground">{text.shareNote}</p>
+      <p className="type-small text-ink-2">{text.shareNote}</p>
       {columns.some((column) => column.product === null) ? (
-        <p role="status" className="text-sm text-muted-foreground">
+        <p role="status" className="type-small text-ink-2">
           {text.unavailableNote}
         </p>
       ) : null}

@@ -15,7 +15,8 @@ function TableRegion({
       // A scrollable region must be focusable so keyboard users can scroll it (WCAG 2.1.1).
       // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
       tabIndex={0}
-      className={cn("overflow-auto rounded-card border border-line bg-surface", className)}
+      // Positioned, so screen-reader-only text inside the table is clipped with it instead of widening the page.
+      className={cn("relative overflow-auto rounded-card border border-line bg-surface", className)}
       {...props}
     />
   )
