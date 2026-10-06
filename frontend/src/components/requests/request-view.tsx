@@ -1,7 +1,10 @@
 "use client";
 
 import { BackLink } from "@/components/ui/back-link";
-import { Table } from "@/components/ui/table";
+import { Table, TableRegion } from "@/components/ui/table";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState } from "react";
 
@@ -16,6 +19,7 @@ import { useCompanyNames, useRequest, useWithdrawRequest } from "@/lib/requests/
 import {
   deliveryStatusLabel,
   headline,
+  requestChip,
   requestStatusLabel,
   staleMessage,
   withdrawal,
@@ -33,7 +37,7 @@ type Request = components["schemas"]["CustomerRequestDetail"];
 export function RequestView({ id }: { id: string }) {
   const query = useRequest(id);
   return (
-    <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
+    <div className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-8">
       <BackLink href="/my/requests">{text.back}</BackLink>
       <QueryState query={query}>
         {(request) => <Detail request={request} refreshing={query.isRefetching} onRefresh={() => void query.refetch()} refetch={query.refetch} />}
@@ -101,42 +105,45 @@ function Detail({
     });
   };
 
+  const chip = requestChip(request);
   const responding = request.deliveries
     .filter((entry) => entry.status === "responding" || entry.status === "closed")
     .map((entry) => names.get(entry.company_id) ?? delivery.responding);
 
   return (
     <>
-      <header className="space-y-2">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">{text.title}</h1>
+      <header className="space-y-3 rounded-panel border border-line bg-surface p-6 shadow-e1" data-request-header>
+        <p className="type-caption font-semibold tracking-widest text-orange-text uppercase">{text.eyebrow}</p>
+        <h1 className="type-display-m text-ink">{text.title}</h1>
         <h2
           ref={statusRef}
           tabIndex={-1}
-          className="text-lg font-medium outline-none"
+          className="outline-none"
           data-status
         >
-          {requestStatusLabel(request.status)}
+          <Badge variant={chip.tone}>{requestStatusLabel(request.status)}</Badge>
         </h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="type-small text-ink-2">
           {format(text.sentOn, { date: formatLongDate(request.created_at) ?? request.created_at })}
         </p>
-        <p role="status" className="text-sm" data-headline>
+        <p role="status" className="type-body text-ink" data-headline>
           {headline(request)}
         </p>
         {done ? (
-          <p role="status" className="text-sm font-medium" data-done>
+          <p role="status" className="text-sm font-medium text-success" data-done>
             {wd.done}
           </p>
         ) : null}
-        <Button type="button" variant="outline" size="sm" onClick={onRefresh} aria-disabled={refreshing}>
+        <Button type="button" variant="outline" onClick={onRefresh} aria-disabled={refreshing}>
           {refreshing ? text.refreshing : text.refresh}
         </Button>
       </header>
 
       <section aria-labelledby="progress-title" className="space-y-3">
-        <h2 id="progress-title" className="font-heading text-xl font-semibold tracking-tight">
+        <h2 id="progress-title" className="type-heading text-ink">
           {text.progressTitle}
         </h2>
+        <TableRegion label={text.progressTitle}>
         <Table className="w-full text-sm" data-progress>
           <caption className="sr-only">{text.progressCaption}</caption>
           <thead>
@@ -164,78 +171,80 @@ function Detail({
                 <tr key={entry.id} className="border-b align-top last:border-0" data-delivery={entry.status}>
                   <th scope="row" className="py-2 pr-4 text-left font-normal">
                     {name === undefined ? (
-                      <span className="text-muted-foreground">…</span>
+                      <span className="text-ink-2">…</span>
                     ) : name === null ? (
-                      <span className="text-muted-foreground">{text.notListed}</span>
+                      <span className="text-ink-2">{text.notListed}</span>
                     ) : (
-                      <Link href={`/companies/${entry.company_id}`} className="inline-flex min-h-11 items-center underline underline-offset-2">
+                      <Link href={`/companies/${entry.company_id}`} className="inline-flex min-h-11 items-center font-medium text-orange-text underline underline-offset-2">
                         {name}
                       </Link>
                     )}
                   </th>
                   <td className="py-2">
                     <span className="font-medium">{deliveryStatusLabel(entry.status)}</span>
-                    {when ? <span className="block text-muted-foreground">{when}</span> : null}
+                    {when ? <span className="block text-ink-2">{when}</span> : null}
                   </td>
                 </tr>
               );
             })}
           </tbody>
         </Table>
+        </TableRegion>
       </section>
 
       <OffersSection requestId={request.id} />
 
-      <section aria-labelledby="asked-title" className="space-y-2">
-        <h2 id="asked-title" className="font-heading text-xl font-semibold tracking-tight">
+      <section aria-labelledby="asked-title" className="space-y-3 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6">
+        <h2 id="asked-title" className="type-heading text-ink">
           {text.askedTitle}
         </h2>
         <dl className="description-list text-sm">
-          <dt className="text-muted-foreground">{text.district}</dt>
+          <dt className="text-ink-2">{text.district}</dt>
           <dd>{requirements.district ?? ""}</dd>
-          <dt className="text-muted-foreground">{text.consumption}</dt>
+          <dt className="text-ink-2">{text.consumption}</dt>
           <dd>
             {requirements.monthly_consumption_kwh
               ? format(text.consumptionValue, { value: requirements.monthly_consumption_kwh })
               : text.consumptionNone}
           </dd>
-          <dt className="text-muted-foreground">{text.estimate}</dt>
+          <dt className="text-ink-2">{text.estimate}</dt>
           <dd>
             {request.saved_estimate_id ? (
-              <Link href={`/my/estimates/${request.saved_estimate_id}`} className="inline-flex min-h-11 items-center underline underline-offset-2">
+              <Link href={`/my/estimates/${request.saved_estimate_id}`} className="inline-flex min-h-11 items-center font-medium text-orange-text underline underline-offset-2">
                 {text.estimateView}
               </Link>
             ) : (
               text.estimateNone
             )}
           </dd>
-          <dt className="text-muted-foreground">{text.details}</dt>
+          <dt className="text-ink-2">{text.details}</dt>
           <dd className="whitespace-pre-wrap">{requirements.details ?? ""}</dd>
         </dl>
       </section>
 
       <section aria-labelledby="actions-title" className="space-y-3">
-        <h2 id="actions-title" className="font-heading text-xl font-semibold tracking-tight">
+        <h2 id="actions-title" className="type-heading text-ink">
           {text.actionsTitle}
         </h2>
         {notice ? (
-          <p role="alert" className="text-sm font-medium" data-stale-notice>
-            {notice}
-          </p>
+          <Alert variant="warning" role="alert" data-stale-notice>
+            <TriangleAlert aria-hidden />
+            <AlertDescription>{notice}</AlertDescription>
+          </Alert>
         ) : null}
         {problem ? <ApiErrorMessage error={problem} /> : null}
         {state.eligible ? (
           confirming ? (
-            <div role="group" aria-labelledby="confirm-title" className="space-y-3 rounded-lg border p-4" data-confirm>
+            <div role="group" aria-labelledby="confirm-title" className="space-y-3 rounded-card border-2 border-danger bg-danger-tint p-5" data-confirm>
               <h3
                 id="confirm-title"
                 ref={confirmRef}
                 tabIndex={-1}
-                className="font-medium outline-none"
+                className="type-subheading text-ink outline-none"
               >
                 {wd.confirmTitle}
               </h3>
-              <p className="text-sm">{wd.confirmBody}</p>
+              <p className="type-body text-ink">{wd.confirmBody}</p>
               <div className="flex flex-wrap gap-2">
                 <Button type="button" onClick={confirm} aria-disabled={withdraw.isPending} data-confirm-yes>
                   {withdraw.isPending ? wd.working : wd.confirm}
@@ -247,14 +256,14 @@ function Detail({
             </div>
           ) : (
             <>
-              <p className="text-sm text-muted-foreground">{wd.intro}</p>
+              <p className="type-small text-ink-2">{wd.intro}</p>
               <Button type="button" variant="outline" onClick={open} data-withdraw>
                 {wd.button}
               </Button>
             </>
           )
         ) : (
-          <p className="text-sm text-muted-foreground" data-not-withdrawable>
+          <p className="type-small text-ink-2" data-not-withdrawable>
             {state.reason === "responding"
               ? responding.length > 0
                 ? format(wd.notPossible.responding, { names: formatList(responding) })

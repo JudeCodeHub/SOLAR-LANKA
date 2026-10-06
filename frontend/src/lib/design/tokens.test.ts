@@ -754,3 +754,13 @@ test("choosing companies shows a visible count, selectable cards and a review ca
   for (const needle of ["data-sent", "data-replayed", "data-sent-companies", "heading.current?.focus()"]) assert.ok(sent.includes(needle), needle);
   assert.doesNotMatch(sent, /text-muted-foreground|font-heading/);
 });
+
+test("the request page and its offers keep their marks while using the new cards, chips and table region", () => {
+  const dir = join(import.meta.dirname, "..", "..", "components", "requests");
+  const view = readFileSync(join(dir, "request-view.tsx"), "utf8");
+  for (const needle of ["data-status", "data-headline", "data-progress", "data-delivery", "data-stale-notice", "data-confirm", "data-withdraw", "data-confirm-yes", "data-not-withdrawable", "inFlight.current", "<OffersSection", "<TableRegion"]) assert.ok(view.includes(needle), needle);
+  assert.doesNotMatch(view, /text-muted-foreground|font-heading/);
+  const offers = readFileSync(join(dir, "offers-section.tsx"), "utf8");
+  for (const needle of ["data-offers-section", "data-offers", "data-offer=", "data-state", "data-expiry", "data-soon", "data-compare-link", "data-compare-need", "data-no-offers", "expiryText(item, now)", "isExpiringSoon(item, now)"]) assert.ok(offers.includes(needle), needle);
+  assert.doesNotMatch(offers, /text-muted-foreground|font-heading/);
+});

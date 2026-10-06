@@ -50,6 +50,16 @@ export function expiryText(offer: OfferLike, now: number): string {
   return format(text.expiry.validUntil, { date, days: left });
 }
 
+export type OfferTone = "success" | "warning" | "neutral" | "info";
+
+/** The colour family for an offer's state chip; the word always says the same thing, so colour never carries it alone. */
+export function stateTone(state: OfferState): OfferTone {
+  if (state === "active" || state === "accepted") return "success";
+  if (state === "expired") return "warning";
+  if (state === "draft") return "info";
+  return "neutral";
+}
+
 export function stateLabel(state: OfferState): string {
   return (text.states as Record<string, string>)[state] ?? state;
 }
