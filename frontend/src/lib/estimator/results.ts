@@ -41,6 +41,8 @@ export interface ResultRow {
   why: string | null;
   /** Money figures carry an Indicative qualifier. */
   indicative: boolean;
+  /** The rounded ends of the range, for drawing a bar; null when there is no figure. */
+  range: { low: number; high: number } | null;
 }
 
 function row(
@@ -51,14 +53,26 @@ function row(
   why: string,
   indicative = false,
 ): ResultRow {
-  return { id, label, unit, value, why: value === null ? why : null, indicative };
+  return { id, label, unit, value, why: value === null ? why : null, indicative, range: null };
+}
+
+const PLACES: Record<string, number> = { panels: 0, capacity: 2, area: 1, annual: 0, monthly: 0, cost: 0, baseline: 0, monthlySavings: 0, annualSavings: 0, payback: 1 };
+
+/** Give each row that has a figure its numeric range, rounded the same way as the words. */
+function withRanges(rows: ResultRow[], ranges: Record<string, Range | null | undefined>): ResultRow[] {
+  return rows.map((entry) => {
+    const range = ranges[entry.id];
+    if (!range || entry.value === null) return entry;
+    const [low, high] = widen(range, PLACES[entry.id] ?? 0);
+    return { ...entry, range: { low, high } };
+  });
 }
 
 export function sizingRows(preview: Preview, sent: SentInputs): ResultRow[] {
   const { sizing } = preview;
   const needsShading = text.why.needsShading;
   void sent;
-  return [
+  return withRanges([
     row("panels", text.rows.panels, text.units.panels, rangeDisplay(sizing.panel_count, 0), ""),
     row("capacity", text.rows.capacity, text.units.kwp, rangeDisplay(sizing.capacity_kwp, 2), ""),
     row("area", text.rows.area, text.units.m2, rangeDisplay(sizing.installed_area_m2, 1), ""),
@@ -78,7 +92,13 @@ export function sizingRows(preview: Preview, sent: SentInputs): ResultRow[] {
         : null,
       needsShading,
     ),
-  ];
+  ], {
+    panels: sizing.panel_count,
+    capacity: sizing.capacity_kwp,
+    area: sizing.installed_area_m2,
+    annual: sizing.annual_generation_kwh,
+    monthly: sizing.average_monthly_generation_kwh,
+  });
 }
 
 /** Which input or publication is missing for the savings figures. */
@@ -101,7 +121,7 @@ export function financialRows(preview: Preview, sent: SentInputs): ResultRow[] {
       : !savingsKnown
         ? text.why.dependsOnSavings
         : text.why.noPositiveSavings;
-  return [
+  return withRanges([
     row(
       "cost",
       text.rows.cost,
@@ -147,7 +167,13 @@ export function financialRows(preview: Preview, sent: SentInputs): ResultRow[] {
       paybackWhy,
       true,
     ),
-  ];
+  ], {
+    cost: financial.installed_cost_lkr,
+    baseline: financial.baseline_monthly_bill_lkr === null ? null : { minimum: financial.baseline_monthly_bill_lkr, maximum: financial.baseline_monthly_bill_lkr },
+    monthlySavings: financial.monthly_savings_lkr,
+    annualSavings: financial.annual_savings_lkr,
+    payback: financial.simple_payback_years,
+  });
 }
 
 export interface ChartBar {

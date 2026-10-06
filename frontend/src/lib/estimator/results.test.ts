@@ -137,3 +137,22 @@ test("the roof note distinguishes no room, all room used, and neither", () => {
   assert.equal(roofNote({ ...full, sizing: { ...full.sizing, roof_panel_capacity: 6 } }), "limited");
   assert.equal(roofNote(full), null);
 });
+
+test("each row with a figure carries its rounded range for the bar, and rows without a figure carry none", () => {
+  const sizing = Object.fromEntries(sizingRows(full, sent).map((entry) => [entry.id, entry.range]));
+  assert.deepEqual(sizing.capacity, { low: 2.5, high: 3 });
+  assert.deepEqual(sizing.annual, { low: 3012, high: 4002 });
+  assert.deepEqual(sizing.panels, { low: 5, high: 6 });
+  const money = Object.fromEntries(financialRows(full, sent).map((entry) => [entry.id, entry.range]));
+  assert.deepEqual(money.baseline, { low: 5400, high: 5401 });
+  assert.deepEqual(money.payback, { low: 5.9, high: 14.3 });
+  for (const entry of [...sizingRows(bare, sent), ...financialRows(bare, sent)].filter((candidate) => candidate.value === null)) assert.equal(entry.range, null, entry.id);
+});
+
+test("a range of one value reads as one value and its range has the same two ends", () => {
+  const one: Preview = { ...full, sizing: { ...full.sizing, capacity_kwp: { minimum: "6", maximum: "6" } } };
+  const capacity = sizingRows(one, sent).find((entry) => entry.id === "capacity");
+  assert.equal(capacity?.value, "6");
+  assert.deepEqual(capacity?.range, { low: 6, high: 6 });
+  assert.equal(rangeDisplay({ minimum: "6.00", maximum: "6" }, 2), "6");
+});
