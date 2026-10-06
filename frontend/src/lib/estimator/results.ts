@@ -181,6 +181,8 @@ export interface ChartBar {
   value: number;
   /** The value as shown in the table and on the bar. */
   label: string;
+  /** What the bar stands for, which decides its colour and pattern: a starting point, the low end of a range, or its high end. */
+  kind: "base" | "low" | "high";
 }
 
 export interface ChartSpec {
@@ -192,7 +194,7 @@ export interface ChartSpec {
   bars: ChartBar[];
 }
 
-const bar = (name: string, value: number): ChartBar => ({ name, value, label: group(value, 0) });
+const bar = (name: string, value: number, kind: ChartBar["kind"]): ChartBar => ({ name, value, label: group(value, 0), kind });
 
 /** Charts for the figures that exist; a chart is skipped when any figure it needs is missing. */
 export function chartSpecs(preview: Preview, consumptionKwh: string): ChartSpec[] {
@@ -210,7 +212,7 @@ export function chartSpecs(preview: Preview, consumptionKwh: string): ChartSpec[
         high: group(high, 0),
       }),
       unit: text.units.kwhPerMonth,
-      bars: [bar(text.charts.use, use), bar(text.charts.generationLow, low), bar(text.charts.generationHigh, high)],
+      bars: [bar(text.charts.use, use, "base"), bar(text.charts.generationLow, low, "low"), bar(text.charts.generationHigh, high, "high")],
     });
   }
   const { baseline_monthly_bill_lkr: baseline, monthly_savings_lkr: savings } = preview.financial;
@@ -230,9 +232,9 @@ export function chartSpecs(preview: Preview, consumptionKwh: string): ChartSpec[
       }),
       unit: text.units.lkrPerMonth,
       bars: [
-        bar(text.charts.without, without),
-        bar(text.charts.withLow, withLow),
-        bar(text.charts.withHigh, withHigh),
+        bar(text.charts.without, without, "base"),
+        bar(text.charts.withLow, withLow, "low"),
+        bar(text.charts.withHigh, withHigh, "high"),
       ],
     });
   }

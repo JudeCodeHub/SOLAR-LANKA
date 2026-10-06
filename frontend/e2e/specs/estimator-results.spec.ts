@@ -109,3 +109,26 @@ test("range bars draw the band between the two ends, and a range of one value re
   await expect(single.locator('[data-range-bar="single"]')).toHaveCount(1);
   if (process.env.HERO_SHOTS) await page.locator("[data-results] [aria-labelledby=sizing-title]").screenshot({ path: "e2e/.tmp/bars.png" });
 });
+
+for (const theme of ["light", "dark"] as const) {
+  test(`the charts tell their bars apart by pattern and by label, not only by colour (${theme})`, async ({ page, signInAs }) => {
+    signInAs(null);
+    await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await calculate(page, true);
+    // The charts load after the page, so wait for the first one to be drawn.
+    await page.locator("[data-results] svg.recharts-surface").first().waitFor();
+    const charts = page.locator("[data-results] figure").filter({ has: page.locator("svg.recharts-surface") });
+    expect(await charts.count()).toBeGreaterThan(0);
+    const fills = await charts.first().locator(".recharts-bar-rectangle path, .recharts-bar-rectangle rect").evaluateAll((nodes) => nodes.map((node) => node.getAttribute("fill")));
+    expect(fills.length).toBe(3);
+    expect(new Set(fills).size).toBe(3);
+    expect(fills.filter((fill) => fill?.startsWith("url(#"))).toHaveLength(2);
+    await expect(charts.first().locator("pattern")).toHaveCount(2);
+    // Every bar also has its name and figure written out in the table.
+    await expect(charts.first().locator("table")).toBeVisible();
+    const { violations } = await new AxeBuilder({ page }).include("[data-results]").withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+    expect(violations.map((v) => v.id)).toEqual([]);
+    if (process.env.HERO_SHOTS) await charts.first().screenshot({ path: `e2e/.tmp/chart-${theme}.png` });
+  });
+}

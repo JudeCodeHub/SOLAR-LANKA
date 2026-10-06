@@ -589,3 +589,12 @@ test("the connection scheme is one labelled radio group of cards with a one-line
   assert.deepEqual(schemes, Object.keys(messages.estimator.fields.schemeOptions), "a card for every scheme the form knows");
   for (const card of Object.values(messages.estimator.fields.schemeCards)) assert.ok(card.line.length > 20 && card.line.length < 110, card.line);
 });
+
+test("the estimator charts use theme colours and a different pattern for each kind of bar", () => {
+  const chart = readFileSync(join(import.meta.dirname, "..", "..", "components", "estimator", "result-chart.tsx"), "utf8");
+  assert.doesNotMatch(chart, /#[0-9a-fA-F]{3,8}\b/);
+  assert.match(chart, /var\(--ds-info\)/);
+  assert.match(chart, /var\(--ds-orange-text\)/);
+  assert.match(chart, /<pattern id=\{`\$\{chart\}-base`\}/);
+  assert.match(chart, /<pattern id=\{`\$\{chart\}-low`\}/);
+});
