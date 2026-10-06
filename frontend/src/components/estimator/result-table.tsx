@@ -1,4 +1,6 @@
+import { RangeBar } from "@/components/ui/range-bar";
 import { Table, TableRegion } from "@/components/ui/table";
+import { niceMax } from "@/lib/dial/dial";
 import type { ResultRow } from "@/lib/estimator/results";
 import { messages } from "@/messages";
 
@@ -36,7 +38,10 @@ export function ResultTable({ caption, rows }: { caption: string; rows: ResultRo
               </th>
               <td className="py-2 pr-4">
                 {row.value !== null ? (
-                  <span className="font-medium">{row.value}</span>
+                  <span className="block space-y-1.5">
+                    <span className="type-figure block font-semibold text-ink">{row.value}</span>
+                    {row.range ? <RangeBar low={row.range.low} high={row.range.high} max={niceMax(row.range.high)} /> : null}
+                  </span>
                 ) : (
                   <span data-unavailable>
                     <span className="rounded-full border border-dashed px-2 py-0.5 text-xs text-muted-foreground">
