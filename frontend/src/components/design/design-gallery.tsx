@@ -135,6 +135,12 @@ const REQUEST_SAMPLES = [
 ];
 
 /** The links a customer sees in their own area, for the sample of the side column. */
+const companyArea = (role: "company_admin" | "technician") => navigationFor({ role: "customer", memberships: [{ companyId: "c1", role }] }, true).find((group) => group.id === "company")!;
+/** The company workspace as a company administrator sees it and as a technician sees it. */
+const COMPANY_SHELLS = [
+  { key: "company_admin", area: companyArea("company_admin"), current: "/company/inbox" },
+  { key: "technician", area: companyArea("technician"), current: "/technician/support" },
+];
 const customerArea = navigationFor({ role: "customer", memberships: [] }, true).find((group) => group.id === "customer")!;
 
 /** Each swatch as a literal class (so Tailwind finds it), in the order they are shown. */
@@ -528,6 +534,18 @@ export function DesignGallery() {
                 </div>
               </div>
             </DashboardFrame>
+          </div>
+        </div>
+        <div className="space-y-3" data-company-shell-sample>
+          <h3 className="type-subheading">{text.navigation.companyShell}</h3>
+          <div className="grid gap-4 xl:grid-cols-2">
+            {COMPANY_SHELLS.map(({ key, area, current }) => (
+              <div key={key} className="rounded-card border border-line bg-paper-2" data-shell-role={key}>
+                <DashboardFrame area={area} group="company" current={current}>
+                  <p className="type-body py-8 text-ink-2">{text.navigation.dashboardPage}</p>
+                </DashboardFrame>
+              </div>
+            ))}
           </div>
         </div>
         <div className="space-y-3" data-requests-sample>
