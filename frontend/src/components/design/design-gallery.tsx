@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import { ClipboardList, FileText, Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
 
+import { OfferDetails } from "@/components/requests/offer-view";
 import { ComparisonTable } from "@/components/requests/compare-view";
 import { OfferCard } from "@/components/requests/offers-section";
 import { RequestCard } from "@/components/requests/request-card";
@@ -47,6 +48,27 @@ import { PHOTOS, type PhotoKey } from "@/lib/photos/photos";
 import { format, messages, plural } from "@/messages";
 
 const text = messages.design;
+
+const revisionLine = (position: number, kind: "equipment" | "charge", description: string, quantity: string, unit: string, total: string, snapshot: unknown) => ({ position, kind, description, quantity, unit_price: unit, line_total: total, product_id: null, product_snapshot: snapshot });
+/** A sent offer with one earlier revision, newest first, for the sample of the offer page. */
+const OFFER_REVISIONS = [
+  {
+    id: "v2", quotation_id: "q1", revision_number: 2, status: "sent", created_at: "2026-09-26T08:00:00Z", sent_at: "2026-09-27T08:00:00Z", valid_until: "2026-10-08T00:00:00Z",
+    capacity_kwp: "5.45", warranty_terms: "10 years on panels, 5 years on the inverter", exclusions: null, notes: "Roof inspection is included.",
+    subtotal: "1640000.00", discount: "40000.00", tax: "0.00", total: "1600000.00",
+    lines: [
+      revisionLine(1, "equipment", "Solar panels", "10", "95000.00", "950000.00", { kind: "panel", brand: "Trina", model: "TSM-545" }),
+      revisionLine(2, "equipment", "Inverter", "1", "420000.00", "420000.00", { kind: "inverter", brand: "GoodWe", model: "GW5000" }),
+      revisionLine(3, "charge", "Installation", "1", "270000.00", "270000.00", null),
+    ],
+  },
+  {
+    id: "v1", quotation_id: "q1", revision_number: 1, status: "revised", created_at: "2026-09-20T08:00:00Z", sent_at: "2026-09-21T08:00:00Z", valid_until: "2026-10-08T00:00:00Z",
+    capacity_kwp: "5.45", warranty_terms: null, exclusions: null, notes: null,
+    subtotal: "1640000.00", discount: "0.00", tax: "0.00", total: "1640000.00",
+    lines: [revisionLine(1, "equipment", "Solar panels", "10", "95000.00", "950000.00", { kind: "panel", brand: "Trina", model: "TSM-545" })],
+  },
+] as never;
 
 const OFFER_NOW = Date.parse("2026-10-06T00:00:00Z");
 const offer = (n: number, name: string, status: "sent" | "accepted", validUntil: string, total: string, revisions: number) => ({ quotation_id: `q${n}`, company_id: `c${n}`, revision_id: `v${n}`, revision_number: revisions, sent_at: "2026-09-25T08:00:00Z", sent_revision_count: revisions, status, total, valid_until: validUntil, name });
@@ -499,6 +521,10 @@ export function DesignGallery() {
               </li>
             ))}
           </ul>
+        </div>
+        <div className="space-y-6" data-offer-sample>
+          <h3 className="type-subheading">{text.navigation.offerDetail}</h3>
+          <OfferDetails revisions={OFFER_REVISIONS} companyName="Sunbird Solar" now={OFFER_NOW} />
         </div>
         <div className="space-y-3" data-compare-sample>
           <h3 className="type-subheading">{text.navigation.compare}</h3>
