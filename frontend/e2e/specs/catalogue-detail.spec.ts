@@ -32,3 +32,34 @@ for (const kind of ["panels", "inverters"] as const) {
     }
   }
 }
+
+test("an inverter page is built exactly like a panel page and shows its own specifications", async ({ page, signInAs }) => {
+  signInAs(null);
+  await page.setViewportSize({ width: 1280, height: 900 });
+  const structure = async (kind: "panels" | "inverters") => {
+    await page.goto(`/${kind}`);
+    await page.locator("[data-product] h3 a").first().click();
+    const detail = page.locator("[data-product-detail]");
+    await detail.waitFor();
+    return {
+      kind: await detail.getAttribute("data-product-detail"),
+      headings: await detail.getByRole("heading", { level: 2 }).allTextContents(),
+      cardClasses: await detail.locator("section[aria-labelledby=specs-title] > div > div").first().getAttribute("class"),
+      sourceClasses: await detail.locator("section[aria-labelledby=source-title]").getAttribute("class"),
+      groups: await detail.locator("section[aria-labelledby=specs-title] h3").allTextContents(),
+      title: await detail.getByRole("heading", { level: 1 }).textContent(),
+    };
+  };
+  const panel = await structure("panels");
+  const inverter = await structure("inverters");
+  expect(inverter.kind).toBe("inverter");
+  expect(panel.kind).toBe("panel");
+  // Same sections in the same order, the same card and panel styles.
+  expect(inverter.headings.map((text) => text.replace(/\s.*/, ""))).toEqual(panel.headings.map((text) => text.replace(/\s.*/, "")));
+  expect(inverter.cardClasses).toBe(panel.cardClasses);
+  expect(inverter.sourceClasses).toBe(panel.sourceClasses);
+  // But its own groups: inverters have an AC side and panels do not.
+  expect(inverter.groups.join("|")).not.toBe(panel.groups.join("|"));
+  expect(inverter.title).toMatch(/GoodWe|GW/);
+  if (process.env.HERO_SHOTS) await page.screenshot({ path: "e2e/.tmp/inverter-detail.png", fullPage: true });
+});
