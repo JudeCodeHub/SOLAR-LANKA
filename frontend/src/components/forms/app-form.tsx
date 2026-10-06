@@ -10,6 +10,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { OctagonAlert } from "lucide-react";
 import type { FieldValues, SubmitHandler, UseFormReturn } from "react-hook-form";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
@@ -112,7 +113,7 @@ export function AppForm<TInput extends FieldValues, TOutput extends FieldValues 
         className={className}
       >
         {showNotice && (
-          <div ref={noticeRef} tabIndex={-1} className="mb-6 outline-none">
+          <div ref={noticeRef} tabIndex={-1} className="mb-6 rounded-card" data-form-notice>
             {serverError ? (
               <ApiErrorMessage error={serverError} />
             ) : (
@@ -147,36 +148,40 @@ function FormErrorSummary({
     <div
       role="alert"
       aria-labelledby={titleId}
-      className="rounded-lg border border-destructive p-4 text-sm text-destructive"
+      data-error-summary
+      className="flex gap-3 rounded-card border-2 border-danger bg-danger-tint p-5 text-sm text-ink"
     >
-      <h2 id={titleId} className="font-medium">
-        {messages.forms.errorSummaryTitle}
-      </h2>
-      <p className="mt-1">{messages.forms.errorSummaryIntro}</p>
-      <ul className="mt-2 list-disc space-y-1 pl-5">
-        {problems.map((problem) => {
-          const label = labels.get(problem.name);
-          const isGeneral = problem.name.startsWith("root.");
-          return (
-            <li key={problem.name}>
-              {isGeneral ? (
-                problem.message
-              ) : (
-                <a
-                  href={`#${fieldId(formId, problem.name)}`}
-                  className="underline underline-offset-2"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    onFocusField(problem.name);
-                  }}
-                >
-                  {label ? `${label}: ${problem.message}` : problem.message}
-                </a>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+      <OctagonAlert aria-hidden className="mt-0.5 size-5 shrink-0 text-danger" />
+      <div className="min-w-0 flex-1">
+        <h2 id={titleId} className="type-subheading text-danger">
+          {messages.forms.errorSummaryTitle}
+        </h2>
+        <p className="mt-1 text-ink-2">{messages.forms.errorSummaryIntro}</p>
+        <ul className="mt-2 space-y-0.5">
+          {problems.map((problem) => {
+            const label = labels.get(problem.name);
+            const isGeneral = problem.name.startsWith("root.");
+            return (
+              <li key={problem.name} className="flex min-h-11 items-center">
+                {isGeneral ? (
+                  problem.message
+                ) : (
+                  <a
+                    href={`#${fieldId(formId, problem.name)}`}
+                    className="font-medium text-ink underline underline-offset-4 hover:text-danger"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      onFocusField(problem.name);
+                    }}
+                  >
+                    {label ? `${label}: ${problem.message}` : problem.message}
+                  </a>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
     </div>
   );
 }

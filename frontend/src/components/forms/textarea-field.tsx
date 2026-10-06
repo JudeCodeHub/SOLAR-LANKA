@@ -58,7 +58,7 @@ export function TextareaField<TInput extends FieldValues, TOutput extends FieldV
         {...form.register(name)}
       />
       {description ? <FieldDescription id={descriptionId}>{description}</FieldDescription> : null}
-      <p id={countId} className="text-xs text-muted-foreground">
+      <p id={countId} className="type-small text-ink-3">
         {format(messages.forms.characterCount, { count: (value ?? "").length, max: maxLength })}
       </p>
       {hasError ? (
