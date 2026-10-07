@@ -89,3 +89,9 @@ test("every animation in the code has a written reason, and every reason has an 
   assert.ok(readFileSync(join(components, "reveal.tsx"), "utf8").length > 0 && names.includes("reveal"));
   assert.ok(readFileSync(join(components, "draw-line.tsx"), "utf8").length > 0 && names.includes("draw-line"));
 });
+
+test("one reduced-motion rule shortens every animation and transition to nothing", () => {
+  const block = css.slice(css.indexOf("Reduced motion: dialogs"));
+  const rule = block.slice(0, block.indexOf("/* Print"));
+  for (const needle of ["prefers-reduced-motion: reduce", "animation-duration: 0.01ms !important", "animation-iteration-count: 1 !important", "transition-duration: 0.01ms !important", "scroll-behavior: auto !important"]) assert.ok(rule.includes(needle), needle);
+});
