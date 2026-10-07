@@ -1341,6 +1341,7 @@ export const en = {
       companyInstallations: "Installation cards on the company list",
       share: "What the customer sees and the form to share a delay",
       technicianVisits: "The technician's visit tiles",
+      adminShell: "The administration area",
       totals: "The totals panel with no totals, with totals and with unsaved changes",
       dashboardIntro: "The customer links in a side column on wide screens and in a drawer on phones. The current page is marked with a bar, a tint and the current-page attribute.",
       requests: "Request cards in each state",

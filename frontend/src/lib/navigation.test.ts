@@ -211,3 +211,11 @@ test("every address a role-specific page lives at is guarded by the sign-in prox
     assert.ok(guarded(item.href), `${item.id} (${item.href}) is not covered by the proxy`);
   }
 });
+
+test("only a platform administrator is ever shown an administration link", () => {
+  for (const user of [null, customer, staff("sales"), staff("company_admin"), staff("technician")]) {
+    assert.ok(!ids(user, true).some((id) => id.startsWith("admin-")), `${user?.role ?? "nobody"}`);
+  }
+  assert.ok(!ids(null, false).some((id) => id.startsWith("admin-")));
+  assert.equal(ids(admin, true).filter((id) => id.startsWith("admin-")).length, 7);
+});
