@@ -1,12 +1,13 @@
 "use client";
 
 import { BackLink } from "@/components/ui/back-link";
-import { Calculator, CircleCheck, Lock, TriangleAlert } from "lucide-react";
+import { CircleCheck, Lock, TriangleAlert } from "lucide-react";
 import { useRef, useState } from "react";
 import { useFieldArray, useWatch } from "react-hook-form";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
 import { ConfirmAction } from "@/components/company/confirm-action";
+import { TotalsPanel } from "@/components/company/quotation-totals";
 import { QuotationLine } from "@/components/company/quotation-line";
 import { RevisionBody, RevisionHistory } from "@/components/company/quotation-revision";
 import { StaffGate } from "@/components/company/staff-gate";
@@ -348,12 +349,6 @@ function Editor({
   const inactive = (enquiry.data ? !isActive(enquiry.data) : false) || locked;
   const inactiveReason = enquiry.data?.status === "cancelled" ? "withdrawn" : enquiry.data?.status === "closed" ? "closed" : "other";
   const missing = missingForSending(terms);
-  const totals: [string, string | null][] = [
-    [text.totals.subtotal, terms.subtotal],
-    [text.totals.discount, terms.discount],
-    [text.totals.tax, terms.tax],
-    [text.totals.total, terms.total],
-  ];
 
   return (
     <>
@@ -475,41 +470,7 @@ function Editor({
       </div>
 
       <aside className="space-y-6 lg:sticky lg:top-40" aria-label={text.totals.title}>
-      <section aria-labelledby="totals-title" className="space-y-3 rounded-card border-2 border-orange-text bg-surface p-5 shadow-e2" data-totals>
-        <div className="flex flex-wrap items-center gap-3">
-          <h2 id="totals-title" className="type-heading text-ink">
-            {text.totals.title}
-          </h2>
-          <Badge variant="info" icon={Calculator} data-badge="server">
-            {text.totals.badge}
-          </Badge>
-        </div>
-        <p className="type-small text-ink-2">{text.totals.intro}</p>
-        {terms.total === null ? (
-          <p className="type-body text-ink-2" data-no-totals>
-            {text.totals.none}
-          </p>
-        ) : (
-          <>
-            {dirty ? (
-              <p className="flex items-center gap-2 text-sm font-medium text-warning" data-totals-stale>
-                <TriangleAlert aria-hidden className="size-4 shrink-0" />
-                {text.totals.stale}
-              </p>
-            ) : null}
-            <dl className="description-list text-sm">
-              {totals.map(([label, value]) => (
-                <div key={label} className="contents">
-                  <dt className="text-ink-2">{label}</dt>
-                  <dd className={label === text.totals.total ? "type-figure text-base font-semibold" : "type-figure"} data-total={label}>
-                    {formatMoney(value) ?? ""}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </>
-        )}
-      </section>
+      <TotalsPanel terms={terms} dirty={dirty} />
 
       <section aria-labelledby="checklist-title" className="space-y-3 rounded-card border border-line bg-surface p-5 shadow-e1">
         <h2 id="checklist-title" className="type-subheading text-ink">
