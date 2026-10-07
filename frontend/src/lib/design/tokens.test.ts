@@ -1067,3 +1067,9 @@ test("the admin catalogue list keeps its gate, kind switch, search, paging and l
   for (const needle of ["<PlatformGate>", "useAdminProducts(kind, search, page)", 'aria-current={kind === option ? "page" : undefined}', "router.push(hrefFor(kind, draft.trim(), 1))", "<Pagination", "data-products", "data-product={item.id}", "data-archived-note", "text.archivedNote", "`/admin/catalogue/${item.id}`", "text.empty", "PRODUCTS_PAGE_SIZE", "min-h-11", "<PageHeader"]) assert.ok(view.includes(needle), needle);
   assert.doesNotMatch(view, /<Card\b|text-muted-foreground|font-heading|size="sm"/);
 });
+
+test("the product editor keeps its checks before sending, its guard and refusals, and archiving behind the shared question, now as two cards and an archive section", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "admin", "product-editor.tsx"), "utf8");
+  for (const needle of ["<PlatformGate>", "export function ProductForm", "validateNames(names, originalNames)", "validateSpecs(fields, specs, originalSpecs)", "nameChanges(names, originalNames)", "specChanges(fields, specs, originalSpecs)", "busy.current", "edit.mutate(body", "archive.mutate(undefined", "text.refusedArchived", "text.refusedGeneric", "data-error-summary", "data-error={key}", "data-notice", "data-refused", "data-not-found", "data-action=\"save\"", 'id="archive"', "data-archive-section", 'data-section="names"', 'data-section="specs"', "INVERTER_FIELDS", "PANEL_FIELDS", "<PageHeader", "aria-invalid", "key={JSON.stringify("]) assert.ok(view.includes(needle), needle);
+  assert.doesNotMatch(view, /text-muted-foreground|font-heading|text-destructive/);
+});
