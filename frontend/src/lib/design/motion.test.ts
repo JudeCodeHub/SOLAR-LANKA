@@ -77,3 +77,15 @@ test("the drawn line scales in once, uses the sweep duration, and is already dra
   const component = readFileSync(join(import.meta.dirname, "..", "..", "components", "ui", "draw-line.tsx"), "utf8");
   assert.ok(component.includes("observer.disconnect()") && component.includes("aria-hidden"));
 });
+
+test("every animation in the code has a written reason, and every reason has an animation", async () => {
+  const { MOTION } = await import("./motion.ts");
+  const names = MOTION.map((entry) => entry.name).join(" ");
+  for (const keyframes of css.matchAll(/@keyframes ([a-z-]+)/g)) assert.ok(names.includes(keyframes[1] ?? ""), `no reason written for @keyframes ${keyframes[1]}`);
+  for (const entry of MOTION) assert.ok(entry.reason.length > 20 && entry.where.length > 5, entry.name);
+  const components = join(import.meta.dirname, "..", "..", "components", "ui");
+  assert.ok(readFileSync(join(components, "count-up.tsx"), "utf8").includes("requestAnimationFrame") && names.includes("count-up"));
+  assert.ok(readFileSync(join(components, "dialog.tsx"), "utf8").includes("animate-in") && names.includes("animate-in"));
+  assert.ok(readFileSync(join(components, "reveal.tsx"), "utf8").length > 0 && names.includes("reveal"));
+  assert.ok(readFileSync(join(components, "draw-line.tsx"), "utf8").length > 0 && names.includes("draw-line"));
+});
