@@ -998,3 +998,12 @@ test("the company support screens keep their gate, order, actions, guards and ma
   assert.match(card, /border-2 border-danger bg-danger-tint/);
   assert.match(card, /href \?\? `\/my\/support\/\$\{item\.id\}`/);
 });
+
+test("the company profile keeps its gate, status, saving rules, confirmation, guards and marks, labels declared credentials as not verified, and shows the history in a table region", () => {
+  const dir = join(import.meta.dirname, "..", "..", "components", "company");
+  const editor = readFileSync(join(dir, "profile-editor.tsx"), "utf8");
+  for (const needle of ["data-company-name", "data-status={status}", "data-message", "data-stale", "data-credentials", "data-declared-badge", "messages.directory.credentials.badge", "data-credential", "data-unsaved", "data-confirm", "data-confirm-yes", "data-checklist", "data-cannot-submit", "data-save-first", "data-submit", "data-history", "inFlight.current", "profileChanges(fresh, values as ProfileValues)", "savingEffect(fresh.publication_status)", "canSubmit(status)", "submit.mutate(undefined", "update.mutateAsync(changes)", "credentials.append({ name: \"\", issuer: \"\" })", "credentials.remove(index)", "MAX_CREDENTIALS", "<TableRegion", "text.stale.pending"]) assert.ok(editor.includes(needle), needle);
+  assert.doesNotMatch(editor, /text-muted-foreground|font-heading|rounded-lg border|size="sm"/);
+  assert.match(readFileSync(join(dir, "profile-view.tsx"), "utf8"), /<PageHeader/);
+  assert.match(readFileSync(join(import.meta.dirname, "..", "..", "messages", "en.ts"), "utf8"), /badge: "Company declared, not verified"/);
+});

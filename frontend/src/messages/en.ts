@@ -2280,6 +2280,7 @@ export const en = {
       } as Record<string, string>,
     },
     profile: {
+      eyebrow: "Your directory listing",
       title: "Company profile",
       intro:
         "Manage how your company appears in the directory. Only the company's administrators and sales staff can see and change this page.",
