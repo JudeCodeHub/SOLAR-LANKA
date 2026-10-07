@@ -24,7 +24,7 @@ export function StepTrack({ completed, total }: { completed: number; total: numb
 }
 
 /** One accepted installation: the day it began, how many steps are complete, and a track of all the steps; the whole card opens it. */
-export function InstallationCard({ item }: { item: { id: string; created_at: string; completed_milestones: number; total_milestones: number } }) {
+export function InstallationCard({ item, href }: { item: { id: string; created_at: string; completed_milestones: number; total_milestones: number }; href?: string }) {
   const words = progressText(item.completed_milestones, item.total_milestones);
   const done = item.total_milestones > 0 && item.completed_milestones >= item.total_milestones;
   return (
@@ -34,7 +34,7 @@ export function InstallationCard({ item }: { item: { id: string; created_at: str
       </Badge>
       <h2 className="type-subheading text-ink">
         <Link
-          href={`/my/installations/${item.id}`}
+          href={href ?? `/my/installations/${item.id}`}
           className="inline-flex min-h-11 items-center rounded-field outline-none after:absolute after:inset-0 after:rounded-card hover:underline focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-orange-text"
         >
           {format(text.open, { date: formatLongDate(item.created_at) ?? item.created_at })}

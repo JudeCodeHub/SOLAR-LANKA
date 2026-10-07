@@ -648,6 +648,16 @@ export function DesignGallery() {
             ))}
           </ul>
         </div>
+        <div className="space-y-3" data-company-installations-sample>
+          <h3 className="type-subheading">{text.navigation.companyInstallations}</h3>
+          <ul className="grid gap-4 sm:grid-cols-2">
+            {INSTALLATION_SAMPLES.slice(1, 3).map((item) => (
+              <li key={item.id}>
+                <InstallationCard item={item} href={`/company/installations/${item.id}?company=c1`} />
+              </li>
+            ))}
+          </ul>
+        </div>
         <div className="space-y-3" data-installations-sample>
           <h3 className="type-subheading">{text.navigation.installations}</h3>
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
