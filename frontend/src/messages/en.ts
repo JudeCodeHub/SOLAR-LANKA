@@ -2614,6 +2614,7 @@ export const en = {
         cancelled: "Withdrawn by the customer",
       },
       detail: {
+        eyebrow: "Customer request",
         title: "Enquiry",
         back: "Back to enquiries",
         received: "Received {date}",

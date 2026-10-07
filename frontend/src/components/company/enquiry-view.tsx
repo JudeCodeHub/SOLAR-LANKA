@@ -1,7 +1,7 @@
 "use client";
 
 import { BackLink } from "@/components/ui/back-link";
-import { Lock } from "lucide-react";
+import { CircleCheck, Eye, Lock, TriangleAlert } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
@@ -11,6 +11,8 @@ import { AppForm } from "@/components/forms/app-form";
 import { FormSubmitButton } from "@/components/forms/submit-button";
 import { TextareaField } from "@/components/forms/textarea-field";
 import { QueryState } from "@/components/query-state";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { ApiError } from "@/lib/api/errors";
 import type { components } from "@/lib/api/schema";
@@ -21,6 +23,7 @@ import {
   availableActions,
   companyStatusLabel,
   customerSees,
+  enquiryTone,
   MAX_NOTE,
   noteAuthor,
   noteSchema,
@@ -38,7 +41,7 @@ type Enquiry = components["schemas"]["CompanyDeliveryDetail"];
 /** One enquiry: what the customer wrote, the progress the customer can see, and internal notes they cannot. */
 export function EnquiryView({ id }: { id: string }) {
   return (
-    <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
+    <div className="mx-auto w-full max-w-4xl flex-1 space-y-6 px-4 py-8">
       <StaffGate basePath={`/company/inbox/${id}`}>
         {(company) => (
           <>
@@ -122,94 +125,97 @@ function Detail({
 
   return (
     <>
-      <header className="space-y-2">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">{text.detail.title}</h1>
-        <h2 className="text-lg font-medium" data-status={enquiry.status}>
-          {companyStatusLabel(enquiry.status)}
+      <header className="space-y-3 rounded-panel border border-line bg-surface p-6 shadow-e1" data-enquiry-header>
+        <p className="type-caption font-semibold tracking-widest text-orange-text uppercase">{text.detail.eyebrow}</p>
+        <h1 className="type-display-m text-ink">{text.detail.title}</h1>
+        <h2 data-status={enquiry.status}>
+          <Badge variant={enquiryTone(enquiry.status)}>{companyStatusLabel(enquiry.status)}</Badge>
         </h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="type-small text-ink-2">
           {format(text.detail.received, { date: formatLongDate(enquiry.created_at) ?? enquiry.created_at })}
           {enquiry.viewed_at ? ` · ${format(text.detail.opened, { date: formatLongDate(enquiry.viewed_at) ?? enquiry.viewed_at })}` : ""}
         </p>
-        <Button type="button" variant="outline" size="sm" onClick={() => void refetch()} aria-disabled={refreshing}>
+        <Button type="button" variant="outline" onClick={() => void refetch()} aria-disabled={refreshing}>
           {refreshing ? text.detail.refreshing : text.detail.refresh}
         </Button>
       </header>
 
-      <section aria-labelledby="customer-title" className="space-y-2" data-customer-section>
-        <h2 id="customer-title" className="font-heading text-xl font-semibold tracking-tight">
+      <section aria-labelledby="customer-title" className="space-y-3 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6" data-customer-section>
+        <h2 id="customer-title" className="type-heading text-ink">
           {text.customer.title}
         </h2>
-        <p className="text-sm text-muted-foreground">{text.customer.note}</p>
+        <p className="type-small text-ink-2">{text.customer.note}</p>
         <dl className="description-list text-sm">
-          <dt className="text-muted-foreground">{text.customer.district}</dt>
-          <dd>{requirements.district ?? ""}</dd>
-          <dt className="text-muted-foreground">{text.customer.consumption}</dt>
+          <dt className="text-ink-2">{text.customer.district}</dt>
+          <dd className="font-medium">{requirements.district ?? ""}</dd>
+          <dt className="text-ink-2">{text.customer.consumption}</dt>
           <dd>
             {requirements.monthly_consumption_kwh
               ? format(text.customer.consumptionValue, { value: requirements.monthly_consumption_kwh })
               : text.customer.consumptionNone}
           </dd>
-          <dt className="text-muted-foreground">{text.customer.details}</dt>
-          <dd className="whitespace-pre-wrap">{requirements.details ?? ""}</dd>
+          <dt className="text-ink-2">{text.customer.details}</dt>
+          <dd className="whitespace-pre-wrap rounded-field border border-line bg-paper p-3 text-ink">{requirements.details ?? ""}</dd>
         </dl>
       </section>
 
-      <section aria-labelledby="shared-title" className="space-y-3 rounded-lg border p-4" data-shared-section>
-        <div className="flex flex-wrap items-center gap-2">
-          <h2 id="shared-title" className="font-heading text-xl font-semibold tracking-tight">
+      <section aria-labelledby="shared-title" className="space-y-3 rounded-card border-2 border-info bg-info-tint p-5 sm:p-6" data-shared-section>
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 id="shared-title" className="type-heading text-ink">
             {shared.title}
           </h2>
-          <span className="rounded-full border px-2 py-0.5 text-xs" data-badge="shared">
+          <Badge variant="info" icon={Eye} data-badge="shared">
             {shared.badge}
-          </span>
+          </Badge>
         </div>
-        <p className="text-sm text-muted-foreground">{shared.intro}</p>
-        <p className="text-sm">
+        <p className="type-small text-ink">{shared.intro}</p>
+        <p className="text-sm text-ink">
           <span className="font-medium">{shared.current}: </span>
           {companyStatusLabel(enquiry.status)}
-          <span className="block text-muted-foreground">{format(shared.customerSees, { status: customerSees(enquiry.status) })}</span>
+          <span className="block text-ink-2">{format(shared.customerSees, { status: customerSees(enquiry.status) })}</span>
         </p>
         {message ? (
-          <p role="status" className="text-sm font-medium" data-message>
-            {message}
-          </p>
+          <Alert variant="success" role="status" data-message>
+            <CircleCheck aria-hidden />
+            <AlertDescription>{message}</AlertDescription>
+          </Alert>
         ) : null}
         {notice ? (
-          <p role="alert" className="text-sm font-medium" data-stale-notice>
-            {notice}
-          </p>
+          <Alert variant="warning" role="alert" data-stale-notice>
+            <TriangleAlert aria-hidden />
+            <AlertDescription>{notice}</AlertDescription>
+          </Alert>
         ) : null}
         {problem ? <ApiErrorMessage error={problem} /> : null}
         {actions.inactiveReason ? (
-          <p className="text-sm text-muted-foreground" data-inactive>
+          <p className="type-body text-ink" data-inactive>
             {shared.inactive[actions.inactiveReason]}
           </p>
         ) : (
           <div className="space-y-3">
             {actions.canMarkOpened ? (
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <Button type="button" variant="outline" onClick={markOpened} aria-disabled={progress.isPending} data-mark-opened>
                   {progress.isPending ? shared.working : shared.markOpened}
                 </Button>
-                <p className="text-sm text-muted-foreground">{shared.markOpenedHelp}</p>
+                <p className="type-small text-ink-2">{shared.markOpenedHelp}</p>
               </div>
             ) : null}
             {actions.canMarkResponding ? (
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <Button type="button" variant="outline" onClick={markResponding} aria-disabled={progress.isPending} data-mark-responding>
                   {progress.isPending ? shared.working : shared.markResponding}
                 </Button>
-                <p className="text-sm text-muted-foreground">{shared.markRespondingHelp}</p>
+                <p className="type-small text-ink-2">{shared.markRespondingHelp}</p>
               </div>
             ) : null}
             {confirmingClose ? (
-              <div role="group" aria-labelledby="close-title" className="space-y-3 rounded-lg border p-4" data-confirm-close>
-                <h3 id="close-title" ref={confirmRef} tabIndex={-1} className="font-medium outline-none">
+              <div role="group" aria-labelledby="close-title" className="space-y-3 rounded-card border-2 border-orange-text bg-surface p-5 shadow-e2" data-confirm-close>
+                <h3 id="close-title" ref={confirmRef} tabIndex={-1} className="type-subheading text-ink outline-none">
                   {shared.closeTitle}
                 </h3>
-                <p className="text-sm">{shared.closeBody}</p>
-                <div className="flex flex-wrap gap-2">
+                <p className="type-body text-ink">{shared.closeBody}</p>
+                <div className="flex flex-wrap gap-3">
                   <Button type="button" onClick={confirmClose} aria-disabled={close.isPending} data-close-yes>
                     {shared.closeYes}
                   </Button>
@@ -219,7 +225,7 @@ function Detail({
                 </div>
               </div>
             ) : (
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -232,7 +238,7 @@ function Detail({
                 >
                   {shared.close}
                 </Button>
-                <p className="text-sm text-muted-foreground">{shared.closeHelp}</p>
+                <p className="type-small text-ink-2">{shared.closeHelp}</p>
               </div>
             )}
           </div>
@@ -261,31 +267,30 @@ function Notes({ companyId, id, canAdd, onStale }: { companyId: string; id: stri
   return (
     <section
       aria-labelledby="notes-title"
-      className="space-y-3 rounded-lg border-2 border-dashed bg-muted/40 p-4"
+      className="space-y-3 rounded-card border-2 border-dashed border-ink-3 bg-paper-2 p-5 sm:p-6"
       data-internal-section
     >
-      <div className="flex flex-wrap items-center gap-2">
-        <h2 id="notes-title" className="font-heading text-xl font-semibold tracking-tight">
+      <div className="flex flex-wrap items-center gap-3">
+        <h2 id="notes-title" className="type-heading text-ink">
           {notesText.title}
         </h2>
-        <span className="inline-flex items-center gap-1 rounded-full border border-foreground px-2 py-0.5 text-xs font-medium" data-badge="internal">
-          <Lock aria-hidden className="size-3" />
+        <Badge variant="neutral" icon={Lock} className="border-ink-3 font-semibold text-ink" data-badge="internal">
           {notesText.badge}
-        </span>
+        </Badge>
       </div>
-      <p className="text-sm">{notesText.intro}</p>
+      <p className="type-small text-ink">{notesText.intro}</p>
 
       <QueryState
         query={query}
         isEmpty={(page) => page.items.length === 0}
-        empty={<p className="text-sm text-muted-foreground" data-no-notes>{notesText.empty}</p>}
+        empty={<p className="type-body text-ink-2" data-no-notes>{notesText.empty}</p>}
       >
         {(page) => (
           <ul className="space-y-3" data-notes>
             {page.items.map((note) => (
-              <li key={note.id} className="space-y-1 rounded-md border bg-background p-3 text-sm" data-note>
-                <p className="text-xs text-muted-foreground">
-                  <span className="font-medium text-foreground">{notesText.badge}</span>
+              <li key={note.id} className="space-y-1 rounded-field border border-line bg-surface p-3 text-sm" data-note>
+                <p className="text-xs text-ink-2">
+                  <span className="font-medium text-ink">{notesText.badge}</span>
                   {" · "}
                   {format(notesText.writtenBy, {
                     who: noteAuthor(note.author_id, me.data?.id),
@@ -322,13 +327,14 @@ function Notes({ companyId, id, canAdd, onStale }: { companyId: string; id: stri
           <TextareaField form={form} name="body" label={notesText.add} description={notesText.addHelp} maxLength={MAX_NOTE} />
           <FormSubmitButton pending={form.formState.isSubmitting}>{notesText.save}</FormSubmitButton>
           {saved ? (
-            <p role="status" className="text-sm font-medium" data-note-saved>
+            <p role="status" className="flex items-center gap-2 text-sm font-medium text-ink" data-note-saved>
+              <CircleCheck aria-hidden className="size-4 text-success" />
               {notesText.saved}
             </p>
           ) : null}
         </AppForm>
       ) : (
-        <p className="text-sm text-muted-foreground" data-no-notes-allowed>
+        <p className="type-body text-ink" data-no-notes-allowed>
           {notesText.inactive}
         </p>
       )}

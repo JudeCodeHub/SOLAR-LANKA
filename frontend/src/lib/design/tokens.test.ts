@@ -892,3 +892,11 @@ test("the enquiry inbox keeps its gate, paging and link addresses, and shows eac
   for (const needle of ["data-status={item.status}", "data-chip={item.status}", "companyStatusLabel(item.status)", "enquiryTone(item.status)", "min-h-11", "text.receivedOn", "text.district", "inset_4px_0_0_var(--ds-orange-text),var(--ds-shadow-1)"]) assert.ok(card.includes(needle), needle);
   assert.doesNotMatch(view + card, /text-muted-foreground|font-heading/);
 });
+
+test("the enquiry page keeps every mark, guard and write, lays out the customer's requirements, and shows shared and internal sections differently", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "company", "enquiry-view.tsx"), "utf8");
+  for (const needle of ["data-enquiry-header", "data-status={enquiry.status}", "data-customer-section", "data-shared-section", "data-badge=\"shared\"", "data-internal-section", "data-badge=\"internal\"", "data-message", "data-stale-notice", "data-inactive", "data-mark-opened", "data-mark-responding", "data-close", "data-confirm-close", "data-close-yes", "data-notes", "data-note", "data-no-notes", "data-no-notes-allowed", "data-note-saved", "inFlight.current", "staleMessage(fresh.data)", "availableActions(enquiry)", "progress.mutate(\"viewed\"", "progress.mutate(\"responding\"", "close.mutate(", "<QuotationSection", "noteAuthor(note.author_id", "maxLength={MAX_NOTE}", "requirements.details", "text.customer.note"]) assert.ok(view.includes(needle), needle);
+  assert.match(view, /border-2 border-info bg-info-tint/);
+  assert.match(view, /border-2 border-dashed/);
+  assert.doesNotMatch(view, /text-muted-foreground|font-heading|rounded-lg border/);
+});
