@@ -9,6 +9,11 @@ export function statusLabel(status: string): string {
   return (text.statuses as Record<string, string>)[status] ?? status;
 }
 
+/** Cases reported as dangerous first, each group keeping the order it came in; nothing is dropped or changed. */
+export function dangerFirst<T extends { unsafe_now: boolean }>(cases: readonly T[]): T[] {
+  return [...cases.filter((item) => item.unsafe_now), ...cases.filter((item) => !item.unsafe_now)];
+}
+
 /** The colour family of a case's status chip; the words always say the same thing. */
 export function caseTone(status: string): "info" | "warning" | "success" | "neutral" {
   if (status === "open") return "info";

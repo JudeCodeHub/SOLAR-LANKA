@@ -1024,3 +1024,11 @@ test("the technician's visit page keeps its completion rules, guards and marks, 
   assert.doesNotMatch(view, /customer_(name|email|phone|id)|\.email|\.phone/);
   assert.doesNotMatch(view, /text-muted-foreground|font-heading|text-destructive|size="sm"/);
 });
+
+test("the technician's support list keeps its query, empty state and links, puts dangerous cases first as red cards and reads no customer identity", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "support", "technician-support.tsx"), "utf8");
+  const list = view.slice(0, view.indexOf("export function TechnicianCase("));
+  for (const needle of ["useAssignedCases()", "dangerFirst(items)", "data-cases", "<CaseCard item={item} href={`/technician/support/${item.id}`} unsafeLabel={messages.support.company.unsafeFirst}", "text.none", "<PageHeader"]) assert.ok(list.includes(needle), needle);
+  assert.doesNotMatch(list, /customer_(name|email|phone)|\.email|\.phone/);
+  assert.doesNotMatch(list, /text-muted-foreground|font-heading|rounded-lg border/);
+});

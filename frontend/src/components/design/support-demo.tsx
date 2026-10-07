@@ -5,6 +5,7 @@ import { useState } from "react";
 import { CaseCard, SafetyBox, UnsafeField } from "@/components/support/customer-support";
 import { PhotoList } from "@/components/support/photo-list";
 import { UpdatesList } from "@/components/support/updates-list";
+import { dangerFirst } from "@/lib/support/support";
 import { messages } from "@/messages";
 
 const update = (id: string, kind: "message" | "status" | "assigned", extra: Record<string, unknown>) => ({ id, kind, actor_id: null, actor_role: "staff" as const, body: null, created_at: "2026-10-02T04:30:00Z", from_status: null, to_status: null, shared: true, subject_id: null, ...extra });
@@ -38,6 +39,13 @@ export function SupportDemo() {
         {[...CASES.filter((item) => item.unsafe_now), ...CASES.filter((item) => !item.unsafe_now).slice(0, 1)].map((item) => (
           <li key={item.id}>
             <CaseCard item={item} href={`/company/support/${item.id}?company=c1`} unsafeLabel={messages.support.company.unsafeFirst} />
+          </li>
+        ))}
+      </ul>
+      <ul className="grid gap-4 sm:grid-cols-2" data-technician-cases>
+        {dangerFirst([CASES[0], CASES[2], CASES[1]].filter((item): item is (typeof CASES)[number] => item !== undefined)).map((item) => (
+          <li key={item.id}>
+            <CaseCard item={item} href={`/technician/support/${item.id}`} unsafeLabel={messages.support.company.unsafeFirst} />
           </li>
         ))}
       </ul>

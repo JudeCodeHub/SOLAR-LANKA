@@ -1804,6 +1804,7 @@ export const en = {
       refused: "That could not be done because the request has changed. The page now shows where it stands.",
     },
     technician: {
+      eyebrow: "Assigned to you",
       title: "My support requests",
       intro: "Problems you are assigned to. You see the problem, not the customer's details.",
       none: "No support requests are assigned to you.",
