@@ -1031,6 +1031,7 @@ export const en = {
     },
   },
   adminActivity: {
+    eyebrow: "Platform administration",
     title: "Activity and audit",
     intro: "Platform-wide counts and the audit log of administrative and company changes, newest first. Read only.",
     countsTitle: "Platform counts",

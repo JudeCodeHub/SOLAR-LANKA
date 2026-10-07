@@ -1106,3 +1106,9 @@ test("the account access screen still refuses a bad id before any question, keep
   for (const needle of ["<PlatformGate>", "export function AccountForm", "accountProblem({ targetId, selfId, action })", "onBeforeOpen={() => guard(\"suspend\")}", "onBeforeOpen={() => guard(\"restore\")}", "if (busy.current || !guard(action)) return;", "busy.current", "mutation.mutate(", "accountRefusal(action)", "failure.status === 404", "failure.status === 409", "data-error=\"id\"", "data-result", "data-refused", "data-account-actions", 'id="suspend"', 'id="restore"', 'aria-describedby={`account-id-help${problem ? " account-id-error" : ""}`}', "font-mono", "<PageHeader"]) assert.ok(view.includes(needle), needle);
   assert.doesNotMatch(view, /text-muted-foreground|font-heading|text-destructive/);
 });
+
+test("the activity screen keeps its gate, counts, company filter with its check, paging and links, and shows the audit log as a labelled table", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "admin", "activity-view.tsx"), "utf8");
+  for (const needle of ["<PlatformGate>", "useActivity()", "useAuditEvents(company, page, AUDIT_PAGE_SIZE)", "data-counts", "isProductId(value)", "text.filterBad", "data-error=\"filter\"", 'aria-describedby={`company-filter-help${problem ? " company-filter-error" : ""}`}', "data-audit", "data-audit-entry={entry.action}", "`/admin/users?user=${entry.target_id}`", "hrefFor(company, page - 1)", "hrefFor(company, page + 1)", "items.length > AUDIT_PAGE_SIZE", "<TableRegion", "<caption className=\"sr-only\">", 'scope="col"', 'scope="row"', "actionLabel(entry.action)", "text.empty", "<PageHeader"]) assert.ok(view.includes(needle), needle);
+  assert.doesNotMatch(view, /text-muted-foreground|font-heading|text-destructive|rounded-lg border/);
+});

@@ -1,5 +1,6 @@
 "use client";
 
+import { CircleAlert } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -7,7 +8,9 @@ import { useState } from "react";
 import { PlatformGate } from "@/components/admin/platform-gate";
 import { QueryState } from "@/components/query-state";
 import { EmptyState } from "@/components/states/empty-state";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
+import { Table, TableRegion } from "@/components/ui/table";
 import { actionLabel, AUDIT_PAGE_SIZE } from "@/lib/admin/audit";
 import { useActivity, useAuditEvents } from "@/lib/admin/hooks";
 import { shortId } from "@/lib/admin/review";
@@ -29,11 +32,8 @@ const hrefFor = (company: string, page: number) => {
 /** Platform counts and the read-only audit log, for platform administrators. */
 export function ActivityView() {
   return (
-    <div className="mx-auto w-full max-w-4xl flex-1 space-y-6 px-4 py-8">
-      <header className="space-y-2">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">{text.title}</h1>
-        <p className="max-w-3xl text-muted-foreground">{text.intro}</p>
-      </header>
+    <div className="mx-auto w-full max-w-5xl flex-1 space-y-6 px-4 py-8">
+      <PageHeader eyebrow={text.eyebrow} title={text.title} description={text.intro} />
       <PlatformGate>{() => <Body />}</PlatformGate>
     </div>
   );
@@ -43,13 +43,13 @@ function Body() {
   const activity = useActivity();
   return (
     <>
-      <section aria-labelledby="counts-title" className="space-y-2">
-        <h2 id="counts-title" className="font-heading text-xl font-semibold tracking-tight">
+      <section aria-labelledby="counts-title" className="space-y-3">
+        <h2 id="counts-title" className="type-heading text-ink">
           {text.countsTitle}
         </h2>
         <QueryState query={activity}>
           {(counts) => (
-            <dl className="grid gap-3 sm:grid-cols-2" data-counts>
+            <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" data-counts>
               {(
                 [
                   [text.users, counts.users],
@@ -58,9 +58,9 @@ function Body() {
                   [text.auditEvents, counts.audit_events],
                 ] as const
               ).map(([label, value]) => (
-                <div key={label} className="rounded-lg border p-3">
-                  <dt className="text-sm text-muted-foreground">{label}</dt>
-                  <dd className="text-2xl font-semibold">{value}</dd>
+                <div key={label} className="space-y-1 rounded-card border border-line bg-surface p-5 shadow-e1">
+                  <dt className="type-small font-medium text-ink-2">{label}</dt>
+                  <dd className="type-figure text-4xl font-semibold text-ink">{value}</dd>
                 </div>
               ))}
             </dl>
@@ -83,13 +83,13 @@ function AuditLog() {
   const [problem, setProblem] = useState<string | null>(null);
 
   return (
-    <section aria-labelledby="log-title" className="space-y-3">
-      <h2 id="log-title" className="font-heading text-xl font-semibold tracking-tight">
+    <section aria-labelledby="log-title" className="space-y-4">
+      <h2 id="log-title" className="type-heading text-ink">
         {text.logTitle}
       </h2>
       <form
         noValidate
-        className="space-y-1"
+        className="space-y-2 rounded-card border border-line bg-surface p-5 shadow-e1"
         onSubmit={(event) => {
           event.preventDefault();
           const value = draft.trim();
@@ -101,10 +101,10 @@ function AuditLog() {
           router.push(hrefFor(value, 1));
         }}
       >
-        <label htmlFor="company-filter" className="block font-medium">
+        <label htmlFor="company-filter" className="type-subheading block text-ink">
           {text.filterLabel}
         </label>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-3">
           <input
             id="company-filter"
             value={draft}
@@ -113,9 +113,9 @@ function AuditLog() {
             aria-describedby={`company-filter-help${problem ? " company-filter-error" : ""}`}
             autoComplete="off"
             spellCheck={false}
-            className="h-11 min-w-0 flex-1 field-control px-3"
+            className="field-control h-11 min-w-0 flex-1 basis-60 px-3.5 font-mono text-sm"
           />
-          <Button type="submit" variant="outline" data-action="filter">
+          <Button type="submit" data-action="filter">
             {text.filterApply}
           </Button>
           {company ? (
@@ -124,11 +124,12 @@ function AuditLog() {
             </Button>
           ) : null}
         </div>
-        <p id="company-filter-help" className="text-sm text-muted-foreground">
+        <p id="company-filter-help" className="type-small text-ink-2">
           {text.filterHelp}
         </p>
         {problem ? (
-          <p id="company-filter-error" role="alert" className="text-sm font-medium text-destructive" data-error="filter">
+          <p id="company-filter-error" role="alert" className="flex items-center gap-1.5 text-sm font-medium text-danger" data-error="filter">
+            <CircleAlert aria-hidden className="size-4 shrink-0" />
             {problem}
           </p>
         ) : null}
@@ -138,30 +139,48 @@ function AuditLog() {
           const shown = items.slice(0, AUDIT_PAGE_SIZE);
           return (
             <>
-              <p className="text-sm text-muted-foreground">{format(text.page, { page })}</p>
-              <ul className="space-y-2" data-audit>
-                {shown.map((entry) => (
-                  <li key={entry.id} className="space-y-1 rounded-lg border p-3 text-sm" data-audit-entry={entry.action}>
-                    <p className="font-medium">{actionLabel(entry.action)}</p>
-                    <p className="text-muted-foreground">{formatLongDate(entry.created_at) ?? entry.created_at}</p>
-                    <p>{format(messages.admin.detail.by, { id: shortId(entry.actor_id) })}</p>
-                    <p>{format(text.companyLine, { company: entry.company_id ? shortId(entry.company_id) : text.none })}</p>
-                    {entry.action.startsWith("user.") ? (
-                      <Link href={`/admin/users?user=${entry.target_id}`} className="inline-flex min-h-11 items-center underline underline-offset-2">
-                        {format(text.manage, { id: shortId(entry.target_id) })}
-                      </Link>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-              <nav className="flex gap-4 text-sm" aria-label={text.logTitle}>
+              <p className="type-small text-ink-2">{format(text.page, { page })}</p>
+              <TableRegion label={text.logTitle}>
+                <Table data-audit>
+                  <caption className="sr-only">{text.logTitle}</caption>
+                  <thead>
+                    <tr className="text-left">
+                      <th scope="col">{text.when}</th>
+                      <th scope="col">{text.action}</th>
+                      <th scope="col">{text.actor}</th>
+                      <th scope="col">{text.company}</th>
+                      <th scope="col">{text.target}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {shown.map((entry) => (
+                      <tr key={entry.id} className="align-top" data-audit-entry={entry.action}>
+                        <th scope="row" className="whitespace-nowrap text-left font-normal text-ink-2">
+                          {formatLongDate(entry.created_at) ?? entry.created_at}
+                        </th>
+                        <td className="font-medium text-ink">{actionLabel(entry.action)}</td>
+                        <td className="type-figure">{format(messages.admin.detail.by, { id: shortId(entry.actor_id) })}</td>
+                        <td className="type-figure">{format(text.companyLine, { company: entry.company_id ? shortId(entry.company_id) : text.none })}</td>
+                        <td>
+                          {entry.action.startsWith("user.") ? (
+                            <Link href={`/admin/users?user=${entry.target_id}`} className="inline-flex min-h-11 items-center font-medium text-orange-text underline underline-offset-2">
+                              {format(text.manage, { id: shortId(entry.target_id) })}
+                            </Link>
+                          ) : null}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </TableRegion>
+              <nav className="flex gap-3 text-sm" aria-label={text.logTitle}>
                 {page > 1 ? (
-                  <Link href={hrefFor(company, page - 1)} className="inline-flex min-h-11 items-center underline underline-offset-2">
+                  <Link href={hrefFor(company, page - 1)} className={buttonVariants({ variant: "outline" })}>
                     {text.previous}
                   </Link>
                 ) : null}
                 {items.length > AUDIT_PAGE_SIZE ? (
-                  <Link href={hrefFor(company, page + 1)} className="inline-flex min-h-11 items-center underline underline-offset-2">
+                  <Link href={hrefFor(company, page + 1)} className={buttonVariants({ variant: "outline" })}>
                     {text.next}
                   </Link>
                 ) : null}
