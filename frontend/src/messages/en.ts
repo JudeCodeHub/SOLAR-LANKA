@@ -1069,6 +1069,8 @@ export const en = {
     } as Record<string, string>,
   },
   adminCatalogue: {
+    eyebrow: "Platform administration",
+    archivedNote: "Archived products are not listed here.",
     title: "Catalogue",
     intro: "Edit panel and inverter specifications. Changes are visible to customers straight away. Prices belong to companies and are not edited here.",
     panels: "Panels",
