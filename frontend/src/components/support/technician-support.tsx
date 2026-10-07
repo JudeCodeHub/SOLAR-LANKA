@@ -1,10 +1,11 @@
 "use client";
 
 import { BackLink } from "@/components/ui/back-link";
-import Link from "next/link";
 import { useRef, useState } from "react";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
+import { CaseCard } from "@/components/support/customer-support";
+import { PageHeader } from "@/components/ui/page-header";
 import { PhotoList } from "@/components/support/photo-list";
 import { UpdatesList } from "@/components/support/updates-list";
 import { QueryState } from "@/components/query-state";
@@ -12,7 +13,7 @@ import { EmptyState } from "@/components/states/empty-state";
 import { Button } from "@/components/ui/button";
 import type { ApiError } from "@/lib/api/errors";
 import { technicianPhoto, useAssignedCase, useAssignedCases, useTechnicianSupport } from "@/lib/support/hooks";
-import { newKey, statusLabel } from "@/lib/support/support";
+import { dangerFirst, newKey, statusLabel } from "@/lib/support/support";
 import { format, messages } from "@/messages";
 
 const text = messages.support.technician;
@@ -21,21 +22,14 @@ const text = messages.support.technician;
 export function TechnicianCases() {
   const query = useAssignedCases();
   return (
-    <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
-      <header className="space-y-2">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">{text.title}</h1>
-        <p className="max-w-3xl text-muted-foreground">{text.intro}</p>
-      </header>
+    <div className="mx-auto w-full max-w-4xl flex-1 space-y-6 px-4 py-8">
+      <PageHeader eyebrow={text.eyebrow} title={text.title} description={text.intro} />
       <QueryState query={query} isEmpty={(items) => items.length === 0} empty={<EmptyState title={text.none} />}>
         {(items) => (
-          <ul className="space-y-2" data-cases>
-            {items.map((item) => (
-              <li key={item.id} className="rounded-lg border p-3 text-sm" data-unsafe={item.unsafe_now}>
-                {item.unsafe_now ? <p className="font-semibold">{messages.support.company.unsafeFirst}</p> : null}
-                <Link href={`/technician/support/${item.id}`} className="inline-flex min-h-11 items-center font-medium underline underline-offset-2">
-                  {format(text.open, { symptom: item.symptom.slice(0, 80) })}
-                </Link>
-                <p className="text-muted-foreground">{statusLabel(item.status)}</p>
+          <ul className="grid gap-4 sm:grid-cols-2" data-cases>
+            {dangerFirst(items).map((item) => (
+              <li key={item.id}>
+                <CaseCard item={item} href={`/technician/support/${item.id}`} unsafeLabel={messages.support.company.unsafeFirst} />
               </li>
             ))}
           </ul>

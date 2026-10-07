@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { caseTone, customerMoves, statusLabel, lookupQuery, ordered, staffMoves, stepsFromText, supportDestination } from "./support.ts";
+import { caseTone, customerMoves, dangerFirst, statusLabel, lookupQuery, ordered, staffMoves, stepsFromText, supportDestination } from "./support.ts";
 
 test("staff move a case forward, and closing early needs a reason", () => {
   assert.deepEqual(staffMoves("open").map((m) => [m.to, m.needsReason]), [["in_progress", false], ["closed", true]]);
@@ -43,4 +43,11 @@ test("each case status has a colour family and its own words", () => {
   assert.equal(caseTone("closed"), "neutral");
   const words = ["open", "in_progress", "resolved", "closed"].map(statusLabel);
   assert.equal(new Set(words).size, words.length);
+});
+
+test("dangerous cases come first and every group keeps its own order", () => {
+  const cases = [{ id: "a", unsafe_now: false }, { id: "b", unsafe_now: true }, { id: "c", unsafe_now: false }, { id: "d", unsafe_now: true }];
+  assert.deepEqual(dangerFirst(cases).map((item) => item.id), ["b", "d", "a", "c"]);
+  assert.deepEqual(dangerFirst([]), []);
+  assert.equal(dangerFirst(cases).length, cases.length);
 });
