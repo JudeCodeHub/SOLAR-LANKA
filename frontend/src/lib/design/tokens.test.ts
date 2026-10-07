@@ -1100,3 +1100,9 @@ test("the education admin list and article editor keep their gate, filter, check
   for (const needle of ["<PlatformGate>", "export function ArticleFormView", "validateArticle(form)", "articleBody(form)", "busy.current", "actionsFor(status, Boolean(article?.reviewer_id))", "data-error-summary", "data-notice", "data-refused", "data-read-only", "data-status", "data-source-row={index}", "data-time-sensitive-box", "data-sample-box", "data-own-work", "data-actions", 'data-action="save"', 'id="review"', 'id="publish"', 'id="unpublish"', 'id="archive"', "article.author_id === selfId", "actions.review.mutate(", "actions.publish.mutate(", "actions.unpublish.mutate(", "actions.archive.mutate(", "<ConfirmAction", "<PageHeader", "has-[:checked]:border-warning", "has-[:checked]:border-info"]) assert.ok(editor.includes(needle), needle);
   assert.doesNotMatch(list + editor, /text-muted-foreground|font-heading|text-destructive|rounded-lg border|size="sm"/);
 });
+
+test("the account access screen still refuses a bad id before any question, keeps its guard, refusals and confirmations, and shows the result as an alert", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "admin", "account-access.tsx"), "utf8");
+  for (const needle of ["<PlatformGate>", "export function AccountForm", "accountProblem({ targetId, selfId, action })", "onBeforeOpen={() => guard(\"suspend\")}", "onBeforeOpen={() => guard(\"restore\")}", "if (busy.current || !guard(action)) return;", "busy.current", "mutation.mutate(", "accountRefusal(action)", "failure.status === 404", "failure.status === 409", "data-error=\"id\"", "data-result", "data-refused", "data-account-actions", 'id="suspend"', 'id="restore"', 'aria-describedby={`account-id-help${problem ? " account-id-error" : ""}`}', "font-mono", "<PageHeader"]) assert.ok(view.includes(needle), needle);
+  assert.doesNotMatch(view, /text-muted-foreground|font-heading|text-destructive/);
+});

@@ -1,11 +1,14 @@
 "use client";
 
+import { CircleAlert, TriangleAlert, UserCheck, UserX } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
 
 import { PlatformGate } from "@/components/admin/platform-gate";
 import { ApiErrorMessage } from "@/components/api-error-message";
 import { ConfirmAction } from "@/components/company/confirm-action";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { PageHeader } from "@/components/ui/page-header";
 import type { ApiError } from "@/lib/api/errors";
 import { useSetAccountStatus } from "@/lib/admin/hooks";
 import { type AccountAction, accountProblem, accountRefusal, shortId } from "@/lib/admin/review";
@@ -17,16 +20,14 @@ const text = messages.admin.users;
 export function AccountAccess() {
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
-      <header className="space-y-2">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">{text.title}</h1>
-        <p className="max-w-3xl text-muted-foreground">{text.intro}</p>
-      </header>
-      <PlatformGate>{(selfId) => <Form selfId={selfId} />}</PlatformGate>
+      <PageHeader eyebrow={text.eyebrow} title={text.title} description={text.intro} />
+      <PlatformGate>{(selfId) => <AccountForm selfId={selfId} />}</PlatformGate>
     </div>
   );
 }
 
-function Form({ selfId }: { selfId: string }) {
+/** The id box and the two actions; an id that cannot be used is refused on the page before any question is asked. */
+export function AccountForm({ selfId }: { selfId: string }) {
   const [targetId, setTargetId] = useState(useSearchParams().get("user") ?? "");
   const [problem, setProblem] = useState<string | null>(null);
   const [result, setResult] = useState<{ id: string; suspended: boolean; provider: string } | null>(null);
@@ -70,8 +71,8 @@ function Form({ selfId }: { selfId: string }) {
 
   return (
     <div className="space-y-4">
-      <div className="space-y-1">
-        <label htmlFor="account-id" className="block font-medium">
+      <div className="space-y-2 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6">
+        <label htmlFor="account-id" className="type-subheading block text-ink">
           {text.idLabel}
         </label>
         <input
@@ -85,18 +86,19 @@ function Form({ selfId }: { selfId: string }) {
           aria-describedby={`account-id-help${problem ? " account-id-error" : ""}`}
           autoComplete="off"
           spellCheck={false}
-          className="h-11 w-full field-control px-3"
+          className="field-control h-11 w-full px-3.5 font-mono text-sm"
         />
-        <p id="account-id-help" className="text-sm text-muted-foreground">
+        <p id="account-id-help" className="type-small text-ink-2">
           {text.idHelp}
         </p>
         {problem ? (
-          <p id="account-id-error" role="alert" className="text-sm font-medium text-destructive" data-error="id">
+          <p id="account-id-error" role="alert" className="flex items-center gap-1.5 text-sm font-medium text-danger" data-error="id">
+            <CircleAlert aria-hidden className="size-4 shrink-0" />
             {problem}
           </p>
         ) : null}
       </div>
-      <div className="flex flex-wrap items-start gap-3">
+      <div className="flex flex-wrap items-start gap-x-6 gap-y-4 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6" data-account-actions>
         <ConfirmAction
           id="suspend"
           label={mutation.isPending ? text.working : text.suspend}
@@ -121,15 +123,19 @@ function Form({ selfId }: { selfId: string }) {
         />
       </div>
       {result ? (
-        <div ref={resultRef as never} tabIndex={-1} role="status" className="space-y-1 text-sm outline-none" data-result>
-          <p className="font-medium">{format(result.suspended ? text.resultSuspended : text.resultActive, { id: shortId(result.id) })}</p>
-          <p className="text-muted-foreground">{format(text.provider, { state: result.provider })}</p>
-        </div>
+        <Alert ref={resultRef as never} variant={result.suspended ? "warning" : "success"} tabIndex={-1} role="status" className="outline-none" data-result>
+          {result.suspended ? <UserX aria-hidden /> : <UserCheck aria-hidden />}
+          <AlertDescription className="space-y-1 text-ink">
+            <p className="font-medium">{format(result.suspended ? text.resultSuspended : text.resultActive, { id: shortId(result.id) })}</p>
+            <p className="text-ink-2">{format(text.provider, { state: result.provider })}</p>
+          </AlertDescription>
+        </Alert>
       ) : null}
       {refused ? (
-        <p role="alert" className="text-sm font-medium" data-refused>
-          {refused}
-        </p>
+        <Alert variant="warning" role="alert" data-refused>
+          <TriangleAlert aria-hidden />
+          <AlertDescription>{refused}</AlertDescription>
+        </Alert>
       ) : null}
       {error ? <ApiErrorMessage error={error} /> : null}
     </div>
