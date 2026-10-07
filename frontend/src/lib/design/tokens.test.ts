@@ -799,7 +799,7 @@ test("the installations list keeps its paging and links, and each installation i
   const list = readFileSync(join(dir, "installations-view.tsx"), "utf8");
   for (const needle of ["useInstallations(page)", "router.replace(hrefFor(lastPage))", "<Pagination", "<InstallationCard", "<PageHeader", "text.emptyTitle", "text.viewRequests"]) assert.ok(list.includes(needle), needle);
   const card = readFileSync(join(dir, "installation-card.tsx"), "utf8");
-  for (const needle of ["progressText(item.completed_milestones, item.total_milestones)", 'href={`/my/installations/${item.id}`}', "<progress", "aria-hidden", "min-h-11", "data-segment"]) assert.ok(card.includes(needle), needle);
+  for (const needle of ["progressText(item.completed_milestones, item.total_milestones)", "href ?? `/my/installations/${item.id}`", "<progress", "aria-hidden", "min-h-11", "data-segment"]) assert.ok(card.includes(needle), needle);
   assert.doesNotMatch(list + card, /text-muted-foreground|font-heading/);
 });
 
@@ -962,4 +962,15 @@ test("the company offers page keeps price, currency, the sample flag, the claim,
   const view = readFileSync(join(dir, "offers-view.tsx"), "utf8");
   assert.match(view, /<PageHeader/);
   assert.doesNotMatch(manager + form + view, /text-muted-foreground|font-heading|rounded-lg border|size="sm"/);
+});
+
+test("the company installations list keeps its gate, paging and addresses, and uses the same card as the customer's list", () => {
+  const dir = join(import.meta.dirname, "..", "..", "components");
+  const view = readFileSync(join(dir, "company", "installations-view.tsx"), "utf8");
+  for (const needle of ["<StaffGate basePath=\"/company/installations\"", "useCompanyInstallations(companyId, page)", "router.replace(hrefFor(lastPage))", "<Pagination", "data-company-name", "data-installations", "`/company/installations/${item.id}?company=${companyId}`", "<InstallationCard", "<PageHeader", "text.emptyTitle"]) assert.ok(view.includes(needle), needle);
+  assert.doesNotMatch(view, /<Card\b|text-muted-foreground|font-heading/);
+  const card = readFileSync(join(dir, "installations", "installation-card.tsx"), "utf8");
+  assert.match(card, /href \?\? `\/my\/installations\/\$\{item\.id\}`/);
+  const customerList = readFileSync(join(dir, "installations", "installations-view.tsx"), "utf8");
+  assert.match(customerList, /<InstallationCard item=\{item\} \/>/);
 });
