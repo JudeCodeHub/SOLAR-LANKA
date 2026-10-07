@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import { Building2, ClipboardList, FileText, Inbox, Wrench, Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
 
+import { RevisionHistory } from "@/components/company/quotation-revision";
 import { TotalsPanel } from "@/components/company/quotation-totals";
 import { QuotationLinesDemo } from "@/components/design/quotation-lines-demo";
 import { EnquiryCard } from "@/components/company/enquiry-card";
@@ -82,6 +83,11 @@ const OFFER_REVISIONS = [
   },
 ] as never;
 
+/** A draft being worked on above two sent revisions, newest first, for the sample of the revision history. */
+const QUOTATION_HISTORY = [
+  { ...(OFFER_REVISIONS as unknown as Record<string, unknown>[])[0], id: "v3", revision_number: 3, status: "draft", sent_at: null, total: "1590000.00", valid_until: null },
+  ...(OFFER_REVISIONS as unknown as Record<string, unknown>[]),
+] as never;
 const TIMELINE_KINDS = ["site_survey", "system_design", "permits_and_approvals", "equipment_delivery", "installation_work", "inspection_and_testing", "commissioning", "customer_handover"];
 /** Eight steps: three complete, one in progress (with a delay and a next action) and four not started. */
 const TIMELINE_STEPS = TIMELINE_KINDS.map((kind, index) => ({ id: `m${index + 1}`, kind, position: index + 1, status: index < 3 ? "completed" : index === 3 ? "in_progress" : "pending", evidence: index < 2 ? [{}, {}] : [] }));
@@ -555,6 +561,10 @@ export function DesignGallery() {
         <div className="space-y-3">
           <h3 className="type-subheading">{text.navigation.lines}</h3>
           <QuotationLinesDemo />
+        </div>
+        <div className="space-y-3" data-history-sample>
+          <h3 className="type-subheading">{text.navigation.history}</h3>
+          <RevisionHistory revisions={QUOTATION_HISTORY} now={OFFER_NOW} ids={{ companyId: "c1", deliveryId: "d1", quotationId: "q1" }} />
         </div>
         <div className="space-y-3" data-totals-sample>
           <h3 className="type-subheading">{text.navigation.totals}</h3>
