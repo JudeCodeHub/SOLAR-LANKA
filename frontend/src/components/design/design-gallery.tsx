@@ -160,6 +160,7 @@ const COMPANY_SHELLS = [
   { key: "company_admin", area: companyArea("company_admin"), current: "/company/inbox" },
   { key: "technician", area: companyArea("technician"), current: "/technician/support" },
 ];
+const adminArea = navigationFor({ role: "platform_admin", memberships: [] }, true).find((group) => group.id === "admin")!;
 const customerArea = navigationFor({ role: "customer", memberships: [] }, true).find((group) => group.id === "customer")!;
 
 /** Each swatch as a literal class (so Tailwind finds it), in the order they are shown. */
@@ -552,6 +553,14 @@ export function DesignGallery() {
                   </SummaryCard>
                 </div>
               </div>
+            </DashboardFrame>
+          </div>
+        </div>
+        <div className="space-y-3" data-admin-shell-sample>
+          <h3 className="type-subheading">{text.navigation.adminShell}</h3>
+          <div className="rounded-card border border-line bg-paper-2">
+            <DashboardFrame area={adminArea} group="admin" current="/admin/catalogue/panels">
+              <p className="type-body py-8 text-ink-2">{text.navigation.dashboardPage}</p>
             </DashboardFrame>
           </div>
         </div>

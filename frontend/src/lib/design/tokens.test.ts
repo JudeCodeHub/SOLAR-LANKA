@@ -1041,3 +1041,11 @@ test("the technician's support case keeps its marks, guards and shared-or-intern
   assert.doesNotMatch(view, /customer_(name|email|phone|address)|\.(email|phone|address)\b/);
   assert.doesNotMatch(view, /text-muted-foreground|font-heading|text-destructive|rounded-lg border/);
 });
+
+test("the administration area uses the shared shell with its own link group, every admin link has an icon, and the shell reads the links by role", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  assert.match(read("app/admin/layout.tsx"), /<DashboardShell group="admin" signedIn=\{isSignedIn\}>/);
+  const icons = read("components/shell/nav-icons.tsx");
+  for (const id of ["admin-companies", "admin-catalogue", "admin-estimator", "admin-users", "admin-troubleshooting", "admin-education", "admin-activity"]) assert.ok(icons.includes(`"${id}"`), id);
+  assert.match(read("components/shell/dashboard-shell.tsx"), /useNavigation\(signedIn\)/);
+});
