@@ -5,8 +5,6 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-body);
   --font-mono: var(--font-figures);
   --font-heading: var(--font-display);
@@ -36,35 +34,6 @@
   --color-warning-tint: var(--ds-warning-tint);
   --color-danger-tint: var(--ds-danger-tint);
   --color-info-tint: var(--ds-info-tint);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
   --spacing-section-s: 3rem;
   --spacing-section-m: 4.5rem;
   --spacing-section-l: 7rem;
@@ -127,37 +96,6 @@
   --ds-shadow-2: 0 4px 12px -2px rgb(60 35 15 / 0.12), 0 2px 4px rgb(60 35 15 / 0.06);
   --ds-shadow-3: 0 18px 40px -12px rgb(60 35 15 / 0.22), 0 6px 12px rgb(60 35 15 / 0.08);
   --ds-grain-opacity: 0.045;
-  --background: var(--ds-bg);
-  --foreground: var(--ds-text);
-  --card: var(--ds-surface);
-  --card-foreground: var(--ds-text);
-  --popover: var(--ds-surface);
-  --popover-foreground: var(--ds-text);
-  --primary: var(--ds-orange);
-  --primary-foreground: var(--ds-on-orange);
-  --secondary: var(--ds-surface-2);
-  --secondary-foreground: var(--ds-text);
-  --muted: var(--ds-surface-2);
-  --muted-foreground: var(--ds-muted);
-  --accent: var(--ds-orange-tint);
-  --accent-foreground: var(--ds-text);
-  --destructive: var(--ds-danger);
-  --border: var(--ds-line);
-  --input: var(--ds-field-border);
-  --ring: var(--ds-focus);
-  --chart-1: var(--ds-orange-text);
-  --chart-2: var(--ds-info);
-  --chart-3: var(--ds-success);
-  --chart-4: var(--ds-warning);
-  --chart-5: var(--ds-text-2);
-  --sidebar: var(--ds-surface);
-  --sidebar-foreground: var(--ds-text);
-  --sidebar-primary: var(--ds-orange);
-  --sidebar-primary-foreground: var(--ds-on-orange);
-  --sidebar-accent: var(--ds-orange-tint);
-  --sidebar-accent-foreground: var(--ds-text);
-  --sidebar-border: var(--ds-line);
-  --sidebar-ring: var(--ds-focus);
 }
 
 .dark {
@@ -192,45 +130,14 @@
   --ds-shadow-2: 0 0 0 1px rgb(255 138 76 / 0.1), 0 6px 16px -4px rgb(0 0 0 / 0.6);
   --ds-shadow-3: 0 0 0 1px rgb(255 138 76 / 0.16), 0 0 32px -8px rgb(255 106 26 / 0.28), 0 20px 40px -12px rgb(0 0 0 / 0.7);
   --ds-grain-opacity: 0.07;
-  --background: var(--ds-bg);
-  --foreground: var(--ds-text);
-  --card: var(--ds-surface);
-  --card-foreground: var(--ds-text);
-  --popover: var(--ds-surface-2);
-  --popover-foreground: var(--ds-text);
-  --primary: var(--ds-orange);
-  --primary-foreground: var(--ds-on-orange);
-  --secondary: var(--ds-surface-2);
-  --secondary-foreground: var(--ds-text);
-  --muted: var(--ds-surface-2);
-  --muted-foreground: var(--ds-muted);
-  --accent: var(--ds-orange-tint);
-  --accent-foreground: var(--ds-text);
-  --destructive: var(--ds-danger);
-  --border: var(--ds-line);
-  --input: var(--ds-field-border);
-  --ring: var(--ds-focus);
-  --chart-1: var(--ds-orange-text);
-  --chart-2: var(--ds-info);
-  --chart-3: var(--ds-success);
-  --chart-4: var(--ds-warning);
-  --chart-5: var(--ds-text-2);
-  --sidebar: var(--ds-surface);
-  --sidebar-foreground: var(--ds-text);
-  --sidebar-primary: var(--ds-orange);
-  --sidebar-primary-foreground: var(--ds-on-orange);
-  --sidebar-accent: var(--ds-orange-tint);
-  --sidebar-accent-foreground: var(--ds-text);
-  --sidebar-border: var(--ds-line);
-  --sidebar-ring: var(--ds-focus);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-line outline-focus/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-paper text-ink;
   }
   html {
     @apply font-sans;

@@ -84,7 +84,7 @@ export function EstimateResults({
         >
           {text.title}
         </h2>
-        <p className="max-w-3xl text-sm text-muted-foreground">{text.planning}</p>
+        <p className="max-w-3xl text-sm text-ink-3">{text.planning}</p>
         {actions}
       </header>
 
@@ -102,7 +102,7 @@ export function EstimateResults({
         <h3 id="sizing-title" className="font-heading text-xl font-semibold tracking-tight">
           {text.sizing.title}
         </h3>
-        <p className="max-w-3xl text-sm text-muted-foreground">{text.sizing.intro}</p>
+        <p className="max-w-3xl text-sm text-ink-3">{text.sizing.intro}</p>
         {note === "none" ? (
           <p className="text-sm" data-roof-note>{text.noRoom}</p>
         ) : note === "limited" ? (
@@ -119,7 +119,7 @@ export function EstimateResults({
         <h3 id="financial-title" className="font-heading text-xl font-semibold tracking-tight">
           {text.financial.title}
         </h3>
-        <p className="max-w-3xl text-sm text-muted-foreground">{text.financial.intro}</p>
+        <p className="max-w-3xl text-sm text-ink-3">{text.financial.intro}</p>
         <ResultTable caption={text.financial.caption} rows={financialRows(preview, sent)} />
       </section>
 

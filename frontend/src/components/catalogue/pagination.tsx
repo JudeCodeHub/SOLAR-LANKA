@@ -39,7 +39,7 @@ export function Pagination({
         </li>
         {pageWindow(page, pageCount).map((entry, index) =>
           entry === null ? (
-            <li key={`gap-${index}`} aria-hidden="true" className="px-1 text-muted-foreground">
+            <li key={`gap-${index}`} aria-hidden="true" className="px-1 text-ink-3">
               {text.ellipsis}
             </li>
           ) : (

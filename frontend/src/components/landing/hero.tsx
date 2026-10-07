@@ -38,7 +38,7 @@ export function Hero({ signedIn }: { signedIn: boolean }) {
       </div>
       <div className="relative aspect-[16/10] w-full lg:absolute lg:inset-y-0 lg:right-0 lg:z-0 lg:aspect-auto lg:w-[62%]">
         <Photo name="hero" sizes="(min-width: 1024px) 62vw, 100vw" priority className="hero-fade absolute inset-0 size-full object-cover" />
-        <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-transparent lg:bg-gradient-to-r lg:from-background lg:via-background/35 lg:to-transparent" />
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-paper via-transparent to-transparent lg:bg-gradient-to-r lg:from-paper lg:via-paper/35 lg:to-transparent" />
       </div>
       <Card variant="glass" style={step(5)} className="hero-in relative z-10 mx-4 -mt-12 mb-8 flex-row items-center gap-4 p-3 sm:mx-6 sm:w-80 lg:absolute lg:right-8 lg:bottom-8 lg:mx-0 lg:mt-0 lg:mb-0" data-hero-dial>
         <Dial label={text.sampleSize} value={5.4} max={15} unit={text.sampleUnit} size={104} delay={900} />

@@ -14,6 +14,6 @@ export const MOTION: MotionEntry[] = [
   { name: "reveal", where: "Landing sections as they scroll into view", reason: "Marks where a new section begins on a long page." },
   { name: "draw-line", where: "Connecting lines in the landing steps", reason: "The line draws in the direction of the steps, showing their order." },
   { name: "count-up", where: "Sample figures in the landing estimate teaser", reason: "Shows the figures are computed from the visitor's inputs, not typed copy." },
-  { name: "animate-in / animate-out", where: "Dialog and sheet open and close", reason: "Shows where a panel came from and where it went, so focus moving is not a surprise." },
+  { name: "animate-in / animate-out", where: "The phone menu sheet opening and closing", reason: "Shows where a panel came from and where it went, so focus moving is not a surprise." },
   { name: "colour transitions", where: "Buttons, links, tabs and cards on hover and focus", reason: "Confirms that the pointer is on something that can be used." },
 ];

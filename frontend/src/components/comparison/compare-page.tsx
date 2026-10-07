@@ -29,7 +29,7 @@ function Cell({ cell }: { cell: CompareCell }) {
     case "unspecified":
       return <UnspecifiedValue />;
     case "unavailable":
-      return <span className="text-muted-foreground italic">{text.unavailable}</span>;
+      return <span className="text-ink-3 italic">{text.unavailable}</span>;
   }
 }
 

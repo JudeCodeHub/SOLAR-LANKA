@@ -22,8 +22,8 @@ for (const [name, pattern] of [["fonts blocked", /\.woff2?(\?|$)/], ["photos mis
           const fits = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
           expect(fits, `${route} at ${width}: sideways scroll`).toBe(true);
           // A photo that failed to load is swapped for the warm gradient, so no broken-image mark is left on the page.
-          const broken = await page.evaluate(() => [...document.querySelectorAll("main img")].filter((image) => (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth === 0 && getComputedStyle(image).display !== "none").length);
-          if (name === "photos missing") expect(broken, `${route} at ${width}: broken images left`).toBe(0);
+          const broken = await page.evaluate(() => [...document.querySelectorAll("main img")].filter((image) => (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth === 0 && getComputedStyle(image).display !== "none").map((image) => image.outerHTML.slice(0, 200)));
+          if (name === "photos missing") expect(broken, `${route} at ${width}: broken images left`).toEqual([]);
         }
       }
       const { violations } = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).exclude(".cl-footer").analyze();

@@ -217,6 +217,19 @@ Measured during Phase 17, on the core release before the Phase 2 features were a
 - Measurements cover the demo dataset on one machine; nothing was load-tested, and no real device or screen reader was used.
 - Not yet built: deployment, CI, production storage, backups and monitoring (the deployment phase).
 
+## Frontend design system ("Premium Signal")
+
+All of it lives in `frontend/`. Run `pnpm dev` and open `/design`: that page shows every shared component in light and dark, and is the quickest way to see a change.
+
+- **Colours.** Each colour is a CSS variable (`--ds-*`) in `src/app/globals.css`: one block for light (`:root`) and one for dark (`.dark`), exposed to Tailwind as `bg-surface`, `text-ink`, `border-line`, `text-orange-text` and so on. The same values are kept as typed data in `src/lib/design/tokens.ts`. **To change a colour, edit the hex in both places** (the light and dark blocks of `globals.css`, and `LIGHT`/`DARK` in `tokens.ts`), then run `pnpm test`: one test fails if the CSS and the data disagree, and another measures the WCAG contrast of every text, border and focus pair on every surface in both themes, so a change that makes text unreadable is caught.
+- **Theme.** Light ("Ivory") and dark ("Night") follow the system setting, with a light, dark or system toggle in the header remembered in the browser. The page carries `data-theme` and the `dark` class on `<html>`, set by a tiny script before first paint (`src/lib/theme/theme.ts`) so there is no flash.
+- **Type.** Fraunces (headlines), Hanken Grotesk (text) and IBM Plex Mono (figures, units, codes), kept as Latin-subset `.woff2` files in `src/fonts/` and loaded with `next/font/local`, so nothing is fetched from the network (licences in `src/fonts/NOTICE.txt`). Sizes are the `type-*` classes in `globals.css`; use `type-figure` for numbers. A page with fonts blocked still reads, set in matched system fonts.
+- **Photos.** The sources are PNG masters in `photos-original/`; `pnpm photos` writes sized WebP files and a manifest into `public/photos/`. Components use `<Photo name="hero" … />` with a name from `src/lib/photos/photos.ts`; alt text is in `src/messages/en.ts`. A photo that is missing or fails to load is replaced by a warm gradient, so no page depends on one. Logo files are made by `node scripts/brand.mjs`.
+- **Words.** Every sentence the interface shows is in `src/messages/en.ts`; components do not hold literal text (a lint rule enforces it).
+- **Shared pieces** are in `src/components/ui/` (buttons, badges, alerts, status notes, the file chooser, tables, the meter dial and loaders) and `src/components/states/` (empty, error and not-found states with line art). Money, units and dates go through `src/lib/format/`.
+- **Motion.** Every animation is listed with its reason in `src/lib/design/motion.ts`, and a test fails if one is added without a line there. With "reduce motion" on, nothing animates (one rule in `globals.css`, checked by `e2e/design/reduced-motion.spec.ts`). Printing gives black text on white without the header, footer or buttons.
+- **Checking the look.** `pnpm test` runs the unit and source tests. `pnpm design-axe` runs the browser checks that need no database (accessibility, layout, contrast over photos, keyboard, reduced motion, fonts and photos missing) against its own server on port 3100. `pnpm screens` takes review screenshots of the real app (needs the browser-test database below).
+
 ## Local release gate
 
 Last run on 2026-10-05 (21.16) on one machine with a disposable database, after the Phase 2 work. Everything passed; the numbers below come from that run.

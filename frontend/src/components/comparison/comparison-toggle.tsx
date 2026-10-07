@@ -50,7 +50,7 @@ export function ComparisonToggle({
         />
         <span aria-hidden="true">{text.label}</span>
       </label>
-      {blocked ? <span className="text-xs text-muted-foreground">{text.fullHint}</span> : null}
+      {blocked ? <span className="text-xs text-ink-3">{text.fullHint}</span> : null}
       <span role="status" className="sr-only">
         {announcement}
       </span>

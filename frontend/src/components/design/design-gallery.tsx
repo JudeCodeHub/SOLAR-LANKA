@@ -40,22 +40,16 @@ import { DialLoader } from "@/components/ui/dial-loader";
 import { Dial } from "@/components/ui/dial";
 import { Logo, LogoMark } from "@/components/brand/logo";
 import { BackLink } from "@/components/ui/back-link";
-import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { Container } from "@/components/ui/container";
-import { KeyValue } from "@/components/ui/key-value";
 import { PageHeader } from "@/components/ui/page-header";
 import { Section } from "@/components/ui/section";
-import { Stat } from "@/components/ui/stat";
 import { AccessNotice } from "@/components/states/access-notice";
 import { EmptyState } from "@/components/states/empty-state";
-import { ErrorState } from "@/components/states/error-state";
-import { NotFoundState } from "@/components/states/not-found-state";
 import { PageSkeleton } from "@/components/states/page-skeleton";
 import { Skeleton, SkeletonCard, SkeletonText } from "@/components/ui/skeleton";
 import { OverlayDemo } from "@/components/design/overlay-demo";
 import { Pagination } from "@/components/catalogue/pagination";
 import { Segmented, segmentedItemClass } from "@/components/ui/segmented";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableRegion } from "@/components/ui/table";
 import { Badge, SampleBadge, TimeSensitiveBadge, VerifiedBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -252,7 +246,7 @@ const SECTIONS = ["brand", "dials", "colour", "type", "buttons", "fields", "aler
 /** The same sample components shown inside one theme, whatever theme the page is in. */
 function ThemePreview({ theme }: { theme: "light" | "dark" }) {
   return (
-    <div className={`${theme} space-y-4 rounded-panel border border-line bg-background p-6 text-foreground`} data-theme-preview={theme}>
+    <div className={`${theme} space-y-4 rounded-panel border border-line bg-paper p-6 text-ink`} data-theme-preview={theme}>
       <h3 className="type-subheading">{text.sideBySide[theme]}</h3>
       <div className="flex flex-wrap gap-3">
         <Button>{text.sideBySide.primary}</Button>
@@ -260,7 +254,6 @@ function ThemePreview({ theme }: { theme: "light" | "dark" }) {
         <Badge variant="success">{text.sideBySide.badge}</Badge>
       </div>
       <Alert role="status" variant="warning"><TriangleAlert aria-hidden /><AlertTitle>{text.sideBySide.alertTitle}</AlertTitle><AlertDescription>{text.sideBySide.alertBody}</AlertDescription></Alert>
-      <Stat label={text.sideBySide.statLabel} value="5.4" unit={text.pages.sizeUnit} />
     </div>
   );
 }
@@ -307,8 +300,8 @@ export function DesignGallery() {
           ))}
         </div>
         <div className="grid gap-6 lg:grid-cols-2">
-          <div className="light rounded-panel border border-line bg-background p-8 text-foreground"><Logo height={56} /></div>
-          <div className="dark rounded-panel border border-line bg-background p-8 text-foreground"><Logo height={56} /></div>
+          <div className="light rounded-panel border border-line bg-paper p-8 text-ink"><Logo height={56} /></div>
+          <div className="dark rounded-panel border border-line bg-paper p-8 text-ink"><Logo height={56} /></div>
         </div>
       </section>
 
@@ -483,7 +476,6 @@ export function DesignGallery() {
         <p className="type-body max-w-3xl text-ink-2">{text.wayfinding.intro}</p>
         <div className="space-y-2 rounded-panel border border-line bg-surface p-6">
           <BackLink href="#wayfinding">{text.wayfinding.back}</BackLink>
-          <Breadcrumbs label={text.wayfinding.label} items={[{ label: text.wayfinding.home, href: "/" }, { label: text.wayfinding.panels, href: "/panels" }, { label: text.wayfinding.product }]} />
         </div>
       </section>
 
@@ -527,19 +519,6 @@ export function DesignGallery() {
       <section id="navigation" aria-labelledby="navigation-title" className="space-y-6">
         <h2 id="navigation-title" className="type-heading">{text.navigation.title}</h2>
         <p className="type-body max-w-3xl text-ink-2">{text.navigation.intro}</p>
-        <div className="space-y-3">
-          <h3 className="type-subheading">{text.navigation.tabs}</h3>
-          <Tabs defaultValue="overview">
-            <TabsList aria-label={text.navigation.tabs}>
-              <TabsTrigger value="overview">{text.navigation.overview}</TabsTrigger>
-              <TabsTrigger value="specs">{text.navigation.specs}</TabsTrigger>
-              <TabsTrigger value="documents">{text.navigation.documents}</TabsTrigger>
-            </TabsList>
-            <TabsContent value="overview" className="type-body text-ink-2">{text.navigation.overviewBody}</TabsContent>
-            <TabsContent value="specs" className="type-body text-ink-2">{text.navigation.specsBody}</TabsContent>
-            <TabsContent value="documents" className="type-body text-ink-2">{text.navigation.documentsBody}</TabsContent>
-          </Tabs>
-        </div>
         <div className="space-y-3">
           <h3 className="type-subheading">{text.navigation.segmented}</h3>
           <Segmented label={text.navigation.segmented}>
@@ -817,10 +796,8 @@ export function DesignGallery() {
       <section id="states" aria-labelledby="states-title" className="space-y-6">
         <h2 id="states-title" className="type-heading">{text.states.title}</h2>
         <p className="type-body max-w-3xl text-ink-2">{text.states.intro}</p>
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="grid gap-4">
           <EmptyState title={text.states.emptyTitle} description={text.states.emptyBody} action={<Button variant="outline">{text.states.emptyAction}</Button>} />
-          <ErrorState title={text.states.errorTitle} description={text.states.errorBody} action={<Button variant="outline">{text.states.errorAction}</Button>} />
-          <NotFoundState title={text.states.notFoundTitle} description={text.states.notFoundBody} action={<Button>{text.states.notFoundAction}</Button>} />
         </div>
         <div className="grid gap-4 md:grid-cols-2" data-access-notices>
           <AccessNotice kind="signed-out" title={messages.errors.signedOut.title} description={messages.errors.signedOut.message} />
@@ -839,21 +816,12 @@ export function DesignGallery() {
               <Section space="s" labelledBy="sample-estimate">
                 <PageHeader eyebrow={text.pages.estimateEyebrow} title={text.pages.estimateTitle} titleId="sample-estimate" description={text.pages.estimateLead} actions={<Button>{text.pages.estimateAction}</Button>} level="h2" className="[&_h2]:text-3xl" />
               </Section>
-              <Section space="s">
-                <div className="grid grid-cols-2 gap-6">
-                  <Stat label={text.pages.size} value="5.4" unit={text.pages.sizeUnit} />
-                  <Stat label={text.pages.saving} value="38,500" unit={text.pages.savingUnit} note={text.pages.savingNote} />
-                </div>
-              </Section>
             </Container>
           </Card>
           <Card variant="inset" className="p-0">
             <Container size="content" className="px-6">
               <Section space="s" labelledBy="sample-product">
                 <PageHeader eyebrow={text.pages.productEyebrow} title={text.pages.productTitle} titleId="sample-product" description={text.pages.productLead} level="h2" className="[&_h2]:text-3xl" />
-              </Section>
-              <Section space="s">
-                <KeyValue items={[{ term: text.pages.power, value: "545 W" }, { term: text.pages.efficiency, value: "21.1 %" }, { term: text.pages.warranty, value: "12 years" }]} />
               </Section>
             </Container>
           </Card>
