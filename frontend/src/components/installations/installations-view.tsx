@@ -37,6 +37,7 @@ export function InstallationsView() {
         isEmpty={(result) => result.total === 0}
         empty={
           <EmptyState
+            art="calendar"
             title={text.emptyTitle}
             description={text.emptyDescription}
             action={

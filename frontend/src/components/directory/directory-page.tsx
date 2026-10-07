@@ -70,6 +70,7 @@ export async function DirectoryPage({ searchParams }: { searchParams: RawParams 
           <SectionUnavailable />
         ) : result.total === 0 ? (
           <EmptyState
+            art={filtered ? "search" : "generic"}
             title={filtered ? text.results.noneTitle : text.results.emptyTitle}
             description={filtered ? text.results.none : text.results.empty}
             icon={filtered ? SearchX : Building2}

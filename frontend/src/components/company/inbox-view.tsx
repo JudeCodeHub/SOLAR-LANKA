@@ -48,7 +48,7 @@ function Inbox({ companyId, name }: { companyId: string; name: string }) {
       <QueryState
         query={query}
         isEmpty={(result) => result.total === 0}
-        empty={<EmptyState title={text.emptyTitle} description={text.emptyDescription} />}
+        empty={<EmptyState art="inbox" title={text.emptyTitle} description={text.emptyDescription} />}
       >
         {(result) => {
           const info = pageInfo(result.total, page);

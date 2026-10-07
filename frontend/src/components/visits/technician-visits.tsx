@@ -47,7 +47,7 @@ export function TechnicianVisits() {
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
       <PageHeader eyebrow={text.eyebrow} title={text.title} description={text.intro} />
-      <QueryState query={query} isEmpty={(items) => items.length === 0} empty={<EmptyState title={text.none} description={text.notTechnician} />}>
+      <QueryState query={query} isEmpty={(items) => items.length === 0} empty={<EmptyState art="calendar" title={text.none} description={text.notTechnician} />}>
         {(items) => {
           const groups = groupVisits(items, query.dataUpdatedAt);
           return (

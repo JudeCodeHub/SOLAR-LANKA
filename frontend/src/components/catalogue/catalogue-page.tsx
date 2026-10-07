@@ -74,6 +74,7 @@ export async function CataloguePage({
           <SectionUnavailable />
         ) : result.total === 0 ? (
           <EmptyState
+            art={filtered ? "search" : "generic"}
             title={filtered ? text.noneTitle : messages.states.emptyTitle}
             description={
               filtered

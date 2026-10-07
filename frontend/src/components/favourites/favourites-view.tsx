@@ -40,6 +40,7 @@ export function FavouritesView() {
         isEmpty={(result) => result.total === 0}
         empty={
           <EmptyState
+            art="saved"
             title={text.emptyTitle}
             description={text.emptyDescription}
             action={

@@ -69,6 +69,7 @@ export async function ComparePage({
   if (!canCompare(ids)) {
     return frame(
       <EmptyState
+        art="generic"
         icon={Scale}
         title={text.needTwoTitle}
         description={text.needTwoHelp}
