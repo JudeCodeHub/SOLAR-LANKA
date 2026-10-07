@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { availableActions, companyStatusLabel, customerSees, isActive, noteAuthor, staleMessage } from "./inbox.ts";
+import { availableActions, companyStatusLabel, customerSees, enquiryTone, isActive, noteAuthor, staleMessage } from "./inbox.ts";
 
 const d = (status: string) => ({ status });
 
@@ -63,4 +63,14 @@ test("notes say whether the viewer wrote them and reveal nothing else", () => {
   assert.equal(noteAuthor("u1", "u1"), "You");
   assert.equal(noteAuthor("u2", "u1"), "A colleague");
   assert.equal(noteAuthor("u2", undefined), "A colleague");
+});
+
+test("new, opened, responding and closed enquiries have different words, and \"New\" has its own colour family", () => {
+  assert.equal(enquiryTone("submitted"), "orange");
+  assert.equal(enquiryTone("viewed"), "info");
+  assert.equal(enquiryTone("responding"), "success");
+  assert.equal(enquiryTone("closed"), "neutral");
+  assert.equal(enquiryTone("cancelled"), "neutral");
+  const words = ["submitted", "viewed", "responding", "closed", "cancelled"].map(companyStatusLabel);
+  assert.equal(new Set(words).size, words.length);
 });

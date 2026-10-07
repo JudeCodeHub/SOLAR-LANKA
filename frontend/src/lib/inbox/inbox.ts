@@ -16,6 +16,16 @@ export function companyStatusLabel(status: string): string {
   return companyStatuses[status] ?? status;
 }
 
+export type EnquiryTone = "orange" | "info" | "success" | "neutral";
+
+/** The colour family of an enquiry's chip: "New" stands out, the rest follow how far the work has got; the words always say the same thing. */
+export function enquiryTone(status: string): EnquiryTone {
+  if (status === "submitted") return "orange";
+  if (status === "viewed") return "info";
+  if (status === "responding") return "success";
+  return "neutral";
+}
+
 /** What the customer sees on their request page for this status. */
 export function customerSees(status: string): string {
   return deliveryStatusLabel(status);

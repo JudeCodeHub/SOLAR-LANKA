@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import { Building2, ClipboardList, FileText, Inbox, Wrench, Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
 
+import { EnquiryCard } from "@/components/company/enquiry-card";
 import { InstallationTimeline } from "@/components/installations/installation-timeline";
 import { InstallationCard } from "@/components/installations/installation-card";
 import { ExportDemo } from "@/components/design/export-demo";
@@ -98,6 +99,7 @@ const INSTALLATION_SAMPLES = [
   { id: "i3", created_at: "2026-09-10T08:00:00Z", completed_milestones: 7, total_milestones: 8 },
   { id: "i4", created_at: "2026-08-01T08:00:00Z", completed_milestones: 8, total_milestones: 8 },
 ];
+const ENQUIRY_SAMPLES = ["submitted", "viewed", "responding", "closed", "cancelled"].map((status, index) => ({ id: `e${index + 1}`, status, created_at: `2026-10-0${5 - index}T08:00:00Z`, district: ["Colombo", "Kandy", "Galle", "Jaffna", "Matara"][index] ?? "" }));
 const OFFER_NOW = Date.parse("2026-10-06T00:00:00Z");
 const offer = (n: number, name: string, status: "sent" | "accepted", validUntil: string, total: string, revisions: number) => ({ quotation_id: `q${n}`, company_id: `c${n}`, revision_id: `v${n}`, revision_number: revisions, sent_at: "2026-09-25T08:00:00Z", sent_revision_count: revisions, status, total, valid_until: validUntil, name });
 /** Four offers, one in each state, for the sample of offer cards. */
@@ -547,6 +549,16 @@ export function DesignGallery() {
               </div>
             ))}
           </div>
+        </div>
+        <div className="space-y-3" data-enquiries-sample>
+          <h3 className="type-subheading">{text.navigation.enquiries}</h3>
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {ENQUIRY_SAMPLES.map((item) => (
+              <li key={item.id}>
+                <EnquiryCard item={item} href={`/company/inbox/${item.id}`} />
+              </li>
+            ))}
+          </ul>
         </div>
         <div className="space-y-6" data-company-home-sample>
           <h3 className="type-subheading">{text.navigation.companyHome}</h3>
