@@ -105,6 +105,7 @@ export function ComparisonTray() {
   }
   return (
     <aside
+      data-print-hide
       aria-label={text.label}
       className="sticky bottom-0 z-40 space-y-2 border-t border-line bg-surface/95 px-4 py-3 shadow-e3 backdrop-blur-md sm:px-6" data-compare-tray
     >

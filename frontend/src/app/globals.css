@@ -676,3 +676,59 @@
     }
   }
 }
+
+/* Print: black on white, no site chrome, no buttons, no shadows, links spelled out, and cards and table rows kept whole across pages. */
+@media print {
+  :root,
+  :root[data-theme="dark"] {
+    color-scheme: light;
+  }
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  [data-print-hide],
+  [data-skip-link],
+  [data-slot="back-link"],
+  button,
+  dialog,
+  video {
+    display: none !important;
+  }
+  main,
+  main * {
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    color: #000 !important;
+    border-color: #000 !important;
+    animation: none !important;
+    transition: none !important;
+  }
+  main a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    overflow-wrap: anywhere;
+  }
+  article,
+  tr,
+  figure,
+  img,
+  li,
+  [data-print-keep] {
+    break-inside: avoid;
+  }
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+  img {
+    max-width: 100% !important;
+    height: auto;
+  }
+  main {
+    display: block !important;
+  }
+}
