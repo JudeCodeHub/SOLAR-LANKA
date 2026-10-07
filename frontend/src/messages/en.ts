@@ -1351,6 +1351,7 @@ export const en = {
       productForm: "The product edit form",
       versions: "Estimator versions: in use, draft and archived",
       codeAreas: "The two JSON code areas",
+      articleForm: "The article editor with a draft",
       totals: "The totals panel with no totals, with totals and with unsaved changes",
       dashboardIntro: "The customer links in a side column on wide screens and in a drawer on phones. The current page is marked with a bar, a tint and the current-page attribute.",
       requests: "Request cards in each state",
@@ -1967,6 +1968,8 @@ export const en = {
     noRelated: "No other articles on this topic yet.",
   },
   adminEducation: {
+    eyebrow: "Platform administration",
+    editorEyebrow: "Learning content",
     title: "Learning content",
     intro: "Write, review and publish guides. A guide is published only after someone other than its author has reviewed it and it names its sources. Editing a draft clears its review.",
     newArticle: "New article",
