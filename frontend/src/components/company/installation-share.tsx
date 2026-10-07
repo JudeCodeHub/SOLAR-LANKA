@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleAlert, CircleCheck, Eye, Lock, TriangleAlert } from "lucide-react";
+import { CircleAlert, Eye, Lock, TriangleAlert } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
@@ -8,6 +8,7 @@ import { QueryState } from "@/components/query-state";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { StatusNote } from "@/components/ui/status-note";
 import { useCurrentUser } from "@/lib/api/hooks";
 import type { ApiError } from "@/lib/api/errors";
 import { formatLongDate } from "@/lib/catalogue/detail";
@@ -147,10 +148,9 @@ export function ShareForm({ companyId, installationId, milestoneId, now }: { com
         {mutation.isPending ? share.sending : share.send}
       </Button>
       {sent ? (
-        <p role="status" className="flex items-center gap-2 font-medium text-ink" data-share-sent>
-          <CircleCheck aria-hidden className="size-4 text-success" />
+        <StatusNote tone="success" data-share-sent>
           {share.sent}
-        </p>
+        </StatusNote>
       ) : null}
       {refused ? (
         <Alert variant="warning" role="alert" data-refused>
@@ -245,10 +245,9 @@ export function InternalNotes({ companyId, installationId }: { companyId: string
           {add.isPending ? internal.saving : internal.save}
         </Button>
         {saved ? (
-          <p role="status" className="flex items-center gap-2 font-medium text-ink" data-note-saved>
-            <CircleCheck aria-hidden className="size-4 text-success" />
+          <StatusNote tone="success" data-note-saved>
             {internal.saved}
-          </p>
+          </StatusNote>
         ) : null}
         {failure ? <ApiErrorMessage error={failure} /> : null}
       </form>

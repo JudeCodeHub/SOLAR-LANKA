@@ -1112,3 +1112,23 @@ test("the activity screen keeps its gate, counts, company filter with its check,
   for (const needle of ["<PlatformGate>", "useActivity()", "useAuditEvents(company, page, AUDIT_PAGE_SIZE)", "data-counts", "isProductId(value)", "text.filterBad", "data-error=\"filter\"", 'aria-describedby={`company-filter-help${problem ? " company-filter-error" : ""}`}', "data-audit", "data-audit-entry={entry.action}", "`/admin/users?user=${entry.target_id}`", "hrefFor(company, page - 1)", "hrefFor(company, page + 1)", "items.length > AUDIT_PAGE_SIZE", "<TableRegion", "<caption className=\"sr-only\">", 'scope="col"', 'scope="row"', "actionLabel(entry.action)", "text.empty", "<PageHeader"]) assert.ok(view.includes(needle), needle);
   assert.doesNotMatch(view, /text-muted-foreground|font-heading|text-destructive|rounded-lg border/);
 });
+
+test("short results use the one status note, which is a polite status for good news and an alert for problems, and no result message is still a bare paragraph", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  const note = read("components/ui/status-note.tsx");
+  assert.match(note, /success: \{[^}]*role: "status"/);
+  assert.match(note, /info: \{[^}]*role: "status"/);
+  assert.match(note, /warning: \{[^}]*role: "alert"/);
+  assert.match(note, /error: \{[^}]*role: "alert"/);
+  assert.match(note, /aria-hidden/);
+  assert.doesNotMatch(note, /fixed|absolute|sticky|z-/);
+  // The saved, sent, uploaded and done messages all go through it.
+  for (const [file, mark] of [["components/company/enquiry-view.tsx", "data-note-saved"], ["components/company/installation-share.tsx", "data-share-sent"], ["components/company/installation-share.tsx", "data-note-saved"], ["components/education/content-admin.tsx", "data-notice"], ["components/company/installation-manager.tsx", "data-uploaded"], ["components/requests/sent-confirmation.tsx", "data-replayed"], ["components/requests/request-view.tsx", "data-done"]] as const) {
+    const source = read(file);
+    assert.match(source, new RegExp(`<StatusNote[^>]*${mark}`), `${file} ${mark}`);
+    assert.doesNotMatch(source, new RegExp(`<p[^>]*role="status"[^>]*${mark}`), `${file} ${mark} is still a bare paragraph`);
+  }
+  // There is no toast library: results appear in the page, never over it.
+  const manifest = readFileSync(join(import.meta.dirname, "..", "..", "..", "package.json"), "utf8");
+  assert.doesNotMatch(manifest, /sonner|react-hot-toast|react-toastify|toast/i);
+});
