@@ -10,6 +10,7 @@ import { formatLongDate } from "@/lib/catalogue/detail";
 import { useCompanyPdf } from "@/lib/quotation/export-hooks";
 import { effectiveStatus, statusLabel, totalChange } from "@/lib/quotation/lifecycle";
 import type { Revision } from "@/lib/quotation/hooks";
+import { formatKwp } from "@/lib/format/figures";
 import { formatMoney } from "@/lib/quotation/draft";
 import { format, messages } from "@/messages";
 
@@ -59,7 +60,7 @@ export function RevisionBody({ revision }: { revision: Revision }) {
       </p>
       <div className="space-y-1.5 text-ink">
         <h3 className="type-subheading">{history.terms}</h3>
-        {revision.capacity_kwp ? <p>{format(history.capacity, { value: Number(revision.capacity_kwp) })}</p> : null}
+        {revision.capacity_kwp ? <p>{format(history.capacity, { value: formatKwp(revision.capacity_kwp) ?? "" })}</p> : null}
         {revision.warranty_terms ? <p className="whitespace-pre-wrap">{format(history.warranty, { value: revision.warranty_terms })}</p> : null}
         {revision.exclusions ? <p className="whitespace-pre-wrap">{format(history.exclusions, { value: revision.exclusions })}</p> : null}
         {revision.notes ? <p className="whitespace-pre-wrap">{format(history.notes, { value: revision.notes })}</p> : null}

@@ -1,5 +1,6 @@
 /** How a customer reads their offers: state and expiry, what is included, and side-by-side rows with differences. */
 import { format, messages } from "../../messages/index.ts";
+import { formatAmount } from "../format/figures.ts";
 import { formatDate } from "../format/datetime.ts";
 
 const text = messages.customerOffers;
@@ -141,7 +142,7 @@ export interface Row {
 
 const same = (a: Cell, b: Cell) => a.kind === b.kind && (a.kind !== "value" || (b.kind === "value" && a.text === b.text));
 const trimZeros = (value: string) => (value.includes(".") ? value.replace(/0+$/, "").replace(/\.$/, "") : value);
-const money = (value: string) => `LKR ${new Intl.NumberFormat("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value))}`;
+const money = (value: string) => formatAmount(value) ?? "";
 
 function row(id: string, label: string, cells: Cell[]): Row {
   return {

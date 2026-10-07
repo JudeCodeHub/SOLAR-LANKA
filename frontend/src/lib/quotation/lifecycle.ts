@@ -1,4 +1,5 @@
 /** Where a delivery's quotation stands across all its revisions, and which actions that allows. */
+import { formatAmount } from "../format/figures.ts";
 import { format, messages } from "../../messages/index.ts";
 
 const text = messages.company.quotation.lifecycle;
@@ -121,7 +122,7 @@ export function totalChange(previous: string | null, next: string | null): strin
   const a = Number(previous);
   const b = Number(next);
   if (!Number.isFinite(a) || !Number.isFinite(b) || a === b) return null;
-  const money = (value: string) => new Intl.NumberFormat("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(value));
+  const money = (value: string) => formatAmount(value, "") ?? "";
   return format(text.history.totalChanged, { from: money(previous), to: money(next) });
 }
 
