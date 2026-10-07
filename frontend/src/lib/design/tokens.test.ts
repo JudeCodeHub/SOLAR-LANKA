@@ -934,3 +934,10 @@ test("the totals panel is its own component that shows the server's amounts as t
   // The bar for narrow screens reads the same server terms.
   assert.match(editor, /formatMoney\(terms\.total\)/);
 });
+
+test("the revision history keeps each revision's marks, newest first, read-only, with a download only for sent ones", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "company", "quotation-revision.tsx"), "utf8");
+  for (const needle of ["data-history", "data-revision={revision.revision_number}", "data-status={status}", "data-revision-body", "data-revision-lines", "data-revision-totals", "data-pdf-download", "useCompanyPdf(ids.companyId, ids.deliveryId, ids.quotationId)", "pdf.mutate({ revisionId: revision.id, revisionNumber: revision.revision_number })", "revision.sent_at ? (", "totalChange(older.total, revision.total)", "history.draftNote", "history.sentOnly", "<AccordionItem", "<TableRegion", "<ApiErrorMessage"]) assert.ok(view.includes(needle), needle);
+  assert.doesNotMatch(view, /<(input|textarea|select)\b/);
+  assert.doesNotMatch(view, /text-muted-foreground|font-heading|size="sm"/);
+});
