@@ -912,3 +912,15 @@ test("the quotation editor keeps every mark, guard and write, puts the form besi
   for (const needle of ["data-quotation-section", "data-quotation-status", "data-start-draft", "inFlight.current", "data-notice", "data-badge=\"draft\""]) assert.ok(section.includes(needle), needle);
   assert.doesNotMatch(section, /text-muted-foreground|font-heading|rounded-lg border/);
 });
+
+test("the quotation line rows keep add, remove, the product chooser and the server's line total, now as bordered cards with 44 px controls", () => {
+  const row = readFileSync(join(import.meta.dirname, "..", "..", "components", "company", "quotation-line.tsx"), "utf8");
+  for (const needle of ["data-line={index}", "data-product", "data-product-name", "data-product-error", "data-line-total", "data-picker", "data-picker-results", "text.lineTotal", "text.lineTotalPending", "onRemove", "canRemove", "onPick(item.id, name)", "form.setValue(`lines.${index}.product_id`", 'kind === "charge" && productId !== ""']) assert.ok(row.includes(needle), needle);
+  // The line total is shown as text from the server and is never a field.
+  assert.doesNotMatch(row, /name=\{`lines\.\$\{index\}\.(line_total|total)`\}/);
+  assert.doesNotMatch(row, /text-muted-foreground|text-destructive|size="sm"/);
+  const editor = readFileSync(join(import.meta.dirname, "..", "..", "components", "company", "quotation-editor.tsx"), "utf8");
+  assert.match(editor, /fields\.append\(\{ \.\.\.blankLine \}\)/);
+  assert.match(editor, /fields\.remove\(index\)/);
+  assert.doesNotMatch(editor, /fields\.(move|swap)\(/);
+});

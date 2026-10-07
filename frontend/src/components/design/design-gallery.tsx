@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import { Building2, ClipboardList, FileText, Inbox, Wrench, Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
 
+import { QuotationLinesDemo } from "@/components/design/quotation-lines-demo";
 import { EnquiryCard } from "@/components/company/enquiry-card";
 import { InstallationTimeline } from "@/components/installations/installation-timeline";
 import { InstallationCard } from "@/components/installations/installation-card";
@@ -549,6 +550,10 @@ export function DesignGallery() {
               </div>
             ))}
           </div>
+        </div>
+        <div className="space-y-3">
+          <h3 className="type-subheading">{text.navigation.lines}</h3>
+          <QuotationLinesDemo />
         </div>
         <div className="space-y-3" data-enquiries-sample>
           <h3 className="type-subheading">{text.navigation.enquiries}</h3>
