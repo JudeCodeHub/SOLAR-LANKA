@@ -1,15 +1,18 @@
 "use client";
 
+import { CalendarCheck, CircleAlert, CircleCheck, TriangleAlert } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
 import { ConfirmAction } from "@/components/company/confirm-action";
 import { QueryState } from "@/components/query-state";
 import { SlotFields } from "@/components/visits/slot-fields";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { type ApiError } from "@/lib/api/errors";
 import { companyPhoto, type SiteVisit, useDownloadVisitPhoto, useStaffVisitActions, useStaffVisits, useTechnicians, useVisitWork } from "@/lib/visits/hooks";
-import { emptyRow, formatRange, shortId, slotRequest, type SlotRow, staffCan, statusLabel } from "@/lib/visits/slots";
+import { emptyRow, formatRange, shortId, slotRequest, type SlotRow, staffCan, statusLabel, visitTone } from "@/lib/visits/slots";
 import { format, messages } from "@/messages";
 
 const text = messages.visits.staff;
@@ -50,28 +53,31 @@ export function StaffVisits({ companyId, installationId }: { companyId: string; 
   };
 
   return (
-    <section aria-labelledby="staff-visits-title" className="space-y-3" data-staff-visits>
-      <h2 id="staff-visits-title" className="font-heading text-xl font-semibold tracking-tight">
+    <section aria-labelledby="staff-visits-title" className="space-y-4 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6" data-staff-visits>
+      <h2 id="staff-visits-title" className="type-heading text-ink">
         {text.title}
       </h2>
-      <p className="text-sm text-muted-foreground">{text.intro}</p>
+      <p className="type-body max-w-reading text-ink-2">{text.intro}</p>
       {notice ? (
-        <p role="status" className="text-sm font-medium" data-notice>
-          {notice}
-        </p>
+        <Alert variant="success" role="status" data-notice>
+          <CircleCheck aria-hidden />
+          <AlertDescription>{notice}</AlertDescription>
+        </Alert>
       ) : null}
       {clash ? (
-        <p role="alert" className="text-sm font-medium" data-clash>
-          {format(text.clash, { reason: clash })}
-        </p>
+        <Alert variant="warning" role="alert" data-clash>
+          <TriangleAlert aria-hidden />
+          <AlertDescription className="font-medium text-ink">{format(text.clash, { reason: clash })}</AlertDescription>
+        </Alert>
       ) : null}
       {refused ? (
-        <p role="alert" className="text-sm font-medium" data-refused>
-          {text.refused}
-        </p>
+        <Alert variant="warning" role="alert" data-refused>
+          <TriangleAlert aria-hidden />
+          <AlertDescription>{text.refused}</AlertDescription>
+        </Alert>
       ) : null}
       {failure ? <ApiErrorMessage error={failure} /> : null}
-      <QueryState query={query} isEmpty={(items) => items.length === 0} empty={<p className="text-sm text-muted-foreground" data-none>{text.none}</p>}>
+      <QueryState query={query} isEmpty={(items) => items.length === 0} empty={<p className="type-body text-ink-2" data-none>{text.none}</p>}>
         {(items) => (
           <ul className="space-y-3">
             {items.map((visit) => (
@@ -96,11 +102,11 @@ function Visit({ visit, companyId, installationId, technicians, start, handlers,
   const preferred = visit.slots.filter((slot) => slot.kind === "preferred");
   const proposed = visit.slots.filter((slot) => slot.kind === "proposed");
   const choose = (
-    <div className="space-y-1">
-      <label htmlFor={`tech-${visit.id}`} className="block font-medium">
+    <div className="space-y-1.5">
+      <label htmlFor={`tech-${visit.id}`} className="block font-medium text-ink">
         {text.technician}
       </label>
-      <select id={`tech-${visit.id}`} value={technician} onChange={(event) => { setTechnician(event.target.value); setMissing(false); }} aria-invalid={missing} className="h-11 field-control field-select px-2">
+      <select id={`tech-${visit.id}`} value={technician} onChange={(event) => { setTechnician(event.target.value); setMissing(false); }} aria-invalid={missing} className="h-11 w-full field-control field-select px-3 sm:w-auto sm:min-w-64">
         <option value="">{text.choose}</option>
         {technicians.map((t) => (
           <option key={t.user_id} value={t.user_id}>
@@ -108,9 +114,10 @@ function Visit({ visit, companyId, installationId, technicians, start, handlers,
           </option>
         ))}
       </select>
-      {technicians.length === 0 ? <p className="text-muted-foreground">{text.noTechnicians}</p> : null}
+      {technicians.length === 0 ? <p className="text-ink-2">{text.noTechnicians}</p> : null}
       {missing ? (
-        <p className="font-medium text-destructive" data-error="technician">
+        <p className="flex items-center gap-1.5 font-medium text-danger" data-error="technician">
+          <CircleAlert aria-hidden className="size-4 shrink-0" />
           {text.choose}
         </p>
       ) : null}
@@ -124,26 +131,25 @@ function Visit({ visit, companyId, installationId, technicians, start, handlers,
     return true;
   };
   return (
-    <li className="space-y-3 rounded-lg border p-3 text-sm" data-visit={visit.status}>
-      <p className="font-medium" data-visit-status>
+    <li className="space-y-3 rounded-card border border-line bg-paper p-4 text-sm" data-visit={visit.status}>
+      <Badge variant={visitTone(visit.status)} data-visit-status>
         {statusLabel(visit.status)}
-      </p>
-      {visit.note ? <p>{format(text.note, { note: visit.note })}</p> : null}
+      </Badge>
+      {visit.note ? <p className="text-ink">{format(text.note, { note: visit.note })}</p> : null}
       {visit.confirmed_starts_at && visit.confirmed_ends_at && visit.status !== "cancelled" ? (
-        <p data-confirmed>{format(text.confirmedLine, { range: formatRange(visit.confirmed_starts_at, visit.confirmed_ends_at, visit.timezone), id: visit.technician_id ? shortId(visit.technician_id) : "" })}</p>
+        <p className="flex items-start gap-2 rounded-field bg-success-tint p-3 font-medium text-ink" data-confirmed><CalendarCheck aria-hidden className="mt-0.5 size-5 shrink-0 text-success" />{format(text.confirmedLine, { range: formatRange(visit.confirmed_starts_at, visit.confirmed_ends_at, visit.timezone), id: visit.technician_id ? shortId(visit.technician_id) : "" })}</p>
       ) : null}
-      {visit.status === "completed" && work.data?.completion_summary ? <p data-summary>{format(text.completedLine, { summary: work.data.completion_summary })}</p> : null}
+      {visit.status === "completed" && work.data?.completion_summary ? <p className="text-ink" data-summary>{format(text.completedLine, { summary: work.data.completion_summary })}</p> : null}
       {can.confirm ? (
         <div className="space-y-2">
-          <p className="font-medium">{text.preferred}</p>
+          <p className="font-medium text-ink">{text.preferred}</p>
           {choose}
           <ul className="space-y-2">
             {preferred.map((slot) => (
-              <li key={slot.id} className="flex flex-wrap items-center gap-2">
-                <span>{formatRange(slot.starts_at, slot.ends_at, visit.timezone)}</span>
+              <li key={slot.id} className="flex flex-wrap items-center justify-between gap-3 rounded-field border border-line bg-surface p-3">
+                <span className="font-medium text-ink">{formatRange(slot.starts_at, slot.ends_at, visit.timezone)}</span>
                 <Button
                   type="button"
-                  size="sm"
                   aria-disabled={actions.confirm.isPending}
                   data-action="confirm-time"
                   onClick={() => {
@@ -159,9 +165,9 @@ function Visit({ visit, companyId, installationId, technicians, start, handlers,
         </div>
       ) : null}
       {visit.status === "alternatives_offered" && proposed.length > 0 ? (
-        <div>
-          <p className="font-medium">{text.proposed}</p>
-          <ul className="list-disc pl-5">
+        <div className="space-y-1">
+          <p className="font-medium text-ink">{text.proposed}</p>
+          <ul className="list-disc pl-5 text-ink">
             {proposed.map((slot) => (
               <li key={slot.id}>{formatRange(slot.starts_at, slot.ends_at, visit.timezone)}</li>
             ))}
@@ -197,22 +203,22 @@ function Visit({ visit, companyId, installationId, technicians, start, handlers,
         </form>
       ) : null}
       {work.data && (work.data.notes.length > 0 || work.data.evidence.length > 0) ? (
-        <div className="space-y-2" data-work>
-          <p className="font-medium">{text.workTitle}</p>
-          <p className="font-medium">{text.notes}</p>
-          {work.data.notes.length === 0 ? <p className="text-muted-foreground">{text.noNotes}</p> : (
-            <ul className="list-disc pl-5">
+        <div className="space-y-2 rounded-field border border-line bg-surface p-4" data-work>
+          <p className="type-subheading text-ink">{text.workTitle}</p>
+          <p className="font-medium text-ink">{text.notes}</p>
+          {work.data.notes.length === 0 ? <p className="text-ink-2">{text.noNotes}</p> : (
+            <ul className="list-disc pl-5 text-ink">
               {work.data.notes.map((note) => (
                 <li key={note.id}>{note.body}</li>
               ))}
             </ul>
           )}
-          <p className="font-medium">{text.photos}</p>
-          {work.data.evidence.length === 0 ? <p className="text-muted-foreground">{text.noPhotos}</p> : (
-            <ul className="space-y-1">
+          <p className="font-medium text-ink">{text.photos}</p>
+          {work.data.evidence.length === 0 ? <p className="text-ink-2">{text.noPhotos}</p> : (
+            <ul className="flex flex-wrap gap-3">
               {work.data.evidence.map((photo, index) => (
                 <li key={photo.asset_id}>
-                  <Button type="button" variant="outline" size="sm" aria-disabled={download.isPending} data-download onClick={() => !download.isPending && download.mutate(photo.asset_id)}>
+                  <Button type="button" variant="outline" aria-disabled={download.isPending} data-download onClick={() => !download.isPending && download.mutate(photo.asset_id)}>
                     {format(text.download, { number: index + 1 })}
                   </Button>
                 </li>

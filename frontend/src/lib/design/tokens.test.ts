@@ -983,3 +983,9 @@ test("the installation manager keeps its steps, forms, guards and marks, with la
   for (const needle of ["data-shared-now", "data-share-form", "data-badge=\"shared\"", "data-error-summary", "data-share-sent", "data-refused", "data-internal-section", "data-badge=\"internal\"", "data-notes", "data-note", "data-no-notes", "data-note-saved", "data-action=\"share\"", "data-action=\"add-note\"", "busy.current", "validateSchedule(input, now)", "validateInstallationNote(body)", "border-2 border-info", "border-2 border-dashed"]) assert.ok(share.includes(needle), needle);
   assert.doesNotMatch(manager + share, /text-muted-foreground|font-heading|text-destructive|rounded-lg border|size="sm"/);
 });
+
+test("the staff site-visit screens keep every action, guard, the server's scheduling reason and their marks, with status chips, a highlighted confirmed time and 44 px controls", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "visits", "staff-visits.tsx"), "utf8");
+  for (const needle of ["data-staff-visits", "data-notice", "data-clash", "data-refused", "data-none", "data-visit={visit.status}", "data-visit-status", "data-confirmed", "data-summary", "data-action=\"confirm-time\"", "data-action=\"offer\"", "data-action=\"offer-send\"", "data-error=\"technician\"", "data-work", "data-download", "busy.current", "if (error.status === 409) setClash(error.message)", "format(text.clash, { reason: clash })", "actions.confirm.mutate({ visit: visit.id, slot: slot.id, technician }, handlers)", "actions.propose.mutate(", "actions.cancel.mutate(visit.id, handlers)", "requireTechnician()", "slotRequest(rows)", "<SlotFields", "<ConfirmAction", "visitTone(visit.status)", "text.confirmedLine"]) assert.ok(view.includes(needle), needle);
+  assert.doesNotMatch(view, /text-muted-foreground|font-heading|text-destructive|rounded-lg border|size="sm"/);
+});
