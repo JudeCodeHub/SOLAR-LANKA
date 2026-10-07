@@ -1180,3 +1180,10 @@ test("every empty state shows line art, with a drawing for each kind and no icon
   pick("installations/installations-view.tsx", "calendar");
   pick("requests/requests-view.tsx", "document");
 });
+
+test("a photo that fails to load is replaced by the warm gradient, not a broken-image mark", () => {
+  const photo = readFileSync(join(import.meta.dirname, "..", "..", "components", "ui", "photo.tsx"), "utf8");
+  assert.match(photo, /onError=\{\(\) => setFailed\(true\)\}/);
+  assert.match(photo, /if \(!entry \|\| failed\)/);
+  assert.match(photo, /from-orange-tint to-paper-2/);
+});
