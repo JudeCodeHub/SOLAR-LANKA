@@ -1,5 +1,6 @@
 "use client";
 
+import { CircleAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 import { type UseFormReturn, useWatch } from "react-hook-form";
 
@@ -42,8 +43,8 @@ export function QuotationLine({
   }, [kind, productId, form, index]);
 
   return (
-    <fieldset className="space-y-3 rounded-lg border p-3" data-line={index}>
-      <legend className="px-1 text-sm font-medium">{format(text.line, { number: index + 1 })}</legend>
+    <fieldset className="space-y-4 rounded-card border border-line bg-paper p-4 sm:p-5" data-line={index}>
+      <legend className="type-subheading px-2 text-ink">{format(text.line, { number: index + 1 })}</legend>
       <SelectField
         form={form}
         name={`lines.${index}.kind`}
@@ -55,19 +56,20 @@ export function QuotationLine({
       />
       {kind === "equipment" ? (
         <div className="space-y-2" data-product>
-          <p className="text-sm font-medium">{text.product}</p>
+          <p className="font-medium text-ink">{text.product}</p>
           {productId !== "" ? (
-            <p className="text-sm" data-product-name>
+            <p className="rounded-field border border-line bg-surface px-3 py-2 text-sm text-ink" data-product-name>
               {product.isPending ? text.productLoading : product.data ? productName(product.data) : text.productGone}
             </p>
           ) : null}
           {error ? (
-            <p className="text-sm text-destructive" data-product-error>
+            <p className="flex items-center gap-1.5 text-sm font-medium text-danger" data-product-error>
+              <CircleAlert aria-hidden className="size-4 shrink-0" />
               {error}
             </p>
           ) : null}
           {!picking ? (
-            <Button type="button" variant="outline" size="sm" onClick={() => setPicking(true)}>
+            <Button type="button" variant="outline" onClick={() => setPicking(true)}>
               {productId === "" ? text.chooseProduct : text.changeProduct}
             </Button>
           ) : (
@@ -89,11 +91,11 @@ export function QuotationLine({
         <TextField form={form} name={`lines.${index}.quantity`} label={text.quantity} inputMode="decimal" />
         <TextField form={form} name={`lines.${index}.unit_price`} label={text.unitPrice} inputMode="decimal" />
       </div>
-      <p className="text-sm text-muted-foreground" data-line-total>
+      <p className="type-figure rounded-field bg-paper-2 px-3 py-2 text-ink" data-line-total>
         {total ? format(text.lineTotal, { total }) : text.lineTotalPending}
       </p>
       {canRemove ? (
-        <Button type="button" variant="outline" size="sm" aria-label={format(text.remove, { number: index + 1 })} onClick={onRemove}>
+        <Button type="button" variant="outline" aria-label={format(text.remove, { number: index + 1 })} onClick={onRemove}>
           {text.removeShort}
         </Button>
       ) : null}
@@ -109,12 +111,12 @@ function ProductPicker({ onPick, onCancel }: { onPick: (id: string, label: strin
   const inputId = `picker-${kind}-search`;
 
   return (
-    <div className="space-y-3 rounded-md border p-3" data-picker>
-      <fieldset className="space-y-1">
-        <legend className="text-sm font-medium">{text.pickerKind}</legend>
+    <div className="space-y-4 rounded-card border-2 border-orange-text/50 bg-surface p-4" data-picker>
+      <fieldset className="space-y-2">
+        <legend className="font-medium text-ink">{text.pickerKind}</legend>
         <div className="flex flex-wrap gap-4 text-sm">
           {(["panel", "inverter"] as const).map((value) => (
-            <label key={value} className="flex cursor-pointer items-center gap-2">
+            <label key={value} className="flex min-h-11 cursor-pointer items-center gap-2 text-ink">
               <input type="radio" className="field-radio size-6" checked={kind === value} onChange={() => { setKind(value); setSearch(null); }} />
               <span>{value === "panel" ? text.panels : text.inverters}</span>
             </label>
@@ -123,7 +125,7 @@ function ProductPicker({ onPick, onCancel }: { onPick: (id: string, label: strin
       </fieldset>
       <div className="flex flex-wrap items-end gap-2">
         <div className="min-w-0 flex-1">
-          <label htmlFor={inputId} className="text-sm font-medium">
+          <label htmlFor={inputId} className="text-sm font-medium text-ink">
             {text.search}
           </label>
           <input
@@ -144,16 +146,16 @@ function ProductPicker({ onPick, onCancel }: { onPick: (id: string, label: strin
       </div>
       {search !== null && results.data ? (
         results.data.items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{text.none}</p>
+          <p className="type-small text-ink-2">{text.none}</p>
         ) : (
           <ul className="space-y-2" data-picker-results>
             {results.data.items.map((item) => {
               const name = productName(item);
               return (
-                <li key={item.id} className="flex flex-wrap items-center justify-between gap-2 text-sm">
+                <li key={item.id} className="flex flex-wrap items-center justify-between gap-3 rounded-field border border-line p-3 text-sm">
                   <span>
-                    <span className="block font-medium">{name}</span>
-                    <span className="block text-muted-foreground">
+                    <span className="block font-medium text-ink">{name}</span>
+                    <span className="block text-ink-2">
                       {specLine({
                         kind: item.kind,
                         specifications: {
@@ -165,7 +167,7 @@ function ProductPicker({ onPick, onCancel }: { onPick: (id: string, label: strin
                       })}
                     </span>
                   </span>
-                  <Button type="button" variant="outline" size="sm" aria-label={format(text.use, { name })} onClick={() => onPick(item.id, name)}>
+                  <Button type="button" variant="outline" aria-label={format(text.use, { name })} onClick={() => onPick(item.id, name)}>
                     {text.useShort}
                   </Button>
                 </li>
