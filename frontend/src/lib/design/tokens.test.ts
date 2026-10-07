@@ -1073,3 +1073,9 @@ test("the product editor keeps its checks before sending, its guard and refusals
   for (const needle of ["<PlatformGate>", "export function ProductForm", "validateNames(names, originalNames)", "validateSpecs(fields, specs, originalSpecs)", "nameChanges(names, originalNames)", "specChanges(fields, specs, originalSpecs)", "busy.current", "edit.mutate(body", "archive.mutate(undefined", "text.refusedArchived", "text.refusedGeneric", "data-error-summary", "data-error={key}", "data-notice", "data-refused", "data-not-found", "data-action=\"save\"", 'id="archive"', "data-archive-section", 'data-section="names"', 'data-section="specs"', "INVERTER_FIELDS", "PANEL_FIELDS", "<PageHeader", "aria-invalid", "key={JSON.stringify("]) assert.ok(view.includes(needle), needle);
   assert.doesNotMatch(view, /text-muted-foreground|font-heading|text-destructive/);
 });
+
+test("the estimator versions list keeps its gate, query, new-draft button and marks, works out which version is in use with the tested rule, and shows each version as a card", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "admin", "estimator-admin.tsx"), "utf8");
+  for (const needle of ["<PlatformGate>", "useConfigVersions()", "inUseIds(items)", "export function VersionCard", "data-versions", "data-version={item.version}", "data-status={item.status}", "data-current={current}", 'data-badge="current"', 'data-badge="status"', 'data-badge="archived"', "data-scenario", "`/admin/estimator/${item.id}`", "/admin/estimator/new", "text.empty", "text.current", "text.archived", "<PageHeader"]) assert.ok(view.includes(needle), needle);
+  assert.doesNotMatch(view, /text-muted-foreground|font-heading|rounded-lg border/);
+});

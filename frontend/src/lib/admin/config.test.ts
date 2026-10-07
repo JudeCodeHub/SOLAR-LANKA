@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { parseDraft, pretty, refusalFor, sameJson } from "./config.ts";
+import { parseDraft, pretty, refusalFor, sameJson, inUseIds } from "./config.ts";
 
 const source = { publisher: "P", title: "T", url: "https://example.org", unit: "kWh", reviewed_on: "2026-09-28", limitation: "Fictional" };
 const sources = pretty({ yield: source, tariff: source, cost: source });
@@ -69,4 +69,17 @@ test("export scenarios need a rate range, a source and its start date", () => {
     const backwards = parseDraft('{"a":1,"export_rate_lkr_per_kwh":{"low":"30","high":"20"}}', withExport, scenario);
     assert.ok(!backwards.ok && backwards.errors.assumptions);
   }
+});
+
+test("each scenario has its own version in use: the newest published one that is not archived", () => {
+  const items = [
+    { id: "a3", scenario: "grid", status: "draft", is_archived: false },
+    { id: "a2", scenario: "grid", status: "published", is_archived: false },
+    { id: "a1", scenario: "grid", status: "published", is_archived: false },
+    { id: "b2", scenario: "net_plus", status: "published", is_archived: true },
+    { id: "b1", scenario: "net_plus", status: "published", is_archived: false },
+    { id: "c1", scenario: "off_grid", status: "draft", is_archived: false },
+  ];
+  assert.deepEqual([...inUseIds(items)].sort(), ["a2", "b1"]);
+  assert.equal(inUseIds([]).size, 0);
 });

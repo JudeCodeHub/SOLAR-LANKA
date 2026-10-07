@@ -106,3 +106,16 @@ export function refusalFor(fresh: { status: string; is_archived: boolean } | und
   if (fresh.status === "published") return text.refusedPublished;
   return text.refusedGeneric;
 }
+
+/** Which versions customers are using: for each scenario, the first published version that is not archived in the list as given (newest first). */
+export function inUseIds(items: readonly { id: string; scenario: string; status: string; is_archived: boolean }[]): Set<string> {
+  const inUse = new Set<string>();
+  const seen = new Set<string>();
+  for (const item of items) {
+    if (item.status === "published" && !item.is_archived && !seen.has(item.scenario)) {
+      seen.add(item.scenario);
+      inUse.add(item.id);
+    }
+  }
+  return inUse;
+}
