@@ -1333,6 +1333,7 @@ export const en = {
       dashboard: "Signed-in area",
       companyShell: "The company workspace by role",
       companyHome: "The company home",
+      enquiries: "Enquiry cards in each state",
       dashboardIntro: "The customer links in a side column on wide screens and in a drawer on phones. The current page is marked with a bar, a tint and the current-page attribute.",
       requests: "Request cards in each state",
       offers: "Offer cards in each state",
@@ -2596,6 +2597,7 @@ export const en = {
       },
     },
     inbox: {
+      eyebrow: "Customer requests",
       title: "Enquiries",
       intro: "Quotation requests customers have sent to your company, newest first.",
       showing: "Showing {from} to {to} of {total} enquiries",

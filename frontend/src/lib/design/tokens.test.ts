@@ -883,3 +883,12 @@ test("the company home keeps its staff gate, counts, empty texts and links, and 
   assert.equal((view.match(/<SummaryCard /g) ?? []).length, 4);
   assert.doesNotMatch(view, /text-muted-foreground|font-heading/);
 });
+
+test("the enquiry inbox keeps its gate, paging and link addresses, and shows each enquiry as a card with a status chip", () => {
+  const dir = join(import.meta.dirname, "..", "..", "components", "company");
+  const view = readFileSync(join(dir, "inbox-view.tsx"), "utf8");
+  for (const needle of ["<StaffGate basePath=\"/company/inbox\"", "useInbox(companyId, page)", "router.replace(hrefFor(lastPage))", "<Pagination", "data-company-name", "data-inbox", "`/company/inbox/${item.id}?company=${companyId}`", "text.emptyTitle", "<PageHeader", "<EnquiryCard"]) assert.ok(view.includes(needle), needle);
+  const card = readFileSync(join(dir, "enquiry-card.tsx"), "utf8");
+  for (const needle of ["data-status={item.status}", "data-chip={item.status}", "companyStatusLabel(item.status)", "enquiryTone(item.status)", "min-h-11", "text.receivedOn", "text.district", "inset_4px_0_0_var(--ds-orange-text),var(--ds-shadow-1)"]) assert.ok(card.includes(needle), needle);
+  assert.doesNotMatch(view + card, /text-muted-foreground|font-heading/);
+});
