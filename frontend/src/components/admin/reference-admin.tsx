@@ -1,15 +1,20 @@
 "use client";
 
+import { CircleAlert, CircleCheck, FlaskConical, OctagonAlert, ShieldCheck, TriangleAlert } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { PlatformGate } from "@/components/admin/platform-gate";
 import { ApiErrorMessage } from "@/components/api-error-message";
 import { ConfirmAction } from "@/components/company/confirm-action";
 import { QueryState } from "@/components/query-state";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge, SampleBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
 import type { ApiError } from "@/lib/api/errors";
 import { type AdminReference, resolveModel, useReferenceActions, useReferences } from "@/lib/support/hooks";
 import { stepsFromText } from "@/lib/support/support";
+import { cn } from "@/lib/utils";
 import { format, messages } from "@/messages";
 
 const text = messages.adminReferences;
@@ -17,11 +22,8 @@ const text = messages.adminReferences;
 /** Author, publish and archive sourced troubleshooting references (platform administrators only). */
 export function ReferenceAdmin() {
   return (
-    <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
-      <header className="space-y-2">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">{text.title}</h1>
-        <p className="max-w-3xl text-muted-foreground">{text.intro}</p>
-      </header>
+    <div className="mx-auto w-full max-w-4xl flex-1 space-y-6 px-4 py-8">
+      <PageHeader eyebrow={text.eyebrow} title={text.title} description={text.intro} />
       <PlatformGate>{() => <Body />}</PlatformGate>
     </div>
   );
@@ -42,13 +44,13 @@ function Body() {
     const error = errors[key];
     const common = { id, value: String(values[key]), "aria-invalid": Boolean(error), "aria-describedby": [options.help ? `${id}-help` : "", error ? `${id}-error` : ""].filter(Boolean).join(" ") || undefined, onChange: (event: { target: { value: string } }) => set(key, event.target.value), className: "w-full field-control px-3" };
     return (
-      <div className="space-y-1" key={key}>
-        <label htmlFor={id} className="block font-medium">
+      <div className="space-y-1.5" key={key}>
+        <label htmlFor={id} className="block font-medium text-ink">
           {label}
         </label>
-        {options.area ? <textarea {...common} rows={4} className="w-full field-control p-2" /> : <input {...common} type={options.type ?? "text"} className="h-11 w-full field-control px-3" />}
-        {options.help ? <p id={`${id}-help`} className="text-muted-foreground">{options.help}</p> : null}
-        {error ? <p id={`${id}-error`} className="font-medium text-destructive" data-error={key}>{error}</p> : null}
+        {options.area ? <textarea {...common} rows={4} className="w-full field-control p-3" /> : <input {...common} type={options.type ?? "text"} className="h-11 w-full field-control px-3" />}
+        {options.help ? <p id={`${id}-help`} className="text-ink-2">{options.help}</p> : null}
+        {error ? <p id={`${id}-error`} className="flex items-center gap-1.5 font-medium text-danger" data-error={key}><CircleAlert aria-hidden className="size-4 shrink-0" />{error}</p> : null}
       </div>
     );
   };
@@ -113,46 +115,66 @@ function Body() {
 
   return (
     <>
-      {notice ? <p role="status" className="text-sm font-medium" data-notice>{notice}</p> : null}
-      {refused ? <p role="alert" className="text-sm font-medium" data-refused>{text.refused}</p> : null}
+      {notice ? (
+        <Alert variant="success" role="status" data-notice>
+          <CircleCheck aria-hidden />
+          <AlertDescription>{notice}</AlertDescription>
+        </Alert>
+      ) : null}
+      {refused ? (
+        <Alert variant="warning" role="alert" data-refused>
+          <TriangleAlert aria-hidden />
+          <AlertDescription>{text.refused}</AlertDescription>
+        </Alert>
+      ) : null}
       {failure ? <ApiErrorMessage error={failure} /> : null}
       <form
         noValidate
-        className="space-y-3 text-sm"
+        className="space-y-4 rounded-card border border-line bg-surface p-5 text-sm shadow-e1 sm:p-6"
         onSubmit={(event) => {
           event.preventDefault();
           void submit();
         }}
       >
-        <h2 className="font-heading text-xl font-semibold tracking-tight">{text.newTitle}</h2>
+        <h2 className="type-heading text-ink">{text.newTitle}</h2>
         {field("model", text.model, { help: text.modelHelp })}
         {field("code", text.code)}
         {field("title", text.titleLabel)}
         {field("steps", text.steps, { area: true, help: text.stepsHelp })}
-        <label className="flex min-h-11 items-center gap-3">
-          <input type="checkbox" checked={values.hazard} onChange={(event) => set("hazard", event.target.checked)} className="field-check size-6 shrink-0" />
-          <span>{text.hazardOption}</span>
-        </label>
+        <div className="rounded-card border-2 border-danger/60 bg-paper p-4 has-[:checked]:border-danger has-[:checked]:bg-danger-tint" data-hazard-box>
+          <label className="flex min-h-11 items-center gap-3 font-medium text-ink">
+            <input type="checkbox" checked={values.hazard} onChange={(event) => set("hazard", event.target.checked)} className="field-check size-6 shrink-0" />
+            <span className="flex items-center gap-2">
+              <OctagonAlert aria-hidden className="size-4 text-danger" />
+              {text.hazardOption}
+            </span>
+          </label>
+        </div>
         {values.hazard ? field("warning", text.warning, { area: true, help: text.warningHelp }) : null}
         {field("sourceTitle", text.sourceTitle)}
         {field("sourceUrl", text.sourceUrl)}
         {field("sourcePage", text.sourcePage)}
         {field("verified", text.verified, { type: "date", help: text.verifiedHelp })}
-        <label className="flex min-h-11 items-center gap-3">
-          <input type="checkbox" checked={values.sample} onChange={(event) => set("sample", event.target.checked)} className="field-check size-6 shrink-0" />
-          <span>{text.sample}</span>
-        </label>
-        <Button type="submit" aria-disabled={actions.create.isPending} data-action="create-reference">
+        <div className="rounded-card border border-line bg-paper p-4 has-[:checked]:border-info has-[:checked]:bg-info-tint" data-sample-box>
+          <label className="flex min-h-11 items-center gap-3 font-medium text-ink">
+            <input type="checkbox" checked={values.sample} onChange={(event) => set("sample", event.target.checked)} className="field-check size-6 shrink-0" />
+            <span className="flex items-center gap-2">
+              <FlaskConical aria-hidden className="size-4 text-info" />
+              {text.sample}
+            </span>
+          </label>
+        </div>
+        <Button type="submit" size="lg" aria-disabled={actions.create.isPending} data-action="create-reference">
           {actions.create.isPending ? text.creating : text.create}
         </Button>
       </form>
-      <section aria-labelledby="refs-title" className="space-y-2">
-        <h2 id="refs-title" className="font-heading text-xl font-semibold tracking-tight">
+      <section aria-labelledby="refs-title" className="space-y-3">
+        <h2 id="refs-title" className="type-heading text-ink">
           {text.list}
         </h2>
-        <QueryState query={query} isEmpty={(items) => items.length === 0} empty={<p className="text-sm text-muted-foreground">{text.none}</p>}>
+        <QueryState query={query} isEmpty={(items) => items.length === 0} empty={<p className="type-body text-ink-2">{text.none}</p>}>
           {(items) => (
-            <ul className="space-y-2" data-references>
+            <ul className="space-y-3" data-references>
               {items.map((item) => (
                 <Row key={item.id} item={item} refresh={refresh} handlers={handlers} actions={actions} />
               ))}
@@ -165,12 +187,30 @@ function Body() {
 }
 
 function Row({ item, refresh, handlers, actions }: { item: AdminReference; refresh: (run: () => void) => void; handlers: { onSuccess: () => void; onError: (e: ApiError) => void }; actions: ReturnType<typeof useReferenceActions> }) {
+  const hazard = item.safety_level === "hazard";
   return (
-    <li className="space-y-1 rounded-lg border p-3 text-sm" data-reference-status={item.status}>
-      <p className="font-medium">{item.title}</p>
-      <p className="text-muted-foreground">{[text.status[item.status], item.code, item.safety_level === "hazard" ? text.hazardOption : text.safeOption].filter(Boolean).join(" · ")}</p>
-      <p className="text-muted-foreground">{format(text.modelFor, { model: item.product_id.slice(0, 8) })}</p>
-      <div className="flex flex-wrap gap-2">
+    <li className={cn("space-y-2 rounded-card p-5 text-sm", hazard ? "border-2 border-danger bg-danger-tint" : "border border-line bg-surface shadow-e1")} data-reference-status={item.status} data-hazard={hazard}>
+      <p className="type-subheading text-ink">{item.title}</p>
+      <p className="flex flex-wrap items-center gap-2">
+        <Badge variant={item.status === "published" ? "success" : "neutral"} data-badge="status">
+          {text.status[item.status]}
+        </Badge>
+        {hazard ? (
+          <Badge variant="danger" icon={OctagonAlert} data-badge="hazard">
+            {text.hazardOption}
+          </Badge>
+        ) : (
+          <Badge variant="success" icon={ShieldCheck} data-badge="safe">
+            {text.safeOption}
+          </Badge>
+        )}
+        {item.is_sample ? (
+          <SampleBadge data-badge="sample">{text.sample}</SampleBadge>
+        ) : null}
+        {item.code ? <span className="type-figure text-ink-2">{item.code}</span> : null}
+      </p>
+      <p className="text-ink-2">{format(text.modelFor, { model: item.product_id.slice(0, 8) })}</p>
+      <div className="flex flex-wrap items-start gap-x-6 gap-y-3">
         {item.status === "draft" ? (
           <ConfirmAction id={`pub-${item.id}`} variant="default" label={text.publish} title={text.publishTitle} body={text.publishBody} yes={text.publishYes} keep={text.keep} disabled={actions.publish.isPending} onConfirm={() => refresh(() => actions.publish.mutate(item.id, handlers))} />
         ) : null}

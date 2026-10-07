@@ -1882,6 +1882,7 @@ export const en = {
     sampleNote: "Sample content, written for this demonstration.",
   },
   adminReferences: {
+    eyebrow: "Platform administration",
     title: "Troubleshooting references",
     intro: "Sourced guidance tied to one exact model. A reference is published only after it has a source and the date you checked it. Hazards must carry a warning. Published references cannot be edited: archive one and write a new one.",
     newTitle: "New reference",
