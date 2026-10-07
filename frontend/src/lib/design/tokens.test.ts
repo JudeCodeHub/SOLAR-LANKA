@@ -1079,3 +1079,9 @@ test("the estimator versions list keeps its gate, query, new-draft button and ma
   for (const needle of ["<PlatformGate>", "useConfigVersions()", "inUseIds(items)", "export function VersionCard", "data-versions", "data-version={item.version}", "data-status={item.status}", "data-current={current}", 'data-badge="current"', 'data-badge="status"', 'data-badge="archived"', "data-scenario", "`/admin/estimator/${item.id}`", "/admin/estimator/new", "text.empty", "text.current", "text.archived", "<PageHeader"]) assert.ok(view.includes(needle), needle);
   assert.doesNotMatch(view, /text-muted-foreground|font-heading|rounded-lg border/);
 });
+
+test("the estimator configuration editor keeps its checks, guards, refusals and the publish and archive questions, with two monospace code areas whose help and error sit with them", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "admin", "config-editor.tsx"), "utf8");
+  for (const needle of ["<PlatformGate>", "export function CodeArea", "parseDraft(assumptions, sources, scenario)", "sameJson(assumptions, version.assumptions)", "busy.current", "actions.create.mutate(parsed.body", "actions.save.mutate(parsed.body", "actions.publish.mutate(undefined", "actions.archive.mutate(undefined", "refusalFor(fresh.data, refused)", "data-error-summary", "data-notice", "data-refused", "data-read-only", "data-unsaved", "data-publish", "data-status", "data-scenario", "data-action=\"save\"", 'id="publish"', 'id="archive"', "disabled={actions.publish.isPending || dirty}", "font-mono", "readOnly={readOnly}", 'aria-describedby={`${id}-help${error ? ` ${id}-error` : ""}`}', "spellCheck={false}", "data-code-area={name}", "<PageHeader"]) assert.ok(view.includes(needle), needle);
+  assert.doesNotMatch(view, /text-muted-foreground|font-heading|text-destructive/);
+});

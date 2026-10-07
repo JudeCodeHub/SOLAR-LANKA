@@ -1350,6 +1350,7 @@ export const en = {
       adminShell: "The administration area",
       productForm: "The product edit form",
       versions: "Estimator versions: in use, draft and archived",
+      codeAreas: "The two JSON code areas",
       totals: "The totals panel with no totals, with totals and with unsaved changes",
       dashboardIntro: "The customer links in a side column on wide screens and in a drawer on phones. The current page is marked with a bar, a tint and the current-page attribute.",
       requests: "Request cards in each state",
@@ -1526,6 +1527,9 @@ export const en = {
   },
   adminEstimator: {
     eyebrow: "Platform administration",
+    editorEyebrow: "Estimator settings",
+    codeBadge: "JSON",
+    readOnlyBadge: "Read-only",
     title: "Estimator settings",
     intro: "Versions of the assumptions behind estimates. Customers get the newest published version. A published version can never be edited, so earlier estimates stay exactly as they were.",
     newDraft: "Start a new draft",

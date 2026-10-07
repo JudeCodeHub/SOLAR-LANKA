@@ -1,6 +1,7 @@
 "use client";
 
 import { BackLink } from "@/components/ui/back-link";
+import { Archive, Braces, CircleAlert, CircleCheck, Info, Lock, TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
@@ -8,10 +9,14 @@ import { PlatformGate } from "@/components/admin/platform-gate";
 import { ApiErrorMessage } from "@/components/api-error-message";
 import { ConfirmAction } from "@/components/company/confirm-action";
 import { QueryState } from "@/components/query-state";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
 import type { ApiError } from "@/lib/api/errors";
 import { useConfigActions, useConfigVersion, useConfigVersions } from "@/lib/admin/hooks";
 import { DEFAULT_SCENARIO, parseDraft, pretty, refusalFor, SCENARIOS, type Scenario, sameJson } from "@/lib/admin/config";
+import { cn } from "@/lib/utils";
 import { format, messages } from "@/messages";
 
 const text = messages.adminEstimator;
@@ -19,7 +24,7 @@ const text = messages.adminEstimator;
 /** Edit a draft estimator version, or start one from the newest; publish or archive with confirmation. */
 export function ConfigEditor({ id }: { id: string | null }) {
   return (
-    <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
+    <div className="mx-auto w-full max-w-4xl flex-1 space-y-6 px-4 py-8">
       <BackLink href="/admin/estimator">{text.back}</BackLink>
       <PlatformGate>{() => (id === null ? <NewDraft /> : <Existing id={id} />)}</PlatformGate>
     </div>
@@ -37,8 +42,8 @@ function NewDraft() {
     <QueryState query={versions}>
       {(list) => (
         <>
-          <div className="space-y-1">
-            <label htmlFor="f-scenario" className="block font-medium">
+          <div className="space-y-1.5 rounded-card border border-line bg-surface p-5 shadow-e1">
+            <label htmlFor="f-scenario" className="type-subheading block text-ink">
               {text.scenarioLabel}
             </label>
             <select id="f-scenario" value={scenario} onChange={(event) => setScenario(event.target.value as Scenario)} className="min-h-11 w-full field-control field-select px-3 text-sm">
@@ -48,7 +53,7 @@ function NewDraft() {
                 </option>
               ))}
             </select>
-            <p className="text-sm text-muted-foreground">{text.scenarioHelp}</p>
+            <p className="type-small text-ink-2">{text.scenarioHelp}</p>
           </div>
           {list.length === 0 ? (
             <Editor key={`blank-${scenario}`} id={null} version={null} scenario={scenario} initial={{ assumptions: "{}", sources: "{}" }} prefilledFrom={null} fromOther={false} />
@@ -160,67 +165,54 @@ function Editor({ id, version, scenario, initial, prefilledFrom, fromOther }: { 
 
   const pending = actions.create.isPending || actions.save.isPending;
   const area = (key: "assumptions" | "sources", value: string, set: (next: string) => void, label: string, help: string) => (
-    <div className="space-y-1">
-      <label htmlFor={`f-${key}`} className="block font-medium">
-        {label}
-      </label>
-      <textarea
-        id={`f-${key}`}
-        value={value}
-        onChange={(event) => set(event.target.value)}
-        readOnly={!editable}
-        rows={12}
-        spellCheck={false}
-        aria-invalid={Boolean(errors[key])}
-        aria-describedby={`f-${key}-help${errors[key] ? ` f-${key}-error` : ""}`}
-        className="w-full field-control p-3 font-mono text-sm"
-      />
-      <p id={`f-${key}-help`} className="text-sm text-muted-foreground">
-        {help}
-      </p>
-      {errors[key] ? (
-        <p id={`f-${key}-error`} className="text-sm font-medium text-destructive" data-error={key}>
-          {errors[key]}
-        </p>
-      ) : null}
-    </div>
+    <CodeArea id={`f-${key}`} name={key} value={value} onChange={set} readOnly={!editable} error={errors[key]} label={label} help={help} />
   );
 
   return (
     <>
-      <h1 className="font-heading text-3xl font-semibold tracking-tight">{version ? format(text.editorTitle, { version: version.version }) : text.newTitle}</h1>
+      <PageHeader eyebrow={text.editorEyebrow} title={version ? format(text.editorTitle, { version: version.version }) : text.newTitle} />
       {version ? (
-        <p className="flex flex-wrap gap-2 text-sm">
-          <span className="rounded-full border px-2 py-0.5 text-xs" data-status>
+        <div className="flex flex-wrap items-center gap-3 text-sm">
+          <Badge variant={version.status === "published" ? "info" : "neutral"} data-status>
             {text.status[version.status] ?? version.status}
+          </Badge>
+          {version.is_archived ? (
+            <Badge variant="neutral" icon={Archive}>
+              {text.archived}
+            </Badge>
+          ) : null}
+          <span className="font-medium text-ink" data-scenario>
+            {text.scenarios[version.scenario] ?? version.scenario}
           </span>
-          {version.is_archived ? <span className="rounded-full border px-2 py-0.5 text-xs">{text.archived}</span> : null}
-        </p>
+        </div>
       ) : null}
-      {version ? (
-        <p className="text-sm text-muted-foreground" data-scenario>
-          {text.scenarios[version.scenario] ?? version.scenario}
-        </p>
+      {prefilledFrom !== null ? (
+        <Alert variant="info" role="note">
+          <Info aria-hidden />
+          <AlertDescription className="text-ink">{format(fromOther ? text.startedFromOther : text.prefilled, { version: prefilledFrom })}</AlertDescription>
+        </Alert>
       ) : null}
-      {prefilledFrom !== null ? <p className="text-sm text-muted-foreground">{format(fromOther ? text.startedFromOther : text.prefilled, { version: prefilledFrom })}</p> : null}
       {version && !editable ? (
-        <p className="text-sm" data-read-only>
-          {format(text.readOnly, { state: version.is_archived ? text.archived.toLowerCase() : (text.status[version.status] ?? version.status).toLowerCase() })}
-        </p>
+        <Alert variant="warning" role="note" data-read-only>
+          <Lock aria-hidden />
+          <AlertDescription className="text-ink">{format(text.readOnly, { state: version.is_archived ? text.archived.toLowerCase() : (text.status[version.status] ?? version.status).toLowerCase() })}</AlertDescription>
+        </Alert>
       ) : null}
       {notice ? (
-        <p role="status" className="text-sm font-medium" data-notice>
-          {notice}
-        </p>
+        <Alert variant="success" role="status" data-notice>
+          <CircleCheck aria-hidden />
+          <AlertDescription>{notice}</AlertDescription>
+        </Alert>
       ) : null}
       {refused ? (
-        <p role="alert" className="text-sm font-medium" data-refused>
-          {refusalFor(fresh.data, refused)}
-        </p>
+        <Alert variant="warning" role="alert" data-refused>
+          <TriangleAlert aria-hidden />
+          <AlertDescription>{refusalFor(fresh.data, refused)}</AlertDescription>
+        </Alert>
       ) : null}
       {failure ? <ApiErrorMessage error={failure} /> : null}
       {Object.keys(errors).length > 0 ? (
-        <div ref={summary} tabIndex={-1} role="alert" className="text-sm font-medium outline-none" data-error-summary>
+        <div ref={summary} tabIndex={-1} role="alert" className="rounded-card border-2 border-danger bg-danger-tint p-4 text-sm font-medium text-ink outline-none" data-error-summary>
           <p>{text.summary}</p>
           <ul className="list-disc pl-5">
             {Object.entries(errors).map(([key, message]) => (
@@ -240,15 +232,16 @@ function Editor({ id, version, scenario, initial, prefilledFrom, fromOther }: { 
         {area("assumptions", assumptions, setAssumptions, text.assumptions, text.assumptionsHelp)}
         {area("sources", sources, setSources, text.sources, text.sourcesHelp)}
         {editable ? (
-          <Button type="submit" aria-disabled={pending} data-action="save">
+          <Button type="submit" size="lg" aria-disabled={pending} data-action="save">
             {pending ? text.saving : version ? text.save : text.create}
           </Button>
         ) : null}
       </form>
       {version && editable ? (
-        <section className="space-y-2" data-publish>
+        <section className="space-y-3 rounded-card border-2 border-orange-text bg-surface p-5 shadow-e2" data-publish>
           {dirty ? (
-            <p className="text-sm" data-unsaved>
+            <p className="flex items-center gap-2 font-medium text-warning" data-unsaved>
+              <TriangleAlert aria-hidden className="size-4 shrink-0" />
               {text.unsaved}
             </p>
           ) : null}
@@ -267,7 +260,7 @@ function Editor({ id, version, scenario, initial, prefilledFrom, fromOther }: { 
         </section>
       ) : null}
       {version && !version.is_archived ? (
-        <section className="space-y-2">
+        <section className="space-y-3 rounded-card border-2 border-dashed border-ink-3 bg-paper-2 p-5">
           <ConfirmAction
             id="archive"
             label={text.archive}
@@ -282,5 +275,46 @@ function Editor({ id, version, scenario, initial, prefilledFrom, fromOther }: { 
         </section>
       ) : null}
     </>
+  );
+}
+
+/** A code area for one of the two JSON documents: a monospace face, a "JSON" mark, its help under it and its error directly below with an icon, linked by aria-describedby; read-only versions are drawn flat. */
+export function CodeArea({ id, name, value, onChange, readOnly, error, label, help }: { id: string; name: string; value: string; onChange: (next: string) => void; readOnly: boolean; error?: string; label: string; help: string }) {
+  return (
+    <div className="space-y-2 rounded-card border border-line bg-surface p-5 shadow-e1" data-code-area={name}>
+      <div className="flex flex-wrap items-center gap-3">
+        <label htmlFor={id} className="type-subheading text-ink">
+          {label}
+        </label>
+        <Badge variant="neutral" icon={Braces}>
+          {text.codeBadge}
+        </Badge>
+        {readOnly ? (
+          <Badge variant="warning" icon={Lock}>
+            {text.readOnlyBadge}
+          </Badge>
+        ) : null}
+      </div>
+      <p id={`${id}-help`} className="type-small text-ink-2">
+        {help}
+      </p>
+      <textarea
+        id={id}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        readOnly={readOnly}
+        rows={12}
+        spellCheck={false}
+        aria-invalid={Boolean(error)}
+        aria-describedby={`${id}-help${error ? ` ${id}-error` : ""}`}
+        className={cn("field-control w-full p-4 font-mono text-sm leading-6", readOnly ? "bg-paper-2" : "")}
+      />
+      {error ? (
+        <p id={`${id}-error`} className="flex items-start gap-1.5 text-sm font-medium text-danger" data-error={name}>
+          <CircleAlert aria-hidden className="mt-0.5 size-4 shrink-0" />
+          {error}
+        </p>
+      ) : null}
+    </div>
   );
 }
