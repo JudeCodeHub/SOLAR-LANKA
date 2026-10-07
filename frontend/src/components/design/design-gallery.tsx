@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import { Building2, ClipboardList, FileText, Inbox, Wrench, Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
 
+import { QuotationConfirmDemo } from "@/components/design/quotation-confirm-demo";
 import { RevisionHistory } from "@/components/company/quotation-revision";
 import { TotalsPanel } from "@/components/company/quotation-totals";
 import { QuotationLinesDemo } from "@/components/design/quotation-lines-demo";
@@ -561,6 +562,10 @@ export function DesignGallery() {
         <div className="space-y-3">
           <h3 className="type-subheading">{text.navigation.lines}</h3>
           <QuotationLinesDemo />
+        </div>
+        <div className="space-y-3">
+          <h3 className="type-subheading">{text.navigation.quotationConfirm}</h3>
+          <QuotationConfirmDemo />
         </div>
         <div className="space-y-3" data-history-sample>
           <h3 className="type-subheading">{text.navigation.history}</h3>
