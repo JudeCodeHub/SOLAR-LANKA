@@ -1805,6 +1805,7 @@ export const en = {
     },
     technician: {
       eyebrow: "Assigned to you",
+      detailEyebrow: "Support request",
       title: "My support requests",
       intro: "Problems you are assigned to. You see the problem, not the customer's details.",
       none: "No support requests are assigned to you.",

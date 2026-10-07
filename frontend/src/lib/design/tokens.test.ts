@@ -1032,3 +1032,12 @@ test("the technician's support list keeps its query, empty state and links, puts
   assert.doesNotMatch(list, /customer_(name|email|phone)|\.email|\.phone/);
   assert.doesNotMatch(list, /text-muted-foreground|font-heading|rounded-lg border/);
 });
+
+test("the technician's support case keeps its marks, guards and shared-or-internal choice, and still reads no customer identity", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "support", "technician-support.tsx"), "utf8");
+  const detail = view.slice(view.indexOf("export function TechnicianCase("));
+  for (const needle of ["data-unsafe", "data-case-header", "data-status", "data-refused", "data-error=\"update\"", "data-action=\"add-update\"", "busy.current", "newKey()", "post.mutate(", "useAssignedCase(id)", "<UpdatesList updates={item.updates} companySide", "<PhotoList photos={item.attachments}", "technicianPhoto(id)", "const [shared, setShared] = useState(false)", "text.sharedHelp", "item.status !== \"closed\"", 'variant="hazard"']) assert.ok(detail.includes(needle), needle);
+  // The case is about the problem: no customer name, address, phone or email is read.
+  assert.doesNotMatch(view, /customer_(name|email|phone|address)|\.(email|phone|address)\b/);
+  assert.doesNotMatch(view, /text-muted-foreground|font-heading|text-destructive|rounded-lg border/);
+});
