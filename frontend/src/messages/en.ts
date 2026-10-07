@@ -1686,6 +1686,7 @@ export const en = {
       notTechnician: "This page is for technicians. Your account is not linked to a company as a technician.",
       open: "Open the visit on {day}",
       back: "Back to my visits",
+      detailEyebrow: "Booked visit",
       detailTitle: "Visit",
       district: "District: {district}",
       whenLabel: "When",
