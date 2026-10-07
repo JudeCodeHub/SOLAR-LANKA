@@ -978,7 +978,7 @@ test("the company installations list keeps its gate, paging and addresses, and u
 test("the installation manager keeps its steps, forms, guards and marks, with large labelled file inputs, and customer-visible and internal parts look clearly different", () => {
   const dir = join(import.meta.dirname, "..", "..", "components", "company");
   const manager = readFileSync(join(dir, "installation-manager.tsx"), "utf8");
-  for (const needle of ["data-customer-sees", "data-done", "data-step={step.status}", "data-refused", "data-progress", "data-final", "data-waiting", "data-action=\"start\"", "data-action=\"complete\"", "data-action=\"reset\"", "data-uploading", "data-uploaded", "data-error=\"asset\"", "data-error=\"note\"", "data-error=\"reason\"", "data-evidence-list", "data-download={item.kind}", "busy.current", "validateComplete({ assetId, note })", "validateReset({ reason })", "evidenceProblem(file)", "upload.mutate(file", 'type="file"', 'accept="image/jpeg,image/png,image/webp"', "min-h-11", "file:min-h-9", "<StaffVisits", "<InternalNotes", "<ShareForm", "<SharedNow", "refusalText(refused.attempt, step, steps)"]) assert.ok(manager.includes(needle), needle);
+  for (const needle of ["data-customer-sees", "data-done", "data-step={step.status}", "data-refused", "data-progress", "data-final", "data-waiting", "data-action=\"start\"", "data-action=\"complete\"", "data-action=\"reset\"", "data-uploaded", "errorMark=\"asset\"", "data-error=\"note\"", "data-error=\"reason\"", "data-evidence-list", "data-download={item.kind}", "busy.current", "validateComplete({ assetId, note })", "validateReset({ reason })", "evidenceProblem(file)", "upload.mutate(file", "<StaffVisits", "<InternalNotes", "<ShareForm", "<SharedNow", "refusalText(refused.attempt, step, steps)"]) assert.ok(manager.includes(needle), needle);
   const share = readFileSync(join(dir, "installation-share.tsx"), "utf8");
   for (const needle of ["data-shared-now", "data-share-form", "data-badge=\"shared\"", "data-error-summary", "data-share-sent", "data-refused", "data-internal-section", "data-badge=\"internal\"", "data-notes", "data-note", "data-no-notes", "data-note-saved", "data-action=\"share\"", "data-action=\"add-note\"", "busy.current", "validateSchedule(input, now)", "validateInstallationNote(body)", "border-2 border-info", "border-2 border-dashed"]) assert.ok(share.includes(needle), needle);
   assert.doesNotMatch(manager + share, /text-muted-foreground|font-heading|text-destructive|rounded-lg border|size="sm"/);
@@ -1019,7 +1019,7 @@ test("the technician's visit list keeps its query, empty state and links, shows 
 
 test("the technician's visit page keeps its completion rules, guards and marks, shows only the district and the time, and has large fields", () => {
   const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "visits", "technician-visit.tsx"), "utf8");
-  for (const needle of ["data-visit-header", "data-status", "data-when", "data-customer-note", "data-refused", "data-completed", "data-complete", "data-not-started", "data-error=\"summary\"", "data-error=\"note\"", "data-error=\"photo\"", "data-notes", "data-photos", "data-download", "data-history", "data-action=\"add-note\"", "canComplete(visit, now)", "busy.current", "onBeforeOpen", "const missing = summary.trim() === \"\"", "actions.complete.mutate(summary.trim()", "actions.note.mutate(note.trim()", "actions.upload.mutate(file", "evidenceProblem(file)", 'accept="image/jpeg,image/png,image/webp"', "min-h-14", "text-base", "<ConfirmAction"]) assert.ok(view.includes(needle), needle);
+  for (const needle of ["data-visit-header", "data-status", "data-when", "data-customer-note", "data-refused", "data-completed", "data-complete", "data-not-started", "data-error=\"summary\"", "data-error=\"note\"", "errorMark=\"photo\"", "data-notes", "data-photos", "data-download", "data-history", "data-action=\"add-note\"", "canComplete(visit, now)", "busy.current", "onBeforeOpen", "const missing = summary.trim() === \"\"", "actions.complete.mutate(summary.trim()", "actions.note.mutate(note.trim()", "actions.upload.mutate(file", "evidenceProblem(file)", "<FileChooser", "large", "text-base", "<ConfirmAction"]) assert.ok(view.includes(needle), needle);
   // The page reads the district and the time only: no customer identity is read.
   assert.doesNotMatch(view, /customer_(name|email|phone|id)|\.email|\.phone/);
   assert.doesNotMatch(view, /text-muted-foreground|font-heading|text-destructive|size="sm"/);
@@ -1131,4 +1131,24 @@ test("short results use the one status note, which is a polite status for good n
   // There is no toast library: results appear in the page, never over it.
   const manifest = readFileSync(join(import.meta.dirname, "..", "..", "..", "package.json"), "utf8");
   assert.doesNotMatch(manifest, /sonner|react-hot-toast|react-toastify|toast/i);
+});
+
+test("one file chooser serves evidence, visit photos and support attachments", () => {
+  const src = join(import.meta.dirname, "..", "..");
+  const chooser = readFileSync(join(src, "components", "ui", "file-chooser.tsx"), "utf8");
+  // Labelled field, help and error linked to it, a busy status with the dial, and an alert for a refusal.
+  assert.match(chooser, /htmlFor=\{id\}/);
+  assert.match(chooser, /aria-describedby/);
+  assert.match(chooser, /aria-invalid/);
+  assert.match(chooser, /DialLoader/);
+  assert.match(chooser, /role="alert"/);
+  assert.match(chooser, /role="status"/);
+  const users = ["company/installation-manager.tsx", "visits/technician-visit.tsx", "support/customer-support.tsx"];
+  for (const file of users) {
+    const source = readFileSync(join(src, "components", file), "utf8");
+    assert.match(source, /<FileChooser/, file);
+    assert.doesNotMatch(source, /type="file"/, file);
+  }
+  assert.match(readFileSync(join(src, "components", "company", "installation-manager.tsx"), "utf8"), /errorMark="asset"/);
+  assert.match(readFileSync(join(src, "components", "visits", "technician-visit.tsx"), "utf8"), /errorMark="photo"/);
 });

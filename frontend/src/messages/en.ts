@@ -1356,6 +1356,8 @@ export const en = {
       articleForm: "The article editor with a draft",
       accountForm: "The account access form",
       statusNotes: "Status notes in four tones",
+      files: "The file control in four looks",
+      fileDemo: { label: "Photo of the display", help: "JPEG, PNG or WebP, up to 8 MB.", busy: "Uploading the photo…", error: "That file is too large." },
       statusDemo: { success: "Saved.", info: "This was sent before, so nothing was sent twice.", warning: "The page has changed since you opened it.", error: "That could not be saved.", button: "Save", added: "Saved just now.", below: "The text under the notes." },
       totals: "The totals panel with no totals, with totals and with unsaved changes",
       dashboardIntro: "The customer links in a side column on wide screens and in a drawer on phones. The current page is marked with a bar, a tint and the current-page attribute.",
