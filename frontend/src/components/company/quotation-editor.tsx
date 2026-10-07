@@ -1,6 +1,7 @@
 "use client";
 
 import { BackLink } from "@/components/ui/back-link";
+import { Calculator, CircleCheck, Lock, TriangleAlert } from "lucide-react";
 import { useRef, useState } from "react";
 import { useFieldArray, useWatch } from "react-hook-form";
 
@@ -15,7 +16,10 @@ import { FormSubmitButton } from "@/components/forms/submit-button";
 import { TextareaField } from "@/components/forms/textarea-field";
 import { TextField } from "@/components/forms/text-field";
 import { QueryState } from "@/components/query-state";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
 import type { ApiError } from "@/lib/api/errors";
 import { formatLongDate } from "@/lib/catalogue/detail";
 import { useEnquiry } from "@/lib/inbox/hooks";
@@ -44,7 +48,7 @@ type Perform = (fn: () => Promise<unknown>, success: string | ((result: never) =
 /** The quotation page: the draft editor, the frozen sent revision, the actions between them, and the history. */
 export function QuotationDraftView({ id }: { id: string }) {
   return (
-    <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
+    <div className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 py-8">
       <StaffGate basePath={`/company/inbox/${id}/quotation`}>
         {(company) => (
           <>
@@ -64,14 +68,12 @@ function Quotation({ companyId, deliveryId }: { companyId: string; deliveryId: s
   const starting = useRef(false);
   return (
     <>
-      <header className="space-y-2">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">{text.editor.title}</h1>
-      </header>
+      <PageHeader eyebrow={text.editor.eyebrow} title={text.editor.title} />
       <QueryState query={query}>
         {(current) =>
           current === null ? (
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">{text.editor.none}</p>
+              <p className="type-body text-ink-2">{text.editor.none}</p>
               <Button
                 type="button"
                 variant="outline"
@@ -163,23 +165,26 @@ function Workspace({
         const showEditor = (state.kind === "draft" && current.revision_id === state.draft.id) || keepEditor;
         return (
           <>
-            <p className="text-sm" data-explain>
+            <p className="type-body max-w-reading text-ink" data-explain>
               {explain(state)}
             </p>
             {!active ? (
-              <p role="status" className="text-sm font-medium" data-enquiry-inactive>
-                {text.editor.inactive[enquiry.data?.status === "cancelled" ? "withdrawn" : enquiry.data?.status === "closed" ? "closed" : "other"]}
-              </p>
+              <Alert variant="warning" role="status" data-enquiry-inactive>
+                <TriangleAlert aria-hidden />
+                <AlertDescription>{text.editor.inactive[enquiry.data?.status === "cancelled" ? "withdrawn" : enquiry.data?.status === "closed" ? "closed" : "other"]}</AlertDescription>
+              </Alert>
             ) : null}
             {banner ? (
-              <p role="status" className="text-sm font-medium" data-banner>
-                {banner}
-              </p>
+              <Alert variant="success" role="status" data-banner>
+                <CircleCheck aria-hidden />
+                <AlertDescription>{banner}</AlertDescription>
+              </Alert>
             ) : null}
             {notice ? (
-              <p role="alert" className="text-sm font-medium" data-stale-notice>
-                {notice}
-              </p>
+              <Alert variant="warning" role="alert" data-stale-notice>
+                <TriangleAlert aria-hidden />
+                <AlertDescription>{notice}</AlertDescription>
+              </Alert>
             ) : null}
             {problem ? <ApiErrorMessage error={problem} /> : null}
 
@@ -197,7 +202,7 @@ function Workspace({
                 actions={actions}
               />
             ) : state.kind === "withdrawn-draft" ? (
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -210,7 +215,7 @@ function Workspace({
                 >
                   {life.startNew.button}
                 </Button>
-                <p className="text-sm text-muted-foreground">{life.startNew.help}</p>
+                <p className="type-small text-ink-2">{life.startNew.help}</p>
               </div>
             ) : state.kind !== "none" ? (
               <Frozen
@@ -250,27 +255,27 @@ function Frozen({
   if (!revision) return null;
   const sent = revision.status === "sent" && state.kind === "sent";
   return (
-    <section aria-labelledby="frozen-title" className="space-y-3 rounded-lg border p-4" data-frozen>
-      <div className="flex flex-wrap items-center gap-2">
-        <h2 id="frozen-title" className="font-heading text-xl font-semibold tracking-tight">
+    <section aria-labelledby="frozen-title" className="space-y-3 rounded-card border-2 border-field-border bg-paper-2 p-5 sm:p-6" data-frozen>
+      <div className="flex flex-wrap items-center gap-3">
+        <h2 id="frozen-title" className="type-heading text-ink">
           {format(life.history.revision, { number: revision.revision_number })}
         </h2>
-        <span className="rounded-full border px-2 py-0.5 text-xs" data-badge={sent ? "sent" : "other"}>
+        <Badge variant={sent ? "success" : "neutral"} icon={Lock} data-badge={sent ? "sent" : "other"}>
           {sent ? life.sentBadge : statusLabel(revision, now)}
-        </span>
+        </Badge>
       </div>
-      <p className="text-sm text-muted-foreground">
+      <p className="type-small text-ink-2">
         {revision.sent_at ? format(life.sentOn, { date: formatLongDate(revision.sent_at) ?? revision.sent_at }) : ""}
         {revision.valid_until ? ` · ${format(life.validUntil, { date: formatLongDate(revision.valid_until) ?? revision.valid_until })}` : ""}
       </p>
-      <p className="text-sm font-medium" data-frozen-note>
+      <p className="type-body font-medium text-ink" data-frozen-note>
         {life.frozen}
       </p>
       <RevisionBody revision={revision} />
       {acts.canRevise || acts.canWithdraw ? (
         <div className="space-y-3">
           {acts.canRevise ? (
-            <div className="space-y-1">
+            <div className="space-y-2">
               <Button
                 type="button"
                 variant="outline"
@@ -281,7 +286,7 @@ function Frozen({
               >
                 {life.revise.button}
               </Button>
-              <p className="text-sm text-muted-foreground">{life.revise.help}</p>
+              <p className="type-small text-ink-2">{life.revise.help}</p>
             </div>
           ) : null}
           {acts.canWithdraw ? (
@@ -353,29 +358,35 @@ function Editor({
   return (
     <>
       {locked ? (
-        <p role="status" className="text-sm font-medium" data-locked>
-          {format(text.editor.notDraft, { status: statusNames[current.status] ?? current.status })}
-        </p>
+        <Alert variant="warning" role="status" data-locked>
+          <Lock aria-hidden />
+          <AlertDescription>{format(text.editor.notDraft, { status: statusNames[current.status] ?? current.status })}</AlertDescription>
+        </Alert>
       ) : inactive ? (
-        <p role="status" className="text-sm font-medium" data-inactive>
-          {text.editor.inactive[inactiveReason]}
-        </p>
+        <Alert variant="warning" role="status" data-inactive>
+          <TriangleAlert aria-hidden />
+          <AlertDescription>{text.editor.inactive[inactiveReason]}</AlertDescription>
+        </Alert>
       ) : null}
       {message ? (
-        <p role="status" className="text-sm font-medium" data-message>
-          {message}
-        </p>
+        <Alert variant="success" role="status" data-message>
+          <CircleCheck aria-hidden />
+          <AlertDescription>{message}</AlertDescription>
+        </Alert>
       ) : null}
       {notice ? (
-        <p role="alert" className="text-sm font-medium" data-stale-notice>
-          {notice}
-        </p>
+        <Alert variant="warning" role="alert" data-stale-notice>
+          <TriangleAlert aria-hidden />
+          <AlertDescription>{notice}</AlertDescription>
+        </Alert>
       ) : null}
       {problem ? <ApiErrorMessage error={problem} /> : null}
 
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-start" data-editor-layout>
+      <div className="min-w-0">
       <AppForm
         form={form}
-        className="space-y-8"
+        className="space-y-6"
         onSubmit={async (payload) => {
           // aria-disabled does not stop a click: refuse here when the enquiry is no longer active.
           if (inFlight.current || inactive) return;
@@ -404,9 +415,9 @@ function Editor({
           }
         }}
       >
-        <fieldset className="space-y-4">
-          <legend className="font-heading text-xl font-semibold tracking-tight">{text.lines.title}</legend>
-          <p className="text-sm text-muted-foreground">{text.lines.intro}</p>
+        <fieldset className="space-y-4 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6" data-section="lines">
+          <legend className="type-heading float-left mb-2 w-full text-ink">{text.lines.title}</legend>
+          <p className="type-small clear-both text-ink-2">{text.lines.intro}</p>
           {fields.fields.map((field, index) => (
             <QuotationLine
               key={field.id}
@@ -418,16 +429,16 @@ function Editor({
             />
           ))}
           {fields.fields.length < MAX_LINES ? (
-            <Button type="button" variant="outline" size="sm" onClick={() => fields.append({ ...blankLine })}>
+            <Button type="button" variant="outline" onClick={() => fields.append({ ...blankLine })}>
               {text.lines.add}
             </Button>
           ) : (
-            <p className="text-sm text-muted-foreground">{format(text.lines.limit, { max: MAX_LINES })}</p>
+            <p className="type-small text-ink-2">{format(text.lines.limit, { max: MAX_LINES })}</p>
           )}
         </fieldset>
 
-        <fieldset className="space-y-4">
-          <legend className="font-heading text-xl font-semibold tracking-tight">{text.pricing.title}</legend>
+        <fieldset className="space-y-4 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6" data-section="pricing">
+          <legend className="type-heading float-left mb-2 w-full text-ink">{text.pricing.title}</legend>
           <SelectField
             form={form}
             name="discount_kind"
@@ -444,8 +455,8 @@ function Editor({
           <TextField form={form} name="tax_rate_percent" label={text.pricing.tax} description={text.pricing.taxHelp} inputMode="decimal" optional />
         </fieldset>
 
-        <fieldset className="space-y-4">
-          <legend className="font-heading text-xl font-semibold tracking-tight">{text.terms.title}</legend>
+        <fieldset className="space-y-4 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6" data-section="terms">
+          <legend className="type-heading float-left mb-2 w-full text-ink">{text.terms.title}</legend>
           <TextField form={form} name="capacity_kwp" label={text.terms.capacity} inputMode="decimal" optional />
           <TextareaField form={form} name="warranty_terms" label={text.terms.warranty} maxLength={2000} />
           <TextareaField form={form} name="exclusions" label={text.terms.exclusions} description={text.terms.exclusionsHelp} maxLength={2000} />
@@ -454,39 +465,43 @@ function Editor({
         </fieldset>
 
         {dirty ? (
-          <p className="text-sm text-muted-foreground" data-unsaved>
+          <p className="flex items-center gap-2 font-medium text-warning" data-unsaved>
+            <TriangleAlert aria-hidden className="size-4 shrink-0" />
             {text.unsaved}
           </p>
         ) : null}
         <FormSubmitButton pending={form.formState.isSubmitting}>{text.save}</FormSubmitButton>
       </AppForm>
+      </div>
 
-      <section aria-labelledby="totals-title" className="space-y-3 rounded-lg border p-4" data-totals>
-        <div className="flex flex-wrap items-center gap-2">
-          <h2 id="totals-title" className="font-heading text-xl font-semibold tracking-tight">
+      <aside className="space-y-6 lg:sticky lg:top-40" aria-label={text.totals.title}>
+      <section aria-labelledby="totals-title" className="space-y-3 rounded-card border-2 border-orange-text bg-surface p-5 shadow-e2" data-totals>
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 id="totals-title" className="type-heading text-ink">
             {text.totals.title}
           </h2>
-          <span className="rounded-full border px-2 py-0.5 text-xs" data-badge="server">
+          <Badge variant="info" icon={Calculator} data-badge="server">
             {text.totals.badge}
-          </span>
+          </Badge>
         </div>
-        <p className="text-sm text-muted-foreground">{text.totals.intro}</p>
+        <p className="type-small text-ink-2">{text.totals.intro}</p>
         {terms.total === null ? (
-          <p className="text-sm" data-no-totals>
+          <p className="type-body text-ink-2" data-no-totals>
             {text.totals.none}
           </p>
         ) : (
           <>
             {dirty ? (
-              <p className="text-sm font-medium" data-totals-stale>
+              <p className="flex items-center gap-2 text-sm font-medium text-warning" data-totals-stale>
+                <TriangleAlert aria-hidden className="size-4 shrink-0" />
                 {text.totals.stale}
               </p>
             ) : null}
             <dl className="description-list text-sm">
               {totals.map(([label, value]) => (
                 <div key={label} className="contents">
-                  <dt className="text-muted-foreground">{label}</dt>
-                  <dd className={label === text.totals.total ? "font-medium" : undefined} data-total={label}>
+                  <dt className="text-ink-2">{label}</dt>
+                  <dd className={label === text.totals.total ? "type-figure text-base font-semibold" : "type-figure"} data-total={label}>
                     {formatMoney(value) ?? ""}
                   </dd>
                 </div>
@@ -496,12 +511,13 @@ function Editor({
         )}
       </section>
 
-      <section aria-labelledby="checklist-title" className="space-y-2">
-        <h2 id="checklist-title" className="font-heading text-xl font-semibold tracking-tight">
+      <section aria-labelledby="checklist-title" className="space-y-3 rounded-card border border-line bg-surface p-5 shadow-e1">
+        <h2 id="checklist-title" className="type-subheading text-ink">
           {text.checklist.title}
         </h2>
         {missing.length === 0 ? (
-          <p className="text-sm" data-ready>
+          <p className="flex items-center gap-2 text-sm font-medium text-ink" data-ready>
+            <CircleCheck aria-hidden className="size-4 shrink-0 text-success" />
             {text.checklist.done}
           </p>
         ) : (
@@ -513,22 +529,22 @@ function Editor({
         )}
       </section>
 
-      <section aria-labelledby="send-title" className="space-y-3 rounded-lg border p-4" data-send-section>
-        <div className="flex flex-wrap items-center gap-2">
-          <h2 id="send-title" className="font-heading text-xl font-semibold tracking-tight">
+      <section aria-labelledby="send-title" className="space-y-3 rounded-card border border-line bg-surface p-5 shadow-e1" data-send-section>
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 id="send-title" className="type-subheading text-ink">
             {life.send.title}
           </h2>
-          <span className="rounded-full border px-2 py-0.5 text-xs" data-badge="draft">
+          <Badge variant="neutral" data-badge="draft">
             {life.draftBadge}
-          </span>
+          </Badge>
         </div>
-        <p className="text-sm text-muted-foreground">{life.send.intro}</p>
+        <p className="type-small text-ink-2">{life.send.intro}</p>
         {dirty ? (
-          <p className="text-sm font-medium" data-need-saved>
+          <p className="text-sm font-medium text-warning" data-need-saved>
             {life.send.needSaved}
           </p>
         ) : missing.length > 0 ? (
-          <p className="text-sm font-medium" data-need-complete>
+          <p className="text-sm font-medium text-warning" data-need-complete>
             {life.send.needComplete}
           </p>
         ) : null}
@@ -560,11 +576,23 @@ function Editor({
           />
         ) : null}
         {sent ? (
-          <p className="text-sm text-muted-foreground" data-withdraw-blocked>
+          <p className="type-small text-ink-2" data-withdraw-blocked>
             {life.withdraw.blockedByDraft}
           </p>
         ) : null}
       </section>
+      </aside>
+      </div>
+
+      <div className="sticky bottom-0 z-20 -mx-4 border-t border-line bg-surface/95 px-4 py-3 backdrop-blur lg:hidden" data-total-bar>
+        <p className="flex flex-wrap items-center justify-between gap-2 text-sm">
+          <span className="text-ink-2">{text.totals.badge}</span>
+          <span className="type-figure text-base font-semibold text-ink">
+            {terms.total === null ? text.totals.none : formatMoney(terms.total)}
+          </span>
+        </p>
+        {dirty ? <p className="text-xs font-medium text-warning">{text.totals.stale}</p> : null}
+      </div>
     </>
   );
 }

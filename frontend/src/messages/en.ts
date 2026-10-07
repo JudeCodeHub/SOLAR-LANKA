@@ -2494,6 +2494,7 @@ export const en = {
         },
       },
       editor: {
+        eyebrow: "Quotation draft",
         title: "Quotation",
         back: "Back to the enquiry",
         draftNote: "Only your company can see this draft. The customer sees nothing until it is sent.",
