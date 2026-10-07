@@ -10,7 +10,7 @@ import { QueryState } from "@/components/query-state";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DialLoader } from "@/components/ui/dial-loader";
+import { FileChooser } from "@/components/ui/file-chooser";
 import type { ApiError } from "@/lib/api/errors";
 import { evidenceProblem } from "@/lib/installations/evidence";
 import { actionLabel, canComplete, formatRange, statusLabel, visitTone } from "@/lib/visits/slots";
@@ -210,39 +210,21 @@ function Visit({ id, visit, now }: { id: string; visit: Work; now: number }) {
             ))}
           </ul>
         )}
-        <label htmlFor="photo" className="block font-medium text-ink">
-          {text.photoLabel}
-        </label>
-        <input
+        <FileChooser
           id="photo"
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
+          label={text.photoLabel}
           disabled={actions.upload.isPending}
-          aria-describedby={problem ? "photo-error" : undefined}
-          aria-invalid={Boolean(problem)}
-          className="field-control block min-h-14 w-full min-w-0 cursor-pointer p-2 text-sm file:mr-3 file:min-h-10 file:cursor-pointer file:rounded-full file:border-0 file:bg-paper-2 file:px-4 file:font-medium file:text-ink"
-          onChange={(event) => {
-            const file = event.target.files?.[0];
-            event.target.value = "";
-            if (!file) return;
+          busyText={actions.upload.isPending ? text.photoUploading : null}
+          error={problem}
+          errorMark="photo"
+          large
+          onFile={(file) => {
             const found = evidenceProblem(file);
             setProblem(found);
             if (found || !begin()) return;
             actions.upload.mutate(file, handlers(text.photoDone));
           }}
         />
-        {actions.upload.isPending ? (
-          <p role="status" className="flex items-center gap-2 text-sm text-ink">
-            <DialLoader className="size-5 text-orange-text" />
-            {text.photoUploading}
-          </p>
-        ) : null}
-        {problem ? (
-          <p id="photo-error" role="alert" className="flex items-center gap-1.5 text-sm font-medium text-danger" data-error="photo">
-            <CircleAlert aria-hidden className="size-4 shrink-0" />
-            {problem}
-          </p>
-        ) : null}
       </section>
 
       <section aria-labelledby="history-title" className="space-y-3">

@@ -8,6 +8,7 @@ import { useRef, useState } from "react";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
 import { ConfirmAction } from "@/components/company/confirm-action";
+import { FileChooser } from "@/components/ui/file-chooser";
 import { PhotoList } from "@/components/support/photo-list";
 import { UpdatesList } from "@/components/support/updates-list";
 import { QueryState } from "@/components/query-state";
@@ -327,27 +328,17 @@ export function CustomerCase({ id }: { id: string }) {
               <p className="type-small text-ink-2">{text.photosHelp}</p>
               <PhotoList photos={item.attachments} fetchPhoto={customerPhoto(id)} label={text.photoDownload} none={text.noPhotos} />
               {item.status !== "resolved" && item.status !== "closed" ? (
-                <>
-                  <label htmlFor="photo" className="block text-sm font-medium text-ink">
-                    {text.photoLabel}
-                  </label>
-                  <input
-                    id="photo"
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    disabled={actions.upload.isPending}
-                    className="block min-h-11 w-full min-w-0 text-sm"
-                    onChange={(event) => {
-                      const file = event.target.files?.[0];
-                      event.target.value = "";
-                      if (!file) return;
-                      const found = evidenceProblem(file);
-                      setProblem(found);
-                      if (found || !begin()) return;
-                      actions.upload.mutate(file, handlers());
-                    }}
-                  />
-                </>
+                <FileChooser
+                  id="photo"
+                  label={text.photoLabel}
+                  disabled={actions.upload.isPending}
+                  onFile={(file) => {
+                    const found = evidenceProblem(file);
+                    setProblem(found);
+                    if (found || !begin()) return;
+                    actions.upload.mutate(file, handlers());
+                  }}
+                />
               ) : null}
             </section>
 

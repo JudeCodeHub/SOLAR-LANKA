@@ -13,7 +13,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { StatusNote } from "@/components/ui/status-note";
-import { DialLoader } from "@/components/ui/dial-loader";
+import { FileChooser } from "@/components/ui/file-chooser";
 import { PageHeader } from "@/components/ui/page-header";
 import type { ApiError } from "@/lib/api/errors";
 import { useCompanyInstallation, useDownloadEvidence, useMoveMilestone, useUploadEvidence } from "@/lib/installations/hooks";
@@ -195,56 +195,35 @@ function StepForms({ companyId, installationId, step, steps, pending, run }: { c
           {text.completeTitle}
         </h4>
         <p className="text-ink-2">{text.completeIntro}</p>
-        <div className="space-y-1">
-          <label htmlFor={`${id}-asset`} className="block font-medium text-ink">
-            {format(text.evidenceField, { kind: evidenceLabel(evidenceKind) })}
-          </label>
-          <input
-            id={`${id}-asset`}
-            type="file"
-            className="field-control block min-h-11 w-full min-w-0 cursor-pointer p-2 text-sm file:mr-3 file:min-h-9 file:cursor-pointer file:rounded-full file:border-0 file:bg-paper-2 file:px-4 file:font-medium file:text-ink"
-            accept="image/jpeg,image/png,image/webp"
-            disabled={upload.isPending}
-            aria-invalid={Boolean(completeErrors.assetId || uploadProblem)}
-            aria-describedby={`${id}-asset-help${completeErrors.assetId || uploadProblem ? ` ${id}-asset-error` : ""}`}
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              event.target.value = "";
-              if (!file) return;
-              setUploadProblem(evidenceProblem(file));
-              if (evidenceProblem(file)) return;
-              setCompleteErrors({});
-              upload.mutate(file, {
-                onSuccess: (result) => {
-                  setAssetId(result.id ?? "");
-                  setFileName(file.name);
-                  setUploadProblem(null);
-                },
-                onError: (failure) => setUploadProblem(failure.status === 422 || failure.status === 409 ? text.upload.refused : failure.message),
-              });
-            }}
-          />
-          <p id={`${id}-asset-help`} className="text-ink-2">
-            {text.evidenceHelp}
-          </p>
-          {upload.isPending ? (
-            <p role="status" className="flex items-center gap-2 text-ink" data-uploading>
-              <DialLoader className="size-5 text-orange-text" />
-              {text.upload.working}
-            </p>
-          ) : null}
+        <FileChooser
+          id={`${id}-asset`}
+          label={format(text.evidenceField, { kind: evidenceLabel(evidenceKind) })}
+          help={text.evidenceHelp}
+          disabled={upload.isPending}
+          busyText={upload.isPending ? text.upload.working : null}
+          busyMark="true"
+          error={uploadProblem ?? completeErrors.assetId ?? null}
+          errorMark="asset"
+          onFile={(file) => {
+            setUploadProblem(evidenceProblem(file));
+            if (evidenceProblem(file)) return;
+            setCompleteErrors({});
+            upload.mutate(file, {
+              onSuccess: (result) => {
+                setAssetId(result.id ?? "");
+                setFileName(file.name);
+                setUploadProblem(null);
+              },
+              onError: (failure) => setUploadProblem(failure.status === 422 || failure.status === 409 ? text.upload.refused : failure.message),
+            });
+          }}
+        >
           {assetId && fileName ? (
             <StatusNote tone="success" data-uploaded>
               {format(text.upload.done, { name: fileName })}
             </StatusNote>
           ) : null}
-          {completeErrors.assetId || uploadProblem ? (
-            <p id={`${id}-asset-error`} className="flex items-center gap-1.5 font-medium text-danger" data-error="asset">
-              <CircleAlert aria-hidden className="size-4 shrink-0" />
-              {uploadProblem ?? completeErrors.assetId}
-            </p>
-          ) : null}
-        </div>
+        </FileChooser>
         <div className="space-y-1">
           <label htmlFor={`${id}-note`} className="block font-medium text-ink">
             {text.noteField}
