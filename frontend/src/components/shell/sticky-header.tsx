@@ -15,6 +15,7 @@ export function StickyHeader({ children }: { children: ReactNode }) {
   }, []);
   return (
     <header
+      data-print-hide
       data-scrolled={scrolled}
       className={cn(
         "sticky top-0 z-40 border-b transition-[background-color,border-color,box-shadow] duration-200 motion-reduce:transition-none",

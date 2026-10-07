@@ -20,7 +20,7 @@ export function ArticleView({ slug }: { slug: string }) {
   const query = useArticle(slug);
   return (
     <div className="mx-auto w-full max-w-5xl flex-1 space-y-6 px-4 py-8">
-      <BackLink href="/learn">{text.back}</BackLink>
+      <BackLink href="/learn" data-print-hide>{text.back}</BackLink>
       <QueryState query={query} isEmpty={() => false}>
         {(article) => (
           <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_14rem]">
@@ -76,7 +76,7 @@ export function ArticleView({ slug }: { slug: string }) {
                 )}
               </section>
             </article>
-            <nav aria-label={text.contentsLabel} className="hidden lg:block" data-contents>
+            <nav aria-label={text.contentsLabel} className="hidden lg:block" data-contents data-print-hide>
               <div className="sticky top-40 space-y-2">
                 <p className="type-caption font-semibold tracking-widest text-ink-2 uppercase">{text.contentsTitle}</p>
                 <ul className="space-y-1 border-l border-line">

@@ -14,7 +14,7 @@ const COLUMNS = [
 /** The footer: the brand and two link columns. */
 export function SiteFooter() {
   return (
-    <footer className="border-t border-line bg-paper-2">
+    <footer data-print-hide className="border-t border-line bg-paper-2">
       <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-12 md:grid-cols-[1.4fr_1fr_1fr]">
         <div className="space-y-3">
           <Link href="/" className="inline-flex min-h-11 items-center text-ink" aria-label={messages.app.name}>

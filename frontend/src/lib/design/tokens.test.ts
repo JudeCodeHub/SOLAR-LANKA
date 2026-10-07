@@ -1152,3 +1152,14 @@ test("one file chooser serves evidence, visit photos and support attachments", (
   assert.match(readFileSync(join(src, "components", "company", "installation-manager.tsx"), "utf8"), /errorMark="asset"/);
   assert.match(readFileSync(join(src, "components", "visits", "technician-visit.tsx"), "utf8"), /errorMark="photo"/);
 });
+
+test("printing gives black-on-white pages without the site chrome", () => {
+  const src = join(import.meta.dirname, "..", "..");
+  const css = readFileSync(join(src, "app", "globals.css"), "utf8");
+  const print = css.slice(css.indexOf("@media print"));
+  for (const needle of ["background: #fff", "color: #000", "[data-print-hide]", "[data-skip-link]", "break-inside: avoid", "attr(href)", "box-shadow: none"]) assert.ok(print.includes(needle), needle);
+  // The header, footer, comparison tray and the article's contents list and back link are the chrome that must not print.
+  for (const file of ["shell/sticky-header.tsx", "site-footer.tsx", "comparison/comparison-tray.tsx"]) assert.match(readFileSync(join(src, "components", file), "utf8"), /data-print-hide/, file);
+  const article = readFileSync(join(src, "components", "education", "article-view.tsx"), "utf8");
+  assert.equal((article.match(/data-print-hide/g) ?? []).length, 2);
+});
