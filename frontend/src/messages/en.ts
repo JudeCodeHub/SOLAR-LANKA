@@ -1340,6 +1340,7 @@ export const en = {
       offersForm: "A product offer: specifications, preview and the offer form",
       companyInstallations: "Installation cards on the company list",
       share: "What the customer sees and the form to share a delay",
+      technicianVisits: "The technician's visit tiles",
       totals: "The totals panel with no totals, with totals and with unsaved changes",
       dashboardIntro: "The customer links in a side column on wide screens and in a drawer on phones. The current page is marked with a bar, a tint and the current-page attribute.",
       requests: "Request cards in each state",
@@ -1677,6 +1678,8 @@ export const en = {
       refused: "That could not be done because the visit has changed. The page now shows where it stands.",
     },
     technician: {
+      eyebrow: "Your schedule",
+      groups: { today: "Today", upcoming: "Coming up", earlier: "Earlier" },
       title: "My visits",
       intro: "Visits you are booked for. You see the district and the time, not the customer's details.",
       none: "No visits are assigned to you.",

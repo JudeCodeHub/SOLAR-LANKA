@@ -7,6 +7,7 @@ import { QuotationConfirmDemo } from "@/components/design/quotation-confirm-demo
 import { RevisionHistory } from "@/components/company/quotation-revision";
 import { TotalsPanel } from "@/components/company/quotation-totals";
 import { QuotationLinesDemo } from "@/components/design/quotation-lines-demo";
+import { VisitTile } from "@/components/visits/technician-visits";
 import { EnquiryCard } from "@/components/company/enquiry-card";
 import { InstallationTimeline } from "@/components/installations/installation-timeline";
 import { InstallationCard } from "@/components/installations/installation-card";
@@ -111,6 +112,11 @@ const INSTALLATION_SAMPLES = [
   { id: "i4", created_at: "2026-08-01T08:00:00Z", completed_milestones: 8, total_milestones: 8 },
 ];
 const ENQUIRY_SAMPLES = ["submitted", "viewed", "responding", "closed", "cancelled"].map((status, index) => ({ id: `e${index + 1}`, status, created_at: `2026-10-0${5 - index}T08:00:00Z`, district: ["Colombo", "Kandy", "Galle", "Jaffna", "Matara"][index] ?? "" }));
+const TECH_VISITS = [
+  { id: "t1", status: "confirmed", district: "Colombo", confirmed_starts_at: "2026-10-06T04:30:00Z", confirmed_ends_at: "2026-10-06T06:30:00Z" },
+  { id: "t2", status: "confirmed", district: "Kandy", confirmed_starts_at: "2026-10-08T08:00:00Z", confirmed_ends_at: "2026-10-08T10:00:00Z" },
+  { id: "t3", status: "completed", district: "Galle", confirmed_starts_at: "2026-10-01T04:30:00Z", confirmed_ends_at: "2026-10-01T06:30:00Z" },
+];
 const OFFER_NOW = Date.parse("2026-10-06T00:00:00Z");
 const offer = (n: number, name: string, status: "sent" | "accepted", validUntil: string, total: string, revisions: number) => ({ quotation_id: `q${n}`, company_id: `c${n}`, revision_id: `v${n}`, revision_number: revisions, sent_at: "2026-09-25T08:00:00Z", sent_revision_count: revisions, status, total, valid_until: validUntil, name });
 /** Four offers, one in each state, for the sample of offer cards. */
@@ -548,6 +554,16 @@ export function DesignGallery() {
               </div>
             </DashboardFrame>
           </div>
+        </div>
+        <div className="space-y-3" data-technician-visits-sample>
+          <h3 className="type-subheading">{text.navigation.technicianVisits}</h3>
+          <ul className="grid max-w-xl gap-3">
+            {TECH_VISITS.map((visit, index) => (
+              <li key={visit.id}>
+                <VisitTile visit={visit} today={index === 0} />
+              </li>
+            ))}
+          </ul>
         </div>
         <div className="space-y-3" data-company-shell-sample>
           <h3 className="type-subheading">{text.navigation.companyShell}</h3>
