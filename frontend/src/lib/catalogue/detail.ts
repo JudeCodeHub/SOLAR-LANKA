@@ -1,5 +1,6 @@
 /** What a product detail page shows. */
 import { format, messages, plural } from "../../messages/index.ts";
+import { formatAmount } from "../format/figures.ts";
 import { formatDate } from "../format/datetime.ts";
 import type { components } from "../api/schema.d.ts";
 import { formatDecimal } from "./params.ts";
@@ -243,14 +244,5 @@ export function sourceInfo(product: ProductDetail): SourceInfo {
 /** "LKR 450,000.00", or null when the company gave no price (which is not the same as zero). */
 export function formatOfferPrice(offer: Pick<PublicProductOffer, "indicative_price" | "currency">): string | null {
   if (offer.indicative_price === null || offer.indicative_price === undefined) return null;
-  const amount = Number(offer.indicative_price);
-  if (!Number.isFinite(amount)) return null;
-  const formatted = new Intl.NumberFormat("en-GB", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-  return format(messages.detail.offers.priceFormat, {
-    currency: offer.currency ?? "",
-    amount: formatted,
-  }).trim();
+  return formatAmount(offer.indicative_price, offer.currency ?? "");
 }

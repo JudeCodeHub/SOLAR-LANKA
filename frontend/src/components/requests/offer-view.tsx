@@ -16,6 +16,7 @@ import { QueryState } from "@/components/query-state";
 import { formatLongDate } from "@/lib/catalogue/detail";
 import { expiryText, inclusionLabel, INCLUSION_KEYS, inclusionsFromLines, isExpiringSoon, offerState, stateLabel, stateTone } from "@/lib/quotation/customer";
 import { type SentRevision, useOfferHistory, useRequestOffers } from "@/lib/quotation/customer-hooks";
+import { formatKwp } from "@/lib/format/figures";
 import { formatMoney } from "@/lib/quotation/draft";
 import { totalChange } from "@/lib/quotation/lifecycle";
 import { useCompanyNames } from "@/lib/requests/hooks";
@@ -74,7 +75,7 @@ export function OfferDetails({ revisions, companyName, now }: { revisions: SentR
   const inclusions = inclusionsFromLines(current.lines);
   const heading = format(detail.title, { name: companyName === undefined ? "…" : (companyName ?? messages.customerOffers.list.notListed) });
   const terms: [string, string | null][] = [
-    [detail.capacity, current.capacity_kwp ? format(detail.capacityValue, { value: Number(current.capacity_kwp) }) : null],
+    [detail.capacity, current.capacity_kwp ? formatKwp(current.capacity_kwp) : null],
     [detail.warranty, current.warranty_terms],
     [detail.exclusions, current.exclusions],
     [detail.notes, current.notes],

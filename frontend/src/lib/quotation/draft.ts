@@ -2,6 +2,7 @@
 import { z } from "zod";
 
 import { messages } from "../../messages/index.ts";
+import { formatAmount } from "../format/figures.ts";
 import { optionalDecimal } from "../estimator/schema.ts";
 
 const text = messages.company.quotation.validation;
@@ -218,8 +219,5 @@ export function missingForSending(terms: TermsView): Missing[] {
 
 /** Money as the server returned it, with a thousands separator: "265.61" becomes "LKR 265.61". */
 export function formatMoney(value: string | null | undefined): string | null {
-  if (value === null || value === undefined) return null;
-  const number = Number(value);
-  if (!Number.isFinite(number)) return null;
-  return `LKR ${new Intl.NumberFormat("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(number)}`;
+  return formatAmount(value);
 }
