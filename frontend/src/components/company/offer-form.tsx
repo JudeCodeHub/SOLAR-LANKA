@@ -33,16 +33,16 @@ export function OfferForm({
         <TextField form={form} name="price" label={text.price} description={text.priceHelp} inputMode="decimal" optional />
         <TextField form={form} name="currency" label={text.currency} description={text.currencyHelp} />
       </div>
-      <div className="space-y-1">
-        <label className="flex min-h-11 cursor-pointer items-center gap-2 text-sm">
+      <div className="space-y-1 rounded-card border border-line bg-paper p-4 has-[:checked]:border-info has-[:checked]:bg-info-tint">
+        <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm font-medium text-ink">
           <input type="checkbox" className="field-check size-6 shrink-0" {...form.register("is_demo_price")} />
           <span>{text.demo}</span>
         </label>
         <FieldDescription>{text.demoHelp}</FieldDescription>
       </div>
       <TextareaField form={form} name="company_claim" label={text.claim} description={text.claimHelp} maxLength={MAX_CLAIM} />
-      {unsaved ? <p className="text-sm text-muted-foreground">{text.unsaved}</p> : null}
-      <div className="flex flex-wrap gap-2">
+      {unsaved ? <p className="type-small font-medium text-warning">{text.unsaved}</p> : null}
+      <div className="flex flex-wrap gap-3">
         <FormSubmitButton pending={form.formState.isSubmitting}>{submitLabel}</FormSubmitButton>
         <Button type="button" variant="outline" onClick={onCancel}>
           {text.cancel}

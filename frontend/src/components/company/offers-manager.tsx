@@ -1,11 +1,14 @@
 "use client";
 
+import { CircleCheck, Lock, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
 import { OfferForm } from "@/components/company/offer-form";
 import { QueryState } from "@/components/query-state";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { SampleBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { type ApiError, ensureApiError } from "@/lib/api/errors";
 import { formatOfferPrice } from "@/lib/catalogue/detail";
@@ -42,30 +45,33 @@ export function OffersManager({ companyId }: { companyId: string }) {
   return (
     <>
       {profile.data ? (
-        <p className="text-sm text-muted-foreground" data-visibility={approved ? "approved" : "other"}>
-          {approved ? text.visibility.approved : text.visibility.other}{" "}
-          {approved ? null : (
-            <Link href={`/company/profile?company=${companyId}`} className="underline underline-offset-2">
-              {text.visibility.manageProfile}
-            </Link>
-          )}
-        </p>
+        <Alert variant={approved ? "success" : "warning"} role="note" data-visibility={approved ? "approved" : "other"}>
+          {approved ? <CircleCheck aria-hidden /> : <TriangleAlert aria-hidden />}
+          <AlertDescription className="text-ink">
+            {approved ? text.visibility.approved : text.visibility.other}{" "}
+            {approved ? null : (
+              <Link href={`/company/profile?company=${companyId}`} className="inline-flex min-h-11 items-center font-medium text-orange-text underline underline-offset-2">
+                {text.visibility.manageProfile}
+              </Link>
+            )}
+          </AlertDescription>
+        </Alert>
       ) : null}
 
-      <section aria-labelledby="offers-title" className="space-y-3">
-        <h2 id="offers-title" className="font-heading text-xl font-semibold tracking-tight">
+      <section aria-labelledby="offers-title" className="space-y-4">
+        <h2 id="offers-title" className="type-heading text-ink">
           {text.listTitle}
         </h2>
-        <p className="text-sm text-muted-foreground">{text.notDeletable}</p>
+        <p className="type-small text-ink-2">{text.notDeletable}</p>
         <QueryState
           query={offers}
           isEmpty={(items) => items.length === 0}
-          empty={<p className="text-sm text-muted-foreground" data-no-offers>{text.empty}</p>}
+          empty={<p className="type-body rounded-card border border-line bg-surface p-4 text-ink-2" data-no-offers>{text.empty}</p>}
         >
           {(items) => (
             <>
               {items.length >= OFFERS_LIMIT ? (
-                <p className="text-sm text-muted-foreground">{format(text.limit, { count: OFFERS_LIMIT })}</p>
+                <p className="type-small text-ink-2">{format(text.limit, { count: OFFERS_LIMIT })}</p>
               ) : null}
               <ul className="space-y-4" data-offers>
                 {items.map((offer) => (
@@ -84,31 +90,34 @@ export function OffersManager({ companyId }: { companyId: string }) {
   );
 }
 
-function SpecBlock({ product }: { product: Product | null | undefined }) {
+export function SpecBlock({ product }: { product: Product | null | undefined }) {
   return (
-    <div className="space-y-1 rounded-md bg-muted/40 p-3 text-sm" data-specs>
-      <h4 className="font-medium">{text.specs.title}</h4>
-      {product ? <p>{specLine(product)}</p> : null}
-      <p className="text-muted-foreground">{text.specs.readOnly}</p>
+    <div className="space-y-1.5 rounded-field border border-line bg-paper-2 p-4 text-sm" data-specs>
+      <h4 className="flex items-center gap-2 font-medium text-ink">
+        <Lock aria-hidden className="size-4 text-ink-3" />
+        {text.specs.title}
+      </h4>
+      {product ? <p className="type-figure text-ink">{specLine(product)}</p> : null}
+      <p className="text-ink-2">{text.specs.readOnly}</p>
     </div>
   );
 }
 
-function Preview({ offer }: { offer: Pick<Offer, "indicative_price" | "currency" | "is_demo_price" | "company_claim"> }) {
+export function Preview({ offer }: { offer: Pick<Offer, "indicative_price" | "currency" | "is_demo_price" | "company_claim"> }) {
   const price = formatOfferPrice(offer);
   return (
-    <div className="space-y-1 text-sm" data-preview>
-      <h4 className="font-medium">{text.offer.preview}</h4>
-      <p>
+    <div className="space-y-2 rounded-field border border-line bg-surface p-4 text-sm" data-preview>
+      <h4 className="font-medium text-ink">{text.offer.preview}</h4>
+      <p className="flex flex-wrap items-center gap-2 text-ink">
         <span className="font-medium">{text.offer.price}: </span>
-        {price ?? <span data-no-price>{text.offer.noPrice}</span>}
+        {price ? <span className="type-figure">{price}</span> : <span data-no-price>{text.offer.noPrice}</span>}
         {price && offer.is_demo_price ? (
-          <span className="ml-2 rounded-full border px-2 py-0.5 text-xs text-muted-foreground">{text.offer.sample}</span>
+          <SampleBadge data-sample-price>{text.offer.sample}</SampleBadge>
         ) : null}
       </p>
-      <p>
+      <p className="text-ink">
         <span className="font-medium">{text.offer.claim}: </span>
-        {offer.company_claim ?? <span className="text-muted-foreground">{text.offer.noClaim}</span>}
+        {offer.company_claim ?? <span className="text-ink-2">{text.offer.noClaim}</span>}
       </p>
     </div>
   );
@@ -125,37 +134,38 @@ function OfferCard({ offer, companyId }: { offer: Offer; companyId: string }) {
   const headingId = `offer-${offer.id}`;
 
   return (
-    <article aria-labelledby={headingId} className="space-y-3 rounded-lg border p-4" data-offer={offer.product_id}>
+    <article aria-labelledby={headingId} className="space-y-4 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6" data-offer={offer.product_id}>
       <header className="space-y-1">
-        <h3 id={headingId} className="font-heading text-lg font-semibold tracking-tight">
+        <h3 id={headingId} className="type-subheading text-ink">
           {name}
         </h3>
         {item ? (
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-ink-2">
             {(messages.company.offers.kind as Record<string, string>)[item.kind]}
             {" · "}
-            <Link href={`${BASE_PATH[item.kind]}/${item.id}`} className="underline underline-offset-2">
+            <Link href={`${BASE_PATH[item.kind]}/${item.id}`} className="inline-flex min-h-11 items-center font-medium text-orange-text underline underline-offset-2">
               {text.viewProduct}
             </Link>
           </p>
         ) : null}
       </header>
       <div className="grid gap-4 md:grid-cols-2">
-        {item ? <SpecBlock product={item} /> : <p className="text-sm text-muted-foreground">{product.isPending ? "…" : text.unknownProduct}</p>}
+        {item ? <SpecBlock product={item} /> : <p className="type-small text-ink-2">{product.isPending ? "…" : text.unknownProduct}</p>}
         <div className="space-y-2">
-          <h4 className="font-medium">{text.offer.title}</h4>
+          <h4 className="font-medium text-ink">{text.offer.title}</h4>
           <Preview offer={offer} />
         </div>
       </div>
       {message ? (
-        <p role="status" className="text-sm font-medium" data-message>
-          {message}
-        </p>
+        <Alert variant="success" role="status" data-message>
+          <CircleCheck aria-hidden />
+          <AlertDescription>{message}</AlertDescription>
+        </Alert>
       ) : null}
       {problem ? <ApiErrorMessage error={problem} /> : null}
       {editing ? (
-        <div className="space-y-2 rounded-md border p-3" data-editing>
-          <h4 className="font-medium">{text.offer.editing}</h4>
+        <div className="space-y-3 rounded-card border-2 border-orange-text/50 bg-paper p-4" data-editing>
+          <h4 className="font-medium text-ink">{text.offer.editing}</h4>
           <OfferForm
             initial={valuesFromOffer(offer)}
             submitLabel={text.form.save}
@@ -188,7 +198,6 @@ function OfferCard({ offer, companyId }: { offer: Offer; companyId: string }) {
         <Button
           type="button"
           variant="outline"
-          size="sm"
           onClick={() => {
             setMessage(null);
             setEditing(true);
@@ -213,21 +222,22 @@ function AddOffer({ companyId, existing }: { companyId: string; existing: Set<st
   const add = text.add;
 
   return (
-    <section aria-labelledby="add-title" className="space-y-3">
-      <h2 id="add-title" className="font-heading text-xl font-semibold tracking-tight">
+    <section aria-labelledby="add-title" className="space-y-4 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6">
+      <h2 id="add-title" className="type-heading text-ink">
         {add.title}
       </h2>
-      <p className="text-sm text-muted-foreground">{add.intro}</p>
+      <p className="type-small text-ink-2">{add.intro}</p>
       {message ? (
-        <p role="status" className="text-sm font-medium" data-add-message>
-          {message}
-        </p>
+        <Alert variant="success" role="status" data-add-message>
+          <CircleCheck aria-hidden />
+          <AlertDescription>{message}</AlertDescription>
+        </Alert>
       ) : null}
       <fieldset className="space-y-2">
-        <legend className="text-sm font-medium">{add.kind}</legend>
+        <legend className="text-sm font-medium text-ink">{add.kind}</legend>
         <div className="flex flex-wrap gap-4 text-sm">
           {(["panel", "inverter"] as const).map((value) => (
-            <label key={value} className="flex cursor-pointer items-center gap-2">
+            <label key={value} className="flex min-h-11 cursor-pointer items-center gap-2 text-ink">
               <input
                 type="radio"
                 className="field-radio size-6"
@@ -258,7 +268,7 @@ function AddOffer({ companyId, existing }: { companyId: string; existing: Set<st
         }}
       >
         <div className="min-w-0 flex-1">
-          <label htmlFor="offer-search" className="text-sm font-medium">
+          <label htmlFor="offer-search" className="text-sm font-medium text-ink">
             {add.search}
           </label>
           <input
@@ -277,20 +287,20 @@ function AddOffer({ companyId, existing }: { companyId: string; existing: Set<st
         <QueryState
           query={results}
           isEmpty={(page) => page.items.length === 0}
-          empty={<p className="text-sm text-muted-foreground">{add.none}</p>}
+          empty={<p className="type-small text-ink-2">{add.none}</p>}
         >
           {(page) => (
             <>
-              <h3 className="text-sm font-medium">{add.results}</h3>
+              <h3 className="font-medium text-ink">{add.results}</h3>
               <ul className="space-y-2" data-results>
                 {page.items.map((product) => {
                   const name = productName(product);
                   const has = existing.has(product.id);
                   return (
-                    <li key={product.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3 text-sm">
+                    <li key={product.id} className="flex flex-wrap items-center justify-between gap-3 rounded-field border border-line p-3 text-sm">
                       <span>
-                        <span className="block font-medium">{name}</span>
-                        <span className="block text-muted-foreground">
+                        <span className="block font-medium text-ink">{name}</span>
+                        <span className="block text-ink-2">
                           {specLine({
                             kind: product.kind,
                             specifications: {
@@ -303,14 +313,13 @@ function AddOffer({ companyId, existing }: { companyId: string; existing: Set<st
                         </span>
                       </span>
                       {has ? (
-                        <span className="text-muted-foreground" data-has-offer>
+                        <span className="font-medium text-ink-2" data-has-offer>
                           {add.hasOffer}
                         </span>
                       ) : (
                         <Button
                           type="button"
                           variant="outline"
-                          size="sm"
                           aria-label={format(add.choose, { name })}
                           onClick={() => {
                             setChosen({ id: product.id, name });
@@ -330,8 +339,8 @@ function AddOffer({ companyId, existing }: { companyId: string; existing: Set<st
       ) : null}
 
       {chosen ? (
-        <div className="space-y-3 rounded-lg border p-4" data-new-offer>
-          <h3 className="font-medium">{format(add.offerFor, { name: chosen.name })}</h3>
+        <div className="space-y-3 rounded-card border-2 border-orange-text/50 bg-paper p-4 sm:p-5" data-new-offer>
+          <h3 className="type-subheading text-ink">{format(add.offerFor, { name: chosen.name })}</h3>
           <OfferForm
             initial={emptyOfferForm}
             submitLabel={text.form.create}

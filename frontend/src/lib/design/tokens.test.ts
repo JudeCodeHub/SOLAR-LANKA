@@ -950,3 +950,16 @@ test("send, discard and withdraw still go through the shared confirmation with t
   const confirm = readFileSync(join(import.meta.dirname, "..", "..", "components", "company", "confirm-action.tsx"), "utf8");
   assert.match(confirm, /if \(disabled\) return;/);
 });
+
+test("the company offers page keeps price, currency, the sample flag, the claim, read-only specifications and its guards, with the new cards", () => {
+  const dir = join(import.meta.dirname, "..", "..", "components", "company");
+  const manager = readFileSync(join(dir, "offers-manager.tsx"), "utf8");
+  for (const needle of ["data-visibility", "data-offers", "data-offer={offer.product_id}", "data-specs", "data-preview", "data-no-price", "data-sample-price", "data-message", "data-editing", "data-new-offer", "data-add-message", "data-results", "data-has-offer", "data-no-offers", "offerChanges(offer, values)", "hasChanges(changes)", "update.mutateAsync({ offerId: offer.id, changes })", "create.mutateAsync({ productId: chosen.id, values })", "failure.status === 409", "failure.status === 404", "text.stale.notYours", "text.stale.duplicate", "text.specs.readOnly", "export function SpecBlock", "export function Preview"]) assert.ok(manager.includes(needle), needle);
+  const form = readFileSync(join(dir, "offer-form.tsx"), "utf8");
+  for (const needle of ['name="price"', 'name="currency"', 'register("is_demo_price")', 'name="company_claim"', "maxLength={MAX_CLAIM}", "text.demo", "text.demoHelp", "has-[:checked]:border-info"]) assert.ok(form.includes(needle), needle);
+  // The specifications are never a field: only the commercial fields are editable.
+  assert.doesNotMatch(form, /wattage|efficiency|capacity|specifications/);
+  const view = readFileSync(join(dir, "offers-view.tsx"), "utf8");
+  assert.match(view, /<PageHeader/);
+  assert.doesNotMatch(manager + form + view, /text-muted-foreground|font-heading|rounded-lg border|size="sm"/);
+});
