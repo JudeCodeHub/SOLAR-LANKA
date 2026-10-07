@@ -48,6 +48,7 @@ export function RequestsView() {
         isEmpty={(result) => result.total === 0}
         empty={
           <EmptyState
+            art="document"
             title={text.emptyTitle}
             description={text.emptyDescription}
             action={

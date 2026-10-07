@@ -3,6 +3,7 @@ import { Building2, ClipboardList, FileText, Inbox, Wrench, Zap, Sun, BatteryCha
 
 import { VersionCard } from "@/components/admin/estimator-admin";
 import { inUseIds } from "@/lib/admin/config";
+import { EMPTY_ART_KINDS, EmptyArt } from "@/components/states/empty-art";
 import { FileChooserDemo } from "@/components/design/file-chooser-demo";
 import { StatusDemo } from "@/components/design/status-demo";
 import { AccountFormDemo } from "@/components/design/account-form-demo";
@@ -589,6 +590,14 @@ export function DesignGallery() {
         <div className="space-y-3">
           <h3 className="type-subheading">{text.navigation.statusNotes}</h3>
           <StatusDemo />
+        </div>
+        <div className="space-y-3">
+          <h3 className="type-subheading">{text.navigation.art}</h3>
+          <div className="flex flex-wrap gap-4 rounded-card border border-line bg-surface p-5" data-art-sample>
+            {EMPTY_ART_KINDS.map((kind) => (
+              <EmptyArt key={kind} kind={kind} />
+            ))}
+          </div>
         </div>
         <div className="space-y-3">
           <h3 className="type-subheading">{text.navigation.files}</h3>

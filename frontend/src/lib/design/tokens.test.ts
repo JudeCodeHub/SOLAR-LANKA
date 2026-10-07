@@ -1163,3 +1163,20 @@ test("printing gives black-on-white pages without the site chrome", () => {
   const article = readFileSync(join(src, "components", "education", "article-view.tsx"), "utf8");
   assert.equal((article.match(/data-print-hide/g) ?? []).length, 2);
 });
+
+test("every empty state shows line art, with a drawing for each kind and no icon disc", () => {
+  const src = join(import.meta.dirname, "..", "..");
+  const art = readFileSync(join(src, "components", "states", "empty-art.tsx"), "utf8");
+  for (const kind of ["generic", "search", "saved", "inbox", "calendar", "document"]) assert.ok(art.includes(`"${kind}"`), kind);
+  assert.match(art, /aria-hidden/);
+  const empty = readFileSync(join(src, "components", "states", "empty-state.tsx"), "utf8");
+  assert.match(empty, /illustration \?\? <EmptyArt kind=\{art\} \/>/);
+  // Art is chosen by what is missing: saved things, search results, messages, bookings, documents.
+  const pick = (file: string, kind: string) => assert.match(readFileSync(join(src, "components", file), "utf8"), new RegExp(`art=\\{?[^\\n]*${kind}`), file);
+  pick("favourites/favourites-view.tsx", "saved");
+  pick("directory/directory-page.tsx", "search");
+  pick("catalogue/catalogue-page.tsx", "search");
+  pick("notifications/notifications-view.tsx", "inbox");
+  pick("installations/installations-view.tsx", "calendar");
+  pick("requests/requests-view.tsx", "document");
+});

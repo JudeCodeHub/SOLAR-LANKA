@@ -112,6 +112,7 @@ export function NotificationsView() {
         isEmpty={(result) => result.total === 0}
         empty={
           <EmptyState
+            art="inbox"
             title={filter === "unread" ? text.emptyUnreadTitle : text.emptyTitle}
             description={filter === "unread" ? text.emptyUnreadDescription : text.emptyDescription}
           />
