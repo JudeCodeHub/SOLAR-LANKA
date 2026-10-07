@@ -557,25 +557,33 @@
   }
 }
 
-/* Skeleton: a soft light sweep over a quiet block; it holds still under reduced motion. */
+/* Skeleton: a soft light sweep over a quiet block, moved with a transform so it costs no repaint; it holds still under reduced motion. */
 @keyframes shimmer-sweep {
   from {
-    background-position: 150% 0;
+    transform: translateX(-100%);
   }
   to {
-    background-position: -50% 0;
+    transform: translateX(100%);
   }
 }
 
 @utility shimmer {
+  position: relative;
+  overflow: hidden;
   background-color: var(--ds-surface-2);
-  background-image: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--ds-text) 7%, transparent) 50%, transparent 70%);
-  background-size: 200% 100%;
-  background-repeat: no-repeat;
-  animation: shimmer-sweep 1.6s var(--ds-ease) infinite;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--ds-text) 7%, transparent) 50%, transparent 70%);
+    animation: shimmer-sweep 1.6s var(--ds-ease) infinite;
+    will-change: transform;
+  }
   @media (prefers-reduced-motion: reduce) {
-    animation: none;
-    background-image: none;
+    &::after {
+      animation: none;
+      background-image: none;
+    }
   }
 }
 
