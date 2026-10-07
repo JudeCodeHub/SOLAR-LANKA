@@ -18,7 +18,7 @@ for (const theme of ["light", "dark"] as const) {
       const order = await sample.evaluate((root) => [root.querySelector("[data-safety]")!.getBoundingClientRect().top, root.querySelector("[data-cases]")!.getBoundingClientRect().top]);
       expect(order[0]).toBeLessThan(order[1]!);
       // Each case: its own status word, one icon, a stretched 44 px link; only the unsafe one has the danger chip.
-      const cases = sample.locator("[data-case]");
+      const cases = sample.locator("[data-cases] [data-case]");
       await expect(cases).toHaveCount(4);
       const words = ["Open", "Being looked at", "Resolved", "Closed"];
       for (const [index, word] of words.entries()) {
@@ -28,7 +28,7 @@ for (const theme of ["light", "dark"] as const) {
         await expect(link).toHaveAttribute("href", `/my/support/s${index + 1}`);
         expect((await link.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
       }
-      await expect(sample.locator("[data-unsafe-chip]")).toHaveCount(1);
+      await expect(sample.locator("[data-cases] [data-unsafe-chip]")).toHaveCount(1);
       await expect(cases.nth(1).locator("[data-unsafe-chip]")).toContainText("This may be dangerous right now");
       // The unsafe box: unticked shows no warning; ticking it shows the danger warning as an alert; unticking removes it.
       const unsafe = sample.locator("[data-unsafe-sample]");

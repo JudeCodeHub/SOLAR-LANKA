@@ -989,3 +989,12 @@ test("the staff site-visit screens keep every action, guard, the server's schedu
   for (const needle of ["data-staff-visits", "data-notice", "data-clash", "data-refused", "data-none", "data-visit={visit.status}", "data-visit-status", "data-confirmed", "data-summary", "data-action=\"confirm-time\"", "data-action=\"offer\"", "data-action=\"offer-send\"", "data-error=\"technician\"", "data-work", "data-download", "busy.current", "if (error.status === 409) setClash(error.message)", "format(text.clash, { reason: clash })", "actions.confirm.mutate({ visit: visit.id, slot: slot.id, technician }, handlers)", "actions.propose.mutate(", "actions.cancel.mutate(visit.id, handlers)", "requireTechnician()", "slotRequest(rows)", "<SlotFields", "<ConfirmAction", "visitTone(visit.status)", "text.confirmedLine"]) assert.ok(view.includes(needle), needle);
   assert.doesNotMatch(view, /text-muted-foreground|font-heading|text-destructive|rounded-lg border|size="sm"/);
 });
+
+test("the company support screens keep their gate, order, actions, guards and marks, with dangerous cases red, and share the case card and lists with the customer's", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "support", "company-support.tsx"), "utf8");
+  for (const needle of ["<StaffGate basePath=\"/company/support\"", "data-cases", "<CaseCard item={item} href={`/company/support/${item.id}?company=${companyId}`} unsafeLabel={text.unsafeFirst}", "data-unsafe", "data-case-header", "data-status", "data-refused", "data-error=\"problem\"", "data-assigned", "data-action=\"unassign\"", "data-action=\"assign\"", "data-action=\"add-update\"", "busy.current", "newKey()", "actions.assign.mutate(", "actions.unassign.mutate(", "actions.update.mutate(", "actions.status.mutate(", "staffMoves(item.status)", "onBeforeOpen", "move.needsReason && reason.trim() === \"\"", "<UpdatesList updates={list} companySide", "<PhotoList", "<ConfirmAction", "<PageHeader"]) assert.ok(view.includes(needle), needle);
+  assert.doesNotMatch(view, /text-muted-foreground|font-heading|text-destructive|rounded-lg border|size="sm"/);
+  const card = readFileSync(join(import.meta.dirname, "..", "..", "components", "support", "customer-support.tsx"), "utf8");
+  assert.match(card, /border-2 border-danger bg-danger-tint/);
+  assert.match(card, /href \?\? `\/my\/support\/\$\{item\.id\}`/);
+});

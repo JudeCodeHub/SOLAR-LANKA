@@ -1,20 +1,24 @@
 "use client";
 
 import { BackLink } from "@/components/ui/back-link";
-import Link from "next/link";
+import { CircleAlert, OctagonAlert, TriangleAlert } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
 import { ConfirmAction } from "@/components/company/confirm-action";
 import { StaffGate } from "@/components/company/staff-gate";
+import { CaseCard } from "@/components/support/customer-support";
 import { PhotoList } from "@/components/support/photo-list";
 import { UpdatesList } from "@/components/support/updates-list";
 import { QueryState } from "@/components/query-state";
 import { EmptyState } from "@/components/states/empty-state";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
 import type { ApiError } from "@/lib/api/errors";
 import { companyPhoto, useCaseAssignments, useCompanyCase, useCompanyCases, useCompanySupport, useCompanyUpdates } from "@/lib/support/hooks";
-import { newKey, shortId, staffMoves, statusLabel } from "@/lib/support/support";
+import { caseTone, newKey, shortId, staffMoves, statusLabel } from "@/lib/support/support";
 import { useTechnicians } from "@/lib/visits/hooks";
 import { format, messages } from "@/messages";
 
@@ -24,11 +28,8 @@ const moves: Record<string, string> = messages.support.moves;
 /** The company's support requests, dangerous ones first. */
 export function CompanySupport() {
   return (
-    <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
-      <header className="space-y-2">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">{text.title}</h1>
-        <p className="max-w-3xl text-muted-foreground">{text.intro}</p>
-      </header>
+    <div className="mx-auto w-full max-w-4xl flex-1 space-y-6 px-4 py-8">
+      <PageHeader eyebrow={text.eyebrow} title={text.title} description={text.intro} />
       <StaffGate basePath="/company/support">{(company) => <List companyId={company.company_id} />}</StaffGate>
     </div>
   );
@@ -39,14 +40,10 @@ function List({ companyId }: { companyId: string }) {
   return (
     <QueryState query={query} isEmpty={(items) => items.length === 0} empty={<EmptyState title={text.none} />}>
       {(items) => (
-        <ul className="space-y-2" data-cases>
+        <ul className="grid gap-4 sm:grid-cols-2" data-cases>
           {items.map((item) => (
-            <li key={item.id} className="rounded-lg border p-3 text-sm" data-case={item.status} data-unsafe={item.unsafe_now}>
-              {item.unsafe_now ? <p className="font-semibold">{text.unsafeFirst}</p> : null}
-              <Link href={`/company/support/${item.id}?company=${companyId}`} className="inline-flex min-h-11 items-center font-medium underline underline-offset-2">
-                {format(text.open, { symptom: item.symptom.slice(0, 80) })}
-              </Link>
-              <p className="text-muted-foreground">{statusLabel(item.status)}</p>
+            <li key={item.id}>
+              <CaseCard item={item} href={`/company/support/${item.id}?company=${companyId}`} unsafeLabel={text.unsafeFirst} />
             </li>
           ))}
         </ul>
@@ -58,7 +55,7 @@ function List({ companyId }: { companyId: string }) {
 /** One case for the company: assign a technician, post updates, and move it through its statuses. */
 export function CompanyCase({ id }: { id: string }) {
   return (
-    <div className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
+    <div className="mx-auto w-full max-w-4xl flex-1 space-y-6 px-4 py-8">
       <StaffGate basePath={`/company/support/${id}`}>{(company) => <Case companyId={company.company_id} id={id} />}</StaffGate>
     </div>
   );
@@ -108,31 +105,45 @@ function Case({ companyId, id }: { companyId: string; id: string }) {
         {(item) => (
           <>
             {item.unsafe_now ? (
-              <p role="alert" className="rounded-lg border-2 border-destructive p-3 text-sm font-semibold" data-unsafe>
-                {text.unsafeFirst}
+              <Alert variant="hazard" role="alert" data-unsafe>
+                <OctagonAlert aria-hidden />
+                <AlertDescription className="font-semibold text-ink">{text.unsafeFirst}</AlertDescription>
+              </Alert>
+            ) : null}
+            <header className="space-y-3 rounded-panel border border-line bg-surface p-6 shadow-e1" data-case-header>
+              <p className="type-caption font-semibold tracking-widest text-orange-text uppercase">{text.eyebrow}</p>
+              <h1 className="type-display-m text-ink">{item.symptom.slice(0, 80)}</h1>
+              <p data-status>
+                <Badge variant={caseTone(item.status)}>{statusLabel(item.status)}</Badge>
+              </p>
+              <p className="type-body whitespace-pre-wrap text-ink">{item.symptom}</p>
+              {item.equipment ? <p className="type-body text-ink">{format(messages.support.customer.equipment, { name: `${item.equipment.brand} ${item.equipment.model}` })}</p> : null}
+              {item.observed_code ? <p className="type-figure text-ink-2">{item.observed_code}</p> : null}
+            </header>
+            {refused ? (
+              <Alert variant="warning" role="alert" data-refused>
+                <TriangleAlert aria-hidden />
+                <AlertDescription>{text.refused}</AlertDescription>
+              </Alert>
+            ) : null}
+            {problem ? (
+              <p role="alert" className="flex items-center gap-1.5 text-sm font-medium text-danger" data-error="problem">
+                <CircleAlert aria-hidden className="size-4 shrink-0" />
+                {problem}
               </p>
             ) : null}
-            <h1 className="font-heading text-3xl font-semibold tracking-tight">{item.symptom.slice(0, 80)}</h1>
-            <p className="text-sm font-medium" data-status>
-              {statusLabel(item.status)}
-            </p>
-            <p className="whitespace-pre-wrap text-sm">{item.symptom}</p>
-            {item.equipment ? <p className="text-sm">{format(messages.support.customer.equipment, { name: `${item.equipment.brand} ${item.equipment.model}` })}</p> : null}
-            {item.observed_code ? <p className="text-sm">{item.observed_code}</p> : null}
-            {refused ? <p role="alert" className="text-sm font-medium" data-refused>{text.refused}</p> : null}
-            {problem ? <p role="alert" className="text-sm font-medium text-destructive" data-error="problem">{problem}</p> : null}
             {failure ? <ApiErrorMessage error={failure} /> : null}
 
-            <section aria-labelledby="assign-title" className="space-y-2 text-sm">
-              <h2 id="assign-title" className="font-heading text-xl font-semibold tracking-tight">
+            <section aria-labelledby="assign-title" className="space-y-3 rounded-card border border-line bg-surface p-5 text-sm shadow-e1 sm:p-6">
+              <h2 id="assign-title" className="type-heading text-ink">
                 {text.assignTitle}
               </h2>
-              {(assignments.data ?? []).length === 0 ? <p className="text-muted-foreground">{text.noneAssigned}</p> : (
-                <ul className="space-y-1" data-assigned>
+              {(assignments.data ?? []).length === 0 ? <p className="text-ink-2">{text.noneAssigned}</p> : (
+                <ul className="space-y-2" data-assigned>
                   {(assignments.data ?? []).map((user) => (
-                    <li key={user} className="flex flex-wrap items-center gap-2">
+                    <li key={user} className="flex flex-wrap items-center gap-3 text-ink">
                       <span>{format(text.assigned, { id: shortId(user) })}</span>
-                      <Button type="button" variant="outline" size="sm" data-action="unassign" onClick={() => begin() && actions.unassign.mutate(user, handlers())}>
+                      <Button type="button" variant="outline" data-action="unassign" onClick={() => begin() && actions.unassign.mutate(user, handlers())}>
                         {format(text.remove, { id: shortId(user) })}
                       </Button>
                     </li>
@@ -140,12 +151,12 @@ function Case({ companyId, id }: { companyId: string; id: string }) {
                 </ul>
               )}
               {item.status !== "closed" ? (
-                <div className="flex flex-wrap items-end gap-2">
-                  <div className="space-y-1">
-                    <label htmlFor="technician" className="block font-medium">
+                <div className="flex flex-wrap items-end gap-3">
+                  <div className="space-y-1.5">
+                    <label htmlFor="technician" className="block font-medium text-ink">
                       {text.assign}
                     </label>
-                    <select id="technician" value={technician} onChange={(event) => setTechnician(event.target.value)} className="h-11 field-control field-select px-2">
+                    <select id="technician" value={technician} onChange={(event) => setTechnician(event.target.value)} className="h-11 field-control field-select px-3">
                       <option value="">{text.choose}</option>
                       {(technicians.data ?? []).map((t) => (
                         <option key={t.user_id} value={t.user_id}>
@@ -171,25 +182,25 @@ function Case({ companyId, id }: { companyId: string; id: string }) {
                   </Button>
                 </div>
               ) : null}
-              {(technicians.data ?? []).length === 0 ? <p className="text-muted-foreground">{text.noTechnicians}</p> : null}
+              {(technicians.data ?? []).length === 0 ? <p className="text-ink-2">{text.noTechnicians}</p> : null}
             </section>
 
-            <section aria-labelledby="photos-title" className="space-y-2">
-              <h2 id="photos-title" className="font-heading text-xl font-semibold tracking-tight">
+            <section aria-labelledby="photos-title" className="space-y-3 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6">
+              <h2 id="photos-title" className="type-heading text-ink">
                 {messages.support.technician.photos}
               </h2>
               <PhotoList photos={item.attachments} fetchPhoto={companyPhoto(companyId, id)} label={messages.support.technician.download} none={messages.support.technician.noPhotos} />
             </section>
 
-            <section aria-labelledby="history-title" className="space-y-2">
-              <h2 id="history-title" className="font-heading text-xl font-semibold tracking-tight">
+            <section aria-labelledby="history-title" className="space-y-4">
+              <h2 id="history-title" className="type-heading text-ink">
                 {text.history}
               </h2>
               <QueryState query={updates}>{(list) => <UpdatesList updates={list} companySide />}</QueryState>
               {item.status !== "closed" ? (
                 <form
                   noValidate
-                  className="space-y-2 text-sm"
+                  className="space-y-3 rounded-card border border-line bg-surface p-5 text-sm shadow-e1"
                   onSubmit={(event) => {
                     event.preventDefault();
                     if (body.trim() === "") {
@@ -200,32 +211,32 @@ function Case({ companyId, id }: { companyId: string; id: string }) {
                     actions.update.mutate({ body: body.trim(), shared, key: (keys.current[`${body}|${shared}`] ??= newKey()) }, handlers(() => setBody("")));
                   }}
                 >
-                  <label htmlFor="update" className="block font-medium">
+                  <label htmlFor="update" className="block font-medium text-ink">
                     {text.updateLabel}
                   </label>
-                  <textarea id="update" rows={3} value={body} maxLength={2000} onChange={(event) => setBody(event.target.value)} className="w-full field-control p-2" />
-                  <label className="flex min-h-11 items-center gap-3">
+                  <textarea id="update" rows={3} value={body} maxLength={2000} onChange={(event) => setBody(event.target.value)} className="w-full field-control p-3" />
+                  <label className="flex min-h-11 items-center gap-3 text-ink">
                     <input type="checkbox" checked={shared} onChange={(event) => setShared(event.target.checked)} aria-describedby="shared-help" className="field-check size-6 shrink-0" />
                     <span>{text.shared}</span>
                   </label>
-                  <p id="shared-help" className="text-muted-foreground">
+                  <p id="shared-help" className="text-ink-2">
                     {text.sharedHelp}
                   </p>
-                  <Button type="submit" variant="outline" aria-disabled={actions.update.isPending} data-action="add-update">
+                  <Button type="submit" aria-disabled={actions.update.isPending} data-action="add-update">
                     {text.send}
                   </Button>
                 </form>
               ) : (
-                <p className="text-sm">{text.closedNote}</p>
+                <p className="type-body text-ink">{text.closedNote}</p>
               )}
             </section>
 
             {staffMoves(item.status).length > 0 ? (
-              <section aria-labelledby="moves-title" className="space-y-2 text-sm">
-                <h2 id="moves-title" className="font-heading text-xl font-semibold tracking-tight">
+              <section aria-labelledby="moves-title" className="space-y-3 rounded-card border border-line bg-surface p-5 text-sm shadow-e1 sm:p-6">
+                <h2 id="moves-title" className="type-heading text-ink">
                   {text.status}
                 </h2>
-                <label htmlFor="reason" className="block font-medium">
+                <label htmlFor="reason" className="block font-medium text-ink">
                   {text.closeReason}
                 </label>
                 <input id="reason" value={reason} maxLength={2000} onChange={(event) => setReason(event.target.value)} className="h-11 w-full field-control px-3" />

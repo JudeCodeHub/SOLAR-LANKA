@@ -34,6 +34,13 @@ export function SupportDemo() {
           </li>
         ))}
       </ul>
+      <ul className="grid gap-4 sm:grid-cols-2" data-company-cases>
+        {[...CASES.filter((item) => item.unsafe_now), ...CASES.filter((item) => !item.unsafe_now).slice(0, 1)].map((item) => (
+          <li key={item.id}>
+            <CaseCard item={item} href={`/company/support/${item.id}?company=c1`} unsafeLabel={messages.support.company.unsafeFirst} />
+          </li>
+        ))}
+      </ul>
       <div className="grid gap-6 lg:grid-cols-2" data-updates-sample>
         <div className="space-y-3">
           <h3 className="type-subheading text-ink">{messages.support.customer.updatesTitle}</h3>

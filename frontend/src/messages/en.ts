@@ -1772,6 +1772,7 @@ export const en = {
       errors: { symptom: "Describe the problem first.", installation: "Choose an installation.", message: "Write the message first.", photo: "That file was not accepted. Use a real JPEG, PNG or WebP photo." },
     },
     company: {
+      eyebrow: "Customer support",
       title: "Support requests",
       intro: "Problems your customers reported about installations you did. Reports of danger are listed first.",
       none: "No support requests.",
