@@ -941,3 +941,12 @@ test("the revision history keeps each revision's marks, newest first, read-only,
   assert.doesNotMatch(view, /<(input|textarea|select)\b/);
   assert.doesNotMatch(view, /text-muted-foreground|font-heading|size="sm"/);
 });
+
+test("send, discard and withdraw still go through the shared confirmation with the same wording and guards, and revise still starts directly", () => {
+  const editor = readFileSync(join(import.meta.dirname, "..", "..", "components", "company", "quotation-editor.tsx"), "utf8");
+  for (const needle of ['id="send"', 'id="discard"', 'id="withdraw"', "life.send.confirmTitle", "format(life.send.confirmBody, { number: current.revision_number, total: formatMoney(terms.total)", "life.send.yes", "life.send.keep", "disabled={!acts.canSend || locked || dirty || missing.length > 0}", "if (!acts.canSend || locked || dirty || missing.length > 0) return;", "actions.send.mutateAsync()", "life.discard.confirmBodySent", "actions.withdraw.mutateAsync(current.revision_id)", "life.withdraw.confirmBody", "actions.withdraw.mutateAsync(revision.id)", "actions.startRevision.mutateAsync()", "data-revise", "data-need-saved", "data-need-complete"]) assert.ok(editor.includes(needle), needle);
+  // Revising has no question: it starts a draft and changes nothing the customer sees.
+  assert.doesNotMatch(editor, /id="revise"/);
+  const confirm = readFileSync(join(import.meta.dirname, "..", "..", "components", "company", "confirm-action.tsx"), "utf8");
+  assert.match(confirm, /if \(disabled\) return;/);
+});

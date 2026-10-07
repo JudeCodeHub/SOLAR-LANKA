@@ -1336,6 +1336,7 @@ export const en = {
       enquiries: "Enquiry cards in each state",
       lines: "Quotation line rows with add and remove",
       history: "The revision history with a draft and sent revisions",
+      quotationConfirm: "Send, discard and withdraw confirmations",
       totals: "The totals panel with no totals, with totals and with unsaved changes",
       dashboardIntro: "The customer links in a side column on wide screens and in a drawer on phones. The current page is marked with a bar, a tint and the current-page attribute.",
       requests: "Request cards in each state",
