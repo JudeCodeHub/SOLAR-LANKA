@@ -946,6 +946,8 @@ export const en = {
     statuses: { draft: "Draft", pending: "Waiting for review", approved: "Approved", rejected: "Not approved" } as Record<string, string>,
     outcomes: { submitted: "Submitted for review", approved: "Approved", rejected: "Not approved", returned_to_draft: "Returned to draft after an edit" } as Record<string, string>,
     queue: {
+      eyebrow: "Platform administration",
+      waiting: "Waiting for review",
       title: "Company reviews",
       intro: "Companies waiting for their directory profile to be reviewed, oldest first.",
       emptyTitle: "Nothing to review",
@@ -960,6 +962,7 @@ export const en = {
     },
     detail: {
       back: "Back to company reviews",
+      eyebrow: "Company review",
       title: "Review {name}",
       status: "Directory status: {status}",
       profile: "Profile as submitted",

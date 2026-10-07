@@ -6,7 +6,11 @@ import { useSearchParams } from "next/navigation";
 import { PlatformGate } from "@/components/admin/platform-gate";
 import { QueryState } from "@/components/query-state";
 import { EmptyState } from "@/components/states/empty-state";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Hourglass } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
 import { formatLongDate } from "@/lib/catalogue/detail";
 import { parsePageParam } from "@/lib/catalogue/params";
 import { usePendingCompanies } from "@/lib/admin/hooks";
@@ -20,10 +24,7 @@ const hrefFor = (page: number) => (page > 1 ? `/admin/companies?page=${page}` : 
 export function ReviewQueue() {
   return (
     <div className="mx-auto w-full max-w-4xl flex-1 space-y-6 px-4 py-8">
-      <header className="space-y-2">
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">{text.title}</h1>
-        <p className="max-w-3xl text-muted-foreground">{text.intro}</p>
-      </header>
+      <PageHeader eyebrow={text.eyebrow} title={text.title} description={text.intro} />
       <PlatformGate>{() => <Queue />}</PlatformGate>
     </div>
   );
@@ -39,37 +40,34 @@ function Queue() {
         const more = items.length > QUEUE_PAGE_SIZE;
         return (
           <section aria-label={text.title} className="space-y-4">
-            <p className="text-sm text-muted-foreground">{format(text.page, { page })}</p>
-            <ul className="grid gap-3 sm:grid-cols-2">
+            <p className="type-small text-ink-2">{format(text.page, { page })}</p>
+            <ul className="grid gap-4 sm:grid-cols-2" data-queue>
               {shown.map((company) => (
                 <li key={company.id}>
-                  <Card className="relative h-full">
-                    <CardHeader>
-                      <CardTitle>
-                        <h2 className="text-base">
-                          <Link href={`/admin/companies/${company.id}`} className="underline-offset-2 outline-none after:absolute after:inset-0 hover:underline focus-visible:underline">
-                            {format(text.open, { name: company.name })}
-                          </Link>
-                        </h2>
-                      </CardTitle>
-                      <CardDescription className="space-y-1">
-                        <span className="block">{format(text.districts, { count: company.service_districts.length })}</span>
-                        <span className="block">{format(text.services, { count: company.services.length })}</span>
-                        <span className="block">{format(text.submitted, { date: formatLongDate(company.created_at) ?? company.created_at })}</span>
-                      </CardDescription>
-                    </CardHeader>
-                  </Card>
+                  <article className="relative flex h-full flex-col gap-3 rounded-card border border-line bg-surface p-5 text-sm shadow-e1 transition-shadow hover:shadow-e2 motion-reduce:transition-none" data-company={company.id}>
+                    <Badge variant="info" icon={Hourglass}>
+                      {text.waiting}
+                    </Badge>
+                    <h2 className="type-subheading text-ink">
+                      <Link href={`/admin/companies/${company.id}`} className="inline-flex min-h-11 items-center rounded-field outline-none after:absolute after:inset-0 after:rounded-card hover:underline focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-orange-text">
+                        {format(text.open, { name: company.name })}
+                      </Link>
+                    </h2>
+                    <p className="text-ink-2">{format(text.districts, { count: company.service_districts.length })}</p>
+                    <p className="text-ink-2">{format(text.services, { count: company.services.length })}</p>
+                    <p className="text-ink-2">{format(text.submitted, { date: formatLongDate(company.created_at) ?? company.created_at })}</p>
+                  </article>
                 </li>
               ))}
             </ul>
-            <nav className="flex gap-4 text-sm" aria-label={text.title}>
+            <nav className="flex gap-3 text-sm" aria-label={text.title}>
               {page > 1 ? (
-                <Link href={hrefFor(page - 1)} className="inline-flex min-h-11 items-center underline underline-offset-2">
+                <Link href={hrefFor(page - 1)} className={buttonVariants({ variant: "outline" })}>
                   {text.previous}
                 </Link>
               ) : null}
               {more ? (
-                <Link href={hrefFor(page + 1)} className="inline-flex min-h-11 items-center underline underline-offset-2">
+                <Link href={hrefFor(page + 1)} className={buttonVariants({ variant: "outline" })}>
                   {text.next}
                 </Link>
               ) : null}

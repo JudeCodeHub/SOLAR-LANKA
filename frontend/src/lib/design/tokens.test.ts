@@ -1049,3 +1049,15 @@ test("the administration area uses the shared shell with its own link group, eve
   for (const id of ["admin-companies", "admin-catalogue", "admin-estimator", "admin-users", "admin-troubleshooting", "admin-education", "admin-activity"]) assert.ok(icons.includes(`"${id}"`), id);
   assert.match(read("components/shell/dashboard-shell.tsx"), /useNavigation\(signedIn\)/);
 });
+
+test("the company review queue and review page keep their gate, paging, marks and confirmed decisions, and show declared credentials as not verified", () => {
+  const dir = join(import.meta.dirname, "..", "..", "components", "admin");
+  const queue = readFileSync(join(dir, "review-queue.tsx"), "utf8");
+  for (const needle of ["<PlatformGate>", "usePendingCompanies(page)", "QUEUE_PAGE_SIZE", "data-queue", "data-company={company.id}", "`/admin/companies/${company.id}`", "hrefFor(page - 1)", "hrefFor(page + 1)", "text.emptyTitle", "<PageHeader", "min-h-11"]) assert.ok(queue.includes(needle), needle);
+  const review = readFileSync(join(dir, "company-review.tsx"), "utf8");
+  for (const needle of ["<PlatformGate>", "data-review-header", "data-status", "data-done", "data-refused", "data-decision", "data-not-pending", "data-history", "data-outcome={entry.outcome}", "data-declared-badge", "messages.directory.credentials.badge", "busy.current", "canDecide(data.publication_status)", 'id="approve"', 'id="reject"', "decide.mutate(outcome", "refusalText(data)", "failure.status === 409 || failure.status === 404", "`/admin/users?user=${entry.actor_id}`", "<ConfirmAction"]) assert.ok(review.includes(needle), needle);
+  // Approving and rejecting only ever happen behind the shared confirmation.
+  assert.equal((review.match(/run\("(approved|rejected)"\)/g) ?? []).length, 2);
+  assert.ok(!/onClick=\{\(\) => run\(/.test(review));
+  assert.doesNotMatch(queue + review, /text-muted-foreground|font-heading|rounded-lg border|<Card\b/);
+});
