@@ -1,11 +1,14 @@
 "use client";
 
+import { Info } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
 import { QueryState } from "@/components/query-state";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { ApiError } from "@/lib/api/errors";
 import { useCurrentQuotation, useStartDraft } from "@/lib/quotation/hooks";
@@ -59,42 +62,43 @@ export function QuotationSection({
   };
 
   return (
-    <section aria-labelledby="quotation-title" className="space-y-3 rounded-lg border p-4" data-quotation-section>
-      <div className="flex flex-wrap items-center gap-2">
-        <h2 id="quotation-title" className="font-heading text-xl font-semibold tracking-tight">
+    <section aria-labelledby="quotation-title" className="space-y-3 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6" data-quotation-section>
+      <div className="flex flex-wrap items-center gap-3">
+        <h2 id="quotation-title" className="type-heading text-ink">
           {text.title}
         </h2>
-        <span className="rounded-full border px-2 py-0.5 text-xs" data-badge="draft">
+        <Badge variant="neutral" data-badge="draft">
           {text.badgeDraft}
-        </span>
+        </Badge>
       </div>
-      <p className="text-sm text-muted-foreground">{text.intro}</p>
+      <p className="type-small text-ink-2">{text.intro}</p>
       {notice ? (
-        <p role="status" className="text-sm font-medium" data-notice>
-          {notice}
-        </p>
+        <Alert variant="info" role="status" data-notice>
+          <Info aria-hidden />
+          <AlertDescription>{notice}</AlertDescription>
+        </Alert>
       ) : null}
       {problem ? <ApiErrorMessage error={problem} /> : null}
       <QueryState query={query}>
         {(current) =>
           current ? (
             <div className="space-y-2">
-              <p className="text-sm" data-quotation-status={current.status}>
+              <p className="type-body font-medium text-ink" data-quotation-status={current.status}>
                 {format(text.status, { status: statusNames[current.status] ?? current.status })}
               </p>
-              <Button asChild variant="outline">
+              <Button asChild>
                 <Link href={href}>{text.open}</Link>
               </Button>
             </div>
           ) : active ? (
             <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">{text.none}</p>
+              <p className="type-body text-ink-2">{text.none}</p>
               <Button type="button" variant="outline" onClick={begin} aria-disabled={start.isPending} data-start-draft>
                 {start.isPending ? text.starting : text.start}
               </Button>
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">{text.inactive}</p>
+            <p className="type-body text-ink-2">{text.inactive}</p>
           )
         }
       </QueryState>

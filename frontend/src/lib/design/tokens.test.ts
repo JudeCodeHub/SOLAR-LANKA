@@ -900,3 +900,15 @@ test("the enquiry page keeps every mark, guard and write, lays out the customer'
   assert.match(view, /border-2 border-dashed/);
   assert.doesNotMatch(view, /text-muted-foreground|font-heading|rounded-lg border/);
 });
+
+test("the quotation editor keeps every mark, guard and write, puts the form beside a sticky server-totals panel, and shows a total bar on narrow screens", () => {
+  const dir = join(import.meta.dirname, "..", "..", "components", "company");
+  const editor = readFileSync(join(dir, "quotation-editor.tsx"), "utf8");
+  for (const needle of ["data-explain", "data-enquiry-inactive", "data-banner", "data-stale-notice", "data-locked", "data-inactive", "data-message", "data-unsaved", "data-totals", "data-total={label}", "data-badge=\"server\"", "data-no-totals", "data-totals-stale", "data-ready", "data-missing", "data-send-section", "data-need-saved", "data-need-complete", "data-frozen", "data-frozen-note", "data-revise", "data-start-new", "data-withdraw-blocked", "inFlight.current", "save.mutateAsync(payload)", "form.reset(valuesFromTerms(fresh.terms))", "isDirty(terms, values)", "missingForSending(terms)", "disabled={!acts.canSend || locked || dirty || missing.length > 0}", "fields.append({ ...blankLine })", "fields.remove(index)", "<QuotationLine", "<RevisionHistory", "<RevisionBody", "data-editor-layout", "data-total-bar", "lg:sticky lg:top-40", "lg:grid-cols-[minmax(0,1fr)_21rem]", "lg:hidden"]) assert.ok(editor.includes(needle), needle);
+  // The totals come from the server's terms and are never typed: no field is named total, subtotal or tax amount.
+  assert.doesNotMatch(editor, /name="(total|subtotal|tax_amount)"/);
+  assert.doesNotMatch(editor, /text-muted-foreground|font-heading|rounded-lg border/);
+  const section = readFileSync(join(dir, "quotation-section.tsx"), "utf8");
+  for (const needle of ["data-quotation-section", "data-quotation-status", "data-start-draft", "inFlight.current", "data-notice", "data-badge=\"draft\""]) assert.ok(section.includes(needle), needle);
+  assert.doesNotMatch(section, /text-muted-foreground|font-heading|rounded-lg border/);
+});
