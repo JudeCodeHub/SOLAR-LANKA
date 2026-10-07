@@ -1,6 +1,8 @@
 "use client";
 
-import { Table } from "@/components/ui/table";
+import { BadgeHelp, Building2, CircleCheck, TriangleAlert } from "lucide-react";
+
+import { Table, TableRegion } from "@/components/ui/table";
 import { useEffect, useRef, useState } from "react";
 import { useFieldArray, useWatch } from "react-hook-form";
 
@@ -10,6 +12,8 @@ import { CheckboxGroupField } from "@/components/forms/checkbox-group-field";
 import { FormSubmitButton } from "@/components/forms/submit-button";
 import { TextField } from "@/components/forms/text-field";
 import { QueryState } from "@/components/query-state";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { type ApiError, ensureApiError } from "@/lib/api/errors";
 import { formatLongDate } from "@/lib/catalogue/detail";
@@ -52,7 +56,8 @@ export function CompanyProfileEditor({ companyId, companyName }: { companyId: st
   const query = useCompanyProfile(companyId);
   return (
     <>
-      <p className="text-sm text-muted-foreground" data-company-name>
+      <p className="inline-flex min-h-8 w-fit items-center gap-2 rounded-full border border-line bg-surface px-3.5 text-sm font-medium text-ink" data-company-name>
+        <Building2 aria-hidden className="size-4 text-orange-text" />
         {companyName}
       </p>
       <QueryState query={query}>
@@ -157,34 +162,36 @@ function Editor({
 
   return (
     <>
-      <section aria-labelledby="status-title" className="space-y-2 rounded-lg border p-4">
-        <h2 id="status-title" className="font-heading text-xl font-semibold tracking-tight">
+      <section aria-labelledby="status-title" className="space-y-3 rounded-card border-2 border-line bg-surface p-5 shadow-e1 sm:p-6">
+        <h2 id="status-title" className="type-heading text-ink">
           {text.status.title}
         </h2>
-        <p className="font-medium" data-status={status}>
-          {statusInfo.label}
+        <p data-status={status}>
+          <Badge variant={status === "approved" ? "success" : status === "pending" ? "info" : status === "rejected" ? "danger" : "neutral"}>{statusInfo.label}</Badge>
         </p>
-        <p className="text-sm text-muted-foreground">{statusInfo.body}</p>
-        <Button type="button" variant="outline" size="sm" onClick={() => void refetch()} aria-disabled={refreshing}>
+        <p className="type-body text-ink">{statusInfo.body}</p>
+        <Button type="button" variant="outline" onClick={() => void refetch()} aria-disabled={refreshing}>
           {text.status.refresh}
         </Button>
       </section>
 
       {message ? (
-        <p role="status" className="text-sm font-medium" data-message>
-          {message}
-        </p>
+        <Alert variant="success" role="status" data-message>
+          <CircleCheck aria-hidden />
+          <AlertDescription>{message}</AlertDescription>
+        </Alert>
       ) : null}
       {stale ? (
-        <p role="alert" className="text-sm font-medium" data-stale>
-          {stale}
-        </p>
+        <Alert variant="warning" role="alert" data-stale>
+          <TriangleAlert aria-hidden />
+          <AlertDescription>{stale}</AlertDescription>
+        </Alert>
       ) : null}
       {problem ? <ApiErrorMessage error={problem} /> : null}
 
       <AppForm
         form={form}
-        className="space-y-8"
+        className="space-y-6"
         onSubmit={async (values) => {
           setMessage(null);
           setStale(null);
@@ -204,8 +211,8 @@ function Editor({
           await save(changes, fresh.publication_status);
         }}
       >
-        <fieldset className="space-y-4">
-          <legend className="font-heading text-lg font-semibold tracking-tight">{text.form.title}</legend>
+        <fieldset className="space-y-4 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6">
+          <legend className="type-heading float-left mb-2 w-full text-ink">{text.form.title}</legend>
           <TextField form={form} name="name" label={text.form.name} description={text.form.nameHelp} />
           <CheckboxGroupField
             form={form}
@@ -224,21 +231,23 @@ function Editor({
           />
         </fieldset>
 
-        <fieldset className="space-y-4">
-          <legend className="font-heading text-lg font-semibold tracking-tight">{text.form.credentialsTitle}</legend>
-          <p className="text-sm text-muted-foreground">{text.form.credentialsHelp}</p>
+        <fieldset className="space-y-4 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6" data-credentials>
+          <legend className="type-heading float-left mb-2 w-full text-ink">{text.form.credentialsTitle}</legend>
+          <p className="clear-both text-ink-2">{text.form.credentialsHelp}</p>
+          <Badge variant="warning" icon={BadgeHelp} data-declared-badge>
+            {messages.directory.credentials.badge}
+          </Badge>
           {credentials.fields.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{text.form.noCredentials}</p>
+            <p className="type-body text-ink-2">{text.form.noCredentials}</p>
           ) : null}
           {credentials.fields.map((field, index) => (
-            <fieldset key={field.id} className="space-y-3 rounded-lg border p-3" data-credential>
-              <legend className="px-1 text-sm font-medium">{format(text.form.credentialNumber, { number: index + 1 })}</legend>
+            <fieldset key={field.id} className="space-y-3 rounded-card border border-dashed border-field-border bg-paper p-4" data-credential>
+              <legend className="px-2 text-sm font-medium text-ink">{format(text.form.credentialNumber, { number: index + 1 })}</legend>
               <TextField form={form} name={`declared_credentials.${index}.name`} label={text.form.credentialName} />
               <TextField form={form} name={`declared_credentials.${index}.issuer`} label={text.form.credentialIssuer} />
               <Button
                 type="button"
                 variant="outline"
-                size="sm"
                 aria-label={format(text.form.removeCredential, { number: index + 1 })}
                 onClick={() => credentials.remove(index)}
               >
@@ -247,14 +256,15 @@ function Editor({
             </fieldset>
           ))}
           {credentials.fields.length < MAX_CREDENTIALS ? (
-            <Button type="button" variant="outline" size="sm" onClick={() => credentials.append({ name: "", issuer: "" })}>
+            <Button type="button" variant="outline" onClick={() => credentials.append({ name: "", issuer: "" })}>
               {text.form.addCredential}
             </Button>
           ) : null}
         </fieldset>
 
         {dirty ? (
-          <p className="text-sm text-muted-foreground" data-unsaved>
+          <p className="flex items-center gap-2 text-sm font-medium text-warning" data-unsaved>
+            <TriangleAlert aria-hidden className="size-4 shrink-0" />
             {text.form.unsaved}
           </p>
         ) : null}
@@ -262,12 +272,12 @@ function Editor({
       </AppForm>
 
       {confirm ? (
-        <div role="group" aria-labelledby="confirm-title" className="space-y-3 rounded-lg border p-4" data-confirm>
-          <h3 id="confirm-title" ref={confirmRef} tabIndex={-1} className="font-medium outline-none">
+        <div role="group" aria-labelledby="confirm-title" className="space-y-3 rounded-card border-2 border-orange-text bg-orange-tint p-5 shadow-e2" data-confirm>
+          <h3 id="confirm-title" ref={confirmRef} tabIndex={-1} className="type-subheading text-ink outline-none">
             {text.confirm.title}
           </h3>
-          <p className="text-sm">{effect === "none" ? "" : text.confirm[effect]}</p>
-          <div className="flex flex-wrap gap-2">
+          <p className="type-body text-ink">{effect === "none" ? "" : text.confirm[effect]}</p>
+          <div className="flex flex-wrap gap-3">
             <Button type="button" onClick={() => void confirmSave()} aria-disabled={update.isPending} data-confirm-yes>
               {text.confirm.yes}
             </Button>
@@ -278,13 +288,13 @@ function Editor({
         </div>
       ) : null}
 
-      <section aria-labelledby="submit-title" className="space-y-3">
-        <h2 id="submit-title" className="font-heading text-xl font-semibold tracking-tight">
+      <section aria-labelledby="submit-title" className="space-y-3 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6">
+        <h2 id="submit-title" className="type-heading text-ink">
           {text.submit.title}
         </h2>
-        <p className="text-sm text-muted-foreground">{text.submit.intro}</p>
-        <h3 className="text-sm font-medium">{text.submit.checklist}</h3>
-        <ul className="list-disc space-y-1 pl-5 text-sm" data-checklist>
+        <p className="type-small text-ink-2">{text.submit.intro}</p>
+        <h3 className="font-medium text-ink">{text.submit.checklist}</h3>
+        <ul className="list-disc space-y-1 pl-5 text-sm text-ink" data-checklist>
           <li>
             {info.districts === 0 ? text.submit.districtsNone : format(plural(text.submit.districts, info.districts), { count: info.districts })}
           </li>
@@ -293,11 +303,11 @@ function Editor({
           <li>{format(text.submit.credentials, { count: info.credentials })}</li>
         </ul>
         {!canSubmit(status) ? (
-          <p className="text-sm text-muted-foreground" data-cannot-submit>
+          <p className="text-sm font-medium text-ink" data-cannot-submit>
             {text.submit.notNow}
           </p>
         ) : dirty ? (
-          <p className="text-sm text-muted-foreground" data-save-first>
+          <p className="text-sm font-medium text-warning" data-save-first>
             {text.submit.saveFirst}
           </p>
         ) : null}
@@ -320,38 +330,40 @@ function History({ id }: { id: string }) {
   const query = useCompanyReviews(id);
   return (
     <section aria-labelledby="history-title" className="space-y-3">
-      <h2 id="history-title" className="font-heading text-xl font-semibold tracking-tight">
+      <h2 id="history-title" className="type-heading text-ink">
         {text.history.title}
       </h2>
       <QueryState
         query={query}
         isEmpty={(entries) => entries.length === 0}
-        empty={<p className="text-sm text-muted-foreground">{text.history.empty}</p>}
+        empty={<p className="type-body text-ink-2">{text.history.empty}</p>}
       >
         {(entries) => (
+          <TableRegion label={text.history.caption}>
           <Table className="w-full text-sm" data-history>
             <caption className="sr-only">{text.history.caption}</caption>
             <thead>
-              <tr className="border-b text-left">
-                <th scope="col" className="py-2 pr-4 font-medium">
+              <tr className="text-left">
+                <th scope="col">
                   {text.history.date}
                 </th>
-                <th scope="col" className="py-2 font-medium">
+                <th scope="col">
                   {text.history.event}
                 </th>
               </tr>
             </thead>
             <tbody>
               {entries.map((entry) => (
-                <tr key={entry.id} className="border-b last:border-0">
-                  <th scope="row" className="py-2 pr-4 text-left font-normal">
+                <tr key={entry.id}>
+                  <th scope="row" className="text-left font-normal">
                     {formatLongDate(entry.created_at) ?? entry.created_at}
                   </th>
-                  <td className="py-2">{outcomeText[entry.outcome] ?? entry.outcome}</td>
+                  <td>{outcomeText[entry.outcome] ?? entry.outcome}</td>
                 </tr>
               ))}
             </tbody>
           </Table>
+          </TableRegion>
         )}
       </QueryState>
     </section>
