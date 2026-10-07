@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import { Building2, ClipboardList, FileText, Inbox, Wrench, Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
 
+import { ProductFormDemo } from "@/components/design/product-form-demo";
 import { ShareDemo } from "@/components/design/share-demo";
 import { OffersDemo } from "@/components/design/offers-demo";
 import { QuotationConfirmDemo } from "@/components/design/quotation-confirm-demo";
@@ -555,6 +556,10 @@ export function DesignGallery() {
               </div>
             </DashboardFrame>
           </div>
+        </div>
+        <div className="space-y-3">
+          <h3 className="type-subheading">{text.navigation.productForm}</h3>
+          <ProductFormDemo />
         </div>
         <div className="space-y-3" data-admin-shell-sample>
           <h3 className="type-subheading">{text.navigation.adminShell}</h3>
