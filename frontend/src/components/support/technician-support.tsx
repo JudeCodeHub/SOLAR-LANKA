@@ -1,6 +1,7 @@
 "use client";
 
 import { BackLink } from "@/components/ui/back-link";
+import { CircleAlert, OctagonAlert, TriangleAlert } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
@@ -10,10 +11,12 @@ import { PhotoList } from "@/components/support/photo-list";
 import { UpdatesList } from "@/components/support/updates-list";
 import { QueryState } from "@/components/query-state";
 import { EmptyState } from "@/components/states/empty-state";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { ApiError } from "@/lib/api/errors";
 import { technicianPhoto, useAssignedCase, useAssignedCases, useTechnicianSupport } from "@/lib/support/hooks";
-import { dangerFirst, newKey, statusLabel } from "@/lib/support/support";
+import { caseTone, dangerFirst, newKey, statusLabel } from "@/lib/support/support";
 import { format, messages } from "@/messages";
 
 const text = messages.support.technician;
@@ -56,34 +59,43 @@ export function TechnicianCase({ id }: { id: string }) {
         {(item) => (
           <>
             {item.unsafe_now ? (
-              <p role="alert" className="rounded-lg border-2 border-destructive p-3 text-sm font-semibold" data-unsafe>
-                {messages.support.company.unsafeFirst}
-              </p>
+              <Alert variant="hazard" role="alert" data-unsafe>
+                <OctagonAlert aria-hidden />
+                <AlertDescription className="font-semibold text-ink">{messages.support.company.unsafeFirst}</AlertDescription>
+              </Alert>
             ) : null}
-            <h1 className="font-heading text-3xl font-semibold tracking-tight">{item.symptom.slice(0, 80)}</h1>
-            <p className="text-sm font-medium" data-status>
-              {statusLabel(item.status)}
-            </p>
-            <p className="whitespace-pre-wrap text-sm">{item.symptom}</p>
-            {item.equipment ? <p className="text-sm">{format(messages.support.customer.equipment, { name: `${item.equipment.brand} ${item.equipment.model}` })}</p> : null}
-            {item.observed_code ? <p className="text-sm">{item.observed_code}</p> : null}
-            {refused ? <p role="alert" className="text-sm font-medium" data-refused>{text.refused}</p> : null}
+            <header className="space-y-3 rounded-panel border border-line bg-surface p-5 shadow-e1 sm:p-6" data-case-header>
+              <p className="type-caption font-semibold tracking-widest text-orange-text uppercase">{text.detailEyebrow}</p>
+              <h1 className="type-display-m text-ink">{item.symptom.slice(0, 80)}</h1>
+              <p data-status>
+                <Badge variant={caseTone(item.status)}>{statusLabel(item.status)}</Badge>
+              </p>
+              <p className="type-body whitespace-pre-wrap text-ink">{item.symptom}</p>
+              {item.equipment ? <p className="type-body text-ink">{format(messages.support.customer.equipment, { name: `${item.equipment.brand} ${item.equipment.model}` })}</p> : null}
+              {item.observed_code ? <p className="type-figure text-ink-2">{item.observed_code}</p> : null}
+            </header>
+            {refused ? (
+              <Alert variant="warning" role="alert" data-refused>
+                <TriangleAlert aria-hidden />
+                <AlertDescription>{text.refused}</AlertDescription>
+              </Alert>
+            ) : null}
             {failure ? <ApiErrorMessage error={failure} /> : null}
-            <section aria-labelledby="photos-title" className="space-y-2">
-              <h2 id="photos-title" className="font-heading text-xl font-semibold tracking-tight">
+            <section aria-labelledby="photos-title" className="space-y-3 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6">
+              <h2 id="photos-title" className="type-heading text-ink">
                 {text.photos}
               </h2>
               <PhotoList photos={item.attachments} fetchPhoto={technicianPhoto(id)} label={text.download} none={text.noPhotos} />
             </section>
-            <section aria-labelledby="history-title" className="space-y-2">
-              <h2 id="history-title" className="font-heading text-xl font-semibold tracking-tight">
+            <section aria-labelledby="history-title" className="space-y-4">
+              <h2 id="history-title" className="type-heading text-ink">
                 {text.history}
               </h2>
               <UpdatesList updates={item.updates} companySide />
               {item.status !== "closed" ? (
                 <form
                   noValidate
-                  className="space-y-2 text-sm"
+                  className="space-y-3 rounded-card border border-line bg-surface p-5 text-sm shadow-e1"
                   onSubmit={(event) => {
                     event.preventDefault();
                     if (body.trim() === "") {
@@ -111,19 +123,19 @@ export function TechnicianCase({ id }: { id: string }) {
                     );
                   }}
                 >
-                  <label htmlFor="update" className="block font-medium">
+                  <label htmlFor="update" className="block font-medium text-ink">
                     {text.updateLabel}
                   </label>
-                  <textarea id="update" rows={3} value={body} maxLength={2000} onChange={(event) => setBody(event.target.value)} aria-invalid={Boolean(problem)} className="w-full field-control p-2" />
-                  {problem ? <p role="alert" className="font-medium text-destructive" data-error="update">{problem}</p> : null}
-                  <label className="flex min-h-11 items-center gap-3">
+                  <textarea id="update" rows={3} value={body} maxLength={2000} onChange={(event) => setBody(event.target.value)} aria-invalid={Boolean(problem)} className="w-full field-control p-3 text-base" />
+                  {problem ? <p role="alert" className="flex items-center gap-1.5 font-medium text-danger" data-error="update"><CircleAlert aria-hidden className="size-4 shrink-0" />{problem}</p> : null}
+                  <label className="flex min-h-11 items-center gap-3 text-ink">
                     <input type="checkbox" checked={shared} onChange={(event) => setShared(event.target.checked)} aria-describedby="shared-help" className="field-check size-6 shrink-0" />
                     <span>{text.shared}</span>
                   </label>
-                  <p id="shared-help" className="text-muted-foreground">
+                  <p id="shared-help" className="text-ink-2">
                     {text.sharedHelp}
                   </p>
-                  <Button type="submit" variant="outline" aria-disabled={post.isPending} data-action="add-update">
+                  <Button type="submit" aria-disabled={post.isPending} data-action="add-update">
                     {text.send}
                   </Button>
                 </form>
