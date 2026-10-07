@@ -51,7 +51,7 @@ export function OffersSection({ offers }: { offers: OffersResult }) {
                     </p>
                     <p>
                       <span className="font-medium">{text.claim}: </span>
-                      {offer.company_claim ?? <span className="text-muted-foreground">{text.noClaim}</span>}
+                      {offer.company_claim ?? <span className="text-ink-3">{text.noClaim}</span>}
                     </p>
                   </CardContent>
                 </Card>

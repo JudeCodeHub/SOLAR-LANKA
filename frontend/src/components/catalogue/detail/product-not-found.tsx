@@ -10,7 +10,7 @@ export function ProductNotFound({ listHref, label }: { listHref: string; label: 
       <h1 className="font-heading text-2xl font-semibold tracking-tight">
         {messages.detail.notFound.title}
       </h1>
-      <p className="text-muted-foreground">{messages.detail.notFound.message}</p>
+      <p className="text-ink-3">{messages.detail.notFound.message}</p>
       <Button asChild>
         <Link href={listHref}>{label}</Link>
       </Button>

@@ -16,7 +16,7 @@ export function AuthLayout({ photo, eyebrow, line, points = [], children }: { ph
     <div className="grid flex-1 lg:grid-cols-2" data-auth-layout>
       <div className="relative h-36 overflow-hidden sm:h-48 lg:hidden">
         <Photo name={photo} sizes="100vw" priority className="absolute inset-0 size-full object-cover" />
-        <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-paper to-transparent" />
       </div>
       <div className="flex items-start justify-center px-4 py-10 sm:px-6 lg:items-center lg:py-16">
         <div className="w-full max-w-md space-y-6">
@@ -41,7 +41,7 @@ export function AuthLayout({ photo, eyebrow, line, points = [], children }: { ph
       </div>
       <div className="relative hidden overflow-hidden lg:block" data-auth-photo>
         <Photo name={photo} sizes="50vw" priority className="absolute inset-0 size-full object-cover" />
-        <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-transparent" />
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-paper via-transparent to-transparent" />
         <Card variant="glass" className="absolute right-8 bottom-8 w-80 flex-row items-center gap-4 p-3">
           <Dial label={text.dialLabel} value={5.4} max={15} unit={text.dialUnit} size={96} />
           <div className="space-y-2">

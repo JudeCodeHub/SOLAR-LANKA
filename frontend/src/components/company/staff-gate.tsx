@@ -44,7 +44,7 @@ export function StaffGate({
             <h2 id="choose-title" className="font-heading text-xl font-semibold tracking-tight">
               {resolution.kind === "not-yours" ? text.notYours.title : text.choose.title}
             </h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-ink-3">
               {resolution.kind === "not-yours" ? text.notYours.message : text.choose.intro}
             </p>
             <ul className="space-y-2">

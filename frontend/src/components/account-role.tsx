@@ -19,7 +19,7 @@ export function AccountRole() {
       return <Skeleton aria-hidden className="h-6 w-20 rounded-full" />;
     case "ready":
       return (
-        <span className="rounded-full border px-2 py-0.5 text-xs text-muted-foreground">
+        <span className="rounded-full border px-2 py-0.5 text-xs text-ink-3">
           {roleLabel(state.user.role)}
         </span>
       );
@@ -27,13 +27,13 @@ export function AccountRole() {
     case "rejected":
       // The account page explains this in full and offers the way forward.
       return (
-        <span role="status" className="text-xs text-destructive">
+        <span role="status" className="text-xs text-danger">
           {messages.session.chip[state.status]}
         </span>
       );
     case "unavailable":
       return (
-        <span role="status" className="text-xs text-destructive">
+        <span role="status" className="text-xs text-danger">
           {query.error ? describeError(query.error).title : null}
         </span>
       );

@@ -66,7 +66,7 @@ export default function ResultChart({ spec }: { spec: ChartSpec }) {
       </div>
       <p className="type-small text-ink-2">{spec.unit}</p>
       <Table className="w-full text-sm">
-        <caption className="pb-1 text-left text-xs text-muted-foreground">{text.tableNote}</caption>
+        <caption className="pb-1 text-left text-xs text-ink-3">{text.tableNote}</caption>
         <thead>
           <tr className="border-b text-left">
             <th scope="col" className="py-1 pr-4 font-medium">

@@ -19,7 +19,7 @@ export function StickyHeader({ children }: { children: ReactNode }) {
       data-scrolled={scrolled}
       className={cn(
         "sticky top-0 z-40 border-b transition-[background-color,border-color,box-shadow] duration-200 motion-reduce:transition-none",
-        scrolled ? "border-line bg-background/80 shadow-e1 backdrop-blur-md supports-[not(backdrop-filter:blur(1px))]:bg-background" : "border-transparent bg-background",
+        scrolled ? "border-line bg-paper/80 shadow-e1 backdrop-blur-md supports-[not(backdrop-filter:blur(1px))]:bg-paper" : "border-transparent bg-paper",
       )}
     >
       {children}

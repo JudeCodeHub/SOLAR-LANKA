@@ -31,7 +31,7 @@ export function ResultTable({ caption, rows }: { caption: string; rows: ResultRo
               <th scope="row" className="py-2 pr-4 text-left font-normal">
                 {row.label}
                 {row.indicative ? (
-                  <span className="ml-2 rounded-full border px-2 py-0.5 text-xs text-muted-foreground">
+                  <span className="ml-2 rounded-full border px-2 py-0.5 text-xs text-ink-3">
                     {messages.estimator.results.financial.indicative}
                   </span>
                 ) : null}
@@ -44,14 +44,14 @@ export function ResultTable({ caption, rows }: { caption: string; rows: ResultRo
                   </span>
                 ) : (
                   <span data-unavailable>
-                    <span className="rounded-full border border-dashed px-2 py-0.5 text-xs text-muted-foreground">
+                    <span className="rounded-full border border-dashed px-2 py-0.5 text-xs text-ink-3">
                       {text.table.notAvailable}
                     </span>
-                    <span className="mt-1 block text-muted-foreground">{row.why}</span>
+                    <span className="mt-1 block text-ink-3">{row.why}</span>
                   </span>
                 )}
               </td>
-              <td className="py-2 text-muted-foreground">{row.value !== null ? row.unit : null}</td>
+              <td className="py-2 text-ink-3">{row.value !== null ? row.unit : null}</td>
             </tr>
           ))}
         </tbody>

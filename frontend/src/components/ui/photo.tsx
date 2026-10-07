@@ -1,7 +1,7 @@
 "use client";
 
 import Image, { type ImageLoaderProps } from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { PHOTO_FILES } from "@/lib/photos/manifest";
 import { PHOTOS, type PhotoKey } from "@/lib/photos/photos";
@@ -18,11 +18,16 @@ function loader({ src, width }: ImageLoaderProps): string {
 /** A photo from the set with a blurred placeholder, eased down a little in the dark theme so it does not glare; a warm gradient of the same shape stands in when the file is missing or fails to load. */
 export function Photo({ name, sizes, priority = false, className = "" }: { name: PhotoKey; sizes: string; priority?: boolean; className?: string }) {
   const [failed, setFailed] = useState(false);
+  const image = useRef<HTMLImageElement>(null);
+  // A photo that failed before the page became interactive has already fired its error, so it is checked once on arrival too.
+  useEffect(() => {
+    if (image.current?.complete && image.current.naturalWidth === 0) setFailed(true);
+  }, []);
   const file = PHOTOS[name];
   const entry = PHOTO_FILES[file];
   const alt = messages.photos.alt[name] ?? "";
   if (!entry || failed) {
     return <div role="img" aria-label={alt} className={`aspect-[3/2] bg-gradient-to-br from-orange-tint to-paper-2 ${className}`} />;
   }
-  return <Image loader={loader} src={file} width={entry.width} height={entry.height} alt={alt} sizes={sizes} priority={priority} {...(priority ? { fetchPriority: "high" as const, loading: "eager" as const } : {})} onError={() => setFailed(true)} placeholder="blur" blurDataURL={entry.blur} className={cn("dark:brightness-90", className)} />;
+  return <Image ref={image} loader={loader} src={file} width={entry.width} height={entry.height} alt={alt} sizes={sizes} priority={priority} {...(priority ? { fetchPriority: "high" as const, loading: "eager" as const } : {})} onError={() => setFailed(true)} placeholder="blur" blurDataURL={entry.blur} className={cn("dark:brightness-90", className)} />;
 }

@@ -28,7 +28,7 @@ test("with reduced motion, the hero simply appears and nothing animates", async 
   await page.goto("/");
   await page.locator("[data-hero]").waitFor();
   expect(await running(page)).toBe(0);
-  for (const locator of [page.getByRole("heading", { level: 1 }), page.getByRole("link", { name: "Estimate my system" }), page.locator("[data-hero-dial]")]) {
+  for (const locator of [page.getByRole("heading", { level: 1 }), page.getByRole("link", { name: "Estimate my system" }).first(), page.locator("[data-hero-dial]")]) {
     expect(await locator.evaluate((element) => Number(getComputedStyle(element).opacity))).toBe(1);
   }
 });

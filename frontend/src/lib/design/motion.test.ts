@@ -85,7 +85,7 @@ test("every animation in the code has a written reason, and every reason has an 
   for (const entry of MOTION) assert.ok(entry.reason.length > 20 && entry.where.length > 5, entry.name);
   const components = join(import.meta.dirname, "..", "..", "components", "ui");
   assert.ok(readFileSync(join(components, "count-up.tsx"), "utf8").includes("requestAnimationFrame") && names.includes("count-up"));
-  assert.ok(readFileSync(join(components, "dialog.tsx"), "utf8").includes("animate-in") && names.includes("animate-in"));
+  assert.ok(readFileSync(join(components, "sheet.tsx"), "utf8").includes("animate-in") && names.includes("animate-in"));
   assert.ok(readFileSync(join(components, "reveal.tsx"), "utf8").length > 0 && names.includes("reveal"));
   assert.ok(readFileSync(join(components, "draw-line.tsx"), "utf8").length > 0 && names.includes("draw-line"));
 });
