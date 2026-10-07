@@ -1,6 +1,8 @@
 import { Fragment } from "react";
 import { Building2, ClipboardList, FileText, Inbox, Wrench, Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
 
+import { VersionCard } from "@/components/admin/estimator-admin";
+import { inUseIds } from "@/lib/admin/config";
 import { ProductFormDemo } from "@/components/design/product-form-demo";
 import { ShareDemo } from "@/components/design/share-demo";
 import { OffersDemo } from "@/components/design/offers-demo";
@@ -117,6 +119,12 @@ const TECH_VISITS = [
   { id: "t1", status: "confirmed", district: "Colombo", confirmed_starts_at: "2026-10-06T04:30:00Z", confirmed_ends_at: "2026-10-06T06:30:00Z" },
   { id: "t2", status: "confirmed", district: "Kandy", confirmed_starts_at: "2026-10-08T08:00:00Z", confirmed_ends_at: "2026-10-08T10:00:00Z" },
   { id: "t3", status: "completed", district: "Galle", confirmed_starts_at: "2026-10-01T04:30:00Z", confirmed_ends_at: "2026-10-01T06:30:00Z" },
+];
+const VERSION_SAMPLES = [
+  { id: "v5", version: 5, scenario: "grid_net_metering_no_backup", status: "draft", is_archived: false, created_at: "2026-10-04T08:00:00Z", published_at: null },
+  { id: "v4", version: 4, scenario: "grid_net_metering_no_backup", status: "published", is_archived: false, created_at: "2026-09-20T08:00:00Z", published_at: "2026-09-21T08:00:00Z" },
+  { id: "v3", version: 3, scenario: "grid_net_plus_no_backup", status: "published", is_archived: false, created_at: "2026-09-10T08:00:00Z", published_at: "2026-09-11T08:00:00Z" },
+  { id: "v2", version: 2, scenario: "grid_net_metering_no_backup", status: "published", is_archived: true, created_at: "2026-08-10T08:00:00Z", published_at: "2026-08-11T08:00:00Z" },
 ];
 const OFFER_NOW = Date.parse("2026-10-06T00:00:00Z");
 const offer = (n: number, name: string, status: "sent" | "accepted", validUntil: string, total: string, revisions: number) => ({ quotation_id: `q${n}`, company_id: `c${n}`, revision_id: `v${n}`, revision_number: revisions, sent_at: "2026-09-25T08:00:00Z", sent_revision_count: revisions, status, total, valid_until: validUntil, name });
@@ -560,6 +568,16 @@ export function DesignGallery() {
         <div className="space-y-3">
           <h3 className="type-subheading">{text.navigation.productForm}</h3>
           <ProductFormDemo />
+        </div>
+        <div className="space-y-3" data-versions-sample>
+          <h3 className="type-subheading">{text.navigation.versions}</h3>
+          <ul className="grid gap-3 lg:grid-cols-2">
+            {VERSION_SAMPLES.map((item) => (
+              <li key={item.id}>
+                <VersionCard item={item} current={inUseIds(VERSION_SAMPLES).has(item.id)} />
+              </li>
+            ))}
+          </ul>
         </div>
         <div className="space-y-3" data-admin-shell-sample>
           <h3 className="type-subheading">{text.navigation.adminShell}</h3>
