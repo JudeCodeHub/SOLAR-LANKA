@@ -1,6 +1,7 @@
 "use client";
 
 import { BackLink } from "@/components/ui/back-link";
+import { BadgeHelp, CircleCheck, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState } from "react";
 
@@ -8,6 +9,8 @@ import { PlatformGate } from "@/components/admin/platform-gate";
 import { ApiErrorMessage } from "@/components/api-error-message";
 import { ConfirmAction } from "@/components/company/confirm-action";
 import { QueryState } from "@/components/query-state";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import type { ApiError } from "@/lib/api/errors";
 import { formatLongDate } from "@/lib/catalogue/detail";
 import { useAdminCompany, useAdminReviews, useDecide } from "@/lib/admin/hooks";
@@ -61,55 +64,65 @@ function Review({ id }: { id: string }) {
     <QueryState query={company}>
       {(data) => (
         <>
-          <header className="space-y-2">
-            <h1 className="font-heading text-3xl font-semibold tracking-tight">{format(text.title, { name: data.name })}</h1>
-            <p className="text-sm font-medium" data-status>
-              {format(text.status, { status: statusLabel(data.publication_status) })}
+          <header className="space-y-3 rounded-panel border border-line bg-surface p-6 shadow-e1" data-review-header>
+            <p className="type-caption font-semibold tracking-widest text-orange-text uppercase">{text.eyebrow}</p>
+            <h1 className="type-display-m text-ink">{format(text.title, { name: data.name })}</h1>
+            <p className="flex flex-wrap items-center gap-2 text-ink" data-status>
+              <Badge variant={data.publication_status === "approved" ? "success" : data.publication_status === "pending" ? "info" : data.publication_status === "rejected" ? "danger" : "neutral"}>
+                {format(text.status, { status: statusLabel(data.publication_status) })}
+              </Badge>
             </p>
           </header>
           {done ? (
-            <p ref={doneRef} tabIndex={-1} role="status" className="text-sm font-medium outline-none" data-done>
-              {done}
-            </p>
+            <Alert ref={doneRef as never} variant="success" tabIndex={-1} role="status" className="outline-none" data-done>
+              <CircleCheck aria-hidden />
+              <AlertDescription>{done}</AlertDescription>
+            </Alert>
           ) : null}
           {refused ? (
-            <p role="alert" className="text-sm font-medium" data-refused>
-              {refusalText(data)}
-            </p>
+            <Alert variant="warning" role="alert" data-refused>
+              <TriangleAlert aria-hidden />
+              <AlertDescription>{refusalText(data)}</AlertDescription>
+            </Alert>
           ) : null}
           {error ? <ApiErrorMessage error={error} /> : null}
 
-          <section aria-labelledby="profile-title" className="space-y-3">
-            <h2 id="profile-title" className="font-heading text-xl font-semibold tracking-tight">
+          <section aria-labelledby="profile-title" className="space-y-3 rounded-card border border-line bg-surface p-5 shadow-e1 sm:p-6">
+            <h2 id="profile-title" className="type-heading text-ink">
               {text.profile}
             </h2>
             <dl className="description-list text-sm">
-              <dt className="text-muted-foreground">{text.districts}</dt>
+              <dt className="text-ink-2">{text.districts}</dt>
               <dd>{data.service_districts.join(", ") || text.none}</dd>
-              <dt className="text-muted-foreground">{text.services}</dt>
+              <dt className="text-ink-2">{text.services}</dt>
               <dd>{data.services.join(", ") || text.none}</dd>
-              <dt className="text-muted-foreground">{text.credentials}</dt>
+              <dt className="text-ink-2">{text.credentials}</dt>
               <dd>
                 {data.declared_credentials.length === 0 ? (
                   text.none
                 ) : (
-                  <ul className="space-y-1">
+                  <ul className="space-y-2">
                     {data.declared_credentials.map((credential) => (
-                      <li key={`${credential.name}-${credential.issuer}`}>{format(text.credentialLine, { name: credential.name, issuer: credential.issuer })}</li>
+                      <li key={`${credential.name}-${credential.issuer}`} className="space-y-1.5 rounded-field border border-dashed border-field-border bg-paper-2 p-3">
+                        <span className="block text-ink">{format(text.credentialLine, { name: credential.name, issuer: credential.issuer })}</span>
+                        <Badge variant="warning" icon={BadgeHelp} data-declared-badge>
+                          {messages.directory.credentials.badge}
+                        </Badge>
+                      </li>
                     ))}
                   </ul>
                 )}
               </dd>
             </dl>
-            <p className="text-sm text-muted-foreground">{text.credentialsHelp}</p>
+            <p className="type-small text-ink-2">{text.credentialsHelp}</p>
           </section>
 
-          <section aria-labelledby="decision-title" className="space-y-3" data-decision>
-            <h2 id="decision-title" className="font-heading text-xl font-semibold tracking-tight">
+          <section aria-labelledby="decision-title" className="space-y-4 rounded-card border-2 border-orange-text bg-surface p-5 shadow-e2 sm:p-6" data-decision>
+            <h2 id="decision-title" className="type-heading text-ink">
               {text.decisionTitle}
             </h2>
             {canDecide(data.publication_status) ? (
-              <div className="flex flex-wrap items-start gap-3">
+              <div className="flex flex-wrap items-start gap-x-6 gap-y-4">
                 <ConfirmAction
                   id="approve"
                   variant="default"
@@ -135,25 +148,25 @@ function Review({ id }: { id: string }) {
                 />
               </div>
             ) : (
-              <p className="text-sm" data-not-pending>
+              <p className="type-body text-ink" data-not-pending>
                 {format(text.notPending, { status: statusLabel(data.publication_status) })}
               </p>
             )}
           </section>
 
-          <section aria-labelledby="history-title" className="space-y-2">
-            <h2 id="history-title" className="font-heading text-xl font-semibold tracking-tight">
+          <section aria-labelledby="history-title" className="space-y-3">
+            <h2 id="history-title" className="type-heading text-ink">
               {text.history}
             </h2>
-            <QueryState query={reviews} isEmpty={(items) => items.length === 0} empty={<p className="text-sm text-muted-foreground">{text.historyNone}</p>}>
+            <QueryState query={reviews} isEmpty={(items) => items.length === 0} empty={<p className="type-body text-ink-2">{text.historyNone}</p>}>
               {(items) => (
-                <ul className="space-y-2" data-history>
+                <ul className="space-y-3" data-history>
                   {items.map((entry) => (
-                    <li key={entry.id} className="rounded-lg border p-3 text-sm" data-outcome={entry.outcome}>
-                      <p className="font-medium">{outcomeLabel(entry.outcome)}</p>
-                      <p className="text-muted-foreground">{formatLongDate(entry.created_at) ?? entry.created_at}</p>
-                      <p>{format(text.by, { id: shortId(entry.actor_id) })}</p>
-                      <Link href={`/admin/users?user=${entry.actor_id}`} className="inline-flex min-h-11 items-center underline underline-offset-2">
+                    <li key={entry.id} className="space-y-1 rounded-card border border-line bg-surface p-4 text-sm shadow-e1" data-outcome={entry.outcome}>
+                      <p className="font-medium text-ink">{outcomeLabel(entry.outcome)}</p>
+                      <p className="text-ink-2">{formatLongDate(entry.created_at) ?? entry.created_at}</p>
+                      <p className="text-ink">{format(text.by, { id: shortId(entry.actor_id) })}</p>
+                      <Link href={`/admin/users?user=${entry.actor_id}`} className="inline-flex min-h-11 items-center font-medium text-orange-text underline underline-offset-2">
                         {text.manage}
                       </Link>
                     </li>
