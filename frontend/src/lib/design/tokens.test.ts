@@ -1061,3 +1061,9 @@ test("the company review queue and review page keep their gate, paging, marks an
   assert.ok(!/onClick=\{\(\) => run\(/.test(review));
   assert.doesNotMatch(queue + review, /text-muted-foreground|font-heading|rounded-lg border|<Card\b/);
 });
+
+test("the admin catalogue list keeps its gate, kind switch, search, paging and links, tells the administrator that archived products are not listed, and shows each product as a card", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "admin", "catalogue-admin.tsx"), "utf8");
+  for (const needle of ["<PlatformGate>", "useAdminProducts(kind, search, page)", 'aria-current={kind === option ? "page" : undefined}', "router.push(hrefFor(kind, draft.trim(), 1))", "<Pagination", "data-products", "data-product={item.id}", "data-archived-note", "text.archivedNote", "`/admin/catalogue/${item.id}`", "text.empty", "PRODUCTS_PAGE_SIZE", "min-h-11", "<PageHeader"]) assert.ok(view.includes(needle), needle);
+  assert.doesNotMatch(view, /<Card\b|text-muted-foreground|font-heading|size="sm"/);
+});
