@@ -61,6 +61,7 @@ async function catalogueAddresses(page: Page): Promise<string[]> {
 const PAGES: [IdentityName | null, string][] = [
   [null, "/"],
   [null, "/panels"],
+  [null, "/inverters"],
   [null, "/estimator"],
   [null, "/companies"],
   [null, "/learn"],
@@ -70,15 +71,23 @@ const PAGES: [IdentityName | null, string][] = [
   ["customer", "/my"],
   ["customer", "/my/requests"],
   ["customer", "/my/requests/new"],
+  ["customer", "/my/estimates"],
+  ["customer", "/my/favourites"],
+  ["customer", "/my/installations"],
   ["customer", "/my/support"],
   ["customer", "/notifications"],
   ["sunbirdAdmin", "/company"],
   ["sunbirdAdmin", "/company/support"],
   ["sunbirdAdmin", "/company/inbox"],
+  ["sunbirdAdmin", "/company/installations"],
+  ["sunbirdAdmin", "/company/offers"],
   ["sunbirdAdmin", "/company/profile"],
   ["sunbirdTechnician", "/technician"],
   ["sunbirdTechnician", "/technician/support"],
   ["platformAdmin", "/admin/catalogue"],
+  ["platformAdmin", "/admin/users"],
+  ["platformAdmin", "/admin/companies"],
+  ["platformAdmin", "/admin/estimator"],
   ["platformAdmin", "/admin/troubleshooting"],
   ["platformAdmin", "/admin/education"],
   ["platformAdmin", "/admin/education/new"],
@@ -87,8 +96,8 @@ const PAGES: [IdentityName | null, string][] = [
 ];
 
 test.describe("layout at the documented sizes", () => {
-  // Each of these visits up to 14 pages, and the development server compiles a page the first time it is asked for.
-  test.setTimeout(180_000);
+  // Each of these visits about 35 pages, and the development server compiles a page the first time it is asked for.
+  test.setTimeout(300_000);
   for (const size of SIZES) {
     test(`pages fit at ${size.name}`, async ({ page, signInAs }) => {
       await page.setViewportSize({ width: size.width, height: size.height });
