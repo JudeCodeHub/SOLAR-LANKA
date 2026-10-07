@@ -1007,3 +1007,12 @@ test("the company profile keeps its gate, status, saving rules, confirmation, gu
   assert.match(readFileSync(join(dir, "profile-view.tsx"), "utf8"), /<PageHeader/);
   assert.match(readFileSync(join(import.meta.dirname, "..", "..", "messages", "en.ts"), "utf8"), /badge: "Company declared, not verified"/);
 });
+
+test("the technician's visit list keeps its query, empty state and links, shows today's visits first in large tiles, and never shows the customer", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "visits", "technician-visits.tsx"), "utf8");
+  for (const needle of ["useMyAssignedVisits()", "groupVisits(items, query.dataUpdatedAt)", "data-visits-list", "data-visit-group={group}", "data-visit-tile={visit.status}", "data-today={today}", "data-visit-status", "`/technician/visits/${visit.id}`", "text.none", "text.notTechnician", "text.district", "min-h-[4.5rem]", "min-h-11", '"today", "upcoming", "earlier"', "<PageHeader"]) assert.ok(view.includes(needle), needle);
+  // Only the district and the time: no customer fields are read.
+  assert.doesNotMatch(view, /customer|e-?mail|phone/i);
+  assert.ok(view.indexOf('"today", "upcoming", "earlier"') > 0);
+  assert.doesNotMatch(view, /<Card\b|text-muted-foreground|font-heading/);
+});
