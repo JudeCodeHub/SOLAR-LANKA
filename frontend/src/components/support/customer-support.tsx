@@ -40,21 +40,21 @@ export function SafetyBox() {
 }
 
 /** One support request in the list: its status as a chip, its words, a warning when it was reported as unsafe, and the way in. */
-export function CaseCard({ item }: { item: { id: string; status: string; symptom: string; unsafe_now: boolean } }) {
+export function CaseCard({ item, href, unsafeLabel }: { item: { id: string; status: string; symptom: string; unsafe_now: boolean }; href?: string; unsafeLabel?: string }) {
   return (
-    <article className="relative flex flex-col gap-2 rounded-card border border-line bg-surface p-5 text-sm shadow-e1" data-case={item.status}>
+    <article className={cn("relative flex flex-col gap-2 rounded-card p-5 text-sm", item.unsafe_now ? "border-2 border-danger bg-danger-tint" : "border border-line bg-surface shadow-e1")} data-case={item.status} data-unsafe={item.unsafe_now}>
       <div className="flex flex-wrap items-center gap-2">
         <Badge variant={caseTone(item.status)} data-case-status>
           {statusLabel(item.status)}
         </Badge>
         {item.unsafe_now ? (
           <Badge variant="danger" icon={OctagonAlert} data-unsafe-chip>
-            {safety.unsafeBox}
+            {unsafeLabel ?? safety.unsafeBox}
           </Badge>
         ) : null}
       </div>
       <h3 className="type-subheading text-ink">
-        <Link href={`/my/support/${item.id}`} className="inline-flex min-h-11 items-center rounded-field outline-none after:absolute after:inset-0 after:rounded-card hover:underline focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-orange-text">
+        <Link href={href ?? `/my/support/${item.id}`} className="inline-flex min-h-11 items-center rounded-field outline-none after:absolute after:inset-0 after:rounded-card hover:underline focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-orange-text">
           {format(text.open, { symptom: item.symptom.slice(0, 80) })}
         </Link>
       </h3>
