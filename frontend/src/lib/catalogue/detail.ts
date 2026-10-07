@@ -1,5 +1,6 @@
 /** What a product detail page shows. */
 import { format, messages, plural } from "../../messages/index.ts";
+import { formatDate } from "../format/datetime.ts";
 import type { components } from "../api/schema.d.ts";
 import { formatDecimal } from "./params.ts";
 
@@ -224,10 +225,7 @@ export function productImages(product: ProductDetail): DocumentLink[] {
 /** "15 September 2026", or null when the timestamp is missing or not a date. */
 export function formatLongDate(iso: string | null | undefined): string | null {
   if (!iso) return null;
-  const date = new Date(iso);
-  return Number.isNaN(date.getTime())
-    ? null
-    : date.toLocaleDateString("en-GB", { dateStyle: "long", timeZone: "UTC" });
+  return formatDate(iso, "UTC") || null;
 }
 
 export interface SourceInfo {

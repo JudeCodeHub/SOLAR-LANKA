@@ -8,6 +8,7 @@ import { LoadingState } from "@/components/states/loading-state";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSessionState } from "@/lib/api/use-session";
+import { formatDate } from "@/lib/format/datetime";
 import { roleLabel } from "@/lib/roles";
 import { messages } from "@/messages";
 
@@ -29,7 +30,7 @@ export function BackendProfile() {
             <dt>{messages.account.role}</dt>
             <dd data-testid="backend-role"><Badge variant="orange">{roleLabel(state.user.role)}</Badge></dd>
             <dt>{messages.account.created}</dt>
-            <dd>{new Date(query.data.created_at).toLocaleDateString("en-GB", { dateStyle: "long" })}</dd>
+            <dd>{formatDate(query.data.created_at)}</dd>
           </dl>
         ) : null}
         {state.status === "inactive" ? <SessionProblem kind="inactive" /> : null}

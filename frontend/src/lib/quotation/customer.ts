@@ -1,5 +1,6 @@
 /** How a customer reads their offers: state and expiry, what is included, and side-by-side rows with differences. */
 import { format, messages } from "../../messages/index.ts";
+import { formatDate } from "../format/datetime.ts";
 
 const text = messages.customerOffers;
 const DAY = 86_400_000;
@@ -36,7 +37,7 @@ export function isExpiringSoon(offer: OfferLike, now: number): boolean {
   return daysLeft(offer.valid_until, now) <= SOON_DAYS;
 }
 
-const longDate = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { dateStyle: "long", timeZone: "UTC" });
+const longDate = (iso: string) => formatDate(iso, "UTC");
 
 /** The expiry in words: when it ends and how long is left, or when it ended. */
 export function expiryText(offer: OfferLike, now: number): string {
