@@ -1016,3 +1016,11 @@ test("the technician's visit list keeps its query, empty state and links, shows 
   assert.ok(view.indexOf('"today", "upcoming", "earlier"') > 0);
   assert.doesNotMatch(view, /<Card\b|text-muted-foreground|font-heading/);
 });
+
+test("the technician's visit page keeps its completion rules, guards and marks, shows only the district and the time, and has large fields", () => {
+  const view = readFileSync(join(import.meta.dirname, "..", "..", "components", "visits", "technician-visit.tsx"), "utf8");
+  for (const needle of ["data-visit-header", "data-status", "data-when", "data-customer-note", "data-refused", "data-completed", "data-complete", "data-not-started", "data-error=\"summary\"", "data-error=\"note\"", "data-error=\"photo\"", "data-notes", "data-photos", "data-download", "data-history", "data-action=\"add-note\"", "canComplete(visit, now)", "busy.current", "onBeforeOpen", "const missing = summary.trim() === \"\"", "actions.complete.mutate(summary.trim()", "actions.note.mutate(note.trim()", "actions.upload.mutate(file", "evidenceProblem(file)", 'accept="image/jpeg,image/png,image/webp"', "min-h-14", "text-base", "<ConfirmAction"]) assert.ok(view.includes(needle), needle);
+  // The page reads the district and the time only: no customer identity is read.
+  assert.doesNotMatch(view, /customer_(name|email|phone|id)|\.email|\.phone/);
+  assert.doesNotMatch(view, /text-muted-foreground|font-heading|text-destructive|size="sm"/);
+});

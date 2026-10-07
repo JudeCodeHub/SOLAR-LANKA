@@ -1,15 +1,19 @@
 "use client";
 
 import { BackLink } from "@/components/ui/back-link";
+import { CircleAlert, CircleCheck, TriangleAlert } from "lucide-react";
 import { useRef, useState } from "react";
 
 import { ApiErrorMessage } from "@/components/api-error-message";
 import { ConfirmAction } from "@/components/company/confirm-action";
 import { QueryState } from "@/components/query-state";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DialLoader } from "@/components/ui/dial-loader";
 import type { ApiError } from "@/lib/api/errors";
 import { evidenceProblem } from "@/lib/installations/evidence";
-import { actionLabel, canComplete, formatRange, statusLabel } from "@/lib/visits/slots";
+import { actionLabel, canComplete, formatRange, statusLabel, visitTone } from "@/lib/visits/slots";
 import { technicianPhoto, useAssignedVisit, useDownloadVisitPhoto, useTechnicianActions } from "@/lib/visits/hooks";
 import { format, messages } from "@/messages";
 
@@ -72,48 +76,55 @@ function Visit({ id, visit, now }: { id: string; visit: Work; now: number }) {
 
   return (
     <>
-      <h1 className="font-heading text-3xl font-semibold tracking-tight">{text.detailTitle}</h1>
-      <p ref={statusRef} tabIndex={-1} role="status" className="text-sm font-medium outline-none" data-status>
-        {notice ?? statusLabel(visit.status)}
-      </p>
-      {refused ? (
-        <p role="alert" className="text-sm font-medium" data-refused>
-          {text.refused}
+      <header className="space-y-3 rounded-panel border border-line bg-surface p-5 shadow-e1 sm:p-6" data-visit-header>
+        <p className="type-caption font-semibold tracking-widest text-orange-text uppercase">{text.detailEyebrow}</p>
+        <h1 className="type-display-m text-ink">{text.detailTitle}</h1>
+        <p ref={statusRef} tabIndex={-1} role="status" className="flex flex-wrap items-center gap-2 outline-none" data-status>
+          {notice ? <CircleCheck aria-hidden className="size-5 text-success" /> : null}
+          {notice ? <span className="font-medium text-ink">{notice}</span> : <Badge variant={visitTone(visit.status)}>{statusLabel(visit.status)}</Badge>}
         </p>
+        <dl className="description-list text-base">
+          <dt className="text-ink-2">{text.whenLabel}</dt>
+          <dd className="type-figure font-semibold text-ink" data-when>{range}</dd>
+          <dt className="text-ink-2">{text.districtLabel}</dt>
+          <dd className="font-medium text-ink">{visit.district ?? ""}</dd>
+        </dl>
+        <p className="rounded-field border border-line bg-paper p-3 text-sm text-ink" data-customer-note>
+          {visit.customer_note ? format(text.customerNote, { note: visit.customer_note }) : text.noCustomerNote}
+        </p>
+      </header>
+      {refused ? (
+        <Alert variant="warning" role="alert" data-refused>
+          <TriangleAlert aria-hidden />
+          <AlertDescription>{text.refused}</AlertDescription>
+        </Alert>
       ) : null}
       {failure ? <ApiErrorMessage error={failure} /> : null}
-      <dl className="description-list text-sm">
-        <dt className="text-muted-foreground">{text.whenLabel}</dt>
-        <dd data-when>{range}</dd>
-        <dt className="text-muted-foreground">{text.districtLabel}</dt>
-        <dd>{visit.district ?? ""}</dd>
-      </dl>
-      <p className="text-sm" data-customer-note>
-        {visit.customer_note ? format(text.customerNote, { note: visit.customer_note }) : text.noCustomerNote}
-      </p>
 
       {done ? (
-        <p className="text-sm" data-completed>
+        <p className="flex items-start gap-2 rounded-card border border-success bg-success-tint p-4 text-sm text-ink" data-completed>
+          <CircleCheck aria-hidden className="mt-0.5 size-5 shrink-0 text-success" />
           {format(text.completed, { when: visit.completed_at ? day(visit.completed_at) : "", summary: visit.completion_summary ?? "" })}
         </p>
       ) : (
-        <section aria-labelledby="complete-title" className="space-y-2" data-complete>
-          <h2 id="complete-title" className="font-heading text-xl font-semibold tracking-tight">
+        <section aria-labelledby="complete-title" className="space-y-3 rounded-card border-2 border-orange-text bg-surface p-5 shadow-e2" data-complete>
+          <h2 id="complete-title" className="type-heading text-ink">
             {text.completeTitle}
           </h2>
           {!ready ? (
-            <p className="text-sm" data-not-started>
+            <p className="type-body text-ink" data-not-started>
               {text.notStarted}
             </p>
           ) : (
             <>
-              <p className="text-sm text-muted-foreground">{text.completeHelp}</p>
-              <label htmlFor="summary" className="block text-sm font-medium">
+              <p className="type-small text-ink-2">{text.completeHelp}</p>
+              <label htmlFor="summary" className="block font-medium text-ink">
                 {text.summaryLabel}
               </label>
-              <textarea id="summary" rows={3} value={summary} maxLength={2000} onChange={(event) => setSummary(event.target.value)} aria-invalid={Boolean(errors.summary)} aria-describedby={errors.summary ? "summary-error" : undefined} className="w-full field-control p-2 text-sm" />
+              <textarea id="summary" rows={3} value={summary} maxLength={2000} onChange={(event) => setSummary(event.target.value)} aria-invalid={Boolean(errors.summary)} aria-describedby={errors.summary ? "summary-error" : undefined} className="w-full field-control p-3 text-base" />
               {errors.summary ? (
-                <p id="summary-error" className="text-sm font-medium text-destructive" data-error="summary">
+                <p id="summary-error" className="flex items-center gap-1.5 text-sm font-medium text-danger" data-error="summary">
+                  <CircleAlert aria-hidden className="size-4 shrink-0" />
                   {errors.summary}
                 </p>
               ) : null}
@@ -141,19 +152,19 @@ function Visit({ id, visit, now }: { id: string; visit: Work; now: number }) {
         </section>
       )}
 
-      <section aria-labelledby="notes-title" className="space-y-2">
-        <h2 id="notes-title" className="font-heading text-xl font-semibold tracking-tight">
+      <section aria-labelledby="notes-title" className="space-y-3 rounded-card border border-line bg-surface p-5 shadow-e1">
+        <h2 id="notes-title" className="type-heading text-ink">
           {text.notesTitle}
         </h2>
-        <p className="text-sm text-muted-foreground">{text.notesHelp}</p>
-        <ul className="list-disc space-y-1 pl-5 text-sm" data-notes>
+        <p className="type-small text-ink-2">{text.notesHelp}</p>
+        <ul className="list-disc space-y-1 pl-5 text-sm text-ink" data-notes>
           {visit.notes.map((entry) => (
             <li key={entry.id}>{entry.body}</li>
           ))}
         </ul>
         <form
           noValidate
-          className="space-y-2"
+          className="space-y-3"
           onSubmit={(event) => {
             event.preventDefault();
             if (note.trim() === "") {
@@ -165,40 +176,41 @@ function Visit({ id, visit, now }: { id: string; visit: Work; now: number }) {
             actions.note.mutate(note.trim(), handlers(text.noteSaved, () => setNote("")));
           }}
         >
-          <label htmlFor="note" className="block text-sm font-medium">
+          <label htmlFor="note" className="block font-medium text-ink">
             {text.noteLabel}
           </label>
-          <textarea id="note" rows={2} value={note} maxLength={2000} onChange={(event) => setNote(event.target.value)} aria-invalid={Boolean(errors.note)} aria-describedby={errors.note ? "note-error" : undefined} className="w-full field-control p-2 text-sm" />
+          <textarea id="note" rows={2} value={note} maxLength={2000} onChange={(event) => setNote(event.target.value)} aria-invalid={Boolean(errors.note)} aria-describedby={errors.note ? "note-error" : undefined} className="w-full field-control p-3 text-base" />
           {errors.note ? (
-            <p id="note-error" className="text-sm font-medium text-destructive" data-error="note">
+            <p id="note-error" className="flex items-center gap-1.5 text-sm font-medium text-danger" data-error="note">
+              <CircleAlert aria-hidden className="size-4 shrink-0" />
               {errors.note}
             </p>
           ) : null}
-          <Button type="submit" variant="outline" aria-disabled={actions.note.isPending} data-action="add-note">
+          <Button type="submit" aria-disabled={actions.note.isPending} data-action="add-note">
             {actions.note.isPending ? text.noteSaving : text.noteSave}
           </Button>
         </form>
       </section>
 
-      <section aria-labelledby="photos-title" className="space-y-2">
-        <h2 id="photos-title" className="font-heading text-xl font-semibold tracking-tight">
+      <section aria-labelledby="photos-title" className="space-y-3 rounded-card border border-line bg-surface p-5 shadow-e1">
+        <h2 id="photos-title" className="type-heading text-ink">
           {text.photosTitle}
         </h2>
-        <p className="text-sm text-muted-foreground">{text.photosHelp}</p>
+        <p className="type-small text-ink-2">{text.photosHelp}</p>
         {visit.evidence.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{text.noPhotos}</p>
+          <p className="type-body text-ink-2">{text.noPhotos}</p>
         ) : (
-          <ul className="space-y-1" data-photos>
+          <ul className="flex flex-wrap gap-3" data-photos>
             {visit.evidence.map((photo, index) => (
               <li key={photo.asset_id}>
-                <Button type="button" variant="outline" size="sm" aria-disabled={download.isPending} data-download onClick={() => !download.isPending && download.mutate(photo.asset_id)}>
+                <Button type="button" variant="outline" aria-disabled={download.isPending} data-download onClick={() => !download.isPending && download.mutate(photo.asset_id)}>
                   {format(text.photoDownload, { number: index + 1 })}
                 </Button>
               </li>
             ))}
           </ul>
         )}
-        <label htmlFor="photo" className="block text-sm font-medium">
+        <label htmlFor="photo" className="block font-medium text-ink">
           {text.photoLabel}
         </label>
         <input
@@ -208,7 +220,7 @@ function Visit({ id, visit, now }: { id: string; visit: Work; now: number }) {
           disabled={actions.upload.isPending}
           aria-describedby={problem ? "photo-error" : undefined}
           aria-invalid={Boolean(problem)}
-          className="block min-h-11 w-full min-w-0 text-sm"
+          className="field-control block min-h-14 w-full min-w-0 cursor-pointer p-2 text-sm file:mr-3 file:min-h-10 file:cursor-pointer file:rounded-full file:border-0 file:bg-paper-2 file:px-4 file:font-medium file:text-ink"
           onChange={(event) => {
             const file = event.target.files?.[0];
             event.target.value = "";
@@ -220,22 +232,24 @@ function Visit({ id, visit, now }: { id: string; visit: Work; now: number }) {
           }}
         />
         {actions.upload.isPending ? (
-          <p role="status" className="text-sm">
+          <p role="status" className="flex items-center gap-2 text-sm text-ink">
+            <DialLoader className="size-5 text-orange-text" />
             {text.photoUploading}
           </p>
         ) : null}
         {problem ? (
-          <p id="photo-error" role="alert" className="text-sm font-medium text-destructive" data-error="photo">
+          <p id="photo-error" role="alert" className="flex items-center gap-1.5 text-sm font-medium text-danger" data-error="photo">
+            <CircleAlert aria-hidden className="size-4 shrink-0" />
             {problem}
           </p>
         ) : null}
       </section>
 
-      <section aria-labelledby="history-title" className="space-y-2">
-        <h2 id="history-title" className="font-heading text-xl font-semibold tracking-tight">
+      <section aria-labelledby="history-title" className="space-y-3">
+        <h2 id="history-title" className="type-heading text-ink">
           {text.history}
         </h2>
-        <ul className="space-y-1 text-sm" data-history>
+        <ul className="space-y-1 text-sm text-ink" data-history>
           {visit.history.map((entry, index) => (
             <li key={index}>{format(messages.visits.customer.historyLine, { action: actionLabel(entry.action), date: day(entry.created_at) })}</li>
           ))}
