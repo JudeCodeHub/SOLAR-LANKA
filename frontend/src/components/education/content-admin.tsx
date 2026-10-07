@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgeCheck, CircleAlert, CircleCheck } from "lucide-react";
+import { BadgeCheck, CircleAlert } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState } from "react";
 
@@ -10,6 +10,7 @@ import { QueryState } from "@/components/query-state";
 import { EmptyState } from "@/components/states/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { StatusNote } from "@/components/ui/status-note";
 import { PageHeader } from "@/components/ui/page-header";
 import type { ApiError } from "@/lib/api/errors";
 import { formatLongDate } from "@/lib/catalogue/detail";
@@ -157,10 +158,9 @@ function Topics() {
           {text.categoryAdd}
         </Button>
         {notice ? (
-          <p role="status" className="flex items-center gap-2 font-medium text-ink" data-notice>
-            <CircleCheck aria-hidden className="size-4 text-success" />
+          <StatusNote tone="success" data-notice>
             {text.categoryAdded}
-          </p>
+          </StatusNote>
         ) : null}
         {failure ? <ApiErrorMessage error={failure} /> : null}
       </form>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 
 import { Button } from "@/components/ui/button";
+import { StatusNote } from "@/components/ui/status-note";
 import { type SentRequest, useRequestDraft } from "@/lib/requests/draft-store";
 import { format, messages } from "@/messages";
 
@@ -30,9 +31,9 @@ export function SentConfirmation({ sent }: { sent: SentRequest }) {
         {text.title}
       </h2>
       {sent.replayed ? (
-        <p role="status" className="text-sm font-medium text-ink" data-replayed>
+        <StatusNote tone="info" data-replayed>
           {text.replayed}
-        </p>
+        </StatusNote>
       ) : null}
       <p className="type-body text-ink">{text.intro}</p>
       <ul className="list-disc space-y-1 pl-5 text-sm" data-sent-companies>

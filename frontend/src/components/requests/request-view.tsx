@@ -4,6 +4,7 @@ import { BackLink } from "@/components/ui/back-link";
 import { Table, TableRegion } from "@/components/ui/table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { StatusNote } from "@/components/ui/status-note";
 import { TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState } from "react";
@@ -130,9 +131,9 @@ function Detail({
           {headline(request)}
         </p>
         {done ? (
-          <p role="status" className="text-sm font-medium text-success" data-done>
+          <StatusNote tone="success" data-done>
             {wd.done}
-          </p>
+          </StatusNote>
         ) : null}
         <Button type="button" variant="outline" onClick={onRefresh} aria-disabled={refreshing}>
           {refreshing ? text.refreshing : text.refresh}

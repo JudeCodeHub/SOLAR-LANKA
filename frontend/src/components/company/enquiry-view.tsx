@@ -14,6 +14,7 @@ import { QueryState } from "@/components/query-state";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { StatusNote } from "@/components/ui/status-note";
 import type { ApiError } from "@/lib/api/errors";
 import type { components } from "@/lib/api/schema";
 import { useCurrentUser } from "@/lib/api/hooks";
@@ -327,10 +328,9 @@ function Notes({ companyId, id, canAdd, onStale }: { companyId: string; id: stri
           <TextareaField form={form} name="body" label={notesText.add} description={notesText.addHelp} maxLength={MAX_NOTE} />
           <FormSubmitButton pending={form.formState.isSubmitting}>{notesText.save}</FormSubmitButton>
           {saved ? (
-            <p role="status" className="flex items-center gap-2 text-sm font-medium text-ink" data-note-saved>
-              <CircleCheck aria-hidden className="size-4 text-success" />
+            <StatusNote tone="success" data-note-saved>
               {notesText.saved}
-            </p>
+            </StatusNote>
           ) : null}
         </AppForm>
       ) : (

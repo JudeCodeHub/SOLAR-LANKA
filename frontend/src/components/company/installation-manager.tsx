@@ -12,6 +12,7 @@ import { QueryState } from "@/components/query-state";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { StatusNote } from "@/components/ui/status-note";
 import { DialLoader } from "@/components/ui/dial-loader";
 import { PageHeader } from "@/components/ui/page-header";
 import type { ApiError } from "@/lib/api/errors";
@@ -233,10 +234,9 @@ function StepForms({ companyId, installationId, step, steps, pending, run }: { c
             </p>
           ) : null}
           {assetId && fileName ? (
-            <p role="status" className="flex items-center gap-2 font-medium text-ink" data-uploaded>
-              <CircleCheck aria-hidden className="size-4 text-success" />
+            <StatusNote tone="success" data-uploaded>
               {format(text.upload.done, { name: fileName })}
-            </p>
+            </StatusNote>
           ) : null}
           {completeErrors.assetId || uploadProblem ? (
             <p id={`${id}-asset-error`} className="flex items-center gap-1.5 font-medium text-danger" data-error="asset">
