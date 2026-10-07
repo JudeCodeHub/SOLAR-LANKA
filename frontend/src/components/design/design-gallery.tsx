@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import { Building2, ClipboardList, FileText, Inbox, Wrench, Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
 
+import { TotalsPanel } from "@/components/company/quotation-totals";
 import { QuotationLinesDemo } from "@/components/design/quotation-lines-demo";
 import { EnquiryCard } from "@/components/company/enquiry-card";
 import { InstallationTimeline } from "@/components/installations/installation-timeline";
@@ -554,6 +555,14 @@ export function DesignGallery() {
         <div className="space-y-3">
           <h3 className="type-subheading">{text.navigation.lines}</h3>
           <QuotationLinesDemo />
+        </div>
+        <div className="space-y-3" data-totals-sample>
+          <h3 className="type-subheading">{text.navigation.totals}</h3>
+          <div className="grid gap-4 lg:grid-cols-3">
+            <TotalsPanel terms={{ subtotal: null, discount: null, tax: null, total: null }} dirty={false} />
+            <TotalsPanel terms={{ subtotal: "1640000.00", discount: "40000.00", tax: "0.00", total: "1600000.00" }} dirty={false} />
+            <TotalsPanel terms={{ subtotal: "1640000.00", discount: "40000.00", tax: "0.00", total: "1600000.00" }} dirty />
+          </div>
         </div>
         <div className="space-y-3" data-enquiries-sample>
           <h3 className="type-subheading">{text.navigation.enquiries}</h3>
