@@ -1,12 +1,13 @@
 import { ArrowRightLeft, MessageSquare, UserCheck, UserMinus, type LucideIcon } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { formatDateTime } from "@/lib/format/datetime";
 import { type CaseUpdate } from "@/lib/support/hooks";
 import { roleLabel } from "@/lib/support/support";
 import { format, messages } from "@/messages";
 
 const text = messages.support;
-const day = (iso: string) => new Date(iso).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Colombo" });
+const day = formatDateTime;
 const ICONS: Record<string, LucideIcon> = { message: MessageSquare, status: ArrowRightLeft, assigned: UserCheck, unassigned: UserMinus };
 
 /** The history of a case, as cards on a line, newest where the list puts them. Company-side views show who acted and mark internal entries. */

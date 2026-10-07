@@ -12,13 +12,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FileChooser } from "@/components/ui/file-chooser";
 import type { ApiError } from "@/lib/api/errors";
+import { formatDate } from "@/lib/format/datetime";
 import { evidenceProblem } from "@/lib/installations/evidence";
 import { actionLabel, canComplete, formatRange, statusLabel, visitTone } from "@/lib/visits/slots";
 import { technicianPhoto, useAssignedVisit, useDownloadVisitPhoto, useTechnicianActions } from "@/lib/visits/hooks";
 import { format, messages } from "@/messages";
 
 const text = messages.visits.technician;
-const day = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { dateStyle: "long", timeZone: "Asia/Colombo" });
+const day = (iso: string) => formatDate(iso);
 
 /** One booked visit: add notes and photos, then complete it with a summary for the customer. */
 export function TechnicianVisit({ id }: { id: string }) {

@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import type { ApiError } from "@/lib/api/errors";
 import { actionLabel, customerCan, emptyRow, formatRange, slotRequest, type SlotRow, statusLabel, visitTone } from "@/lib/visits/slots";
 import { type SiteVisit, useCustomerVisitActions, useMyVisits, useVisitOutcome } from "@/lib/visits/hooks";
+import { formatDate } from "@/lib/format/datetime";
 import { format, messages } from "@/messages";
 
 const text = messages.visits.customer;
@@ -173,7 +174,7 @@ function VisitCard({ visit, installationId, start, handlers, actions }: { visit:
           <summary className="inline-flex min-h-11 cursor-pointer items-center font-medium text-orange-text">{text.history}</summary>
           <ul className="mt-1 space-y-1">
             {outcome.data.history.map((entry, index) => (
-              <li key={index}>{format(text.historyLine, { action: actionLabel(entry.action), date: new Date(entry.created_at).toLocaleDateString("en-GB", { dateStyle: "long", timeZone: visit.timezone }) })}</li>
+              <li key={index}>{format(text.historyLine, { action: actionLabel(entry.action), date: formatDate(entry.created_at, visit.timezone) })}</li>
             ))}
           </ul>
         </details>
