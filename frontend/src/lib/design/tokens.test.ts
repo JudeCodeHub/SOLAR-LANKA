@@ -974,3 +974,12 @@ test("the company installations list keeps its gate, paging and addresses, and u
   const customerList = readFileSync(join(dir, "installations", "installations-view.tsx"), "utf8");
   assert.match(customerList, /<InstallationCard item=\{item\} \/>/);
 });
+
+test("the installation manager keeps its steps, forms, guards and marks, with large labelled file inputs, and customer-visible and internal parts look clearly different", () => {
+  const dir = join(import.meta.dirname, "..", "..", "components", "company");
+  const manager = readFileSync(join(dir, "installation-manager.tsx"), "utf8");
+  for (const needle of ["data-customer-sees", "data-done", "data-step={step.status}", "data-refused", "data-progress", "data-final", "data-waiting", "data-action=\"start\"", "data-action=\"complete\"", "data-action=\"reset\"", "data-uploading", "data-uploaded", "data-error=\"asset\"", "data-error=\"note\"", "data-error=\"reason\"", "data-evidence-list", "data-download={item.kind}", "busy.current", "validateComplete({ assetId, note })", "validateReset({ reason })", "evidenceProblem(file)", "upload.mutate(file", 'type="file"', 'accept="image/jpeg,image/png,image/webp"', "min-h-11", "file:min-h-9", "<StaffVisits", "<InternalNotes", "<ShareForm", "<SharedNow", "refusalText(refused.attempt, step, steps)"]) assert.ok(manager.includes(needle), needle);
+  const share = readFileSync(join(dir, "installation-share.tsx"), "utf8");
+  for (const needle of ["data-shared-now", "data-share-form", "data-badge=\"shared\"", "data-error-summary", "data-share-sent", "data-refused", "data-internal-section", "data-badge=\"internal\"", "data-notes", "data-note", "data-no-notes", "data-note-saved", "data-action=\"share\"", "data-action=\"add-note\"", "busy.current", "validateSchedule(input, now)", "validateInstallationNote(body)", "border-2 border-info", "border-2 border-dashed"]) assert.ok(share.includes(needle), needle);
+  assert.doesNotMatch(manager + share, /text-muted-foreground|font-heading|text-destructive|rounded-lg border|size="sm"/);
+});

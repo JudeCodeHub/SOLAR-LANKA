@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import { Building2, ClipboardList, FileText, Inbox, Wrench, Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
 
+import { ShareDemo } from "@/components/design/share-demo";
 import { OffersDemo } from "@/components/design/offers-demo";
 import { QuotationConfirmDemo } from "@/components/design/quotation-confirm-demo";
 import { RevisionHistory } from "@/components/company/quotation-revision";
@@ -647,6 +648,10 @@ export function DesignGallery() {
               </li>
             ))}
           </ul>
+        </div>
+        <div className="space-y-3">
+          <h3 className="type-subheading">{text.navigation.share}</h3>
+          <ShareDemo />
         </div>
         <div className="space-y-3" data-company-installations-sample>
           <h3 className="type-subheading">{text.navigation.companyInstallations}</h3>
