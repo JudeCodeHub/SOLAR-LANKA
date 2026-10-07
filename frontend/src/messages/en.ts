@@ -999,6 +999,7 @@ export const en = {
       generic: "That decision is not allowed for the company as it stands. Nothing was changed.",
     },
     users: {
+      eyebrow: "Platform administration",
       title: "Account access",
       intro: "Suspend an account or restore one. A suspended person is signed out of everything on their next request. Account ids appear in the review history of a company.",
       idLabel: "Account id",
@@ -1352,6 +1353,7 @@ export const en = {
       versions: "Estimator versions: in use, draft and archived",
       codeAreas: "The two JSON code areas",
       articleForm: "The article editor with a draft",
+      accountForm: "The account access form",
       totals: "The totals panel with no totals, with totals and with unsaved changes",
       dashboardIntro: "The customer links in a side column on wide screens and in a drawer on phones. The current page is marked with a bar, a tint and the current-page attribute.",
       requests: "Request cards in each state",

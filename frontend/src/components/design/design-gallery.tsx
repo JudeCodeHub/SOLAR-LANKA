@@ -3,6 +3,7 @@ import { Building2, ClipboardList, FileText, Inbox, Wrench, Zap, Sun, BatteryCha
 
 import { VersionCard } from "@/components/admin/estimator-admin";
 import { inUseIds } from "@/lib/admin/config";
+import { AccountFormDemo } from "@/components/design/account-form-demo";
 import { ArticleFormDemo } from "@/components/design/article-form-demo";
 import { CodeAreaDemo } from "@/components/design/code-area-demo";
 import { ProductFormDemo } from "@/components/design/product-form-demo";
@@ -578,6 +579,10 @@ export function DesignGallery() {
         <div className="space-y-3">
           <h3 className="type-subheading">{text.navigation.articleForm}</h3>
           <ArticleFormDemo />
+        </div>
+        <div className="space-y-3">
+          <h3 className="type-subheading">{text.navigation.accountForm}</h3>
+          <AccountFormDemo />
         </div>
         <div className="space-y-3" data-versions-sample>
           <h3 className="type-subheading">{text.navigation.versions}</h3>
