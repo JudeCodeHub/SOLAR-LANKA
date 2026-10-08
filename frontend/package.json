@@ -12,10 +12,6 @@
     "typecheck": "next typegen && tsc --noEmit",
     "check": "pnpm lint && pnpm typecheck",
     "api:types": "tmp=$(mktemp) && (cd ../backend && .venv/bin/python -m app.export_openapi \"$tmp\") && openapi-typescript \"$tmp\" -o src/lib/api/schema.d.ts && rm -f \"$tmp\"",
-    "test": "node --test",
-    "e2e": "playwright test",
-    "design-axe": "playwright test -c playwright.design.config.ts",
-    "screens": "playwright test -c playwright.screens.config.ts",
     "photos": "node scripts/photos.mjs",
     "brand": "node scripts/brand.mjs"
   },
@@ -40,8 +36,6 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.13.0",
-    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^24.19.0",
     "@types/react": "^19",

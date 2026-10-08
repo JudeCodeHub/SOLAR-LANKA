@@ -1,7 +1,7 @@
 import { Clock, FlaskConical, TriangleAlert } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge, SampleBadge, TimeSensitiveBadge, VerifiedBadge } from "@/components/ui/badge";
+import { Badge, TimeSensitiveBadge, VerifiedBadge } from "@/components/ui/badge";
 import { formatLongDate } from "@/lib/catalogue/detail";
 import { currency } from "@/lib/education/education";
 import { format, messages } from "@/messages";
@@ -15,7 +15,6 @@ export function Badges({ article }: { article: { time_sensitive: boolean; review
     <p className="flex flex-wrap gap-2" data-badges>
       {state === "time-sensitive" ? <TimeSensitiveBadge data-badge="time-sensitive">{text.timeSensitiveBadge}</TimeSensitiveBadge> : null}
       {state === "overdue" ? <Badge variant="danger" data-badge="overdue">{text.overdueBadge}</Badge> : null}
-      {article.is_sample ? <SampleBadge data-badge="sample">{text.sampleBadge}</SampleBadge> : null}
     </p>
   );
 }

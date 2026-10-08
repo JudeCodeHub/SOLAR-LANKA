@@ -1,50 +1,213 @@
-import { BadgeCheck, Calculator, Route, Scale } from "lucide-react";
+"use client";
 
-import { DrawLine } from "@/components/ui/draw-line";
+import {
+  BadgeCheck,
+  Calculator,
+  Route,
+  Scale,
+  type LucideIcon,
+} from "lucide-react";
+import { useRef, useState, type KeyboardEvent } from "react";
+
 import { Container } from "@/components/ui/container";
-import { IconCircle } from "@/components/ui/icon";
-import { Section } from "@/components/ui/section";
+import { Photo } from "@/components/ui/photo";
+import type { PhotoKey } from "@/lib/photos/photos";
+import { cn } from "@/lib/utils";
 import { format, messages } from "@/messages";
 
 const text = messages.landing.story.how;
 
-const STEPS = [
-  { id: "estimate", icon: Calculator },
-  { id: "compare", icon: Scale },
-  { id: "choose", icon: BadgeCheck },
-  { id: "track", icon: Route },
-] as const;
+type Step = {
+  id: keyof typeof text.steps;
+  icon: LucideIcon;
+  photos: readonly PhotoKey[];
+};
 
-/** Four steps joined by a line that draws itself as the strip scrolls into view. */
+/** Each step has its own six pictures, which swap inside the tilted panel when the step is chosen. */
+const STEPS: readonly Step[] = [
+  {
+    id: "estimate",
+    icon: Calculator,
+    photos: [
+      "roofPlan",
+      "learnBill",
+      "aerial",
+      "learnHow",
+      "sunrise",
+      "consultation",
+    ],
+  },
+  {
+    id: "compare",
+    icon: Scale,
+    photos: [
+      "panelMacro",
+      "learnPanels",
+      "learnDatasheet",
+      "team",
+      "panelPlaceholder",
+      "inverterPlaceholder",
+    ],
+  },
+  {
+    id: "choose",
+    icon: BadgeCheck,
+    photos: [
+      "consultation",
+      "companyCover",
+      "learnGrid",
+      "team",
+      "signUp",
+      "handover",
+    ],
+  },
+  {
+    id: "track",
+    icon: Route,
+    photos: [
+      "siteSurvey",
+      "delivery",
+      "installation",
+      "handover",
+      "installers",
+      "technician",
+    ],
+  },
+];
+
+/** A stepper: the headline and four steps on the left (the chosen one opens), and on the right a tilted panel whose pictures change with the step. The steps are real tabs, so arrow keys move between them. */
 export function HowItWorks() {
+  const [active, setActive] = useState(0);
+  const tabs = useRef<(HTMLButtonElement | null)[]>([]);
+  const step = STEPS[active] ?? STEPS[0]!;
+
+  const choose = (index: number) => {
+    const next = (index + STEPS.length) % STEPS.length;
+    setActive(next);
+    tabs.current[next]?.focus();
+  };
+  const onKey = (event: KeyboardEvent) => {
+    if (event.key === "ArrowDown" || event.key === "ArrowRight")
+      choose(active + 1);
+    else if (event.key === "ArrowUp" || event.key === "ArrowLeft")
+      choose(active - 1);
+    else if (event.key === "Home") choose(0);
+    else if (event.key === "End") choose(STEPS.length - 1);
+    else return;
+    event.preventDefault();
+  };
+
   return (
-    <div className="border-y border-line bg-paper-2 lg:flex lg:min-h-svh lg:items-center" data-how-it-works>
-      <Section space="l" labelledBy="how-title" className="w-full">
-        <Container size="wide" className="space-y-12">
-          <div className="max-w-2xl space-y-4">
-            <p className="type-caption font-semibold tracking-widest text-orange-text uppercase">{text.eyebrow}</p>
-            <h2 id="how-title" className="type-display-m text-ink">{text.title}</h2>
+    <section
+      aria-labelledby="how-title"
+      className="bg-paper py-section-m lg:flex lg:min-h-svh lg:items-center"
+      data-how-it-works
+    >
+      <Container size="wide" className="space-y-12 lg:space-y-16">
+        <div className="mx-auto space-y-4 text-center">
+          <h2 id="how-title" className="type-display-m text-ink">
+            {text.lead} <span className="italic-display">{text.emphasis}</span>
+          </h2>
+          <p className="type-body text-ink-2">{text.caption}</p>
+        </div>
+        <div className="grid items-center gap-14 lg:grid-cols-[0.85fr_1.15fr] lg:gap-10">
+          <div>
+            <div
+              role="tablist"
+              aria-orientation="vertical"
+              aria-label={text.tabs}
+              className="space-y-1"
+            >
+              {STEPS.map((item, index) => {
+                const open = index === active;
+                return (
+                  <button
+                    key={item.id}
+                    ref={(element) => {
+                      tabs.current[index] = element;
+                    }}
+                    type="button"
+                    role="tab"
+                    id={`how-tab-${item.id}`}
+                    aria-selected={open}
+                    aria-controls="how-panel"
+                    tabIndex={open ? 0 : -1}
+                    onClick={() => setActive(index)}
+                    onKeyDown={onKey}
+                    data-step={item.id}
+                    className={cn(
+                      "block w-full cursor-pointer border-l-2 py-3 pl-7 text-left transition-colors duration-300 motion-reduce:transition-none",
+                      open
+                        ? "border-ink"
+                        : "border-dashed border-line hover:border-ink-3",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "type-subheading block transition-colors duration-300 motion-reduce:transition-none",
+                        open ? "text-ink" : "text-ink-3 hover:text-ink-2",
+                      )}
+                    >
+                      {text.steps[item.id].title}
+                    </span>
+                    {open ? (
+                      <span className="step-open type-body mt-2 block max-w-md text-ink-2">
+                        {text.steps[item.id].body}
+                      </span>
+                    ) : null}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-          <ol className="grid gap-10 md:grid-cols-4 md:gap-6">
-            {STEPS.map((step, index) => (
-              <li key={step.id} className="relative flex gap-5 md:flex-col md:gap-4">
-                <IconCircle icon={step.icon} size="lg" tone="orange" />
-                {index < STEPS.length - 1 ? (
-                  <span aria-hidden className="absolute top-[3.75rem] -bottom-[2.25rem] left-[1.625rem] w-0.5 bg-line md:top-[1.625rem] md:right-[-1.25rem] md:bottom-auto md:left-[3.75rem] md:h-0.5 md:w-auto">
-                    <DrawLine direction="y" delay={index * 500} className="size-full bg-orange md:hidden" />
-                    <DrawLine direction="x" delay={index * 500} className="hidden size-full bg-orange md:block" />
-                  </span>
-                ) : null}
-                <div className="space-y-1.5">
-                  <p className="type-caption font-semibold tracking-widest text-ink-3 uppercase">{format(text.stepLabel, { number: index + 1 })}</p>
-                  <h3 className="type-subheading text-ink">{text.steps[step.id].title}</h3>
-                  <p className="type-small max-w-[16rem] text-ink-2">{text.steps[step.id].body}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </Container>
-      </Section>
-    </div>
+          <div className="lg:[perspective:1100px]">
+            <div
+              role="tabpanel"
+              id="how-panel"
+              aria-labelledby={`how-tab-${step.id}`}
+              aria-label={format(text.panelLabel, {
+                step: text.steps[step.id].title,
+              })}
+              className="mx-auto w-full max-w-[39rem] rounded-[2rem] border border-line bg-surface p-5 shadow-e3 sm:p-8 lg:[transform-style:preserve-3d] lg:[transform:rotateY(-24deg)_rotateX(5deg)_rotateZ(-1deg)]"
+              data-how-panel
+            >
+              <div aria-hidden className="grid grid-cols-3 gap-3 sm:gap-4">
+                {step.photos.map((name, index) => (
+                  <div
+                    key={`${step.id}-${name}`}
+                    className="mosaic-tile aspect-[9/7] overflow-hidden rounded-2xl bg-paper-2"
+                    style={{ "--i": index } as React.CSSProperties}
+                  >
+                    <Photo
+                      name={name}
+                      sizes="(min-width: 1024px) 14vw, 30vw"
+                      className="size-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+              <div aria-hidden className="mt-7 flex justify-center gap-3">
+                {STEPS.map((item, index) => {
+                  const Icon = item.icon;
+                  return (
+                    <span
+                      key={item.id}
+                      className={cn(
+                        "grid size-11 place-items-center rounded-full transition-colors duration-300 motion-reduce:transition-none",
+                        index === active
+                          ? "bg-orange text-on-orange shadow-e2"
+                          : "bg-paper-2 text-ink-3",
+                      )}
+                    >
+                      <Icon className="size-5" />
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      </Container>
+    </section>
   );
 }

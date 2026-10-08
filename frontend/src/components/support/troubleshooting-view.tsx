@@ -182,7 +182,6 @@ function Result({ data, choose }: { data: Lookup; choose: (productId: string) =>
                   <ExternalLink href={link}>{text.open}</ExternalLink>
                 </p>
               ) : null}
-              {reference.is_sample ? <p className="type-small text-ink-2">{text.sampleNote}</p> : null}
             </div>
           </article>
         );

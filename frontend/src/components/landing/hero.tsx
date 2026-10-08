@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dial } from "@/components/ui/dial";
 import { Photo } from "@/components/ui/photo";
-import { SampleBadge } from "@/components/ui/badge";
 import { messages } from "@/messages";
 
 const text = messages.landing.hero;
@@ -16,7 +15,7 @@ const step = (index: number) => ({ "--i": index }) as React.CSSProperties;
 /** The landing hero: an oversized serif headline on a blueprint grid, two actions, and the rooftop photo fading in from the right behind a sample dial. */
 export function Hero({ signedIn }: { signedIn: boolean }) {
   return (
-    <section aria-labelledby="hero-title" className="bg-blueprint relative isolate overflow-hidden border-b border-line lg:flex lg:min-h-svh lg:items-center" data-hero>
+    <section aria-labelledby="hero-title" className="bg-blueprint relative isolate overflow-hidden lg:flex lg:min-h-svh lg:items-center" data-hero>
       <div className="mx-auto w-full max-w-wide px-4 sm:px-6">
         <div className="relative z-10 space-y-6 pb-section-m pt-28 lg:max-w-[48%] lg:py-28">
           <p style={step(0)} className="hero-in type-caption font-semibold tracking-widest text-orange-text uppercase">{messages.brand.tagline}</p>
@@ -36,13 +35,13 @@ export function Hero({ signedIn }: { signedIn: boolean }) {
         <Photo name="hero" sizes="(min-width: 1024px) 62vw, 100vw" priority className="hero-fade absolute inset-0 size-full object-cover" />
         <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-paper via-transparent to-transparent lg:bg-gradient-to-r lg:from-paper lg:via-paper/35 lg:to-transparent" />
       </div>
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-40 bg-gradient-to-t from-paper to-transparent" />
       <div style={step(4)} className="hero-bump group/dial relative z-10 mx-4 -mt-12 mb-8 sm:mx-6 sm:w-[26rem] lg:absolute lg:right-10 lg:bottom-10 lg:mx-0 lg:mt-0 lg:mb-0" data-hero-dial>
         <span aria-hidden className="absolute -inset-5 -z-10 rounded-[2.25rem] bg-orange/30 opacity-70 blur-2xl transition-opacity duration-500 group-hover/dial:opacity-100 motion-reduce:transition-none" />
         <Card variant="glass" className="gap-0 rounded-3xl bg-surface/85 p-5 ring-1 ring-orange/20">
           <div className="flex items-center gap-5">
             <Dial label={text.sampleSize} value={5.4} max={15} unit={text.sampleUnit} size={112} delay={900} />
             <div className="space-y-2.5">
-              <SampleBadge>{teaser.sampleLabel}</SampleBadge>
               <p className="type-small text-ink-2">{text.sampleNote}</p>
             </div>
           </div>

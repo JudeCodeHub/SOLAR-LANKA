@@ -390,7 +390,6 @@ export const en = {
       noClaim: "No claim given",
     },
     images: { alt: "Photo of {name}" },
-    sampleEntry: "Sample catalogue entry",
   },
   directory: {
     eyebrow: "Directory",
@@ -476,9 +475,10 @@ export const en = {
   landing: {
     story: {
       teaser: {
+        heading: "Your solar, in a few numbers.",
+        subheading: "Your system size, yearly output and cost range, from one number.",
         title: "See a number before you talk to anyone.",
         body: "Enter your monthly electricity use and get a sample system size, yearly generation and a cost range.",
-        sampleLabel: "Sample figures",
         action: "Open the estimator",
         inputLabel: "Monthly electricity use:",
         inputValue: "400 units",
@@ -490,9 +490,11 @@ export const en = {
         costUnit: "million LKR",
       },
       how: {
-        eyebrow: "How it works",
-        title: "From your bill to a working system, in four steps.",
-        stepLabel: "Step {number}",
+        lead: "From your bill to a working system,",
+        emphasis: "in four steps.",
+        caption: "Choose a step to see what it looks like.",
+        tabs: "The four steps",
+        panelLabel: "Pictures for the {step} step",
         steps: {
           estimate: { title: "Estimate", body: "Size a system from your electricity use and your roof." },
           compare: { title: "Compare", body: "Put quotations side by side, with every figure labelled." },
@@ -514,7 +516,6 @@ export const en = {
         eyebrow: "Quotations",
         title: "Quotes you can actually compare.",
         body: "Same rows, same units, side by side, so the difference between two offers is one glance, not an afternoon.",
-        sampleLabel: "Sample data",
         caption: "Two sample offers compared for five system sizes",
         region: "Sample quotation comparison",
         stage: "System size",
@@ -528,7 +529,6 @@ export const en = {
           business: { name: "Small business", detail: "15 kW · 28 panels · grid-tied inverter", a: "LKR 3,700,000", b: "LKR 3,380,000", gap: "LKR 320,000", share: "9% less" },
           workshop: { name: "Workshop or farm", detail: "30 kW · 56 panels · grid-tied inverter", a: "LKR 7,100,000", b: "LKR 6,420,000", gap: "LKR 680,000", share: "10% less" },
         },
-        note: "Sample quotations for illustration. Real offers list every row the same way, and say “Not specified” where a company left a value blank.",
       },
       closing: {
         title: "Start with your electricity bill.",
@@ -549,7 +549,6 @@ export const en = {
     },
 
     products: {
-      sampleNote: "Sample catalogue entry",
       kind: { panel: "Solar panel", inverter: "Inverter" },
     },
 
@@ -1819,7 +1818,6 @@ export const en = {
     suggestionsTitle: "Similar names (not instructions)",
     suggestionsHelp: "These are other models. Their instructions may not apply to yours, so none are shown. Choose one only if it is yours.",
     report: "Report this problem to your installer",
-    sampleNote: "Sample listing",
   },
   adminReferences: {
     eyebrow: "Platform administration",
@@ -1886,7 +1884,6 @@ export const en = {
     noneHelp: "Try different words or another topic.",
     timeSensitiveBadge: "Time-sensitive",
     overdueBadge: "Needs re-checking",
-    sampleBadge: "Sample content",
     verifiedBadge: "Checked against its sources",
     published: "Published {date}",
     back: "Back to the guides",

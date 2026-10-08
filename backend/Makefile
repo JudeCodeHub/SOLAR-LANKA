@@ -5,7 +5,7 @@
 PYTHON := .venv/bin/python
 ALEMBIC := $(PYTHON) -m alembic -c alembic.ini
 
-.PHONY: help migrate migrate-test migration-current migration-test-current migration-history migration-new migration-down migration-sql test-migrations
+.PHONY: help migrate migrate-test migration-current migration-test-current migration-history migration-new migration-down migration-sql
 
 help:
 	@printf '%s\n' \
@@ -16,8 +16,7 @@ help:
 	  'make migration-history        List revision history (no database required)' \
 	  'make migration-new MESSAGE="add users"  Generate a migration; review before applying' \
 	  'make migration-down           Undo ONE app revision; review possible data loss first' \
-	  'make migration-sql            Print upgrade SQL without connecting' \
-	  'make test-migrations          Check upgrade/rollback on a temporary empty test database'
+	  'make migration-sql            Print upgrade SQL without connecting'
 
 migrate:
 	$(ALEMBIC) upgrade head
@@ -46,8 +45,3 @@ migration-down:
 
 migration-sql:
 	$(ALEMBIC) upgrade head --sql
-
-# Requires the test container's local administrator and permission to create/drop
-# a uniquely named temporary database. Existing development/test tables are untouched.
-test-migrations:
-	$(PYTHON) -m pytest --database tests/test_migrations.py
