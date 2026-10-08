@@ -423,15 +423,24 @@ test("the signed-out landing page has no second navigation row, while other page
   assert.ok(nav.includes("usePathname"));
 });
 
-test("the landing comparison is a real styled table with sample data, flagged and worded like the customer comparison", () => {
+test("the landing comparison is a real table of two sample offers over five sizes, with a gap column that warms up, labelled as sample data", () => {
   const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
   const section = read("components/landing/comparison-section.tsx");
-  assert.ok(section.includes("<TableRegion") && section.includes("<Table ") && section.includes("<caption") && section.includes('scope="col"') && section.includes('scope="row"'));
-  assert.ok(section.includes("compare.differs") && section.includes("compare.someUnspecified") && section.includes("<NotSpecified />"), "the app's own words, through the shared marks");
-  assert.ok(section.includes("<SampleBadge>"));
+  assert.ok(section.includes("<TableRegion") && section.includes("<table") && section.includes("<caption") && section.includes('scope="col"') && section.includes('scope="row"'));
+  assert.ok(section.includes("color-mix(in srgb, var(--ds-orange)") && section.includes("[6, 13, 22, 33, 46]"), "the gap column is tinted more with each row");
+  assert.ok(section.includes("<SampleBadge>") && section.includes("text.note"));
+  const rows = Object.values(messages.landing.story.comparison.rows);
+  assert.equal(rows.length, 5);
+  for (const row of rows) {
+    const money = (value: string) => Number(value.replace(/[^0-9]/g, ""));
+    assert.equal(money(row.a) - money(row.b), money(row.gap), `${row.name}: the gap is the difference`);
+    assert.ok(money(row.b) < money(row.a));
+  }
   const page = read("app/page.tsx");
   assert.ok(page.indexOf("<ComparisonSection />") > page.indexOf("<FeatureGrid />"));
   assert.ok(section.includes('id="compare"'), "the feature tile links to it");
+  // The gap text sits on the strongest tint in both themes with a readable colour.
+  assert.ok(contrastRatio("#1A1511", "#FFAA70") >= 4.5 && contrastRatio("#F6EFE6", "#7C3914") >= 4.5);
 });
 
 test("the closing band is solid orange with dark ink in both themes, has the sunrise photo and one action, and ends the page", () => {
@@ -530,7 +539,7 @@ test("every comparison and spec table shows Not specified and the difference fla
   const marks = read("ui/compare-marks.tsx");
   assert.ok(marks.includes("border-dashed") && marks.includes("data-unspecified") && marks.includes('data-flag="differs"') && marks.includes('data-flag="unspecified"') && marks.includes("border-l-orange"));
   assert.ok(marks.includes("CircleHelp") && marks.includes("ArrowLeftRight"), "an icon as well as words");
-  for (const file of ["requests/compare-view.tsx", "comparison/compare-page.tsx", "landing/comparison-section.tsx"]) {
+  for (const file of ["requests/compare-view.tsx", "comparison/compare-page.tsx"]) {
     const source = read(file);
     assert.ok(source.includes("compare-marks") && source.includes("DifferenceFlag") && source.includes("UnspecifiedFlag"), file);
     assert.ok(!source.includes("border-dashed"), `${file} no longer draws its own dashed pill`);

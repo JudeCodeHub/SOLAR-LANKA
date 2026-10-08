@@ -8,6 +8,7 @@ import { SampleBadge } from "@/components/ui/badge";
 import { messages } from "@/messages";
 
 const text = messages.landing.hero;
+const teaser = messages.landing.story.teaser;
 
 /** Place in the entrance order; the stylesheet turns it into a delay. */
 const step = (index: number) => ({ "--i": index }) as React.CSSProperties;
@@ -35,13 +36,32 @@ export function Hero({ signedIn }: { signedIn: boolean }) {
         <Photo name="hero" sizes="(min-width: 1024px) 62vw, 100vw" priority className="hero-fade absolute inset-0 size-full object-cover" />
         <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-paper via-transparent to-transparent lg:bg-gradient-to-r lg:from-paper lg:via-paper/35 lg:to-transparent" />
       </div>
-      <Card variant="glass" style={step(4)} className="hero-in relative z-10 mx-4 -mt-12 mb-8 flex-row items-center gap-4 p-3 sm:mx-6 sm:w-80 lg:absolute lg:right-8 lg:bottom-8 lg:mx-0 lg:mt-0 lg:mb-0" data-hero-dial>
-        <Dial label={text.sampleSize} value={5.4} max={15} unit={text.sampleUnit} size={104} delay={900} />
-        <div className="space-y-2">
-          <SampleBadge>{messages.landing.story.teaser.sampleLabel}</SampleBadge>
-          <p className="type-small text-ink-2">{text.sampleNote}</p>
-        </div>
-      </Card>
+      <div style={step(4)} className="hero-bump group/dial relative z-10 mx-4 -mt-12 mb-8 sm:mx-6 sm:w-[26rem] lg:absolute lg:right-10 lg:bottom-10 lg:mx-0 lg:mt-0 lg:mb-0" data-hero-dial>
+        <span aria-hidden className="absolute -inset-5 -z-10 rounded-[2.25rem] bg-orange/30 opacity-70 blur-2xl transition-opacity duration-500 group-hover/dial:opacity-100 motion-reduce:transition-none" />
+        <Card variant="glass" className="gap-0 rounded-3xl bg-surface/85 p-5 ring-1 ring-orange/20">
+          <div className="flex items-center gap-5">
+            <Dial label={text.sampleSize} value={5.4} max={15} unit={text.sampleUnit} size={112} delay={900} />
+            <div className="space-y-2.5">
+              <SampleBadge>{teaser.sampleLabel}</SampleBadge>
+              <p className="type-small text-ink-2">{text.sampleNote}</p>
+            </div>
+          </div>
+          <dl className="mt-4 grid grid-cols-2 gap-4 border-t border-line pt-4">
+            <div>
+              <dt className="type-caption text-ink-2">{teaser.output}</dt>
+              <dd className="type-figure mt-0.5 text-xl font-semibold text-ink">
+                {new Intl.NumberFormat("en-GB").format(7300)} <span className="text-sm font-medium text-ink-2">{teaser.outputUnit}</span>
+              </dd>
+            </div>
+            <div>
+              <dt className="type-caption text-ink-2">{teaser.cost}</dt>
+              <dd className="type-figure mt-0.5 text-xl font-semibold text-ink">
+                {(1.7).toFixed(1)} <span className="text-sm font-medium text-ink-2">{teaser.costUnit}</span>
+              </dd>
+            </div>
+          </dl>
+        </Card>
+      </div>
     </section>
   );
 }
