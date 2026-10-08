@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { SectionUnavailable } from "@/components/landing/section-unavailable";
-import { SampleBadge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DIRECTORY_PATH, profileHref } from "@/lib/directory/links";
 import { formatOfferPrice } from "@/lib/catalogue/detail";
@@ -47,7 +46,6 @@ export function OffersSection({ offers }: { offers: OffersResult }) {
                     <p>
                       <span className="font-medium">{text.price}: </span>
                       {price ? <span className="type-figure font-semibold">{price}</span> : <span data-no-price>{text.noPrice}</span>}
-                      {price && offer.is_demo_price ? <SampleBadge className="ml-2">{text.sample}</SampleBadge> : null}
                     </p>
                     <p>
                       <span className="font-medium">{text.claim}: </span>

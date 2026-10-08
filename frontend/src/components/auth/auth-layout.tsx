@@ -5,7 +5,6 @@ import { IconCircle } from "@/components/ui/icon";
 import { Card } from "@/components/ui/card";
 import { Dial } from "@/components/ui/dial";
 import { Photo } from "@/components/ui/photo";
-import { SampleBadge } from "@/components/ui/badge";
 import { messages } from "@/messages";
 
 const text = messages.auth.layout;
@@ -45,7 +44,6 @@ export function AuthLayout({ photo, eyebrow, line, points = [], children }: { ph
         <Card variant="glass" className="absolute right-8 bottom-8 w-80 flex-row items-center gap-4 p-3">
           <Dial label={text.dialLabel} value={5.4} max={15} unit={text.dialUnit} size={96} />
           <div className="space-y-2">
-            <SampleBadge>{text.sample}</SampleBadge>
             <p className="type-small text-ink-2">{text.dialNote}</p>
           </div>
         </Card>

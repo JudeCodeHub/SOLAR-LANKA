@@ -12,6 +12,8 @@ export const MOTION: MotionEntry[] = [
   { name: "page-out / page-in", where: "Page transition between routes", reason: "A short fade keeps the header and footer still and shows that the page changed." },
   { name: "hero-rise / hero-fade", where: "Landing hero, once on load", reason: "Brings the headline in before the photo so the eye reads the offer first." },
   { name: "hero-bump / hero-bob", where: "The sample card on the landing hero", reason: "A springy pop-in then a slow bob draws the eye to the one live-looking figure, and the lift under the pointer says it is worth a look." },
+  { name: "lattice-rise / lattice-sink", where: "The photo windows in the landing estimate section", reason: "Windows sliding along diagonal rows, up-right and down-left in turn, over a still photo give the section depth and show the page is alive, without moving any text." },
+  { name: "mosaic-in / step-open", where: "The landing how-it-works stepper", reason: "Pictures popping in one by one show that choosing a step changed the panel, and the fading words tell which step is open." },
   { name: "reveal", where: "Landing sections as they scroll into view", reason: "Marks where a new section begins on a long page." },
   { name: "draw-line", where: "Connecting lines in the landing steps", reason: "The line draws in the direction of the steps, showing their order." },
   { name: "count-up", where: "Sample figures in the landing estimate teaser", reason: "Shows the figures are computed from the visitor's inputs, not typed copy." },

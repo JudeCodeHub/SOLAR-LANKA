@@ -78,11 +78,6 @@ const eslintConfig = defineConfig([
       ],
     },
   },
-  {
-    // node:test registers tests when test() is called at the top level.
-    files: ["**/*.test.ts"],
-    rules: { "@typescript-eslint/no-floating-promises": "off" },
-  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     ".next/**",

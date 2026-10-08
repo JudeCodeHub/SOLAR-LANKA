@@ -17,10 +17,9 @@ Run from `backend/`. Docker only provides PostgreSQL; no Make target manages con
 3. Create the schema and demo data: `make migrate`, then `.venv/bin/python -m app.seed_demo` (safe to repeat).
 4. Start the API: `.venv/bin/uvicorn app.main:create_app --factory --reload`. Interactive docs are at `/docs`; `/health` and `/health/ready` are probes.
 
-### Verify it (the gate)
+### Check it
 
 - `.venv/bin/ruff check . && .venv/bin/ruff format --check .`
-- `make migrate-test`, then `.venv/bin/python -m pytest --database` (needs the test container). Without `--database` the PostgreSQL tests are skipped.
 - `.venv/bin/python -m app.benchmark_demo` records demo-scale timings. Point `SOLAR_DATABASE_URL` at a disposable migrated and seeded database first.
 
 ### Integrations
@@ -39,7 +38,7 @@ Needs Docker (PostgreSQL only), Python with `uv`, Node with `pnpm`, and a free [
 
 1. **Database and backend**: follow "Run it" above (root `.env` with two database passwords, `backend/.env` from `.env.example`, `uv sync --locked --group dev`, `docker compose up -d postgres`, `make migrate`, `.venv/bin/python -m app.seed_demo`, then `.venv/bin/python -m app.seed_e2e` for the extra demo people and a fictional estimator version). Both seeds can be repeated safely. Set the Clerk values in `backend/.env` (names are in `backend/.env.example`).
 2. **Frontend**: in `frontend/`, copy `.env.example` to `.env`, fill the four Clerk values from the same Clerk instance and set `API_BASE_URL` to the backend address (for example `http://127.0.0.1:8000`), then `pnpm install` and `pnpm dev` (http://localhost:3000). The browser only ever calls this site's `/api` gateway, which adds the session token and forwards to the backend.
-3. **Check it**: backend `.venv/bin/ruff check . && .venv/bin/python -m pytest --database` (needs `make migrate-test` and the test container); frontend `pnpm check`, `pnpm test`, `pnpm build`; browser tests as described below.
+3. **Check it**: backend `.venv/bin/ruff check .`; frontend `pnpm check` and `pnpm build`. The app has no automated test suite; try it by hand with the demo accounts below.
 
 ## Architecture
 
@@ -133,14 +132,13 @@ Every in-app notification is also emailed once, unless the person has switched e
 
 ## Try it with a real Clerk instance
 
-The browser tests bypass sign-in, so this is the check that exercises Clerk itself. It is opt-in and uses a test user you create yourself in your Clerk development instance (the app never sees or stores passwords).
+This exercises Clerk itself. It uses a test user you create yourself in your Clerk development instance (the app never sees or stores passwords).
 
 1. In the Clerk dashboard (User & authentication) switch on Email address and Password, and, for recovery, Email verification code. Leave Password reset by email code enabled.
 2. Create a user with an email containing `+clerk_test`, for example `me+clerk_test@example.com`, and a password. In a development instance Clerk accepts the fixed code `424242` for such addresses, so no inbox is needed.
 3. Link that user to a demo person before their first sign-in (see Demo accounts): copy the user id (starts with `user_`) and run `.venv/bin/python -m app.link_demo_account` as described there.
 4. Start the stack as in Setup, open `/sign-in`, and sign in with the email and password. The header should change from Sign in to your account menu.
 5. Recovery: on `/sign-in` enter the email, click Forgot password, choose to reset by email code, enter `424242` and set a new password.
-6. To run the same steps automatically from `frontend/`: `LIVE_CLERK_EMAIL=... LIVE_CLERK_PASSWORD=... LIVE_CLERK_NEW_PASSWORD=... node_modules/.bin/playwright test -c playwright.live.config.ts`. Without those variables only the first test runs (the page is Clerk's own email and password form); the recovery test changes the user's password.
 
 Delete the test user in the dashboard when you are done.
 
@@ -186,8 +184,8 @@ Use two browser profiles (or a private window) so a customer and a company can b
 7. **As `e2e_platform_admin`**: review a company submission, edit a specification, publish a new estimator draft, and read the audit log.
 8. **Site visit**: as `e2e_customer_estimate`, open the installation and request a visit with a time; as the company, confirm it with the technician (or offer other times); as `e2e_sunbird_technician`, open My visits, add a note and a photo and complete the visit once its time has come (the app refuses to complete a visit that has not started; for a demonstration, a visit scheduled for the past can only be made by editing its time in the database, which the browser tests do for you).
 
-9. **Support and troubleshooting**: without signing in, open Troubleshooting and look up `GW3000-DNS-30` (hazards come first, each reference names its manual page; a similar name such as `GW3000-DNS` only offers names to pick from). As `e2e_customer_estimate`, open Support and report a problem on the installation (tick "may be dangerous" to see the safety message); as the company, assign `e2e_sunbird_technician`, who then sees only that case.
-10. **Learning centre**: open Learn without signing in. Three articles (how rooftop solar works, connection schemes and the electricity bill) were checked against their cited pages and carry no sample label; the other four are still marked as sample. As `e2e_platform_admin` open Learning content to draft an article, then publish it as `e2e_content_reviewer`.
+9. **Support and troubleshooting**: open Troubleshooting and look up `GW3000-DNS-30` (hazards come first, each reference names its manual page; a similar name such as `GW3000-DNS` only offers names to pick from). As `e2e_customer_estimate`, open Support and report a problem on the installation (tick "may be dangerous" to see the safety message); as the company, assign `e2e_sunbird_technician`, who then sees only that case.
+10. **Learning centre**: open Learn. Three articles (how rooftop solar works, connection schemes and the electricity bill) were checked against their cited pages and carry no sample label; the other four are still marked as sample. As `e2e_platform_admin` open Learning content to draft an article, then publish it as `e2e_content_reviewer`.
 11. **Estimator schemes**: on the Estimator choose Net accounting or Net plus (with a daytime share for net accounting). The result names the scheme, says how it differs from net metering, and lists the feed-in rate with its date and source. As `e2e_platform_admin`, open Estimator settings to draft a version for a scheme (its export rate and a dated export source are required).
 12. **PDF copy**: as the customer, open an offer and choose Prepare PDF; it is made by the background job (run `python -m app.jobs.process_outbox_locally` locally), then Download PDF appears. The company can download any sent revision from its quotation page.
 13. **Email and reminders**: every notification is also written as a file under `backend/storage/mail` (see Email). Run `python -m app.jobs.send_reminders` to create reminders for offers about to expire, visits within a day and yearly check-ins. On Notifications, switch reminders or email off for your own account.
@@ -227,73 +225,5 @@ All of it lives in `frontend/`. Run `pnpm dev` and open `/design`: that page sho
 - **Photos.** The sources are PNG masters in `photos-original/`; `pnpm photos` writes sized WebP files and a manifest into `public/photos/`. Components use `<Photo name="hero" … />` with a name from `src/lib/photos/photos.ts`; alt text is in `src/messages/en.ts`. A photo that is missing or fails to load is replaced by a warm gradient, so no page depends on one. Logo files are made by `node scripts/brand.mjs`.
 - **Words.** Every sentence the interface shows is in `src/messages/en.ts`; components do not hold literal text (a lint rule enforces it).
 - **Shared pieces** are in `src/components/ui/` (buttons, badges, alerts, status notes, the file chooser, tables, the meter dial and loaders) and `src/components/states/` (empty, error and not-found states with line art). Money, units and dates go through `src/lib/format/`.
-- **Motion.** Every animation is listed with its reason in `src/lib/design/motion.ts`, and a test fails if one is added without a line there. With "reduce motion" on, nothing animates (one rule in `globals.css`, checked by `e2e/design/reduced-motion.spec.ts`). Printing gives black text on white without the header, footer or buttons.
-- **Checking the look.** `pnpm test` runs the unit and source tests. `pnpm design-axe` runs the browser checks that need no database (accessibility, layout, contrast over photos, keyboard, reduced motion, fonts and photos missing) against its own server on port 3100. `pnpm screens` takes review screenshots of the real app (needs the browser-test database below).
-
-## Local release gate
-
-Last run on 2026-10-05 (21.16) on one machine with a disposable database, after the Phase 2 work. Everything passed; the numbers below come from that run.
-
-| Check | Command | Result |
-|---|---|---|
-| Backend lint and format | `ruff check .` and `ruff format --check .` | clean (310 files) |
-| Migrations up and down | `make test-migrations` | 2 passed |
-| Backend tests, real PostgreSQL | `pytest --database` | 533 passed |
-| Frontend lint and types | `eslint .` and `next typegen && tsc --noEmit` (the two steps of `pnpm check`) | clean |
-| Frontend unit tests | `pnpm test` | 329 passed |
-| Frontend production build | `next build` | compiles, every route generated |
-| Browser tests (desktop, tablet, mobile) | `playwright test` | 213 tests, all passed (none flaky, none skipped; the layout spec runs on desktop only) |
-
-Not part of this gate: CI, deployment, load testing, real-device checks and the live Clerk run (see Known limitations).
-
-## Browser tests (Phase 17)
-
-Playwright runs the real web app against the real API and a known database. No Clerk account or password is needed: a test-only gateway signs a token for the demo person each test chooses, and the API still verifies it (the sign-in bypass works only when `E2E_AUTH=1` outside production).
-
-1. Create a disposable PostgreSQL database in the test container and export its address. From `backend/`: `.venv/bin/python ../frontend/e2e/support/database.py create`, then `export E2E_DATABASE_URL=$(.venv/bin/python ../frontend/e2e/support/database.py url)` (it reads the passwords in the root `.env`; never print the address). `drop` removes it afterwards.
-2. From `frontend/`: `node_modules/.bin/playwright test` (or `pnpm e2e`). It migrates and seeds the database (`app.seed_demo` plus `app.seed_e2e`, both repeatable), starts the API and the signing proxy, starts the web app, and uses the Chrome installed on the machine. Projects: desktop (1280 px), tablet (iPad) and mobile (Pixel 7); the layout spec runs on desktop only because it sets its own sizes.
-3. Layout is checked at 320 (small phone), 390 (phone), 768 (tablet), 1024 (tablet landscape) and 1280 (desktop) pixels wide: no sideways scrolling, and controls at least 24 px (WCAG 2.5.8; most are 44 px) at phone and tablet widths.
-4. Design review screenshots (not tests): with the same `E2E_DATABASE_URL`, `pnpm screens` in `frontend/` saves pages in light and dark at 390, 768 and 1280 px to `frontend/e2e/.tmp/screens/<label>/`, with an `index.html` to browse them. `SCREENS_LABEL` names the set (default `current`), `SCREENS_WIDTHS` and `SCREENS_THEMES` narrow it, and `-g public|customer|company|technician|admin|records` picks a group.
-5. The demo people and what each can do are listed in `frontend/e2e/identities.ts`; `e2e/specs/foundation.spec.ts` checks that each one is who the table says and that the known data and the refusals are as expected.
-
-## Core scope acceptance (Phase 1)
-
-Each criterion from section 11 of the project scope, with the evidence for it. "Browser" means a Playwright test in `frontend/e2e/specs/`; backend files are in `backend/tests/`.
-
-| # | Criterion | Status | Evidence |
-|---|-----------|--------|----------|
-| 1 | A reviewer can sign in with documented demo accounts for each supported role | Partly met | The seeds create the demo people (`app.seed_demo`, `app.seed_e2e`) and the API verifies Clerk tokens, but no passwords exist: a reviewer must create matching users in a Clerk development instance (steps under Demo accounts and Try it with a real Clerk instance). Browser tests use a signed test token instead (`e2e/identities.ts`). |
-| 2 | Estimate, request, compare, accept, track | Met | Browser: `customer-acceptance.spec.ts` (estimate, request, offer, accept, tracking). API: `test_core_journey.py`. Saving an estimate from the page itself needs a real Clerk session and is covered through the API. |
-| 3 | Company A cannot reach Company B's enquiries, quotations, notes or files | Met | Browser: `company-quotation.spec.ts`, `notifications-documents.spec.ts` (403 for other companies and technicians). API: `test_company_access.py`, `test_core_journey.py`. |
-| 4 | Customers cannot read other customers' records by changing an id | Met | Browser: `foundation.spec.ts`, `notifications-documents.spec.ts` (404). API: `test_saved_estimate_access.py`, `test_request_reads.py`. |
-| 5 | Catalogue filters and comparisons show consistent units and missing values | Met | Unit tests: `lib/catalogue/detail.test.ts`, `lib/comparison/table.test.ts`. API: `test_catalogue_public.py`, `test_comparison_favourites.py`. |
-| 6 | Saved estimates keep the assumptions used | Met | `test_saved_estimate_snapshot.py`, `test_saved_estimate_history.py`, `test_estimator_config_admin.py` (published versions are immutable). |
-| 7 | Quotation totals are calculated and validated by the backend | Met | `test_quotation_terms.py`, `test_quotation_edit_contract.py`; the browser form sends no totals (`company-quotation.spec.ts` reads the server's). |
-| 8 | Sent revisions stay accessible and unchanged | Met | Database immutability in `test_migrations.py` and migration 0029; `test_quotation_current_read.py`; browser: the sent page offers no inputs (`company-quotation.spec.ts`). |
-| 9 | Expired or superseded offers cannot be accepted | Met | `test_quotation_acceptance_policy.py`, `test_quotation_acceptance_transaction.py`; the screens explain refusals from fresh state (unit tests `lib/quotation/decision.test.ts`). |
-| 10 | Concurrent acceptance cannot create two accepted offers for one request | Met | `test_quotation_acceptance_transaction.py::test_competing_acceptance_has_one_committed_winner` (real PostgreSQL); browser: the competing-offer test in `customer-acceptance.spec.ts`. |
-| 11 | Implemented scheduling rejects conflicting technician visits | Met (Phase 2) | A database exclusion constraint rejects overlapping confirmed visits for one technician even for direct writes (`test_site_visit_*`), and the browser spec `site-visits.spec.ts` shows the conflict explained from fresh state. |
-| 12 | Invalid installation transitions are rejected with understandable errors | Met | API: `test_core_journey.py` (order and evidence rules), `test_quotation_states.py`; screens: `lib/installations/staff.test.ts` and the explanations from fresh state. |
-| 13 | Private attachments require authorisation | Met | `test_private_media_routes.py`, `test_core_journey.py` (evidence), browser: `notifications-documents.spec.ts` (everyone else refused, signed out 401). |
-| 14 | Critical workflows pass automated tests | Met | Backend suite (533 tests with `--database`), 329 frontend unit tests, 213 browser tests (see Local release gate). |
-| 15 | Works on desktop and mobile browser sizes | Met | Browser: `layout.spec.ts` (320 to 1280 px) and `accessibility.spec.ts` (axe, WCAG 2.2 AA). Emulated, not real devices. |
-| 16 | Sample identities, prices and estimates are labelled | Met | Fictional names end in "(Fictional)" (`test_demo_seed.py`); prices carry "Sample price" and claims "Company declared, not verified"; the footer on every page states the demonstration status; estimates say they are planning aids. |
-
-## Phase 2 acceptance (Phases 18 and 19)
-
-Phase 2 adds to the core release without changing it. "Browser" means a Playwright test in `frontend/e2e/specs/`; backend files are in `backend/tests/`.
-
-| Feature | Status | Evidence |
-|---|---|---|
-| Technician workspace, conflict-checked site visits, visit evidence | Met | Browser: `site-visits.spec.ts`; API: `test_site_visit_*`, database exclusion constraint for overlapping confirmed visits. |
-| Sourced troubleshooting references with hazard escalation | Met for one model | `test_troubleshooting*`, browser `support.spec.ts`. The three seeded references for `GW3000-DNS-30` come from GoodWe's DNS G3 user manual (V1.5-2023-05-25, a distributor-hosted copy) and cite its pages; no other model has any, and the earth fault hazard rating is a cautious choice that a qualified person should confirm. |
-| Support cases with private attachments, assignment and replay-safe updates | Met | `test_support_*`, browser `support.spec.ts`. |
-| Education articles with review, sources and time-sensitive notices | Met; three of seven articles verified | `test_education*`, `test_education_sources.py`, browser `education.spec.ts`. Three articles were read against their cited regulator and Department of Energy pages and are not labelled sample; four stay marked as sample. No human reviewer has signed any of them off. |
-| Quotation PDF export of an exact revision, built in the background and delivered privately | Met | `test_quotation_pdf.py` (PDF read back and compared with the stored revision), `test_quotation_exports.py`, browser `phase2-workflows.spec.ts` (the customer's Prepare and Download PDF buttons and the company's download), `test_quotation_pdf_access.py` (who may fetch each PDF route). Local private storage only. Export files are named after their export and old ones are removed by a daily job (`python -m app.jobs.cleanup_exports`, also scheduled in Inngest at 03:00): ready exports after 30 days (the customer can ask again) and files a crashed attempt left behind. |
-| Transactional email with a local sink | Met | `test_mail.py`, `test_email_delivery.py` (one email per notification, retry-safe, switchable per person), `test_smtp_delivery.py` (delivery to a real SMTP server over a local socket), browser `phase2-workflows.spec.ts`. Not tried against a hosted provider or a real inbox. |
-| Private notification settings | Met | `test_notification_preferences.py` (defaults, privacy, reminders and email actually stopped), browser `phase2-workflows.spec.ts`. Only two switches exist: reminders and email. |
-| Password and account recovery | Met by Clerk in the code; live flow not yet run | `frontend/src/lib/recovery.test.ts` guards against a custom reset system. An opt-in live check against a real Clerk development instance is written (`playwright.live.config.ts`); only its sign-in page test has been run. |
-| Pending-offer, visit and yearly maintenance reminders | Met in the API; scheduled hourly through Inngest | `test_reminders.py`, `test_reminder_schedule.py`, browser `phase2-workflows.spec.ts`. Visit reminders say the start time in the visit's own time zone and wait for daytime there (07:00 to 21:00) unless the visit is within 3 hours. Not tried against a running Inngest server. |
-| Net accounting and net plus estimator scenarios | Met | `test_estimator_export_scenarios.py`, `test_e2e_seed.py`, browser `phase2-workflows.spec.ts` (the estimate form, the administrator's draft and saved estimates). The feed-in rate follows the PUCSL August 2026 decision (see Estimator scenarios); it must be rechecked. |
-
-Still deferred: net plus plus, off-grid, hybrid and battery estimates; email links and per-event switches; production file storage; a live Clerk sign-in and recovery run; human review of the content; and everything in Phase 3 and the deployment phase.
+- **Motion.** Every animation is listed with its reason in `src/lib/design/motion.ts`. With "reduce motion" on, nothing animates (one rule in `globals.css`, checked by `e2e/design/reduced-motion.spec.ts`). Printing gives black text on white without the header, footer or buttons.
+- **Checking the look.** Run `pnpm dev` and open `/design`, which shows every shared component in light and dark.

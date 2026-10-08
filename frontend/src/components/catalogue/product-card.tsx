@@ -2,7 +2,6 @@ import Link from "next/link";
 
 import { ComparisonToggle } from "@/components/comparison/comparison-toggle";
 import { FavouriteButton } from "@/components/favourites/favourite-button";
-import { SampleBadge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Photo } from "@/components/ui/photo";
 import { detailHref } from "@/lib/catalogue/links";
@@ -79,9 +78,6 @@ export function ProductCard({
             </div>
           ))}
         </dl>
-        <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-1">
-          <SampleBadge>{messages.landing.products.sampleNote}</SampleBadge>
-        </div>
         {actions ? (
           <div className="relative z-10 border-t border-line pt-3">
             <ComparisonToggle kind={product.kind} id={product.id} name={name} />

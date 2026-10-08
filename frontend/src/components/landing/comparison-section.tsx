@@ -1,6 +1,5 @@
 import { Building2, Sun } from "lucide-react";
 
-import { SampleBadge } from "@/components/ui/badge";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { TableRegion } from "@/components/ui/table";
@@ -22,7 +21,6 @@ export function ComparisonSection() {
           <p className="type-caption font-semibold tracking-widest text-orange-text uppercase">{text.eyebrow}</p>
           <h2 id="comparison-title" className="type-display-m text-ink">{text.title}</h2>
           <p className="type-body text-ink-2">{text.body}</p>
-          <SampleBadge>{text.sampleLabel}</SampleBadge>
         </div>
         <TableRegion label={text.region} className="rounded-3xl border-line bg-surface shadow-e2">
           <table className="w-full min-w-[46rem] border-collapse text-base text-ink">
@@ -71,7 +69,6 @@ export function ComparisonSection() {
             </tbody>
           </table>
         </TableRegion>
-        <p className="type-small mx-auto max-w-2xl text-center text-ink-3">{text.note}</p>
       </Container>
     </Section>
   );

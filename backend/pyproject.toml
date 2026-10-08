@@ -41,9 +41,3 @@ select = ["E", "F", "I", "UP", "B"]
 
 [tool.ruff.lint.isort]
 known-third-party = ["alembic"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-pythonpath = ["."]
-addopts = "-ra --strict-config --strict-markers"
-markers = ["database: integration checks requiring the isolated PostgreSQL test database"]

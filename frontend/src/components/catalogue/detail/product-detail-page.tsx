@@ -1,7 +1,6 @@
 import { BackLink } from "@/components/ui/back-link";
 import { notFound } from "next/navigation";
 
-import { SampleBadge } from "@/components/ui/badge";
 import { Photo } from "@/components/ui/photo";
 import { FavouriteButton } from "@/components/favourites/favourite-button";
 import { ComparisonToggle } from "@/components/comparison/comparison-toggle";
@@ -56,9 +55,6 @@ export async function ProductDetailPage({
           {back}
           <p className="type-caption font-semibold tracking-widest text-orange-text uppercase">{messages.landing.products.kind[product.kind]}</p>
           <h1 className="type-display-m text-ink">{name}</h1>
-          <div>
-            <SampleBadge>{messages.detail.sampleEntry}</SampleBadge>
-          </div>
           <div className="flex flex-wrap items-center gap-4 rounded-card border border-line bg-surface p-3 sm:w-fit">
             <FavouriteButton id={product.id} name={name} />
             <ComparisonToggle kind={product.kind} id={product.id} name={name} />
