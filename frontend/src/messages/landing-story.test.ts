@@ -22,14 +22,11 @@ test("headlines are short, and each section has the four things the page needs",
     assert.ok(title.length > 0 && title.length <= 60, `${name} headline`);
   }
   assert.deepEqual(Object.keys(story.how.steps), ["estimate", "compare", "choose", "track"]);
-  assert.deepEqual(Object.keys(story.features).filter((key) => key !== "eyebrow" && key !== "title"), ["estimate", "compare", "track", "learn"]);
+  assert.deepEqual(Object.keys(story.features).filter((key) => key !== "eyebrow" && key !== "title"), ["estimate", "compare", "track", "learn", "companies", "safety"]);
 });
 
-test("fictional and sample content is labelled, and safety leads with safety, not a sales line", () => {
-  assert.match(story.companies.sampleLabel, /fictional/i);
+test("sample content is labelled and the closing band carries a short safety line", () => {
   assert.match(story.teaser.sampleLabel, /sample/i);
   assert.match(story.comparison.sampleLabel, /sample/i);
-  assert.match(story.safety.title, /safety/i);
-  assert.match(story.safety.body, /stop/i);
-  assert.match(story.catalogue.body, /Not specified/);
+  assert.match(story.closing.safety, /technician/i);
 });

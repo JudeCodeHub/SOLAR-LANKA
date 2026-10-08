@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 
 import { apiBaseUrl } from "@/lib/api/config";
+import { authBypass } from "@/lib/e2e";
 import {
   buildUpstreamHeaders,
   buildUpstreamUrl,
@@ -43,13 +44,17 @@ async function forward(request: Request, context: RouteContext<"/api/[...path]">
     }
   }
 
-  // If Clerk cannot supply a token (session just ended, Clerk unreachable) forward without one.
+  // If Clerk cannot supply a token (session just ended, Clerk unreachable) the request is refused below.
   let token: string | null = null;
   try {
     const { getToken } = await auth();
     token = await getToken();
   } catch {
     console.error("API gateway: could not obtain a session token");
+  }
+  // Every address except the landing and sign-in pages needs a session, so the gateway no longer forwards a request that has none (browser tests are the one exception).
+  if (token === null && !authBypass(process.env)) {
+    return proxyError(401, "unauthenticated", "Sign in to continue.");
   }
   const headers = buildUpstreamHeaders(request.headers, token);
 

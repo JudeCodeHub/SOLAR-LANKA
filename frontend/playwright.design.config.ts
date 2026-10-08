@@ -18,6 +18,7 @@ export default defineConfig({
     url: "http://localhost:3100/design",
     reuseExistingServer: false,
     timeout: 180_000,
-    env: { API_BASE_URL: "http://127.0.0.1:8000" },
+    // The design specs look at pages signed out, so the test-only sign-in bypass is on (never in production).
+    env: { API_BASE_URL: "http://127.0.0.1:8000", E2E_AUTH: "1" },
   },
 });

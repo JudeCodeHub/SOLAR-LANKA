@@ -18,9 +18,9 @@ const STEPS = [
 /** Four steps joined by a line that draws itself as the strip scrolls into view. */
 export function HowItWorks() {
   return (
-    <div className="border-y border-line bg-paper-2" data-how-it-works>
-      <Section space="l" labelledBy="how-title">
-        <Container size="content" className="space-y-12">
+    <div className="border-y border-line bg-paper-2 lg:flex lg:min-h-svh lg:items-center" data-how-it-works>
+      <Section space="l" labelledBy="how-title" className="w-full">
+        <Container size="wide" className="space-y-12">
           <div className="max-w-2xl space-y-4">
             <p className="type-caption font-semibold tracking-widest text-orange-text uppercase">{text.eyebrow}</p>
             <h2 id="how-title" className="type-display-m text-ink">{text.title}</h2>

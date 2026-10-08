@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("the signed-out landing page has no row of page links under the header, but other pages do", async ({ page }) => {
+test("the landing page has no second row of page links under its floating header, but other pages do", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/");
   await page.locator("[data-hero]").waitFor();

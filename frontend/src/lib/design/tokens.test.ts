@@ -276,9 +276,15 @@ test("the header is sticky, frosts once scrolled, shows the logo, and active lin
   const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", "components", path), "utf8");
   const sticky = read("shell/sticky-header.tsx");
   assert.ok(sticky.includes("sticky top-0") && sticky.includes("backdrop-blur-md") && sticky.includes("scrollY"));
+  // On the landing page the same header floats as a rounded glass bar over the hero.
+  assert.ok(sticky.includes('usePathname() === "/"') && sticky.includes("header-float"));
+  const css = readFileSync(join(import.meta.dirname, "..", "..", "app", "globals.css"), "utf8");
+  assert.match(css, /\.header-float \{[\s\S]*position: fixed/);
+  assert.match(css, /\.header-float \[data-header-bar\] \{[\s\S]*backdrop-filter: blur/);
+  assert.match(css, /html:has\(\[data-hero\]\) \{\s*scrollbar-width: none/);
   assert.ok(sticky.includes("motion-reduce:transition-none"));
   const header = read("site-header.tsx");
-  assert.ok(header.includes("<Logo") && header.includes("<StickyHeader>") && header.includes("<ThemeToggle"));
+  assert.ok(header.includes("<Logo") && header.includes("<StickyHeader>") && header.includes("<ThemeControl"));
   assert.ok(read("shell/nav-link.tsx").includes("bg-orange-tint text-orange-text"));
 });
 
@@ -292,12 +298,24 @@ test("the mobile menu carries the logo, the theme choice and 44 px rows, and the
   assert.ok(header.includes('<div className="hidden md:block">'), "the header theme toggle moves into the menu on phones");
 });
 
-test("the footer carries the logo and link columns from the navigation list, and no demonstration banner", () => {
-  const source = readFileSync(join(import.meta.dirname, "..", "..", "components", "site-footer.tsx"), "utf8");
-  assert.ok(source.includes("<Logo") && source.includes("messages.brand.tagline") && source.includes("NAV_ITEMS"));
+test("the footer is a rounded panel that follows the theme, with the logo, three link columns from the navigation list, a copyright line and a faded outlined wordmark", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
+  const source = read("components/site-footer.tsx");
+  assert.ok(source.includes("<Logo") && source.includes("text.about") && source.includes("NAV_ITEMS") && !source.includes("ThemeToggle"), "no theme buttons in the footer");
   assert.ok(!source.includes("data-demo-notice") && !source.includes("text.disclaimer"), "the notice panel was removed at the owner's request");
-  for (const id of ["panels", "inverters", "estimator", "companies", "learn", "troubleshooting", "support"]) assert.ok(source.includes(`"${id}"`), id);
-  assert.ok(source.includes("text-ink-2") && source.includes("bg-paper-2"), "link colours come from the tested pairs");
+  for (const id of ["panels", "inverters", "estimator", "companies", "learn", "troubleshooting", "support", "account", "notifications"]) assert.ok(source.includes(`"${id}"`), id);
+  assert.ok(source.includes("bg-paper-2") && source.includes("rounded-t-3xl") && source.includes("w-full") && !source.includes('"dark '), "the panel follows the theme: cream in light, night in dark");
+  assert.ok(!source.includes("pb-4") && !source.includes("max-w-wide overflow-hidden"), "the panel runs edge to edge with no gap around it");
+  assert.ok(source.includes("footer-lede"));
+  assert.match(read("app/globals.css").slice(read("app/globals.css").indexOf(".footer-lede")), /font-style: italic;[\s\S]*text-align: justify;[\s\S]*hyphens: auto/);
+  assert.ok(source.includes("data-footer-wordmark") && source.includes("aria-hidden") && source.includes("text.copyright"));
+  assert.ok(source.includes("text-ink-2") && source.includes("text-ink-3"), "link and small-text colours come from the tested pairs");
+  const css = read("app/globals.css");
+  const mark = css.slice(css.indexOf(".footer-wordmark"));
+  assert.match(mark, /-webkit-text-stroke: 1px/);
+  assert.match(mark, /color: transparent/);
+  assert.match(mark, /mask-image: linear-gradient\(to bottom/);
+  assert.deepEqual(Object.keys(messages.footer), ["product", "resources", "account", "about", "copyright"]);
 });
 
 test("the skip link is a visible orange pill above the sticky header when focused, and the layout puts it before the header", () => {
@@ -363,7 +381,7 @@ test("every route group has a loading screen built from the page skeleton, annou
 test("the landing hero has the approved wording, two actions, a sample-labelled dial and the priority photo with a fade for text", () => {
   const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
   const hero = read("components/landing/hero.tsx");
-  for (const piece of ["messages.brand.heroLine", "messages.brand.heroSupport", "messages.brand.primaryAction", "messages.brand.trustLine", "<Dial", "<SampleBadge", 'name="hero"', "priority", "type-display-xl", 'size="lg"']) assert.ok(hero.includes(piece), piece);
+  for (const piece of ["messages.brand.heroLine", "messages.brand.heroSupport", "messages.brand.primaryAction", "<Dial", "<SampleBadge", 'name="hero"', "priority", "type-display-xl", 'size="lg"']) assert.ok(hero.includes(piece), piece);
   assert.ok(hero.includes("from-paper") && hero.includes("lg:max-w-[48%]"), "the words sit in the faded, text-safe side");
   assert.ok(read("app/page.tsx").indexOf("<Hero") < read("app/page.tsx").indexOf("<EstimateTeaser"));
 });
@@ -388,65 +406,21 @@ test("the how-it-works strip has the four approved steps, a drawn line in both d
   assert.ok(page.indexOf("<HowItWorks />") > page.indexOf("<EstimateTeaser />"));
 });
 
-test("the feature grid is uneven, covers the four features with a photo, icon, line and link, and sits after the strip", () => {
+test("the feature grid is an even three across, covers the six features with a photo, icon, line and link, and sits after the strip", () => {
   const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
   const grid = read("components/landing/feature-grid.tsx");
-  for (const id of ["estimate", "compare", "track", "learn"]) assert.ok(grid.includes(`id: "${id}"`), id);
-  assert.ok(grid.includes("lg:col-span-7") && grid.includes("lg:col-span-5"), "wide and narrow cards");
+  for (const id of ["estimate", "compare", "track", "learn", "companies", "safety"]) assert.ok(grid.includes(`id: "${id}"`), id);
+  assert.ok(grid.includes("lg:col-span-4") && !grid.includes("lg:col-span-7"), "six equal cards, three across");
   assert.ok(grid.includes("<Photo") && grid.includes("<IconCircle") && grid.includes("<Link") && grid.includes("min-h-11"));
-  for (const href of ["/estimator", "/panels", "#tracking", "/learn"]) assert.ok(grid.includes(`href: "${href}"`), href);
+  for (const href of ["/estimator", "#compare", "/sign-up", "/learn", "/companies", "/support"]) assert.ok(grid.includes(`href: "${href}"`), href);
   const page = read("app/page.tsx");
   assert.ok(page.indexOf("<FeatureGrid />") > page.indexOf("<HowItWorks />"));
 });
 
-test("the catalogue showcase always links both catalogues and shows placeholder photos, two figures and a sample label per product", () => {
-  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
-  const showcase = read("components/landing/catalogue-showcase.tsx");
-  assert.ok(showcase.includes('href="/panels"') && showcase.includes('href="/inverters"') && showcase.includes("<FeaturedProducts"));
-  assert.ok(showcase.indexOf("<Button") < showcase.indexOf("<FeaturedProducts"), "the two links come before the data, so they show even when it fails");
-  const products = read("components/catalogue/product-card.tsx");
-  assert.ok(products.includes("panelPlaceholder") && products.includes("inverterPlaceholder") && products.includes("<SampleBadge>") && products.includes("type-figure"));
-  assert.ok(products.includes("text.unspecified"), "a missing value says Not specified, not zero");
-  const page = read("app/page.tsx");
-  assert.ok(page.indexOf("<CatalogueShowcase") > page.indexOf("<FeatureGrid />"));
-});
-
 test("the signed-out landing page has no second navigation row, while other pages keep it", () => {
   const nav = readFileSync(join(import.meta.dirname, "..", "..", "components", "shell", "primary-nav.tsx"), "utf8");
-  assert.ok(nav.includes('!signedIn && pathname === "/"'));
+  assert.ok(nav.includes('pathname === "/"'));
   assert.ok(nav.includes("usePathname"));
-});
-
-test("the companies showcase labels its companies as fictional, links the directory and each profile, and follows the catalogue", () => {
-  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
-  const showcase = read("components/landing/companies-showcase.tsx");
-  assert.ok(showcase.includes("<SampleBadge>{text.sampleLabel}</SampleBadge>") && showcase.includes("DIRECTORY_PATH") && showcase.includes("profileHref(") && showcase.includes("companyCover"));
-  assert.ok(showcase.includes("messages.directory.approval.badge"), "the approval wording stays as the directory words it");
-  const page = read("app/page.tsx");
-  assert.ok(page.indexOf("<CompaniesShowcase") > page.indexOf("<CatalogueShowcase"));
-  assert.ok(!page.includes("FeaturedCompanies"));
-});
-
-test("the learning teaser shows up to three real guides with a photo, category, summary and link, and loads them with the landing data", () => {
-  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
-  const teaser = read("components/landing/learning-teaser.tsx");
-  assert.ok(teaser.includes("slice(0, 3)") && teaser.includes("articlePhoto(") && teaser.includes("`/learn/${article.slug}`") && teaser.includes("article.category_name") && teaser.includes("article.summary"));
-  assert.ok(read("lib/landing/load.ts").includes('"/education/articles"'));
-  const page = read("app/page.tsx");
-  assert.ok(page.indexOf("<LearningTeaser") > page.indexOf("<CompaniesShowcase"));
-});
-
-test("the tracking section shows the eight real installation steps in order with an icon and a word for each status, and the Track card links to it", () => {
-  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
-  const section = read("components/landing/tracking-section.tsx");
-  const order = ["site_survey", "system_design", "permits_and_approvals", "equipment_delivery", "installation_work", "inspection_and_testing", "commissioning", "customer_handover"];
-  const listed = [...section.matchAll(/\{ kind: "(\w+)", state/g)].map((match) => match[1]);
-  assert.deepEqual(listed, order);
-  assert.ok(section.includes("messages.tracking.kinds") && section.includes("messages.tracking.statuses"), "the same words as the tracking page");
-  assert.ok(section.includes("CircleCheck") && section.includes("Clock") && section.includes("Circle,") && section.includes("<SampleBadge>"));
-  assert.ok(section.includes('id="tracking"'));
-  const page = read("app/page.tsx");
-  assert.ok(page.indexOf("<TrackingSection />") > page.indexOf("<LearningTeaser"));
 });
 
 test("the landing comparison is a real styled table with sample data, flagged and worded like the customer comparison", () => {
@@ -456,17 +430,8 @@ test("the landing comparison is a real styled table with sample data, flagged an
   assert.ok(section.includes("compare.differs") && section.includes("compare.someUnspecified") && section.includes("<NotSpecified />"), "the app's own words, through the shared marks");
   assert.ok(section.includes("<SampleBadge>"));
   const page = read("app/page.tsx");
-  assert.ok(page.indexOf("<ComparisonSection />") > page.indexOf("<TrackingSection />"));
-});
-
-test("the safety section leads with the stop rule, uses the hazard style and the app's own wording, and the sales words stay out", () => {
-  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
-  const section = read("components/landing/safety-section.tsx");
-  assert.ok(section.includes('variant="hazard"') && section.includes("guidance.hazardTitle") && section.includes("guidance.hazardEscalate") && section.includes('name="safetyVisit"'));
-  assert.ok(section.indexOf("<Alert") < section.indexOf("text.action"), "the rule comes before the link");
-  const words = JSON.stringify(messages.landing.story.safety).toLowerCase();
-  for (const sales of ["buy", "save", "discount", "offer", "deal"]) assert.ok(!words.includes(sales), sales);
-  assert.ok(read("app/page.tsx").indexOf("<SafetySection />") > read("app/page.tsx").indexOf("<ComparisonSection />"));
+  assert.ok(page.indexOf("<ComparisonSection />") > page.indexOf("<FeatureGrid />"));
+  assert.ok(section.includes('id="compare"'), "the feature tile links to it");
 });
 
 test("the closing band is solid orange with dark ink in both themes, has the sunrise photo and one action, and ends the page", () => {
@@ -476,8 +441,10 @@ test("the closing band is solid orange with dark ink in both themes, has the sun
   assert.ok(contrastRatio("#1A1511", "#FF6A1A") >= 4.5 && contrastRatio("#0D0B09", "#FF6A1A") >= 4.5, "ink on orange in both themes");
   assert.ok(contrastRatio("#FBF8F3", "#1A1511") >= 4.5 && contrastRatio("#FBF8F3", "#0D0B09") >= 4.5, "the button's text on its dark fill in both themes");
   const page = read("app/page.tsx");
-  assert.ok(page.trimEnd().endsWith("}") && page.indexOf("<ClosingBand />") > page.indexOf("<SafetySection />") && !page.includes("</div>"), "the band is the last thing on the page, straight above the footer");
+  assert.ok(page.trimEnd().endsWith("}") && page.indexOf("<ClosingBand />") > page.indexOf("<ComparisonSection />") && !page.includes("</div>"), "the band is the last thing on the page, straight above the footer");
   assert.ok(!page.includes("EntryPoints"));
+  // A short safety line with a link sits under the action.
+  assert.ok(band.includes("data-closing-safety") && band.includes('href="/support"') && band.includes("text.safety"));
 });
 
 test("photos are eased down in the dark theme, the bright catalogue placeholders more so", () => {
@@ -550,12 +517,11 @@ test("the access screens explain what happened with an icon, plain words and the
   assert.ok(api.includes('"signed-out" : "not-allowed"') && api.includes("<Alert variant=\"destructive\""), "forbidden and signed-out get the panel, other failures keep the alert");
 });
 
-test("one product card serves the lists and the landing page: photo, kind, linked name, two figures, sample label, and the controls only on the lists", () => {
+test("one product card serves the lists: photo, kind, linked name, two figures, sample label, and the controls only on the lists", () => {
   const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", path), "utf8");
   const card = read("components/catalogue/product-card.tsx");
   for (const piece of ["panelPlaceholder", "inverterPlaceholder", "<SampleBadge>", "type-figure", "text.unspecified", "after:absolute after:inset-0", "<FavouriteButton", "<ComparisonToggle", "actions = true", "headingLevel"]) assert.ok(card.includes(piece), piece);
   assert.ok(!card.includes("Sample price"), "no price exists in the catalogue data, so no price chip is invented");
-  assert.ok(read("components/landing/featured-products.tsx").includes('actions={false}') && read("components/landing/featured-products.tsx").includes('headingLevel="h4"'));
   assert.ok(read("components/catalogue/catalogue-page.tsx").includes("<ProductCard"));
 });
 
@@ -1179,4 +1145,20 @@ test("a photo that fails to load is replaced by the warm gradient, not a broken-
   assert.match(photo, /if \(!entry \|\| failed\)/);
   assert.match(photo, /naturalWidth === 0/);
   assert.match(photo, /from-orange-tint to-paper-2/);
+});
+
+test("the landing page is six sections in order and needs no data from the API", () => {
+  const page = readFileSync(join(import.meta.dirname, "..", "..", "app", "page.tsx"), "utf8");
+  const order = ["<Hero ", "<EstimateTeaser />", "<HowItWorks />", "<FeatureGrid />", "<ComparisonSection />", "<ClosingBand />"].map((piece) => page.indexOf(piece));
+  assert.ok(order.every((place, index) => place >= 0 && (index === 0 || place > order[index - 1]!)), "six sections in order");
+  assert.ok(!page.includes("loadLanding") && !page.includes("Showcase") && !page.includes("LearningTeaser"), "no API data on the landing page");
+});
+
+test("every landing section fills one screen on a desktop and uses the hero's width", () => {
+  const read = (path: string) => readFileSync(join(import.meta.dirname, "..", "..", "components", "landing", path), "utf8");
+  for (const file of ["hero.tsx", "estimate-teaser.tsx", "how-it-works.tsx", "feature-grid.tsx", "comparison-section.tsx", "closing-band.tsx"]) {
+    const source = read(file);
+    assert.ok(source.includes("lg:min-h-svh") && source.includes("lg:items-center"), `${file} fills one screen`);
+    if (file !== "hero.tsx") assert.ok(source.includes('size="wide"') && !source.includes('size="content"'), `${file} uses the wide container`);
+  }
 });
