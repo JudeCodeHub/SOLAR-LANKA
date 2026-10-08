@@ -6,7 +6,7 @@ import { AccountRole } from "@/components/account-role";
 import { MobileMenu } from "@/components/shell/mobile-menu";
 import { AccountLinks, PrimaryNav } from "@/components/shell/primary-nav";
 import { StickyHeader } from "@/components/shell/sticky-header";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { ThemeControl } from "@/components/theme/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { getCurrentIdentity } from "@/lib/auth/server";
 import { messages } from "@/messages";
@@ -17,7 +17,7 @@ export async function SiteHeader() {
   return (
     <>
       <StickyHeader>
-        <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-4 px-4">
+        <div data-header-bar className="mx-auto flex h-16 w-full max-w-6xl items-center gap-4 px-4">
           <MobileMenu signedIn={isSignedIn} />
           <Link href="/" className="inline-flex min-h-11 items-center rounded-field text-ink" data-brand-link>
             <Logo height={30} className="hidden sm:block" />
@@ -25,7 +25,7 @@ export async function SiteHeader() {
           </Link>
           <div className="ml-auto flex items-center gap-2">
             <div className="hidden md:block">
-              <ThemeToggle />
+              <ThemeControl />
             </div>
             {isSignedIn ? (
               <>

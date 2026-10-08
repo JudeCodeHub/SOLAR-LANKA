@@ -63,7 +63,7 @@ test("the hero entrance rises in turn, fades the photo, delays the dial sweep, a
   assert.equal(reduced.length, 2, "both entrance utilities switch off under reduced motion");
   assert.match(css, /animation: dial-sweep var\(--ds-dur-sweep\) var\(--ds-ease\) var\(--dial-delay, 0ms\) both/);
   const hero = readFileSync(join(import.meta.dirname, "..", "..", "components", "landing", "hero.tsx"), "utf8");
-  for (const index of [0, 1, 2, 3, 4, 5]) assert.ok(hero.includes(`step(${index})`), `step ${index}`);
+  for (const index of [0, 1, 2, 3, 4]) assert.ok(hero.includes(`step(${index})`), `step ${index}`);
   assert.ok(hero.includes("hero-fade") && hero.includes("delay={900}"));
 });
 

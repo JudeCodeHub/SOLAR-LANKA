@@ -23,8 +23,8 @@ function flag(values: Partial<Record<OfferId, string>>): "same" | "differs" | "u
 /** A real, styled comparison table with sample data, flagged and worded exactly like the one customers get. */
 export function ComparisonSection() {
   return (
-    <Section space="l" labelledBy="comparison-title">
-      <Container size="content" className="space-y-10" data-comparison-section>
+    <Section space="l" labelledBy="comparison-title" id="compare" className="scroll-mt-24 lg:flex lg:min-h-svh lg:items-center">
+      <Container size="wide" className="space-y-10" data-comparison-section>
         <div className="max-w-2xl space-y-4">
           <p className="type-caption font-semibold tracking-widest text-orange-text uppercase">{text.eyebrow}</p>
           <h2 id="comparison-title" className="type-display-m text-ink">{text.title}</h2>

@@ -13,7 +13,7 @@ export const en = {
   app: {
     name: "Solar Lanka",
     description:
-      "Explore solar products, estimate your system, compare quotations and track installation. Portfolio demonstration with fictional data.",
+      "Explore solar products, estimate your system, compare quotations and track installation.",
   },
   titles: {
     signIn: "Sign in · Solar Lanka",
@@ -165,14 +165,14 @@ export const en = {
       eyebrow: "Catalogue",
       title: "Solar panels",
       intro:
-        "Sample panel entries from the demonstration catalogue. Search by brand or model and narrow by power and efficiency.",
+        "Search solar panels by brand or model and narrow by power and efficiency.",
       resultsNoun: "solar panels",
     },
     inverters: {
       eyebrow: "Catalogue",
       title: "Inverters",
       intro:
-        "Sample inverter entries from the demonstration catalogue. Search by brand or model and narrow by type and capacity.",
+        "Search inverters by brand or model and narrow by type and capacity.",
       resultsNoun: "inverters",
     },
     filters: {
@@ -380,7 +380,7 @@ export const en = {
     offers: {
       title: "Sample offers",
       intro:
-        "Offers from companies listed on the platform. Prices are demonstration samples, not live market prices, and a company's claim is its own statement, not verified by the platform.",
+        "Offers from companies listed on the platform. Prices are indicative samples, not live market prices, and a company's claim is its own statement, not verified by the platform.",
       none: "No company has listed an offer for this product yet.",
       price: "Indicative price",
       priceFormat: "{currency} {amount}",
@@ -396,7 +396,7 @@ export const en = {
     eyebrow: "Directory",
     title: "Solar companies",
     intro:
-      "Fictional companies for this demonstration. Find installers by the district they serve and the service you need. A listing means the platform approved the profile; it does not verify registration or qualifications.",
+      "Find installers by the district they serve and the service you need. A listing means the platform approved the profile; it does not verify registration or qualifications.",
     filters: {
       heading: "Filters",
       label: "Filter companies",
@@ -462,7 +462,6 @@ export const en = {
       "Estimate a system for your home, compare quotations side by side and follow the installation, with honest numbers and plain words.",
     primaryAction: "Estimate my system",
     secondaryAction: "Browse panels",
-    trustLine: "A portfolio demonstration. Companies, prices and records are fictional samples.",
     microcopy: {
       working: "Working it out…",
       saved: "Saved. You can find it under My estimates.",
@@ -472,13 +471,11 @@ export const en = {
       nextStep: "Next step",
       emptyEstimates: "No estimates yet. Start with your electricity bill.",
       comparePrompt: "Pick up to three to compare side by side.",
-      sampleData: "Sample data for this demonstration.",
     },
   },
   landing: {
     story: {
       teaser: {
-        eyebrow: "Try it now",
         title: "See a number before you talk to anyone.",
         body: "Enter your monthly electricity use and get a sample system size, yearly generation and a cost range.",
         sampleLabel: "Sample figures",
@@ -507,35 +504,11 @@ export const en = {
         eyebrow: "What you can do",
         title: "Everything between curiosity and switch-on.",
         estimate: { title: "Estimate your system", body: "Size, yearly output and a cost range, with the assumptions shown.", link: "Start an estimate" },
-        compare: { title: "Compare quotations", body: "Up to three offers in one table. Missing values say so.", link: "See how comparison works" },
-        track: { title: "Track the installation", body: "Eight clear steps, each with its own status and date.", link: "See the steps" },
+        compare: { title: "Compare quotations", body: "Up to three offers in one table. Missing values say so.", link: "See a comparison" },
+        track: { title: "Track the installation", body: "Eight clear steps, each with its own status and date.", link: "Create an account to follow yours" },
         learn: { title: "Learn the basics", body: "Short guides on panels, inverters, bills and connection schemes.", link: "Open the learning centre" },
-      },
-      catalogue: {
-        eyebrow: "Catalogue",
-        title: "Specifications side by side, never guessed.",
-        body: "Where the catalogue holds no value it says \u201cNot specified\u201d, which is not the same as zero.",
-        panels: "Browse solar panels",
-        inverters: "Browse inverters",
-      },
-      companies: {
-        eyebrow: "Companies",
-        title: "Installers you can ask directly.",
-        body: "Find a company by district and service, then send one request to several of them.",
-        sampleLabel: "Fictional companies for this demonstration",
-        action: "See all companies",
-      },
-      learn: {
-        eyebrow: "Learn",
-        title: "Plain words, no jargon.",
-        body: "Three guides to start with.",
-        action: "All guides",
-      },
-      tracking: {
-        eyebrow: "Transparency",
-        title: "Eight steps, always visible.",
-        body: "Your installer updates each step and you see it as it happens.",
-        sampleLabel: "Sample progress",
+        companies: { title: "Find an installer", body: "Search companies by district and service, then send one request to several of them.", link: "See all companies" },
+        safety: { title: "Stay safe", body: "What is safe to check yourself, and when to stop and call a qualified technician.", link: "Read the safety guidance" },
       },
       comparison: {
         eyebrow: "Quotations",
@@ -555,18 +528,12 @@ export const en = {
           total: { label: "Total price", a: "LKR 1,640,000", b: "LKR 1,580,000", c: "LKR 1,720,000" },
         },
       },
-      safety: {
-        eyebrow: "Safety",
-        title: "Safety comes first.",
-        body: "If an inverter shows an error, look up the code. Some faults are dangerous: for those we say stop, keep clear and call a licensed technician.",
-        action: "Look up an error code",
-        lookTip: "Read the code on the display from a safe distance and look it up. Do not open the equipment or touch cables.",
-        callTip: "If you smell burning, see smoke or damage, or the guidance says stop, keep clear and call a licensed technician.",
-      },
       closing: {
         title: "Start with your electricity bill.",
         body: "It takes a minute, costs nothing and commits you to nothing.",
         action: "Estimate my system",
+        safety: "If you smell burning or see sparks, do not touch the equipment: call a qualified technician.",
+        safetyLink: "Safety guidance",
       },
     },
     hero: {
@@ -578,36 +545,12 @@ export const en = {
       sampleUnit: "kW",
       sampleNote: "For a family home using about 400 units a month.",
     },
-    entry: {
-      title: "Start here",
-      comingSoon: "Coming soon",
-      descriptions: {
-        panels: "Browse sample panel specifications and compare up to three side by side.",
-        inverters: "Browse sample inverters by type and capacity.",
-        estimator: "Estimate system size, yearly generation and a cost range from your electricity use.",
-        companies: "Find fictional installers by district and service.",
-        learn: "Plain-language guides to solar basics, storage and maintenance.",
-        troubleshooting: "Look up manufacturer error codes for supported inverter models.",
-        support: "Ask for help with a system or an order.",
-      },
-    },
+
     products: {
-      panelsTitle: "Solar panels",
-      invertersTitle: "Inverters",
       sampleNote: "Sample catalogue entry",
       kind: { panel: "Solar panel", inverter: "Inverter" },
-      showing: "Showing {shown} of {total}",
-      emptyTitle: "No products yet",
-      emptyDescription: "No products have been published to the catalogue yet.",
     },
-    companies: {
-      title: "Solar companies",
-      intro:
-        "Fictional companies for this demonstration. A listing means the platform approved the profile; it does not verify registration or qualifications.",
-      emptyTitle: "No companies yet",
-      emptyDescription: "No company profiles have been published yet.",
-      viewAll: "View all companies",
-    },
+
     unavailable: {
       title: "This section could not be loaded",
       message: "The data is temporarily unavailable. Try again in a moment.",
@@ -615,8 +558,11 @@ export const en = {
     },
   },
   footer: {
-    products: "Products",
-    help: "Help and learning",
+    product: "Product",
+    resources: "Resources",
+    account: "Account",
+    about: "Size your system, compare quotes and follow the installation, in plain words.",
+    copyright: "© {year} {name}",
   },
   account: {
     eyebrow: "Account",
@@ -1146,6 +1092,7 @@ export const en = {
     light: "Light theme",
     dark: "Dark theme",
     system: "Match my device",
+    cycle: "Colour theme: {choice}. Press to change it.",
   },
   dial: {
     description: "{label}: {value} {unit}, on a scale from {min} to {max}",
@@ -1870,7 +1817,7 @@ export const en = {
     suggestionsTitle: "Similar names (not instructions)",
     suggestionsHelp: "These are other models. Their instructions may not apply to yours, so none are shown. Choose one only if it is yours.",
     report: "Report this problem to your installer",
-    sampleNote: "Sample content, written for this demonstration.",
+    sampleNote: "Sample listing",
   },
   adminReferences: {
     eyebrow: "Platform administration",
@@ -1893,7 +1840,7 @@ export const en = {
     sourcePage: "Page (optional)",
     verified: "Date checked against the source",
     verifiedHelp: "Needed before publishing.",
-    sample: "This is fictional demonstration content",
+    sample: "This is sample content",
     create: "Save as draft",
     creating: "Saving…",
     created: "Draft saved.",
@@ -1947,7 +1894,7 @@ export const en = {
     timeSensitiveTitle: "This depends on rules or prices that can change",
     timeSensitiveBody: "It was accurate as of {date}. Check the sources below for what applies now.",
     overdueBody: "It was due to be checked again by {date}, so it may be out of date. Check the sources below.",
-    sampleNote: "This is sample content written for a demonstration. It is not professional advice.",
+    sampleNote: "This is general information, not professional advice.",
     sourcesTitle: "Sources",
     sourceLine: "{title}, {publisher}. Read on {date}.",
     openSource: "Open source: {title}",
@@ -2001,7 +1948,7 @@ export const en = {
       timeSensitiveHelp: "Tariffs, schemes and prices. Readers are told the date it is valid for.",
       validAsOf: "Valid as of",
       reviewBy: "Check again by",
-      sample: "This is sample content for the demonstration",
+      sample: "This is sample content",
     },
     save: "Save draft",
     saving: "Saving…",
@@ -2749,7 +2696,7 @@ export const en = {
         currency: "Currency",
         currencyHelp: "Three letters, such as LKR.",
         demo: "This is a sample price",
-        demoHelp: "Tick this if the price is a demonstration figure, not a real quotation. Customers see it labelled Sample price.",
+        demoHelp: "Tick this if the price is a sample figure, not a real quotation. Customers see it labelled Sample price.",
         claim: "Your claim",
         claimHelp:
           "Anything you want to say about this product, such as warranty or stock. Customers see it labelled Company claim (not verified), because the platform does not check it.",

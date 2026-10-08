@@ -126,7 +126,7 @@ export function isCrossSiteWrite(method: string, headers: Headers, ownOrigin: st
   return site !== null && site !== "same-origin" && site !== "none";
 }
 
-export type ProxyErrorCode = "bad_request" | "forbidden" | "service_unavailable";
+export type ProxyErrorCode = "bad_request" | "unauthenticated" | "forbidden" | "service_unavailable";
 
 /** Errors the proxy itself produces, in the same shape as the backend's error contract. */
 export function proxyError(status: number, code: ProxyErrorCode, message: string): Response {

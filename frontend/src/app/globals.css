@@ -661,3 +661,88 @@
     display: block !important;
   }
 }
+
+/* Landing page header: a rounded glass bar floating over the hero, inset from the edges; every other page keeps the plain sticky strip. */
+.header-float {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 40;
+  padding: 0.75rem 1rem 0;
+  pointer-events: none;
+}
+.header-float [data-header-bar] {
+  pointer-events: auto;
+  max-width: 70rem;
+  height: 3.5rem;
+  padding-inline: 1rem 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--ds-line) 80%, transparent);
+  border-radius: 1.125rem;
+  background: color-mix(in srgb, var(--ds-bg) 58%, transparent);
+  box-shadow: var(--ds-shadow-2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  backdrop-filter: blur(18px) saturate(1.5);
+  transition: background-color var(--ds-dur-base) var(--ds-ease);
+}
+.header-float[data-scrolled="true"] [data-header-bar] {
+  background: color-mix(in srgb, var(--ds-bg) 80%, transparent);
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .header-float [data-header-bar] {
+    background: var(--ds-bg);
+  }
+}
+@media (min-width: 40rem) {
+  .header-float {
+    padding-inline: 1.5rem;
+  }
+}
+@media print {
+  .header-float {
+    display: none !important;
+  }
+}
+
+/* The landing page scrolls as usual but shows no scroll bar. */
+html:has([data-hero]) {
+  scrollbar-width: none;
+}
+html:has([data-hero])::-webkit-scrollbar {
+  display: none;
+}
+
+/* Footer wordmark: the brand name as huge outlined letters that fade out towards the bottom edge of the footer panel. */
+.footer-wordmark {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2.5rem, 11.2vw, 11.5rem);
+  line-height: 0.82;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--ds-text) 38%, transparent);
+  height: 0.62em;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, #000 25%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 25%, transparent 100%);
+}
+
+/* Footer lede: the one-sentence description in the italic display face, justified and hyphenated, with a short orange rule above it. */
+.footer-lede {
+  font-family: var(--font-display-italic), var(--font-display), Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  letter-spacing: 0.005em;
+  color: color-mix(in srgb, var(--ds-text) 92%, transparent);
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
+  text-wrap: pretty;
+  padding-top: 1.25rem;
+  border-top: 2px solid var(--ds-orange);
+  border-image: linear-gradient(to right, var(--ds-orange) 3rem, transparent 3rem) 1;
+}

@@ -13,10 +13,9 @@ const text = messages.landing.story.teaser;
 /** A small estimator card with example figures, labelled as a sample, leading to the real estimator. */
 export function EstimateTeaser() {
   return (
-    <Section space="m" labelledBy="teaser-title">
-      <Container size="content" className="grid items-center gap-10 lg:grid-cols-[1fr_1.05fr] lg:gap-16">
+    <Section space="m" labelledBy="teaser-title" className="lg:flex lg:min-h-svh lg:items-center">
+      <Container size="wide" className="grid items-center gap-10 lg:grid-cols-[1fr_1.05fr] lg:gap-16">
         <div className="space-y-4">
-          <p className="type-caption font-semibold tracking-widest text-orange-text uppercase">{text.eyebrow}</p>
           <h2 id="teaser-title" className="type-display-m text-ink">{text.title}</h2>
           <p className="type-body max-w-md text-ink-2">{text.body}</p>
           <Button asChild size="lg">

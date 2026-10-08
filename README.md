@@ -177,7 +177,7 @@ Anyone who signs in with a Clerk user that is not linked becomes an ordinary cus
 
 Use two browser profiles (or a private window) so a customer and a company can be signed in at once.
 
-1. **Browse without signing in**: Solar panels, Inverters (filters, then compare up to three; unknown values read "Not specified"), Companies, and Estimator (try 300 kWh a month, Colombo, 30 m², partial shading).
+1. **Open the site, then sign in**: only the landing page and the sign-in and sign-up pages are open to visitors; every other address sends a signed-out visitor to sign-in and back afterwards. Then browse: Solar panels, Inverters (filters, then compare up to three; unknown values read "Not specified"), Companies, and Estimator (try 300 kWh a month, Colombo, 30 m², partial shading).
 2. **As `e2e_customer_estimate`**: save the estimate, open My estimates, then Prepare a request from it and send it to Demo Sunbird Solar (and the rival, to see competing offers).
 3. **As `demo_seed_company_a`**: open Enquiries, mark the enquiry opened, start a quotation draft, add lines, save (the totals come from the server) and send it. Try revising it to see the history.
 4. **Back as the customer**: open the request, compare the offers (differences and "Not specified" are flagged, nothing is ranked), accept one. Try accepting the other: it is refused and explained.

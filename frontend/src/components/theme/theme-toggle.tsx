@@ -2,10 +2,11 @@
 
 import { Segmented, segmentedItemClass } from "@/components/ui/segmented";
 import { Monitor, Moon, Sun } from "lucide-react";
-import { useEffect, useSyncExternalStore } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 import { applyTheme, CHOICES, readChoice, resolveTheme, saveChoice, type ThemeChoice } from "@/lib/theme/theme";
-import { messages } from "@/messages";
+import { format, messages } from "@/messages";
 
 const text = messages.theme;
 const ICONS = { light: Sun, dark: Moon, system: Monitor } as const;
@@ -59,4 +60,47 @@ export function ThemeToggle() {
       })}
     </Segmented>
   );
+}
+
+/** One round button for the floating landing bar: it shows the sun or the moon for what the page is using now, and each press moves to the next choice (light, dark, follow the device). */
+export function ThemeCycle() {
+  const choice = useSyncExternalStore<ThemeChoice>(subscribe, readChoice, () => "system");
+  const [dark, setDark] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia("(prefers-color-scheme: dark)");
+    const apply = () => {
+      const next = resolveTheme(choice, query.matches);
+      applyTheme(next);
+      setDark(next === "dark");
+    };
+    apply();
+    if (choice !== "system") return undefined;
+    query.addEventListener("change", apply);
+    return () => query.removeEventListener("change", apply);
+  }, [choice]);
+
+  const next = CHOICES[(CHOICES.indexOf(choice) + 1) % CHOICES.length] ?? "system";
+  const Icon = dark ? Moon : Sun;
+  const label = format(text.cycle, { choice: text[choice] });
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      data-theme-cycle
+      onClick={() => {
+        saveChoice(next);
+        window.dispatchEvent(new Event(CHANGED));
+      }}
+      className="inline-grid size-11 place-items-center rounded-full text-ink-2 transition-colors hover:bg-paper-2 hover:text-ink motion-reduce:transition-none"
+    >
+      <Icon aria-hidden className="size-[1.125rem]" />
+    </button>
+  );
+}
+
+/** The full three-choice switch everywhere, and the single round button on the landing page's floating bar. */
+export function ThemeControl() {
+  return usePathname() === "/" ? <ThemeCycle /> : <ThemeToggle />;
 }

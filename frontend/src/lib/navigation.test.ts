@@ -201,15 +201,20 @@ test("no destination is advertised without a page, and an unfinished one could o
   assert.ok(unbuilt.every((item) => item.access.kind === "public" && item.group === "explore"));
 });
 
-test("every address a role-specific page lives at is guarded by the sign-in proxy", () => {
+test("every address except the landing and sign-in pages is guarded by the sign-in proxy", () => {
   const source = readFileSync(join(import.meta.dirname, "..", "proxy.ts"), "utf8");
   const listed = /createRouteMatcher\(\[([^\]]*)\]\)/.exec(source)?.[1] ?? "";
-  const prefixes = [...listed.matchAll(/"(\/[a-z]+)\(\.\*\)"/g)].map((match) => match[1] as string);
-  assert.ok(prefixes.length >= 4, "found no guarded prefixes in proxy.ts");
-  const guarded = (href: string) => prefixes.some((prefix) => href === prefix || href.startsWith(`${prefix}/`));
-  for (const item of NAV_ITEMS.filter((entry) => entry.access.kind !== "public")) {
-    assert.ok(guarded(item.href), `${item.id} (${item.href}) is not covered by the proxy`);
+  const open = [...listed.matchAll(/"([^"]+)"/g)].map((match) => match[1] as string);
+  // The public list is short and exact: the landing page, the two auth pages and the icons and share images.
+  assert.deepEqual(open, ["/", "/sign-in(.*)", "/sign-up(.*)", "/manifest.webmanifest", "/icon(.*)", "/apple-icon(.*)", "/opengraph-image(.*)", "/twitter-image(.*)"]);
+  assert.match(source, /if \(!isPublic\(request\) && !authBypass\(process\.env\)\)[\s\S]*auth\.protect\(\)/);
+  const isOpen = (href: string) => open.some((pattern) => (pattern.endsWith("(.*)") ? href === pattern.slice(0, -4) || href.startsWith(`${pattern.slice(0, -4)}/`) : href === pattern));
+  for (const item of NAV_ITEMS.filter((entry) => entry.href !== "/")) {
+    assert.ok(!isOpen(item.href), `${item.id} (${item.href}) must need a sign-in`);
   }
+  // The gateway refuses a request with no session token, apart from the browser-test switch.
+  const route = readFileSync(join(import.meta.dirname, "..", "app", "api", "[...path]", "route.ts"), "utf8");
+  assert.match(route, /token === null && !authBypass\(process\.env\)[\s\S]*401/);
 });
 
 test("only a platform administrator is ever shown an administration link", () => {
