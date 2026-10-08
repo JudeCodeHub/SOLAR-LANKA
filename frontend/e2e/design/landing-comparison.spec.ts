@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 
 for (const theme of ["light", "dark"] as const) {
   for (const width of [320, 1280]) {
-    test(`the comparison table flags differences and says Not specified at ${width} px in the ${theme} theme`, async ({ page }) => {
+    test(`the comparison table shows two sample offers and a warming gap column at ${width} px in the ${theme} theme`, async ({ page }) => {
       await page.emulateMedia({ colorScheme: theme, reducedMotion: "reduce" });
       await page.setViewportSize({ width, height: 900 });
       await page.goto("/");
@@ -11,15 +11,15 @@ for (const theme of ["light", "dark"] as const) {
       await section.scrollIntoViewIfNeeded();
       const region = section.getByRole("region", { name: "Sample quotation comparison" });
       await expect(region).toBeVisible();
-      const table = region.getByRole("table", { name: "Three sample quotations compared side by side" });
+      const table = region.getByRole("table", { name: "Two sample offers compared for five system sizes" });
       await expect(table.getByRole("columnheader")).toHaveCount(4);
-      await expect(table.getByRole("row")).toHaveCount(7);
-      await expect(table.locator('[data-row="size"]')).toHaveAttribute("data-flag", "same");
-      await expect(table.locator('[data-row="panels"]')).toHaveAttribute("data-flag", "differs");
-      await expect(table.locator('[data-row="battery"]')).toHaveAttribute("data-flag", "unspecified");
-      await expect(table.locator('[data-row="battery"] [data-cell="unspecified"]')).toHaveCount(2);
-      await expect(table.locator('[data-row="battery"]')).toContainText("Not specified by some offers");
-      await expect(table.locator('[data-row="panels"]')).toContainText("Differs between offers");
+      await expect(table.getByRole("row")).toHaveCount(6);
+      await expect(table.getByRole("rowheader")).toHaveCount(5);
+      await expect(table.getByRole("row").nth(1)).toContainText("LKR 60,000");
+      await expect(table.getByRole("row").nth(5)).toContainText("LKR 680,000");
+      // The gap column warms up down the table: each tint is stronger than the one above.
+      const alphas = await table.locator("[data-gap]").evaluateAll((cells) => cells.map((cell) => getComputedStyle(cell).backgroundColor).map((colour) => Number(/\/ ([\d.]+)\)|rgba\([^)]*,\s*([\d.]+)\)/.exec(colour)?.slice(1).find(Boolean) ?? 1)));
+      for (let index = 1; index < alphas.length; index += 1) expect(alphas[index]!).toBeGreaterThan(alphas[index - 1]!);
       await expect(section.getByText("Sample data")).toBeVisible();
       // On a phone the table scrolls inside its own region and the page does not.
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

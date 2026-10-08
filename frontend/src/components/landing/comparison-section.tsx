@@ -1,26 +1,19 @@
-import { DIFFERS_EDGE, DifferenceFlag, NotSpecified, UnspecifiedFlag } from "@/components/ui/compare-marks";
-import { Container } from "@/components/ui/container";
+import { Building2, Sun } from "lucide-react";
+
 import { SampleBadge } from "@/components/ui/badge";
+import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
-import { Table, TableRegion } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+import { TableRegion } from "@/components/ui/table";
 import { messages } from "@/messages";
 
 const text = messages.landing.story.comparison;
-const compare = messages.customerOffers.compare;
 
-const OFFERS = ["a", "b", "c"] as const;
-type OfferId = (typeof OFFERS)[number];
-const ROWS = ["size", "panels", "inverter", "battery", "warranty", "total"] as const;
+/** How strongly each row's gap column is tinted: the bigger the system, the bigger the gap and the warmer the cell. */
+const TINT = [6, 13, 22, 33, 46] as const;
 
-/** A missing value is not specified, as in the real comparison; a row is flagged when the offers differ or some say nothing. */
-function flag(values: Partial<Record<OfferId, string>>): "same" | "differs" | "unspecified" {
-  const given = OFFERS.map((id) => values[id]).filter((value): value is string => value !== undefined);
-  if (given.length < OFFERS.length) return "unspecified";
-  return new Set(given).size > 1 ? "differs" : "same";
-}
+const HEAD = "px-5 py-5 text-left align-middle text-xs font-semibold tracking-widest uppercase sm:px-7";
 
-/** A real, styled comparison table with sample data, flagged and worded exactly like the one customers get. */
+/** A comparison of two sample offers across five system sizes: the gap column warms up as it grows, in the page's own colours. The figures are samples and are labelled as such. */
 export function ComparisonSection() {
   return (
     <Section space="l" labelledBy="comparison-title" id="compare" className="scroll-mt-24 lg:flex lg:min-h-svh lg:items-center">
@@ -31,43 +24,54 @@ export function ComparisonSection() {
           <p className="type-body text-ink-2">{text.body}</p>
           <SampleBadge>{text.sampleLabel}</SampleBadge>
         </div>
-        <TableRegion label={text.region}>
-          <Table className="min-w-[40rem]">
+        <TableRegion label={text.region} className="rounded-3xl border-line bg-surface shadow-e2">
+          <table className="w-full min-w-[46rem] border-collapse text-base text-ink">
             <caption className="sr-only">{text.caption}</caption>
             <thead>
-              <tr>
-                <th scope="col" className="w-56 text-left">{text.item}</th>
-                {OFFERS.map((id) => (
-                  <th key={id} scope="col" className="text-left">{text.offers[id]}</th>
-                ))}
+              <tr className="bg-paper-2">
+                <th scope="col" className={`${HEAD} text-ink-3`}>{text.stage}</th>
+                <th scope="col" className={`${HEAD} text-ink-2`}>
+                  <span className="flex items-center gap-3 normal-case tracking-normal">
+                    <span aria-hidden className="grid size-9 place-items-center rounded-full bg-line text-ink-2">
+                      <Building2 className="size-4" />
+                    </span>
+                    <span className="text-sm font-semibold">{text.offerA}</span>
+                  </span>
+                </th>
+                <th scope="col" className={`${HEAD} text-ink`}>
+                  <span className="flex items-center gap-3 normal-case tracking-normal">
+                    <span aria-hidden className="grid size-9 place-items-center rounded-full bg-orange text-on-orange">
+                      <Sun className="size-4" />
+                    </span>
+                    <span className="text-sm font-semibold">{text.offerB}</span>
+                  </span>
+                </th>
+                <th scope="col" className={`${HEAD} text-orange-text`}>{text.gap}</th>
               </tr>
             </thead>
             <tbody>
-              {ROWS.map((row) => {
-                const data: { label: string } & Partial<Record<OfferId, string>> = text.rows[row];
-                const kind = flag(data);
-                return (
-                  <tr key={row} className="align-top" data-row={row} data-flag={kind}>
-                    <th scope="row" className={cn("text-left font-normal", kind === "differs" && DIFFERS_EDGE)}>
-                      <span className="block">{data.label}</span>
-                      {kind === "differs" ? <DifferenceFlag>{compare.differs}</DifferenceFlag> : null}
-                      {kind === "unspecified" ? <UnspecifiedFlag>{compare.someUnspecified}</UnspecifiedFlag> : null}
-                    </th>
-                    {OFFERS.map((id) => (
-                      <td key={id} className={cn(row === "total" && "type-figure font-semibold")}>
-                        {data[id] === undefined ? (
-                          <NotSpecified />
-                        ) : (
-                          data[id]
-                        )}
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })}
+              {Object.values(text.rows).map((row, index) => (
+                <tr key={row.name} className="border-t border-line" data-row={index}>
+                  <th scope="row" className="px-5 py-6 text-left align-middle font-normal sm:px-7">
+                    <span className="block text-lg font-semibold text-ink">{row.name}</span>
+                    <span className="mt-1 block text-sm text-ink-2">{row.detail}</span>
+                  </th>
+                  <td className="type-figure px-5 py-6 align-middle text-ink-2 sm:px-7">{row.a}</td>
+                  <td className="type-figure px-5 py-6 align-middle font-semibold text-ink sm:px-7">{row.b}</td>
+                  <td
+                    className="px-5 py-6 align-middle sm:px-7"
+                    style={{ backgroundColor: `color-mix(in srgb, var(--ds-orange) ${TINT[index] ?? 6}%, transparent)` }}
+                    data-gap
+                  >
+                    <span className="type-figure block text-lg font-semibold text-ink">{row.gap}</span>
+                    <span className="mt-0.5 block text-sm text-ink-2">{row.share}</span>
+                  </td>
+                </tr>
+              ))}
             </tbody>
-          </Table>
+          </table>
         </TableRegion>
+        <p className="type-small mx-auto max-w-2xl text-center text-ink-3">{text.note}</p>
       </Container>
     </Section>
   );

@@ -60,7 +60,8 @@ test("the hero entrance rises in turn, fades the photo, delays the dial sweep, a
   assert.match(block, /@utility hero-in \{[\s\S]*animation: hero-rise 640ms[\s\S]*calc\(var\(--i, 0\) \* 90ms\)/);
   assert.match(block, /@utility hero-fade \{[\s\S]*animation: hero-fade 900ms/);
   const reduced = [...block.matchAll(/prefers-reduced-motion: reduce\) \{\s*animation: none;/g)];
-  assert.equal(reduced.length, 2, "both entrance utilities switch off under reduced motion");
+  assert.equal(reduced.length, 3, "the entrance, the photo fade and the sample card all switch off under reduced motion");
+  assert.match(block, /@utility hero-bump \{[\s\S]*hero-bump 950ms[\s\S]*hero-bob 5\.5s[\s\S]*infinite[\s\S]*&:hover \{\s*scale: 1\.035/);
   assert.match(css, /animation: dial-sweep var\(--ds-dur-sweep\) var\(--ds-ease\) var\(--dial-delay, 0ms\) both/);
   const hero = readFileSync(join(import.meta.dirname, "..", "..", "components", "landing", "hero.tsx"), "utf8");
   for (const index of [0, 1, 2, 3, 4]) assert.ok(hero.includes(`step(${index})`), `step ${index}`);
