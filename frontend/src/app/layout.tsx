@@ -7,6 +7,7 @@ import { bodyFont, displayFont, displayItalicFont, figureFont } from "@/fonts/fo
 import { ComparisonTray } from "@/components/comparison/comparison-tray";
 import { Providers } from "@/components/providers";
 import { SessionWatcher } from "@/components/session-watcher";
+import { HideOnAuthPages } from "@/components/shell/hide-on-auth";
 import { SiteFooter } from "@/components/site-footer";
 import { SkipLink } from "@/components/shell/skip-link";
 import { SiteHeader } from "@/components/site-header";
@@ -51,12 +52,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Providers>
             <SessionWatcher />
             <SkipLink />
-            <SiteHeader />
+            <HideOnAuthPages>
+              <SiteHeader />
+            </HideOnAuthPages>
             <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col outline-none">
               <ViewTransition default="page">{children}</ViewTransition>
             </main>
             <ComparisonTray />
-            <SiteFooter />
+            <HideOnAuthPages>
+              <SiteFooter />
+            </HideOnAuthPages>
           </Providers>
         </ClerkProvider>
       </body>

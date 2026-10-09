@@ -125,29 +125,15 @@ export const en = {
   auth: {
     signIn: "Sign in",
     createAccount: "Create account",
+    noAccount: "New to Solar Lanka?",
+    haveAccount: "Already have an account?",
     signOut: "Sign out",
-    layout: {
-      dialLabel: "Sample system size",
-      dialUnit: "kW",
-      sample: "Sample figures",
-      dialNote: "What an estimate looks like once you have an account.",
-    },
-    signInPoints: {
-      estimates: "Your saved estimates, ready to compare",
-      requests: "Your requests and the offers that came back",
-      installations: "Your installation, step by step",
-    },
     signInEyebrow: "Welcome back",
-    signInLine: "Sign in to see your estimates, requests and installations.",
-    signUpPoints: {
-      save: "Save estimates and compare them later",
-      ask: "Send one request to several companies",
-      follow: "Follow your installation from survey to handover",
-    },
+    signInQuote: "Welcome back. Your solar plan is right where you left it.",
+    signUpQuote: "Start with one number: your electricity bill.",
+    signInLine: "Your estimates, requests and installations, in one place.",
     signUpEyebrow: "Create your account",
-    signUpLine: "Save estimates, ask companies for quotations and follow your installation.",
-    customerOnlyNote:
-      "New accounts are customer accounts. Company and administrator access is granted separately by the platform and cannot be chosen here.",
+    signUpLine: "Save your estimates and follow your installation.",
   },
   roles: {
     customer: "Customer",
@@ -505,6 +491,7 @@ export const en = {
       features: {
         title: "Everything between curiosity and switch-on.",
         caption: "Six tools in one place. Pick one to see what it does.",
+        counter: "{number} of {total}",
         estimate: { title: "Estimate your system", body: "Size, yearly output and a cost range, with the assumptions shown.", link: "Start an estimate" },
         compare: { title: "Compare quotations", body: "Up to three offers in one table. Missing values say so.", link: "See a comparison" },
         track: { title: "Track the installation", body: "Eight clear steps, each with its own status and date.", link: "Create an account to follow yours" },

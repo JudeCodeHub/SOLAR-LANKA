@@ -27,6 +27,8 @@ export const CLERK_APPEARANCE = {
     formFieldInput: "rounded-field! border! border-field-border!",
     // Links use the darker orange for text, since the bright orange is too pale for words on white.
     footerActionLink: "font-semibold! text-orange-text!",
+    // The strip under the card ("Don't have an account?", "Secured by Clerk", the development-mode note) is hidden at the owner's request.
+    footer: "hidden!",
     formFieldAction: "font-semibold! text-orange-text!",
     identityPreviewEditButton: "text-orange-text!",
     formResendCodeLink: "text-orange-text!",

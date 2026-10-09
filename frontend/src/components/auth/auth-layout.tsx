@@ -1,52 +1,53 @@
-import type { LucideIcon } from "lucide-react";
+import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { IconCircle } from "@/components/ui/icon";
-import { Card } from "@/components/ui/card";
-import { Dial } from "@/components/ui/dial";
+import { LogoMark } from "@/components/brand/logo";
 import { Photo } from "@/components/ui/photo";
+import { photoUrl } from "@/lib/photos/url";
 import { messages } from "@/messages";
 
-const text = messages.auth.layout;
-
-/** The frame for sign-in and sign-up: the form on one side, a photo with a sample dial on the other; on a phone the photo becomes a strip above a single column. */
-export function AuthLayout({ photo, eyebrow, line, points = [], children }: { photo: "signIn" | "signUp"; eyebrow: string; line: string; points?: { icon: LucideIcon; text: string }[]; children: ReactNode }) {
+/** The frame for sign-in and sign-up: on the left a photo seen through the landing page's gliding diamond windows, with the brand and a sentence for this page fading in at the bottom, and on the right one centred column with the heading, a one-line subtitle, the form and the link to the other page; on a phone the photo becomes a strip above the column. */
+export function AuthLayout({ photo, eyebrow, line, quote, switchPrompt, switchLabel, switchHref, children }: { photo: "signIn" | "signUp"; eyebrow: string; line: string; quote: string; switchPrompt: string; switchLabel: string; switchHref: string; children: ReactNode }) {
   return (
     <div className="grid flex-1 lg:grid-cols-2" data-auth-layout>
       <div className="relative h-36 overflow-hidden sm:h-48 lg:hidden">
-        <Photo name={photo} sizes="100vw" priority className="absolute inset-0 size-full object-cover" />
+        <Photo name={photo} sizes="100vw" priority className="absolute inset-0 size-full scale-105 object-cover blur-[2px]" />
         <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-paper to-transparent" />
       </div>
-      <div className="flex items-start justify-center px-4 py-10 sm:px-6 lg:items-center lg:py-16">
-        <div className="w-full max-w-md space-y-6">
-          <div className="space-y-2 text-center lg:text-left">
-            <p className="type-caption font-semibold tracking-widest text-orange-text uppercase">{eyebrow}</p>
-            <p className="type-body text-ink-2">{line}</p>
+      <div className="flex items-start justify-center px-4 py-10 sm:px-6 lg:order-2 lg:items-center lg:px-12 lg:py-16">
+        <div className="w-full max-w-lg space-y-6">
+          <div className="space-y-3 text-center">
+            <h1 className="type-display-m text-ink">{eyebrow}</h1>
+            <p className="type-body text-ink-2 lg:whitespace-nowrap">{line}</p>
           </div>
-          <div className="flex justify-center lg:justify-start" data-auth-form>
+          <div className="auth-clerk flex justify-center" data-auth-form>
             {children}
           </div>
-          {points.length > 0 ? (
-            <ul className="space-y-3 pt-2" data-auth-points>
-              {points.map((point) => (
-                <li key={point.text} className="flex items-center gap-3">
-                  <IconCircle icon={point.icon} size="sm" tone="orange" />
-                  <span className="type-small text-ink-2">{point.text}</span>
-                </li>
-              ))}
-            </ul>
-          ) : null}
+          <p className="text-center text-base text-ink-2" data-auth-switch>
+            {switchPrompt}{" "}
+            <Link href={switchHref} className="inline-flex min-h-11 items-center font-semibold text-orange-text underline underline-offset-4 hover:text-ink">
+              {switchLabel}
+            </Link>
+          </p>
         </div>
       </div>
-      <div className="relative hidden overflow-hidden lg:block" data-auth-photo>
-        <Photo name={photo} sizes="50vw" priority className="absolute inset-0 size-full object-cover" />
-        <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-paper via-transparent to-transparent" />
-        <Card variant="glass" className="absolute right-8 bottom-8 w-80 flex-row items-center gap-4 p-3">
-          <Dial label={text.dialLabel} value={5.4} max={15} unit={text.dialUnit} size={96} />
-          <div className="space-y-2">
-            <p className="type-small text-ink-2">{text.dialNote}</p>
+      <div className="relative hidden overflow-hidden bg-paper lg:order-1 lg:block" data-auth-photo>
+        <div aria-hidden className="absolute inset-0" style={{ "--lattice-photo": `url(${photoUrl(photo, 1440)})` } as React.CSSProperties}>
+          <div className="lattice">
+            <div className="lattice-layer" data-run="rise" />
+            <div className="lattice-layer" data-run="sink" />
           </div>
-        </Card>
+        </div>
+        <div aria-hidden className="absolute inset-x-0 top-0 h-1/6 bg-gradient-to-b from-paper to-transparent" />
+        <div aria-hidden className="absolute inset-y-0 right-0 w-1/6 bg-gradient-to-l from-paper to-transparent" />
+        <div aria-hidden className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-paper via-paper/85 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 space-y-5 p-12 pr-24 text-ink">
+          <Link href="/" className="inline-flex items-center gap-3" aria-label={messages.app.name} data-auth-brand>
+            <LogoMark size={44} />
+            <span className="font-heading text-2xl font-semibold tracking-tight">{messages.app.name}</span>
+          </Link>
+          <p className="footer-lede max-w-md">{quote}</p>
+        </div>
       </div>
     </div>
   );

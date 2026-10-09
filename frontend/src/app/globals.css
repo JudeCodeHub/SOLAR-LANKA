@@ -926,3 +926,8 @@ html:has([data-hero]) {
 [data-closing-band] {
   scroll-snap-align: start;
 }
+
+/* Sign-in and sign-up: Clerk's card keeps its own look (border, shadow, rounded corners); only its header is hidden, because our page heading and subtitle above it replace it. */
+.auth-clerk .cl-header {
+  display: none;
+}

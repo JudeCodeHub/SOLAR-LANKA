@@ -10,7 +10,7 @@ import { Container } from "@/components/ui/container";
 import { Photo } from "@/components/ui/photo";
 import type { PhotoKey } from "@/lib/photos/photos";
 import { cn } from "@/lib/utils";
-import { messages } from "@/messages";
+import { format, messages } from "@/messages";
 
 const text = messages.landing.story.features;
 
@@ -41,7 +41,7 @@ const DOTS = [
   { x: 30, y: 6 },
 ] as const;
 
-/** The six things the site does as an orbit map: the brand at the centre, one photo node per feature around it, slowly turning. Hovering, focusing or pressing a node opens its photo, words and link on the left, and the nodes also take turns by themselves until the pointer or keyboard is on the map. */
+/** The six things the site does as an orbit map: the brand at the centre, one photo node per feature around it, slowly turning. Hovering, focusing or pressing a node opens its words and link under the map, and the nodes also take turns by themselves until the pointer or keyboard is on the map. */
 export function FeatureGrid() {
   const [active, setActive] = useState(0);
   const [held, setHeld] = useState(false);
@@ -63,29 +63,9 @@ export function FeatureGrid() {
           <h2 id="features-title" className="type-display-m text-ink">{text.title}</h2>
           <p className="type-body text-ink-2">{text.caption}</p>
         </div>
-        <div className="grid items-center gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
-          <div id="feature-detail" className="mx-auto w-full max-w-xl space-y-6" data-feature-detail={feature.id}>
-            <div key={feature.id} className="step-open space-y-6">
-              <div className="relative aspect-[16/10] overflow-hidden rounded-3xl border border-line bg-paper-2 shadow-e2">
-                <Photo name={feature.photo} sizes="(min-width: 1024px) 40vw, 90vw" className="size-full object-cover" />
-                <span aria-hidden className="absolute bottom-4 left-4 grid size-12 place-items-center rounded-2xl bg-orange text-on-orange shadow-e2">
-                  <Icon className="size-6" />
-                </span>
-              </div>
-              <div className="space-y-3">
-                <h3 className="type-heading text-ink">{copy.title}</h3>
-                <p className="type-body max-w-md text-ink-2">{copy.body}</p>
-              </div>
-              <Button asChild size="lg" variant="outline">
-                <Link href={feature.href}>
-                  {copy.link}
-                  <ArrowRight aria-hidden />
-                </Link>
-              </Button>
-            </div>
-          </div>
+        <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
           <div
-            className="orbit-map relative mx-auto aspect-square w-full max-w-[34rem]"
+            className="orbit-map relative mx-auto aspect-square w-[min(100%,36rem,64svh)] lg:justify-self-center"
             onMouseEnter={() => setHeld(true)}
             onMouseLeave={() => setHeld(false)}
             onFocus={() => setHeld(true)}
@@ -145,6 +125,31 @@ export function FeatureGrid() {
               <span className="relative grid size-full place-items-center rounded-[2rem] border border-line bg-surface shadow-e3">
                 <LogoMark size={64} />
               </span>
+            </div>
+          </div>
+          <div id="feature-detail" className="mx-auto w-full max-w-lg text-center lg:mx-0 lg:text-left" data-feature-detail={feature.id}>
+            <div key={feature.id} className="step-open space-y-6">
+              <div className="flex items-center justify-center gap-4 lg:justify-start">
+                <span aria-hidden className="grid size-14 place-items-center rounded-2xl bg-orange text-on-orange shadow-e2">
+                  <Icon className="size-7" />
+                </span>
+                <span className="type-figure type-caption font-semibold tracking-widest text-ink-3 uppercase">
+                  {format(text.counter, { number: String(active + 1).padStart(2, "0"), total: String(FEATURES.length).padStart(2, "0") })}
+                </span>
+              </div>
+              <h3 className="type-display-m text-ink">{copy.title}</h3>
+              <p className="type-body mx-auto max-w-md text-ink-2 lg:mx-0">{copy.body}</p>
+              <Button asChild size="lg">
+                <Link href={feature.href}>
+                  {copy.link}
+                  <ArrowRight aria-hidden />
+                </Link>
+              </Button>
+            </div>
+            <div aria-hidden className="mt-8 flex items-center justify-center gap-2 lg:justify-start">
+              {FEATURES.map((item, index) => (
+                <span key={item.id} className={cn("h-1.5 rounded-full transition-all duration-500 motion-reduce:transition-none", index === active ? "w-10 bg-orange" : "w-4 bg-line")} />
+              ))}
             </div>
           </div>
         </div>
