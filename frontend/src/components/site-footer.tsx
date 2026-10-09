@@ -1,8 +1,7 @@
 import Link from "next/link";
 
 import { Logo } from "@/components/brand/logo";
-import { getCurrentIdentity } from "@/lib/auth/server";
-import { NAV_ITEMS } from "@/lib/navigation";
+import { SIDEBAR } from "@/lib/navigation";
 import { format, messages } from "@/messages";
 
 const text = messages.footer;
@@ -11,19 +10,18 @@ const LINK = "inline-flex min-h-11 items-center text-base text-ink-2 underline-o
 
 /** The links of one navigation id each, taken from the shared navigation list so the footer never names a page that does not exist. */
 function linksFor(ids: readonly string[]) {
-  return ids.flatMap((id) => NAV_ITEMS.filter((item) => item.id === id).map((item) => ({ href: item.href, label: item.label })));
+  return ids.flatMap((id) => SIDEBAR.flatMap((category) => category.items).filter((item) => item.id === id).map((item) => ({ href: item.href, label: item.label })));
 }
 
 /** The footer: a rounded panel with the brand, three link columns, a copyright line and the brand name as a huge outlined wordmark fading out at the bottom. It follows the theme: a warm cream panel in light, the night panel in dark. */
-export async function SiteFooter() {
-  const { isSignedIn } = await getCurrentIdentity();
+export function SiteFooter() {
   const columns = [
     { id: "product", title: text.product, links: linksFor(["panels", "inverters", "estimator", "companies"]) },
-    { id: "resources", title: text.resources, links: linksFor(["learn", "troubleshooting", "support"]) },
+    { id: "resources", title: text.resources, links: linksFor(["learn", "troubleshooting", "safety-help"]) },
     {
       id: "account",
       title: text.account,
-      links: isSignedIn ? linksFor(["account", "notifications"]) : [{ href: "/sign-in", label: messages.auth.signIn }, { href: "/sign-up", label: messages.auth.createAccount }],
+      links: [{ href: "/sign-in", label: messages.auth.signIn }, { href: "/sign-up", label: messages.auth.createAccount }],
     },
   ];
   return (

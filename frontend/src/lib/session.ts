@@ -40,11 +40,6 @@ export function deriveSessionState(input: {
   return { status: "loading" };
 }
 
-/** The user to build navigation for, or null when nothing about the user can be trusted. */
-export function navigationUser(state: SessionState): ShellUser | null {
-  return state.status === "ready" || state.status === "unavailable" ? state.user : null;
-}
-
 /** Whether client-side state must be discarded because the person using the browser changed. */
 export function shouldResetClientState(
   previousUserId: string | null | undefined,

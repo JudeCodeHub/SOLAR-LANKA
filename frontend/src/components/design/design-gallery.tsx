@@ -32,7 +32,6 @@ import { ComparisonTable } from "@/components/requests/compare-view";
 import { OfferCard } from "@/components/requests/offers-section";
 import { RequestCard } from "@/components/requests/request-card";
 import { HomeHeader, NextSteps, SummaryCard } from "@/components/dashboard/dashboard-parts";
-import { DashboardFrame } from "@/components/shell/dashboard-shell";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Icon, IconCircle, ICON_SIZES } from "@/components/ui/icon";
@@ -63,7 +62,6 @@ import { contrastRatio } from "@/lib/design/contrast";
 import { CSS_NAMES, DARK, LIGHT, type Theme } from "@/lib/design/tokens";
 import { progressText } from "@/lib/installations/progress";
 import { INCLUSION_KEYS } from "@/lib/quotation/customer";
-import { navigationFor } from "@/lib/navigation";
 import { PHOTOS, type PhotoKey } from "@/lib/photos/photos";
 import { format, messages, plural } from "@/messages";
 
@@ -162,15 +160,13 @@ const REQUEST_SAMPLES = [
   { id: "r4", status: "cancelled", created_at: "2026-08-10T08:00:00Z", deliveries: [delivery("cancelled", 1), delivery("cancelled", 2)] },
 ];
 
-/** The links a customer sees in their own area, for the sample of the side column. */
-const companyArea = (role: "company_admin" | "technician") => navigationFor({ role: "customer", memberships: [{ companyId: "c1", role }] }, true).find((group) => group.id === "company")!;
-/** The company workspace as a company administrator sees it and as a technician sees it. */
-const COMPANY_SHELLS = [
-  { key: "company_admin", area: companyArea("company_admin"), current: "/company/inbox" },
-  { key: "technician", area: companyArea("technician"), current: "/technician/support" },
-];
-const adminArea = navigationFor({ role: "platform_admin", memberships: [] }, true).find((group) => group.id === "admin")!;
-const customerArea = navigationFor({ role: "customer", memberships: [] }, true).find((group) => group.id === "customer")!;
+/** The company workspace samples: one for a company administrator and one for a technician. */
+const COMPANY_SHELLS = [{ key: "company_admin" }, { key: "technician" }];
+
+/** A plain padded frame around the sample pages (the real pages sit beside the app sidebar). */
+function DashboardFrame({ children }: { children: React.ReactNode }) {
+  return <div className="px-4 sm:px-6">{children}</div>;
+}
 
 /** Each swatch as a literal class (so Tailwind finds it), in the order they are shown. */
 const SWATCHES: [string, string][] = [
@@ -531,7 +527,7 @@ export function DesignGallery() {
           <h3 className="type-subheading">{text.navigation.dashboard}</h3>
           <p className="type-body max-w-3xl text-ink-2">{text.navigation.dashboardIntro}</p>
           <div className="rounded-card border border-line bg-paper-2">
-            <DashboardFrame area={customerArea} group="customer" current="/my/requests">
+            <DashboardFrame>
               <div className="space-y-6 py-6">
                 <HomeHeader eyebrow={messages.dashboard.customer.eyebrow} title={messages.dashboard.customer.title} intro={messages.dashboard.customer.intro} />
                 <NextSteps actions={[{ id: "offers", label: "Review 2 open offers", href: "/my/requests" }, { id: "installations", label: messages.dashboard.customer.installations, href: "/my/installations" }]} partial={false} />
@@ -595,7 +591,7 @@ export function DesignGallery() {
         <div className="space-y-3" data-admin-shell-sample>
           <h3 className="type-subheading">{text.navigation.adminShell}</h3>
           <div className="rounded-card border border-line bg-paper-2">
-            <DashboardFrame area={adminArea} group="admin" current="/admin/catalogue/panels">
+            <DashboardFrame>
               <p className="type-body py-8 text-ink-2">{text.navigation.dashboardPage}</p>
             </DashboardFrame>
           </div>
@@ -613,9 +609,9 @@ export function DesignGallery() {
         <div className="space-y-3" data-company-shell-sample>
           <h3 className="type-subheading">{text.navigation.companyShell}</h3>
           <div className="grid gap-4 xl:grid-cols-2">
-            {COMPANY_SHELLS.map(({ key, area, current }) => (
+            {COMPANY_SHELLS.map(({ key }) => (
               <div key={key} className="rounded-card border border-line bg-paper-2" data-shell-role={key}>
-                <DashboardFrame area={area} group="company" current={current}>
+                <DashboardFrame>
                   <p className="type-body py-8 text-ink-2">{text.navigation.dashboardPage}</p>
                 </DashboardFrame>
               </div>

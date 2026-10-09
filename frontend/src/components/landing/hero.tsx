@@ -13,7 +13,7 @@ const teaser = messages.landing.story.teaser;
 const step = (index: number) => ({ "--i": index }) as React.CSSProperties;
 
 /** The landing hero: an oversized serif headline on a blueprint grid, two actions, and the rooftop photo fading in from the right behind a sample dial. */
-export function Hero({ signedIn }: { signedIn: boolean }) {
+export function Hero() {
   return (
     <section aria-labelledby="hero-title" className="bg-blueprint relative isolate overflow-hidden lg:flex lg:min-h-svh lg:items-center" data-hero>
       <div className="mx-auto w-full max-w-landing px-4 sm:px-6">
@@ -26,7 +26,7 @@ export function Hero({ signedIn }: { signedIn: boolean }) {
               <Link href="/estimator">{messages.brand.primaryAction}</Link>
             </Button>
             <Button asChild size="lg" variant="outline">
-              {signedIn ? <Link href="/account">{text.goToAccount}</Link> : <Link href="/panels">{messages.brand.secondaryAction}</Link>}
+              <Link href="/panels">{messages.brand.secondaryAction}</Link>
             </Button>
           </div>
         </div>

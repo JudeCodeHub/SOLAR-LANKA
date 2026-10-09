@@ -11,83 +11,10 @@ export interface ShellUser {
   memberships: readonly { companyId: string; role: CompanyRole }[];
 }
 
-export type NavAccess =
-  | { kind: "public" }
-  | { kind: "signed-in" }
-  | { kind: "account-role"; role: AccountRole }
-  | { kind: "company-role"; roles: readonly CompanyRole[] }
-  | { kind: "persona"; personas: readonly Persona[] };
+export type NavAccess = { kind: "signed-in" } | { kind: "persona"; personas: readonly Persona[] };
 
 /** Which sidebar a signed-in person gets: one persona each, so company staff do not also see the customer's categories. */
 export type Persona = "customer" | "company" | "technician" | "admin";
-
-export type NavGroupId = "explore" | "customer" | "company" | "admin" | "account";
-
-export interface NavItem {
-  id: string;
-  label: string;
-  href: string;
-  group: NavGroupId;
-  access: NavAccess;
-  /** True only when a page exists at `href`. Enforced by a test. */
-  available: boolean;
-}
-
-export interface NavGroup {
-  id: NavGroupId;
-  label: string;
-  items: readonly NavItem[];
-}
-
-const GROUP_ORDER: readonly NavGroupId[] = ["explore", "customer", "company", "admin", "account"];
-
-const GROUP_LABELS: Record<NavGroupId, string> = messages.nav.groups;
-
-const PUBLIC: NavAccess = { kind: "public" };
-const CUSTOMER: NavAccess = { kind: "account-role", role: "customer" };
-const PLATFORM_ADMIN: NavAccess = { kind: "account-role", role: "platform_admin" };
-// Company administrators and sales staff.
-// Technicians have their own, smaller workspace.
-const TECHNICIAN: NavAccess = { kind: "company-role", roles: ["technician"] };
-const COMPANY_STAFF: NavAccess = { kind: "company-role", roles: ["company_admin", "sales"] };
-
-export const NAV_ITEMS: readonly NavItem[] = [
-  { id: "home", label: messages.nav.items.home, href: "/", group: "explore", access: PUBLIC, available: true },
-  { id: "panels", label: messages.nav.items.panels, href: "/panels", group: "explore", access: PUBLIC, available: true },
-  { id: "inverters", label: messages.nav.items.inverters, href: "/inverters", group: "explore", access: PUBLIC, available: true },
-  { id: "estimator", label: messages.nav.items.estimator, href: "/estimator", group: "explore", access: PUBLIC, available: true },
-  { id: "companies", label: messages.nav.items.companies, href: "/companies", group: "explore", access: PUBLIC, available: true },
-  { id: "learn", label: messages.nav.items.learn, href: "/learn", group: "explore", access: PUBLIC, available: true },
-  { id: "troubleshooting", label: messages.nav.items.troubleshooting, href: "/troubleshooting", group: "explore", access: PUBLIC, available: true },
-  { id: "support", label: messages.nav.items.support, href: "/support", group: "explore", access: PUBLIC, available: true },
-
-  { id: "my-dashboard", label: messages.nav.items.myDashboard, href: "/my", group: "customer", access: CUSTOMER, available: true },
-  { id: "my-support", label: messages.nav.items.mySupport, href: "/my/support", group: "customer", access: CUSTOMER, available: true },
-  { id: "my-estimates", label: messages.nav.items.myEstimates, href: "/my/estimates", group: "customer", access: CUSTOMER, available: true },
-  { id: "my-requests", label: messages.nav.items.myRequests, href: "/my/requests", group: "customer", access: CUSTOMER, available: true },
-  { id: "my-installations", label: messages.nav.items.myInstallations, href: "/my/installations", group: "customer", access: CUSTOMER, available: true },
-  { id: "my-favourites", label: messages.nav.items.myFavourites, href: "/my/favourites", group: "customer", access: CUSTOMER, available: true },
-
-  { id: "technician-visits", label: messages.nav.items.technicianVisits, href: "/technician", group: "company", access: TECHNICIAN, available: true },
-  { id: "technician-support", label: messages.nav.items.technicianSupport, href: "/technician/support", group: "company", access: TECHNICIAN, available: true },
-  { id: "company-dashboard", label: messages.nav.items.companyDashboard, href: "/company", group: "company", access: COMPANY_STAFF, available: true },
-  { id: "company-support", label: messages.nav.items.companySupport, href: "/company/support", group: "company", access: COMPANY_STAFF, available: true },
-  { id: "company-inbox", label: messages.nav.items.companyInbox, href: "/company/inbox", group: "company", access: COMPANY_STAFF, available: true },
-  { id: "company-offers", label: messages.nav.items.companyOffers, href: "/company/offers", group: "company", access: COMPANY_STAFF, available: true },
-  { id: "company-installations", label: messages.nav.items.companyInstallations, href: "/company/installations", group: "company", access: COMPANY_STAFF, available: true },
-  { id: "company-profile", label: messages.nav.items.companyProfile, href: "/company/profile", group: "company", access: COMPANY_STAFF, available: true },
-
-  { id: "admin-companies", label: messages.nav.items.adminCompanies, href: "/admin/companies", group: "admin", access: PLATFORM_ADMIN, available: true },
-  { id: "admin-catalogue", label: messages.nav.items.adminCatalogue, href: "/admin/catalogue", group: "admin", access: PLATFORM_ADMIN, available: true },
-  { id: "admin-estimator", label: messages.nav.items.adminEstimator, href: "/admin/estimator", group: "admin", access: PLATFORM_ADMIN, available: true },
-  { id: "admin-users", label: messages.nav.items.adminUsers, href: "/admin/users", group: "admin", access: PLATFORM_ADMIN, available: true },
-  { id: "admin-troubleshooting", label: messages.nav.items.adminTroubleshooting, href: "/admin/troubleshooting", group: "admin", access: PLATFORM_ADMIN, available: true },
-  { id: "admin-education", label: messages.nav.items.adminEducation, href: "/admin/education", group: "admin", access: PLATFORM_ADMIN, available: true },
-  { id: "admin-activity", label: messages.nav.items.adminActivity, href: "/admin/activity", group: "admin", access: PLATFORM_ADMIN, available: true },
-
-  { id: "account", label: messages.nav.items.account, href: "/account", group: "account", access: { kind: "signed-in" }, available: true },
-  { id: "notifications", label: messages.nav.items.notifications, href: "/notifications", group: "account", access: { kind: "signed-in" }, available: true },
-];
 
 // ---- The signed-in sidebar: categories with sub-items ------------------------------------------------
 
@@ -148,7 +75,7 @@ export const SIDEBAR: readonly SidebarCategory[] = [
       item("my-dashboard", messages.nav.items.myDashboard, "/my", AS_CUSTOMER),
       item("company-dashboard", messages.nav.items.companyDashboard, "/company", AS_COMPANY),
       item("technician-visits", messages.nav.items.technicianVisits, "/technician", AS_TECHNICIAN),
-      item("admin-home", messages.nav.items.adminHome, "/admin", AS_ADMIN, false),
+      item("admin-home", messages.nav.items.adminHome, "/admin", AS_ADMIN),
     ],
   },
   {
@@ -260,19 +187,11 @@ export const SIDEBAR: readonly SidebarCategory[] = [
 ];
 
 /** `user` is null for a signed-out visitor, and also while a signed-in user's profile loads. */
-export function canSee(item: NavItem, user: ShellUser | null, signedIn: boolean): boolean {
+export function canSee(item: { access: NavAccess }, user: ShellUser | null, signedIn: boolean): boolean {
   const access = item.access;
   switch (access.kind) {
-    case "public":
-      return true;
     case "signed-in":
       return signedIn;
-    case "account-role":
-      return user?.role === access.role;
-    case "company-role":
-      return (
-        user !== null && user.memberships.some((membership) => access.roles.includes(membership.role))
-      );
     case "persona":
       return user !== null && access.personas.includes(personaOf(user));
   }
@@ -286,34 +205,33 @@ export function personaOf(user: ShellUser): Persona {
   return "customer";
 }
 
-/** The groups of links this user should see, in a fixed order. */
-export function navigationFor(
-  user: ShellUser | null,
-  signedIn: boolean,
-  items: readonly NavItem[] = NAV_ITEMS,
-): NavGroup[] {
-  return GROUP_ORDER.map((id) => ({
-    id,
-    label: GROUP_LABELS[id],
-    items: items.filter(
-      (item) => item.group === id && item.available && canSee(item, user, signedIn),
-    ),
-  })).filter((group) => group.items.length > 0);
+/** The sidebar categories this person may see, in tree order, each with only the links that are theirs and built. `user` is null while a signed-in person's profile loads, which shows only the links open to every signed-in person. */
+export function sidebarFor(user: ShellUser | null, signedIn: boolean, categories: readonly SidebarCategory[] = SIDEBAR): SidebarCategory[] {
+  return categories
+    .map((category) => ({ ...category, items: category.items.filter((entry) => entry.available && canSee(entry, user, signedIn)) }))
+    .filter((category) => category.items.length > 0);
 }
 
-export interface EntryPoint {
-  id: string;
-  label: string;
-  href: string;
-  /** False while the page is not built; such an entry is shown but is not a link. */
-  linkable: boolean;
+export interface CurrentPlace {
+  category: SidebarCategory;
+  item: SidebarItem;
+  /** The names from the category down to the page, for the page title and the breadcrumbs. */
+  trail: readonly string[];
 }
 
-/** The public destinations to advertise on the landing page, in menu order. */
-export function publicEntryPoints(items: readonly NavItem[] = NAV_ITEMS): EntryPoint[] {
-  return items
-    .filter((item) => item.group === "explore" && item.access.kind === "public" && item.id !== "home")
-    .map((item) => ({ id: item.id, label: item.label, href: item.href, linkable: item.available }));
+/** Which sidebar category and link an address belongs to: the link with the longest matching address wins, so a deeper link is preferred over the page above it; null for an address that is in none (such as the landing page). */
+export function locate(pathname: string, categories: readonly SidebarCategory[]): CurrentPlace | null {
+  let best: CurrentPlace | null = null;
+  let length = -1;
+  for (const category of categories) {
+    for (const entry of category.items) {
+      if (isActive(entry.href, pathname) && entry.href.length > length) {
+        best = { category, item: entry, trail: [category.label, entry.label] };
+        length = entry.href.length;
+      }
+    }
+  }
+  return best;
 }
 
 /** A link is active on its own page and anywhere below it; "/" matches only itself. */

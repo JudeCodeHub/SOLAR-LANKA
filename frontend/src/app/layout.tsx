@@ -6,7 +6,7 @@ import { bodyFont, displayFont, displayItalicFont, figureFont } from "@/fonts/fo
 import { ComparisonTray } from "@/components/comparison/comparison-tray";
 import { Providers } from "@/components/providers";
 import { SessionWatcher } from "@/components/session-watcher";
-import { HideOnAuthPages } from "@/components/shell/hide-on-auth";
+import { ShowOnLanding } from "@/components/shell/show-on-landing";
 import { SiteFooter } from "@/components/site-footer";
 import { SkipLink } from "@/components/shell/skip-link";
 import { SiteHeader } from "@/components/site-header";
@@ -45,22 +45,22 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <ClerkProvider
           appearance={CLERK_APPEARANCE}
           afterSignOutUrl="/"
-          signInFallbackRedirectUrl="/"
-          signUpFallbackRedirectUrl="/"
+          signInFallbackRedirectUrl="/dashboard"
+          signUpFallbackRedirectUrl="/dashboard"
         >
           <Providers>
             <SessionWatcher />
             <SkipLink />
-            <HideOnAuthPages>
+            <ShowOnLanding>
               <SiteHeader />
-            </HideOnAuthPages>
+            </ShowOnLanding>
             <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col outline-none">
               {children}
             </main>
             <ComparisonTray />
-            <HideOnAuthPages>
+            <ShowOnLanding>
               <SiteFooter />
-            </HideOnAuthPages>
+            </ShowOnLanding>
           </Providers>
         </ClerkProvider>
       </body>
