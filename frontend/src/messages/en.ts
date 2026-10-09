@@ -81,6 +81,7 @@ export const en = {
     menuTitle: "Navigation",
     menuDescription: "Your pages, in categories",
     toggleCategory: "Show or hide {category}",
+    openCategory: "Open the sidebar at {category}",
     notifications: "Notifications",
     unread: "Notifications, {count} unread",
     breadcrumbs: "You are here",

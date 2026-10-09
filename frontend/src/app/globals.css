@@ -981,3 +981,164 @@ html:has([data-hero]) {
   animation-delay: 1.8s;
   animation-fill-mode: forwards;
 }
+
+/* The signed-in app shell scrolls (the page and the sidebar list) but shows no scroll bars. */
+html:has([data-app-shell]),
+[data-sidebar] nav {
+  scrollbar-width: none;
+}
+html:has([data-app-shell])::-webkit-scrollbar,
+[data-sidebar] nav::-webkit-scrollbar {
+  display: none;
+}
+
+/* Sidebar branching menu (the React Bits "BranchedMenu" idea, in this app's colours): a rail down the left, folds that open to curved branches, and an orange line that draws itself to the current page. */
+.branched-menu {
+  --bm-ink: var(--ds-text);
+  --bm-muted: var(--ds-text-2);
+  --bm-accent: var(--ds-orange);
+  --bm-accent-text: var(--ds-orange-text);
+  --bm-line: var(--ds-field-border);
+  --bm-row: 36px;
+  --bm-indent: 40px;
+  --bm-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-left: 12px;
+  color: var(--bm-ink);
+  font-size: 0.875rem;
+  line-height: 1.2;
+}
+.branched-menu::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  border-radius: 1px;
+  background: linear-gradient(to bottom, var(--bm-line) 0%, var(--bm-line) 55%, transparent 100%);
+}
+.branched-menu__marker {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  z-index: 1;
+  width: 2px;
+  height: 16px;
+  border-radius: 1px;
+  background: var(--bm-accent);
+  opacity: 0;
+  transition:
+    top 220ms var(--bm-ease),
+    opacity 150ms ease;
+}
+.branched-menu__marker[data-on] {
+  opacity: 1;
+}
+.branched-menu__section {
+  display: flex;
+  flex-direction: column;
+}
+.branched-menu__head {
+  display: flex;
+  width: 100%;
+  min-height: 2.75rem;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--bm-muted);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: color 200ms ease;
+}
+.branched-menu__section[data-open] > .branched-menu__head,
+.branched-menu__head:hover {
+  color: var(--bm-ink);
+}
+.branched-menu__head[data-active] {
+  color: var(--bm-accent-text);
+}
+.branched-menu__body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 300ms var(--bm-ease);
+}
+.branched-menu__section[data-open] .branched-menu__body {
+  grid-template-rows: 1fr;
+}
+.branched-menu__fold {
+  min-height: 0;
+  overflow: hidden;
+}
+.branched-menu__tree {
+  position: relative;
+  padding: 6px 0;
+  box-sizing: border-box;
+}
+.branched-menu__lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: visible;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+.branched-menu__section[data-open] .branched-menu__lines {
+  opacity: 1;
+  transition: opacity 250ms ease 100ms;
+}
+.branched-menu__base,
+.branched-menu__reach {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.branched-menu__base {
+  stroke: var(--bm-line);
+}
+.branched-menu__reach {
+  stroke: var(--bm-accent);
+  transition: stroke-dashoffset 400ms var(--bm-ease);
+}
+.branched-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: var(--bm-row);
+  padding: 0 0 0 var(--bm-indent);
+  color: var(--bm-muted);
+  font-weight: 500;
+  box-sizing: border-box;
+  transition: color 200ms ease;
+}
+.branched-menu__item:hover {
+  color: var(--bm-ink);
+}
+.branched-menu__item[data-active] {
+  color: var(--bm-accent-text);
+  font-weight: 600;
+}
+.branched-menu__icon {
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+}
+.branched-menu__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.branched-menu__head:focus-visible,
+.branched-menu__item:focus-visible {
+  border-radius: 0.5rem;
+}
