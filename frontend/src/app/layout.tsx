@@ -1,7 +1,6 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { ViewTransition } from "react";
 import "./globals.css";
 import { bodyFont, displayFont, displayItalicFont, figureFont } from "@/fonts/fonts";
 import { ComparisonTray } from "@/components/comparison/comparison-tray";
@@ -56,7 +55,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <SiteHeader />
             </HideOnAuthPages>
             <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col outline-none">
-              <ViewTransition default="page">{children}</ViewTransition>
+              {children}
             </main>
             <ComparisonTray />
             <HideOnAuthPages>
