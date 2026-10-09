@@ -1,5 +1,4 @@
 import { SignIn } from "@clerk/nextjs";
-import { Calculator, HardHat, Inbox } from "lucide-react";
 import type { Metadata } from "next";
 
 import { AuthLayout } from "@/components/auth/auth-layout";
@@ -13,11 +12,10 @@ export default function SignInPage() {
       photo="signIn"
       eyebrow={messages.auth.signInEyebrow}
       line={messages.auth.signInLine}
-      points={[
-        { icon: Calculator, text: messages.auth.signInPoints.estimates },
-        { icon: Inbox, text: messages.auth.signInPoints.requests },
-        { icon: HardHat, text: messages.auth.signInPoints.installations },
-      ]}
+      quote={messages.auth.signInQuote}
+      switchPrompt={messages.auth.noAccount}
+      switchLabel={messages.auth.createAccount}
+      switchHref="/sign-up"
     >
       <SignIn />
     </AuthLayout>
