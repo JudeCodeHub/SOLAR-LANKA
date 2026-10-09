@@ -14,16 +14,16 @@ const LATTICE_PHOTO = "consultation";
 /** The second section: a centred heading and sub-heading on the page background, then, with no box around it, two clean halves: the headline and three sample figures that count up on the left and, on the right, reaching the edge of the page, one photo seen through diamond windows that run along diagonal rows without stopping. */
 export function EstimateTeaser() {
   return (
-    <section aria-labelledby="teaser-heading" className="bg-paper py-section-m lg:flex lg:min-h-svh lg:items-center" data-estimate-section>
+    <section aria-labelledby="teaser-heading" className="bg-paper py-section-m flex min-h-svh items-center" data-estimate-section>
       <div className="w-full space-y-10 lg:space-y-14">
-        <Container size="wide">
+        <Container size="landing">
           <div className="mx-auto space-y-4 text-center">
             <h2 id="teaser-heading" className="type-display-m text-ink">{text.heading}</h2>
             <p className="type-body text-ink-2 lg:whitespace-nowrap">{text.subheading}</p>
           </div>
         </Container>
         <div className="isolate grid lg:grid-cols-2" data-estimate-teaser>
-          <div className="flex flex-col justify-center gap-7 px-4 py-6 sm:px-6 lg:justify-self-stretch lg:py-10 lg:pr-12 lg:pl-[max(1.5rem,calc((100vw-90rem)/2+1.5rem))]">
+          <div className="flex flex-col justify-center gap-7 px-4 py-6 sm:px-6 lg:justify-self-stretch lg:py-10 lg:pr-12 lg:pl-[max(1.5rem,calc((100vw-var(--container-landing))/2+1.5rem))]">
             <div className="space-y-4">
               <h3 id="teaser-title" className="type-heading text-ink">{text.title}</h3>
               <p className="type-body max-w-md text-ink-2">{text.body}</p>

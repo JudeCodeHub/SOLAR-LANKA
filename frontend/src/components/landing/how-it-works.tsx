@@ -100,10 +100,10 @@ export function HowItWorks() {
   return (
     <section
       aria-labelledby="how-title"
-      className="bg-paper py-section-m lg:flex lg:min-h-svh lg:items-center"
+      className="bg-paper py-section-m flex min-h-svh items-center"
       data-how-it-works
     >
-      <Container size="wide" className="space-y-12 lg:space-y-16">
+      <Container size="landing" className="space-y-12 lg:space-y-16">
         <div className="mx-auto space-y-4 text-center">
           <h2 id="how-title" className="type-display-m text-ink">
             {text.lead} <span className="italic-display">{text.emphasis}</span>

@@ -29,7 +29,7 @@ export async function SiteFooter() {
   return (
     <footer data-print-hide data-site-footer>
       <div className="relative isolate w-full overflow-hidden rounded-t-3xl border-t border-line bg-paper-2 text-ink">
-        <div className="mx-auto grid w-full max-w-wide gap-12 px-4 pt-12 sm:px-6 lg:grid-cols-[minmax(0,1fr)_repeat(3,minmax(0,12rem))] lg:gap-14 lg:pt-16">
+        <div className="mx-auto grid w-full max-w-landing gap-12 px-4 pt-12 sm:px-6 lg:grid-cols-[minmax(0,1fr)_repeat(3,minmax(0,12rem))] lg:gap-14 lg:pt-16">
           <div className="space-y-6">
             <Link href="/" className="inline-flex min-h-11 items-center text-ink" aria-label={messages.app.name}>
               <Logo height={30} />
@@ -57,7 +57,7 @@ export async function SiteFooter() {
           {messages.app.name}
         </p>
         <div className="border-t border-line">
-          <div className="mx-auto flex w-full max-w-wide flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-5 text-sm text-ink-3 sm:px-6">
+          <div className="mx-auto flex w-full max-w-landing flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-5 text-sm text-ink-3 sm:px-6">
             <p>{format(text.copyright, { year: new Date().getFullYear(), name: messages.app.name })}</p>
             <p>{messages.brand.tagline}</p>
           </div>
