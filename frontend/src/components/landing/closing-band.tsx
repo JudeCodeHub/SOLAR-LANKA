@@ -11,12 +11,12 @@ const text = messages.landing.story.closing;
 /** The last call to action: a full-width orange band with the sunrise photo fading in from the right, joined straight onto the footer. Its ink stays dark in both themes, like every other text on orange. */
 export function ClosingBand() {
   return (
-    <section aria-labelledby="closing-title" className="relative isolate overflow-hidden bg-orange text-on-orange lg:flex lg:min-h-svh lg:items-center" data-closing-band>
+    <section aria-labelledby="closing-title" className="relative isolate overflow-hidden bg-orange text-on-orange flex min-h-svh items-center" data-closing-band>
       <div aria-hidden className="absolute inset-y-0 right-0 -z-10 hidden w-3/5 md:block">
         <Photo name="sunrise" sizes="60vw" className="size-full object-cover mix-blend-multiply opacity-90" />
         <div className="absolute inset-0 bg-gradient-to-r from-orange via-orange/60 to-transparent" />
       </div>
-      <Container size="wide" className="py-section-l">
+      <Container size="landing" className="py-section-l">
         <div className="max-w-xl space-y-6">
           <h2 id="closing-title" className="type-display-l">{text.title}</h2>
           <p className="type-body max-w-md">{text.body}</p>

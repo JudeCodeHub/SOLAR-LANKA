@@ -1,62 +1,154 @@
+"use client";
+
 import { ArrowRight, BookOpen, Building2, Calculator, Route, Scale, ShieldAlert, type LucideIcon } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
-import { Card } from "@/components/ui/card";
+import { LogoMark } from "@/components/brand/logo";
+import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
-import { IconCircle } from "@/components/ui/icon";
 import { Photo } from "@/components/ui/photo";
-import { Reveal } from "@/components/ui/reveal";
-import { Section } from "@/components/ui/section";
 import type { PhotoKey } from "@/lib/photos/photos";
 import { cn } from "@/lib/utils";
 import { messages } from "@/messages";
 
 const text = messages.landing.story.features;
 
-type Feature = { id: "estimate" | "compare" | "track" | "learn" | "companies" | "safety"; icon: LucideIcon; photo: PhotoKey; href: string; span: string };
+type Feature = { id: "estimate" | "compare" | "track" | "learn" | "companies" | "safety"; icon: LucideIcon; photo: PhotoKey; href: string };
 
-/** Six equal cards, three across, so the whole grid fits one screen. */
-const FEATURES: Feature[] = [
-  { id: "estimate", icon: Calculator, photo: "aerial", href: "/estimator", span: "lg:col-span-4" },
-  { id: "compare", icon: Scale, photo: "panelMacro", href: "#compare", span: "lg:col-span-4" },
-  { id: "track", icon: Route, photo: "installers", href: "/sign-up", span: "lg:col-span-4" },
-  { id: "learn", icon: BookOpen, photo: "consultation", href: "/learn", span: "lg:col-span-4" },
-  { id: "companies", icon: Building2, photo: "team", href: "/companies", span: "lg:col-span-4" },
-  { id: "safety", icon: ShieldAlert, photo: "safetyVisit", href: "/support", span: "lg:col-span-4" },
+const FEATURES: readonly Feature[] = [
+  { id: "estimate", icon: Calculator, photo: "aerial", href: "/estimator" },
+  { id: "compare", icon: Scale, photo: "panelMacro", href: "#compare" },
+  { id: "track", icon: Route, photo: "installers", href: "/sign-up" },
+  { id: "learn", icon: BookOpen, photo: "consultation", href: "/learn" },
+  { id: "companies", icon: Building2, photo: "team", href: "/companies" },
+  { id: "safety", icon: ShieldAlert, photo: "safetyVisit", href: "/support" },
 ];
 
-/** The six things the site does, as an even grid of photo cards, each with an icon, one line and a link. */
+/** Where each feature sits on the orbit (percent of the map) and the spoke to it, worked out once from six even angles. */
+const RADIUS = 38;
+const SPOTS = FEATURES.map((_, index) => {
+  const angle = ((-90 + index * 60) * Math.PI) / 180;
+  return { x: +(50 + RADIUS * Math.cos(angle)).toFixed(2), y: +(50 + RADIUS * Math.sin(angle)).toFixed(2) };
+});
+
+const DOTS = [
+  { x: 12, y: 24 },
+  { x: 88, y: 18 },
+  { x: 94, y: 62 },
+  { x: 8, y: 70 },
+  { x: 70, y: 94 },
+  { x: 30, y: 6 },
+] as const;
+
+/** The six things the site does as an orbit map: the brand at the centre, one photo node per feature around it, slowly turning. Hovering, focusing or pressing a node opens its photo, words and link on the left, and the nodes also take turns by themselves until the pointer or keyboard is on the map. */
 export function FeatureGrid() {
+  const [active, setActive] = useState(0);
+  const [held, setHeld] = useState(false);
+
+  useEffect(() => {
+    if (held || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
+    const timer = window.setInterval(() => setActive((index) => (index + 1) % FEATURES.length), 4800);
+    return () => window.clearInterval(timer);
+  }, [held]);
+
+  const feature = FEATURES[active] ?? FEATURES[0]!;
+  const copy = text[feature.id];
+  const Icon = feature.icon;
+
   return (
-    <Section space="l" labelledBy="features-title" className="lg:flex lg:min-h-svh lg:items-center">
-      <Container size="wide" className="space-y-10">
-        <div className="max-w-2xl space-y-4">
-          <p className="type-caption font-semibold tracking-widest text-orange-text uppercase">{text.eyebrow}</p>
+    <section aria-labelledby="features-title" className="bg-paper py-section-m flex min-h-svh items-center" data-feature-grid>
+      <Container size="landing" className="space-y-12 lg:space-y-16">
+        <div className="mx-auto space-y-4 text-center">
           <h2 id="features-title" className="type-display-m text-ink">{text.title}</h2>
+          <p className="type-body text-ink-2">{text.caption}</p>
         </div>
-        <ul className="grid gap-6 lg:grid-cols-12" data-feature-grid>
-          {FEATURES.map((feature, index) => (
-            <li key={feature.id} className={cn("flex", feature.span)}>
-              <Reveal delay={(index % 2) as 0 | 1} className="flex w-full">
-                <Card className="group/feature w-full gap-0 overflow-hidden p-0 transition-shadow hover:shadow-e3 motion-reduce:transition-none" data-feature={feature.id}>
-                  <div className={cn("relative overflow-hidden", "aspect-[2/1]")}>
-                    <Photo name={feature.photo} sizes="(min-width: 1024px) 32vw, 100vw" className="size-full object-cover transition-transform duration-500 group-hover/feature:scale-[1.03] motion-reduce:transition-none" />
-                  </div>
-                  <div className="flex flex-1 flex-col gap-2 p-5">
-                    <IconCircle icon={feature.icon} size="md" tone="orange" />
-                    <h3 className="type-subheading text-ink">{text[feature.id].title}</h3>
-                    <p className="type-body max-w-md text-ink-2">{text[feature.id].body}</p>
-                    <Link href={feature.href} className="group/link mt-auto inline-flex min-h-11 items-center gap-2 pt-2 text-sm font-semibold text-orange-text underline-offset-4 hover:underline">
-                      {text[feature.id].link}
-                      <ArrowRight aria-hidden className="size-4 transition-transform group-hover/link:translate-x-0.5 motion-reduce:transition-none" />
-                    </Link>
-                  </div>
-                </Card>
-              </Reveal>
-            </li>
-          ))}
-        </ul>
+        <div className="grid items-center gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+          <div id="feature-detail" className="mx-auto w-full max-w-xl space-y-6" data-feature-detail={feature.id}>
+            <div key={feature.id} className="step-open space-y-6">
+              <div className="relative aspect-[16/10] overflow-hidden rounded-3xl border border-line bg-paper-2 shadow-e2">
+                <Photo name={feature.photo} sizes="(min-width: 1024px) 40vw, 90vw" className="size-full object-cover" />
+                <span aria-hidden className="absolute bottom-4 left-4 grid size-12 place-items-center rounded-2xl bg-orange text-on-orange shadow-e2">
+                  <Icon className="size-6" />
+                </span>
+              </div>
+              <div className="space-y-3">
+                <h3 className="type-heading text-ink">{copy.title}</h3>
+                <p className="type-body max-w-md text-ink-2">{copy.body}</p>
+              </div>
+              <Button asChild size="lg" variant="outline">
+                <Link href={feature.href}>
+                  {copy.link}
+                  <ArrowRight aria-hidden />
+                </Link>
+              </Button>
+            </div>
+          </div>
+          <div
+            className="orbit-map relative mx-auto aspect-square w-full max-w-[34rem]"
+            onMouseEnter={() => setHeld(true)}
+            onMouseLeave={() => setHeld(false)}
+            onFocus={() => setHeld(true)}
+            onBlur={() => setHeld(false)}
+          >
+            <svg aria-hidden viewBox="0 0 100 100" className="absolute inset-0 size-full text-line">
+              <circle cx="50" cy="50" r={RADIUS} fill="none" stroke="currentColor" strokeWidth="0.35" />
+              <circle cx="50" cy="50" r="26" fill="none" stroke="currentColor" strokeWidth="0.3" strokeDasharray="0.8 1.6" />
+              <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="0.2" opacity="0.6" />
+              {DOTS.map((dot) => (
+                <circle key={`${dot.x}-${dot.y}`} cx={dot.x} cy={dot.y} r="0.7" fill="currentColor" />
+              ))}
+            </svg>
+            <div className="orbit absolute inset-0">
+              <svg aria-hidden viewBox="0 0 100 100" className="absolute inset-0 size-full">
+                {SPOTS.map((spot, index) => (
+                  <line key={FEATURES[index]!.id} x1="50" y1="50" x2={spot.x} y2={spot.y} stroke={index === active ? "var(--ds-orange)" : "var(--ds-line)"} strokeWidth={index === active ? 0.5 : 0.3} strokeLinecap="round" className="transition-all duration-500 motion-reduce:transition-none" />
+                ))}
+              </svg>
+              {FEATURES.map((item, index) => {
+                const spot = SPOTS[index]!;
+                const NodeIcon = item.icon;
+                const on = index === active;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    aria-pressed={on}
+                    aria-controls="feature-detail"
+                    onMouseEnter={() => setActive(index)}
+                    onFocus={() => setActive(index)}
+                    onClick={() => setActive(index)}
+                    data-feature={item.id}
+                    className="group/node absolute -translate-x-1/2 -translate-y-1/2 outline-none"
+                    style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
+                  >
+                    <span className="orbit-node flex flex-col items-center gap-2">
+                      <span
+                        className={cn(
+                          "relative block size-[4.5rem] overflow-hidden rounded-full ring-2 transition-all duration-500 group-focus-visible/node:ring-4 group-focus-visible/node:ring-focus motion-reduce:transition-none sm:size-24",
+                          on ? "scale-110 shadow-e3 ring-4 ring-orange" : "ring-line group-hover/node:ring-ink-3",
+                        )}
+                      >
+                        <Photo name={item.photo} sizes="96px" className="size-full object-cover" />
+                        <span aria-hidden className={cn("absolute right-1 bottom-1 grid size-7 place-items-center rounded-full shadow-e1 transition-colors duration-500 motion-reduce:transition-none", on ? "bg-orange text-on-orange" : "bg-surface text-ink-2")}>
+                          <NodeIcon className="size-3.5" />
+                        </span>
+                      </span>
+                      <span className={cn("type-caption rounded-full px-2.5 py-0.5 font-semibold transition-colors duration-500 motion-reduce:transition-none", on ? "bg-orange text-on-orange" : "bg-surface/80 text-ink-2")}>{text[item.id].title}</span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            <div aria-hidden className="absolute top-1/2 left-1/2 grid size-[27%] -translate-x-1/2 -translate-y-1/2 place-items-center">
+              <span className="hub-glow absolute inset-0 rounded-[2rem] bg-orange/30 blur-2xl" />
+              <span className="relative grid size-full place-items-center rounded-[2rem] border border-line bg-surface shadow-e3">
+                <LogoMark size={64} />
+              </span>
+            </div>
+          </div>
+        </div>
       </Container>
-    </Section>
+    </section>
   );
 }

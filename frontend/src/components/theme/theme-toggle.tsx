@@ -62,7 +62,7 @@ export function ThemeToggle() {
   );
 }
 
-/** One round button for the floating landing bar: it shows the sun or the moon for what the page is using now, and each press moves to the next choice (light, dark, follow the device). */
+/** One round button for the floating landing bar: it shows the sun or the moon for what the page is using now, and one press switches to the other. */
 export function ThemeCycle() {
   const choice = useSyncExternalStore<ThemeChoice>(subscribe, readChoice, () => "system");
   const [dark, setDark] = useState(false);
@@ -80,9 +80,10 @@ export function ThemeCycle() {
     return () => query.removeEventListener("change", apply);
   }, [choice]);
 
-  const next = CHOICES[(CHOICES.indexOf(choice) + 1) % CHOICES.length] ?? "system";
+  // One press always flips what you see: light becomes dark and dark becomes light (the "match my device" choice stays in the menu and on other pages).
+  const next: ThemeChoice = dark ? "light" : "dark";
   const Icon = dark ? Moon : Sun;
-  const label = format(text.cycle, { choice: text[choice] });
+  const label = format(text.cycle, { choice: text[next] });
   return (
     <button
       type="button"

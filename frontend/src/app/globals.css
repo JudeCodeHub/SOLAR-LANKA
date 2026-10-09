@@ -40,6 +40,7 @@
   --spacing-section-xl: 10.5rem;
   --container-content: 75rem;
   --container-wide: 90rem;
+  --container-landing: 84rem;
   --container-reading: 45rem;
   --radius-field: 0.375rem;
   --radius-card: 0.75rem;
@@ -878,4 +879,50 @@ html:has([data-hero])::-webkit-scrollbar {
   font-family: var(--font-display-italic), var(--font-display), Georgia, serif;
   font-style: italic;
   font-weight: 400;
+}
+
+/* Features orbit map: the ring of photo nodes turns slowly and each node turns back the other way so it stays upright; the hub glows softly. Both pause while the pointer or keyboard is on the map, and stand still under reduced motion. */
+@keyframes orbit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes hub-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+.orbit {
+  animation: orbit-spin 140s linear infinite;
+}
+.orbit-node {
+  animation: orbit-spin 140s linear infinite reverse;
+}
+.hub-glow {
+  animation: hub-glow 4.5s ease-in-out infinite;
+}
+.orbit-map:hover .orbit,
+.orbit-map:hover .orbit-node,
+.orbit-map:focus-within .orbit,
+.orbit-map:focus-within .orbit-node {
+  animation-play-state: paused;
+}
+
+/* Landing page: every section is one viewport (one screen) tall and the page settles on one screen at a time as you scroll, loosely, so a screen is never forced to cut its content. */
+html:has([data-hero]) {
+  scroll-snap-type: y proximity;
+}
+[data-hero],
+[data-estimate-section],
+[data-how-it-works],
+[data-feature-grid],
+#compare,
+[data-closing-band] {
+  scroll-snap-align: start;
 }

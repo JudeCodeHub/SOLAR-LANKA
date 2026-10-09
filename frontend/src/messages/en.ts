@@ -503,8 +503,8 @@ export const en = {
         },
       },
       features: {
-        eyebrow: "What you can do",
         title: "Everything between curiosity and switch-on.",
+        caption: "Six tools in one place. Pick one to see what it does.",
         estimate: { title: "Estimate your system", body: "Size, yearly output and a cost range, with the assumptions shown.", link: "Start an estimate" },
         compare: { title: "Compare quotations", body: "Up to three offers in one table. Missing values say so.", link: "See a comparison" },
         track: { title: "Track the installation", body: "Eight clear steps, each with its own status and date.", link: "Create an account to follow yours" },
@@ -1093,7 +1093,7 @@ export const en = {
     light: "Light theme",
     dark: "Dark theme",
     system: "Match my device",
-    cycle: "Colour theme: {choice}. Press to change it.",
+    cycle: "Change to: {choice}",
   },
   dial: {
     description: "{label}: {value} {unit}, on a scale from {min} to {max}",

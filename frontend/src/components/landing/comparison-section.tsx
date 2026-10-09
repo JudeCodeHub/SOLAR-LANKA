@@ -15,8 +15,8 @@ const HEAD = "px-5 py-5 text-left align-middle text-xs font-semibold tracking-wi
 /** A comparison of two sample offers across five system sizes: the gap column warms up as it grows, in the page's own colours. The figures are samples and are labelled as such. */
 export function ComparisonSection() {
   return (
-    <Section space="l" labelledBy="comparison-title" id="compare" className="scroll-mt-24 lg:flex lg:min-h-svh lg:items-center">
-      <Container size="wide" className="space-y-10" data-comparison-section>
+    <Section space="l" labelledBy="comparison-title" id="compare" className="scroll-mt-24 flex min-h-svh items-center">
+      <Container size="landing" className="space-y-10" data-comparison-section>
         <div className="max-w-2xl space-y-4">
           <p className="type-caption font-semibold tracking-widest text-orange-text uppercase">{text.eyebrow}</p>
           <h2 id="comparison-title" className="type-display-m text-ink">{text.title}</h2>

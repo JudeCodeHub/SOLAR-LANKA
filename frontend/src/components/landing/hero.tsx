@@ -16,7 +16,7 @@ const step = (index: number) => ({ "--i": index }) as React.CSSProperties;
 export function Hero({ signedIn }: { signedIn: boolean }) {
   return (
     <section aria-labelledby="hero-title" className="bg-blueprint relative isolate overflow-hidden lg:flex lg:min-h-svh lg:items-center" data-hero>
-      <div className="mx-auto w-full max-w-wide px-4 sm:px-6">
+      <div className="mx-auto w-full max-w-landing px-4 sm:px-6">
         <div className="relative z-10 space-y-6 pb-section-m pt-28 lg:max-w-[48%] lg:py-28">
           <p style={step(0)} className="hero-in type-caption font-semibold tracking-widest text-orange-text uppercase">{messages.brand.tagline}</p>
           <h1 id="hero-title" style={step(1)} className="hero-in type-display-xl text-ink">{messages.brand.heroLine}</h1>
