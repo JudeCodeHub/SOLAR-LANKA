@@ -9,7 +9,6 @@ export const MOTION: MotionEntry[] = [
   { name: "shimmer-sweep", where: "Skeleton blocks while a page loads", reason: "Shows that content is on its way, so a blank block is not read as broken." },
   { name: "dial-spin", where: "DialLoader beside busy buttons and uploads", reason: "The only sign that a request is in flight after a click." },
   { name: "dial-sweep", where: "Meter dial in the hero, estimate results and the installation timeline", reason: "The needle moving to its value shows the figure is a reading on a scale." },
-  { name: "page-out / page-in", where: "Page transition between routes", reason: "A short fade keeps the header and footer still and shows that the page changed." },
   { name: "hero-rise / hero-fade", where: "Landing hero, once on load", reason: "Brings the headline in before the photo so the eye reads the offer first." },
   { name: "hero-bump / hero-bob", where: "The sample card on the landing hero", reason: "A springy pop-in then a slow bob draws the eye to the one live-looking figure, and the lift under the pointer says it is worth a look." },
   { name: "lattice-rise / lattice-sink", where: "The photo windows in the landing estimate section", reason: "Windows sliding along diagonal rows, up-right and down-left in turn, over a still photo give the section depth and show the page is alive, without moving any text." },
