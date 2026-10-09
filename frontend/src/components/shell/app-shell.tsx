@@ -1,13 +1,14 @@
 "use client";
 
 import { UserButton } from "@clerk/nextjs";
-import { Bell, ChevronDown, Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { Bell, Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 import { Logo, LogoMark } from "@/components/brand/logo";
-import { CATEGORY_ICONS, NAV_ICONS } from "@/components/shell/nav-icons";
+import { BranchedNav } from "@/components/shell/branched-nav";
+import { CATEGORY_ICONS } from "@/components/shell/nav-icons";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,8 +21,8 @@ import { format, messages } from "@/messages";
 
 const text = messages.shell;
 
-/** One category's links, as a list; the current page is marked for sight and for screen readers. */
-function Categories({ categories, pathname, collapsed, onNavigate }: { categories: readonly SidebarCategory[]; pathname: string; collapsed: boolean; onNavigate?: () => void }) {
+/** The sidebar when collapsed to icons: a category with one page is a link to it; a category with several pages is a button that opens the sidebar again with that category unfolded, so one click shows where to go. The current category is marked. */
+function CollapsedCategories({ categories, pathname }: { categories: readonly SidebarCategory[]; pathname: string }) {
   const state = useSidebarState();
   const place = locate(pathname, categories);
   return (
@@ -29,73 +30,26 @@ function Categories({ categories, pathname, collapsed, onNavigate }: { categorie
       {categories.map((category) => {
         const CategoryIcon = CATEGORY_ICONS[category.id];
         const here = place?.category.id === category.id;
-        const open = state.overrides[category.id] ?? here;
-        const first = category.items[0];
-        if (collapsed) {
-          return (
-            <li key={category.id}>
-              <Link
-                href={first?.href ?? "/dashboard"}
-                title={category.label}
-                aria-label={category.label}
-                aria-current={here ? "true" : undefined}
-                onClick={onNavigate}
-                className={cn("mx-auto grid size-11 place-items-center rounded-xl transition-colors motion-reduce:transition-none", here ? "bg-orange-tint text-orange-text" : "text-ink-2 hover:bg-paper-2 hover:text-ink")}
-              >
-                {CategoryIcon ? <CategoryIcon aria-hidden className="size-5" /> : null}
-              </Link>
-            </li>
-          );
-        }
-        const single = category.items.length === 1 ? first : undefined;
+        const classes = cn("mx-auto grid size-11 place-items-center rounded-xl transition-colors motion-reduce:transition-none", here ? "bg-orange-tint text-orange-text" : "text-ink-2 hover:bg-paper-2 hover:text-ink");
+        const icon = CategoryIcon ? <CategoryIcon aria-hidden className="size-5" /> : null;
+        const only = category.items.length === 1 ? category.items[0] : undefined;
         return (
-          <li key={category.id} data-category={category.id}>
-            {single ? (
-              <Link
-                href={single.href}
-                aria-current={here ? "page" : undefined}
-                onClick={onNavigate}
-                className={cn("flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition-colors motion-reduce:transition-none", here ? "bg-orange-tint text-orange-text shadow-[inset_3px_0_0_var(--ds-orange-text)]" : "text-ink hover:bg-paper-2")}
-              >
-                {CategoryIcon ? <CategoryIcon aria-hidden className="size-[1.125rem] shrink-0" /> : null}
-                <span className="truncate">{category.label}</span>
+          <li key={category.id}>
+            {only ? (
+              <Link href={only.href} title={category.label} aria-label={category.label} aria-current={here ? "page" : undefined} className={classes}>
+                {icon}
               </Link>
             ) : (
-              <>
-                <button
-                  type="button"
-                  aria-expanded={open}
-                  aria-controls={`category-${category.id}`}
-                  aria-label={format(text.toggleCategory, { category: category.label })}
-                  onClick={() => saveSidebarState({ ...state, overrides: { ...state.overrides, [category.id]: !open } })}
-                  className={cn("flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-left text-sm font-semibold transition-colors motion-reduce:transition-none", here ? "text-orange-text" : "text-ink hover:bg-paper-2")}
-                >
-                  {CategoryIcon ? <CategoryIcon aria-hidden className="size-[1.125rem] shrink-0" /> : null}
-                  <span className="flex-1 truncate">{category.label}</span>
-                  <ChevronDown aria-hidden className={cn("size-4 shrink-0 text-ink-3 transition-transform motion-reduce:transition-none", open ? "rotate-180" : "")} />
-                </button>
-                {open ? (
-                  <ul id={`category-${category.id}`} className="mt-1 mb-2 ml-[1.375rem] flex flex-col gap-0.5 border-l border-line pl-2">
-                    {category.items.map((entry) => {
-                      const Icon = NAV_ICONS[entry.id];
-                      const current = place?.item.id === entry.id;
-                      return (
-                        <li key={entry.id}>
-                          <Link
-                            href={entry.href}
-                            aria-current={current ? "page" : undefined}
-                            onClick={onNavigate}
-                            className={cn("flex min-h-10 items-center gap-2.5 rounded-lg px-3 text-sm font-medium transition-colors motion-reduce:transition-none", current ? "bg-orange-tint text-orange-text shadow-[inset_3px_0_0_var(--ds-orange-text)]" : "text-ink-2 hover:bg-paper-2 hover:text-ink")}
-                          >
-                            {Icon ? <Icon aria-hidden className="size-4 shrink-0" /> : null}
-                            <span className="truncate">{entry.label}</span>
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                ) : null}
-              </>
+              <button
+                type="button"
+                title={category.label}
+                aria-label={format(text.openCategory, { category: category.label })}
+                aria-current={here ? "true" : undefined}
+                className={classes}
+                onClick={() => saveSidebarState({ collapsed: false, overrides: { ...state.overrides, [category.id]: true } })}
+              >
+                {icon}
+              </button>
             )}
           </li>
         );
@@ -130,7 +84,9 @@ export function AppShell({ categories, persona, children }: { categories: readon
   const pathname = usePathname();
   const state = useSidebarState();
   const [drawer, setDrawer] = useState(false);
+  // The account pages are reached from the top strip, so they are left out of the sidebar but still name the page in the breadcrumbs.
   const place = locate(pathname, categories);
+  const listed = categories.filter((category) => !category.hidden);
   const collapsed = state.collapsed;
 
   return (
@@ -141,8 +97,8 @@ export function AppShell({ categories, persona, children }: { categories: readon
             {collapsed ? <LogoMark size={32} /> : <Logo height={28} />}
           </Link>
         </div>
-        <nav aria-label={text.sidebar} className="min-h-0 flex-1 overflow-y-auto px-3 py-4">
-          <Categories categories={categories} pathname={pathname} collapsed={collapsed} />
+        <nav aria-label={text.sidebar} className={cn("min-h-0 flex-1 overflow-y-auto py-4", collapsed ? "px-0" : "pr-3 pl-[33px]")}>
+          {collapsed ? <CollapsedCategories categories={listed} pathname={pathname} /> : <BranchedNav categories={listed} pathname={pathname} />}
         </nav>
         <div className={cn("flex shrink-0 items-center gap-1 border-t border-line p-3", collapsed ? "flex-col" : "justify-end")}>
           <Button variant="ghost" size="icon" aria-label={collapsed ? text.expand : text.collapse} title={collapsed ? text.expand : text.collapse} onClick={() => saveSidebarState({ ...state, collapsed: !collapsed })}>
@@ -165,7 +121,7 @@ export function AppShell({ categories, persona, children }: { categories: readon
                 <SheetDescription className="sr-only">{text.menuDescription}</SheetDescription>
               </SheetHeader>
               <nav aria-label={text.sidebar} className="px-4 pb-6">
-                <Categories categories={categories} pathname={pathname} collapsed={false} onNavigate={() => setDrawer(false)} />
+                <BranchedNav categories={listed} pathname={pathname} onNavigate={() => setDrawer(false)} />
               </nav>
             </SheetContent>
           </Sheet>

@@ -51,6 +51,8 @@ export interface SidebarCategory {
   id: CategoryId;
   label: string;
   items: readonly SidebarItem[];
+  /** True for a category whose pages are reached from the top strip (the bell, the account menu) and are not listed in the sidebar; they still give the page its breadcrumbs. */
+  hidden?: boolean;
 }
 
 const SIGNED_IN: NavAccess = { kind: "signed-in" };
@@ -179,6 +181,7 @@ export const SIDEBAR: readonly SidebarCategory[] = [
   {
     id: "account",
     label: CATEGORY_LABELS.account,
+    hidden: true,
     items: [
       item("notifications", messages.nav.items.notifications, "/notifications", SIGNED_IN),
       item("account", messages.nav.items.account, "/account", SIGNED_IN),
