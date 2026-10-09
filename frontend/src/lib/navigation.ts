@@ -15,7 +15,11 @@ export type NavAccess =
   | { kind: "public" }
   | { kind: "signed-in" }
   | { kind: "account-role"; role: AccountRole }
-  | { kind: "company-role"; roles: readonly CompanyRole[] };
+  | { kind: "company-role"; roles: readonly CompanyRole[] }
+  | { kind: "persona"; personas: readonly Persona[] };
+
+/** Which sidebar a signed-in person gets: one persona each, so company staff do not also see the customer's categories. */
+export type Persona = "customer" | "company" | "technician" | "admin";
 
 export type NavGroupId = "explore" | "customer" | "company" | "admin" | "account";
 
@@ -85,6 +89,176 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { id: "notifications", label: messages.nav.items.notifications, href: "/notifications", group: "account", access: { kind: "signed-in" }, available: true },
 ];
 
+// ---- The signed-in sidebar: categories with sub-items ------------------------------------------------
+
+export type CategoryId =
+  | "overview"
+  | "plan"
+  | "catalogue"
+  | "installers"
+  | "requests"
+  | "offers"
+  | "installation"
+  | "visits"
+  | "review"
+  | "content"
+  | "settings"
+  | "people"
+  | "audit"
+  | "company"
+  | "learn"
+  | "help"
+  | "account";
+
+/** One link in the sidebar: the id also picks its icon, and `access` says who is shown it. */
+export interface SidebarItem {
+  id: string;
+  label: string;
+  href: string;
+  access: NavAccess;
+  /** False while the page is not built; such an item is left out of the sidebar. */
+  available: boolean;
+}
+
+export interface SidebarCategory {
+  id: CategoryId;
+  label: string;
+  items: readonly SidebarItem[];
+}
+
+const SIGNED_IN: NavAccess = { kind: "signed-in" };
+const FOR = (...personas: Persona[]): NavAccess => ({ kind: "persona", personas });
+const AS_CUSTOMER = FOR("customer");
+const AS_COMPANY = FOR("company");
+const AS_TECHNICIAN = FOR("technician");
+const AS_ADMIN = FOR("admin");
+const NOT_ADMIN = FOR("customer", "company", "technician");
+const CATEGORY_LABELS: Record<CategoryId, string> = messages.nav.categories;
+const item = (id: string, label: string, href: string, access: NavAccess, available = true): SidebarItem => ({ id, label, href, access, available });
+
+/**
+ * Every sidebar link, once, grouped into categories. One tree serves all four kinds of user: a category appears for a user only if at least one of its items is theirs.
+ * A customer sees eight categories (overview, plan, catalogue, installers, installation, learn, help, account), company staff eight, a technician five and an administrator seven.
+ */
+export const SIDEBAR: readonly SidebarCategory[] = [
+  {
+    id: "overview",
+    label: CATEGORY_LABELS.overview,
+    items: [
+      item("my-dashboard", messages.nav.items.myDashboard, "/my", AS_CUSTOMER),
+      item("company-dashboard", messages.nav.items.companyDashboard, "/company", AS_COMPANY),
+      item("technician-visits", messages.nav.items.technicianVisits, "/technician", AS_TECHNICIAN),
+      item("admin-home", messages.nav.items.adminHome, "/admin", AS_ADMIN, false),
+    ],
+  },
+  {
+    id: "plan",
+    label: CATEGORY_LABELS.plan,
+    items: [
+      item("estimator", messages.nav.items.estimator, "/estimator", AS_CUSTOMER),
+      item("my-estimates", messages.nav.items.myEstimates, "/my/estimates", AS_CUSTOMER),
+      item("my-favourites", messages.nav.items.myFavourites, "/my/favourites", AS_CUSTOMER),
+    ],
+  },
+  {
+    id: "catalogue",
+    label: CATEGORY_LABELS.catalogue,
+    items: [
+      item("panels", messages.nav.items.panels, "/panels", AS_CUSTOMER),
+      item("inverters", messages.nav.items.inverters, "/inverters", AS_CUSTOMER),
+      item("compare-panels", messages.nav.items.comparePanels, "/panels/compare", AS_CUSTOMER),
+      item("compare-inverters", messages.nav.items.compareInverters, "/inverters/compare", AS_CUSTOMER),
+    ],
+  },
+  {
+    id: "installers",
+    label: CATEGORY_LABELS.installers,
+    items: [
+      item("companies", messages.nav.items.companies, "/companies", AS_CUSTOMER),
+      item("my-requests", messages.nav.items.myRequests, "/my/requests", AS_CUSTOMER),
+      item("new-request", messages.nav.items.newRequest, "/my/requests/new", AS_CUSTOMER),
+    ],
+  },
+  {
+    id: "requests",
+    label: CATEGORY_LABELS.requests,
+    items: [item("company-inbox", messages.nav.items.companyInbox, "/company/inbox", AS_COMPANY)],
+  },
+  {
+    id: "offers",
+    label: CATEGORY_LABELS.offers,
+    items: [item("company-offers", messages.nav.items.companyOffers, "/company/offers", AS_COMPANY)],
+  },
+  {
+    id: "installation",
+    label: CATEGORY_LABELS.installation,
+    items: [
+      item("my-installations", messages.nav.items.myInstallations, "/my/installations", AS_CUSTOMER),
+      item("company-installations", messages.nav.items.companyInstallations, "/company/installations", AS_COMPANY),
+    ],
+  },
+  {
+    id: "company",
+    label: CATEGORY_LABELS.company,
+    items: [item("company-profile", messages.nav.items.companyProfile, "/company/profile", AS_COMPANY)],
+  },
+  {
+    id: "review",
+    label: CATEGORY_LABELS.review,
+    items: [item("admin-companies", messages.nav.items.adminCompanies, "/admin/companies", AS_ADMIN)],
+  },
+  {
+    id: "content",
+    label: CATEGORY_LABELS.content,
+    items: [
+      item("admin-catalogue", messages.nav.items.adminCatalogue, "/admin/catalogue", AS_ADMIN),
+      item("admin-education", messages.nav.items.adminEducation, "/admin/education", AS_ADMIN),
+      item("admin-troubleshooting", messages.nav.items.adminTroubleshooting, "/admin/troubleshooting", AS_ADMIN),
+    ],
+  },
+  {
+    id: "settings",
+    label: CATEGORY_LABELS.settings,
+    items: [item("admin-estimator", messages.nav.items.adminEstimator, "/admin/estimator", AS_ADMIN)],
+  },
+  {
+    id: "people",
+    label: CATEGORY_LABELS.people,
+    items: [item("admin-users", messages.nav.items.adminUsers, "/admin/users", AS_ADMIN)],
+  },
+  {
+    id: "audit",
+    label: CATEGORY_LABELS.audit,
+    items: [item("admin-activity", messages.nav.items.adminActivity, "/admin/activity", AS_ADMIN)],
+  },
+  {
+    id: "learn",
+    label: CATEGORY_LABELS.learn,
+    items: [
+      item("learn", messages.nav.items.learn, "/learn", NOT_ADMIN),
+      item("troubleshooting", messages.nav.items.troubleshooting, "/troubleshooting", NOT_ADMIN),
+    ],
+  },
+  {
+    id: "help",
+    label: CATEGORY_LABELS.help,
+    items: [
+      item("my-support", messages.nav.items.mySupport, "/my/support", AS_CUSTOMER),
+      item("company-support", messages.nav.items.companySupport, "/company/support", AS_COMPANY),
+      item("technician-support", messages.nav.items.technicianSupport, "/technician/support", AS_TECHNICIAN),
+      item("safety-help", messages.nav.items.safetyHelp, "/support", NOT_ADMIN),
+    ],
+  },
+  {
+    id: "account",
+    label: CATEGORY_LABELS.account,
+    items: [
+      item("notifications", messages.nav.items.notifications, "/notifications", SIGNED_IN),
+      item("account", messages.nav.items.account, "/account", SIGNED_IN),
+    ],
+  },
+];
+
 /** `user` is null for a signed-out visitor, and also while a signed-in user's profile loads. */
 export function canSee(item: NavItem, user: ShellUser | null, signedIn: boolean): boolean {
   const access = item.access;
@@ -99,7 +273,17 @@ export function canSee(item: NavItem, user: ShellUser | null, signedIn: boolean)
       return (
         user !== null && user.memberships.some((membership) => access.roles.includes(membership.role))
       );
+    case "persona":
+      return user !== null && access.personas.includes(personaOf(user));
   }
+}
+
+/** Platform administrators first, then company staff (administrator or sales), then technicians; everyone else is a customer. */
+export function personaOf(user: ShellUser): Persona {
+  if (user.role === "platform_admin") return "admin";
+  if (user.memberships.some((membership) => membership.role === "company_admin" || membership.role === "sales")) return "company";
+  if (user.memberships.some((membership) => membership.role === "technician")) return "technician";
+  return "customer";
 }
 
 /** The groups of links this user should see, in a fixed order. */
