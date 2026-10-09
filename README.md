@@ -215,6 +215,14 @@ Measured during Phase 17, on the core release before the Phase 2 features were a
 - Measurements cover the demo dataset on one machine; nothing was load-tested, and no real device or screen reader was used.
 - Not yet built: deployment, CI, production storage, backups and monitoring (the deployment phase).
 
+## The signed-in app shell and navigation
+
+- **Where people land.** Only the landing page, sign-in and sign-up are open to visitors. After sign-in or sign-up everyone goes to `/dashboard`, a router page that sends them to the home of their own area: customers to `/my`, company staff to `/company`, technicians to `/technician`, platform administrators to `/admin`. A signed-in person who opens `/` is sent to `/dashboard`, like any real app.
+- **One shell.** Every signed-in page lives in the Next.js route group `frontend/src/app/(app)/`, whose layout draws the sidebar of categories and the slim top strip (where you are, theme switch, notifications, your account). The group name is not part of any address.
+- **One navigation tree.** `frontend/src/lib/navigation.ts` holds `SIDEBAR`: categories (Overview, Plan, Catalogue, Installers, Requests, Offers, Installation, Review, Content, Settings, People, Audit, Company, Learn, Help, Account), each with its links and who may see them (`persona` rule: customer, company, technician or admin). **To add a page to the sidebar, add one `item(...)` line there**, give it an icon in `components/shell/nav-icons.tsx` and its words in `messages/en.ts`. `sidebarFor(user)` lists what one person sees and `locate(pathname)` finds the current category and page for the top strip.
+- **Protection, in layers.** (1) The proxy (`src/proxy.ts`) needs a session for every address except `/`, sign-in and sign-up. (2) Each area's layout (`(app)/my`, `company`, `technician`, `admin`) checks the person's role on the server with `AreaGuard` and shows a "not for your account" note with a link to their own dashboard. (3) Each page's own gate. (4) The API checks every request. `getCurrentUser()` (`lib/auth/current-user.ts`) is the one server helper that says who is signed in; when the API cannot say, the area guard lets the page's own gate and the API decide.
+- **Sidebar memory.** Whether it is collapsed to icons and which categories were opened or shut by hand are remembered in the browser only (`lib/shell-state.ts`); nothing about access is stored there.
+
 ## Frontend design system ("Premium Signal")
 
 All of it lives in `frontend/`. Run `pnpm dev` and open `/design`: that page shows every shared component in light and dark, and is the quickest way to see a change.
