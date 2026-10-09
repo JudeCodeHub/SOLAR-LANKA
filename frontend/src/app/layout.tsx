@@ -45,8 +45,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <ClerkProvider
           appearance={CLERK_APPEARANCE}
           afterSignOutUrl="/"
-          signInFallbackRedirectUrl="/"
-          signUpFallbackRedirectUrl="/"
+          signInFallbackRedirectUrl="/dashboard"
+          signUpFallbackRedirectUrl="/dashboard"
         >
           <Providers>
             <SessionWatcher />

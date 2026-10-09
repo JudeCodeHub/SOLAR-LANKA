@@ -260,7 +260,7 @@ export const SIDEBAR: readonly SidebarCategory[] = [
 ];
 
 /** `user` is null for a signed-out visitor, and also while a signed-in user's profile loads. */
-export function canSee(item: NavItem, user: ShellUser | null, signedIn: boolean): boolean {
+export function canSee(item: { access: NavAccess }, user: ShellUser | null, signedIn: boolean): boolean {
   const access = item.access;
   switch (access.kind) {
     case "public":
@@ -299,6 +299,35 @@ export function navigationFor(
       (item) => item.group === id && item.available && canSee(item, user, signedIn),
     ),
   })).filter((group) => group.items.length > 0);
+}
+
+/** The sidebar categories this person may see, in tree order, each with only the links that are theirs and built. `user` is null while a signed-in person's profile loads, which shows only the links open to every signed-in person. */
+export function sidebarFor(user: ShellUser | null, signedIn: boolean, categories: readonly SidebarCategory[] = SIDEBAR): SidebarCategory[] {
+  return categories
+    .map((category) => ({ ...category, items: category.items.filter((entry) => entry.available && canSee(entry, user, signedIn)) }))
+    .filter((category) => category.items.length > 0);
+}
+
+export interface CurrentPlace {
+  category: SidebarCategory;
+  item: SidebarItem;
+  /** The names from the category down to the page, for the page title and the breadcrumbs. */
+  trail: readonly string[];
+}
+
+/** Which sidebar category and link an address belongs to: the link with the longest matching address wins, so a deeper link is preferred over the page above it; null for an address that is in none (such as the landing page). */
+export function locate(pathname: string, categories: readonly SidebarCategory[]): CurrentPlace | null {
+  let best: CurrentPlace | null = null;
+  let length = -1;
+  for (const category of categories) {
+    for (const entry of category.items) {
+      if (isActive(entry.href, pathname) && entry.href.length > length) {
+        best = { category, item: entry, trail: [category.label, entry.label] };
+        length = entry.href.length;
+      }
+    }
+  }
+  return best;
 }
 
 export interface EntryPoint {

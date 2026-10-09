@@ -3163,6 +3163,13 @@ export const en = {
       message: "The page you asked for does not exist or has moved.",
       home: "Go to the home page",
     },
+    dashboardUnavailable: {
+      eyebrow: "Your account",
+      title: "We could not open your dashboard",
+      message: "You are signed in, but your account details could not be loaded just now. Try again in a moment.",
+      retry: "Try again",
+      home: "Go to the home page",
+    },
     error: {
       eyebrow: "Error",
       title: "Something went wrong",
