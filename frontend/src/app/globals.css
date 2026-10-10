@@ -551,21 +551,6 @@
   }
 }
 
-/* Drawn line: scaled from nothing to full length the first time it is in view (set --draw-from to the starting scale); drawn already under reduced motion or without scripts. */
-@utility draw-line {
-  transition: transform var(--ds-dur-sweep) var(--ds-ease);
-  @media (scripting: enabled) {
-    &:not([data-in-view="true"]) {
-      transform: var(--draw-from);
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
-    &:not([data-in-view="true"]) {
-      transform: none;
-    }
-  }
-}
 
 /* Reduced motion: dialogs, sheets and every other open/close animation are switched off, whatever sets them. */
 @media (prefers-reduced-motion: reduce) {
@@ -765,7 +750,7 @@ html:has([data-hero])::-webkit-scrollbar {
   }
 }
 
-/* Estimate section lattice: one photo seen through rounded diamond windows laid out in diagonal rows. Each row is a belt that slides along its own slanted channel without ever stopping: every other row glides up and to the right, the rows between them glide down and to the left, and each belt repeats seamlessly. The photo stays still behind the windows. Sizes follow the window width up to a limit, so the windows look the same size on every screen, and it stands still under reduced motion. */
+/* Estimate section lattice: one photo seen through rounded diamond windows laid out in diagonal rows. */
 @keyframes lattice-rise {
   from {
     -webkit-mask-position: 0 0;
@@ -855,7 +840,7 @@ html:has([data-hero])::-webkit-scrollbar {
   font-weight: 400;
 }
 
-/* Features orbit map: the ring of photo nodes turns slowly and each node turns back the other way so it stays upright; the hub glows softly. Both pause while the pointer or keyboard is on the map, and stand still under reduced motion. */
+/* Features orbit map: the ring of photo nodes turns slowly and each node turns back the other way so it stays upright; the hub glows softly. */
 @keyframes orbit-spin {
   to {
     transform: rotate(360deg);

@@ -11,7 +11,7 @@ import { format, messages } from "@/messages";
 
 const text = messages.notifications;
 
-/** One notification: unread ones carry a bar, a tint and the word "Unread"; read ones are quiet. The link goes to where it is about, and one button flips read and unread. */
+/** One notification: unread ones carry a bar, a tint and the word "Unread"; read ones are quiet. */
 export function NotificationCard({
   item,
   destination,

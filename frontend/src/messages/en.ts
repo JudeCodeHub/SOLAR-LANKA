@@ -1,14 +1,4 @@
-/**
- * Every piece of text the interface shows, in one place, so translations (Sinhala and Tamil
- * are planned) can be added without touching components. Components import `messages` and
- * never write user-facing text inline; ESLint (react/jsx-no-literals) enforces that for JSX.
- *
- * Conventions:
- * - Group by feature. Keep wording short and say what to do next.
- * - Placeholders look like {name}; fill them with format() from ./format.ts.
- * - Counts that change wording use { one, other } objects with plural().
- * - Financial and technical wording needs a reviewed translation, not a machine one.
- */
+/** Every piece of text the interface shows, in one place, so translations (Sinhala and Tamil are planned) can be added without touching components. */
 export const en = {
   app: {
     name: "Solar Lanka",

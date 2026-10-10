@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-/** A thin bar from zero up to a scale top with the range between two values filled in; a range of one value is drawn as a single mark. It repeats what the words say, so it is hidden from assistive technology. */
+/** A thin bar from zero up to a scale top with the range between two values filled in; a range of one value is drawn as a single mark. */
 export function RangeBar({ low, high, max, className }: { low: number; high: number; max: number; className?: string }) {
   const top = max > 0 ? max : 1;
   const start = Math.min(Math.max(low / top, 0), 1) * 100;

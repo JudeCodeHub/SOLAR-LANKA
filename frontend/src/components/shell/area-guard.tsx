@@ -10,10 +10,7 @@ import { Lock } from "lucide-react";
 
 const text = messages.shell.notAllowed;
 
-/**
- * The server-side role check for one area (customer, company, technician or administrator): someone from a different kind of account gets a plain "not for your account" note with a link to their own dashboard, before any page code of the area runs.
- * This is a second lock, not the only one: each page still has its own gate and the API checks every request. When the API cannot say who the person is, the page is shown and those other locks decide.
- */
+/** Server-side role check for one area; when the API cannot say who the person is, the page's own gate and the API decide. */
 export async function AreaGuard({ allow, children }: { allow: readonly Persona[]; children: ReactNode }) {
   const current = await getCurrentUser();
   if (current.status === "ready" && !allow.includes(current.persona)) {

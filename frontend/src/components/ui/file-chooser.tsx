@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import { DialLoader } from "@/components/ui/dial-loader";
 import { cn } from "@/lib/utils";
 
-/** The one file control: a labelled, full-height bordered field with a rounded "choose" button, its help under it, a turning dial and the words while a file is uploading, and an error with an icon linked to the field. The chosen file is handed to `onFile` and the field is emptied at once, so the same file can be chosen again. */
+/** The one file control: a labelled, full-height bordered field with a rounded "choose" button, its help under it, a turning dial and the words while a file is uploading, and an error with an icon linked to the field. */
 export function FileChooser({
   id,
   label,

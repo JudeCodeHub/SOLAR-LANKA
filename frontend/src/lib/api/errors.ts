@@ -201,12 +201,7 @@ interface FetchResult<T> {
   response: Response;
 }
 
-/**
- * Run an openapi-fetch call and return its data, or throw an ApiError. Use inside query and
- * mutation functions so TanStack Query always receives the same error type:
- *
- *   queryFn: () => unwrap(() => api.GET("/users/me"))
- */
+/** Run an openapi-fetch call and return its data, or throw an ApiError. */
 export async function unwrap<T>(run: () => Promise<FetchResult<T>>): Promise<T> {
   let result: FetchResult<T>;
   try {
