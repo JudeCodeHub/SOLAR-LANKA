@@ -1,9 +1,6 @@
 import { useSyncExternalStore } from "react";
 
-/**
- * The sidebar's remembered layout: whether it is collapsed to icons, and which categories the person opened or shut by hand.
- * It is kept in this browser only, as a convenience; it holds nothing about who the person is or what they may see, and the sidebar works the same way when storage is missing.
- */
+/** The sidebar's remembered layout: whether it is collapsed to icons, and which categories the person opened or shut by hand. */
 const KEY = "solarlanka-sidebar";
 const CHANGED = "solarlanka-sidebar-changed";
 

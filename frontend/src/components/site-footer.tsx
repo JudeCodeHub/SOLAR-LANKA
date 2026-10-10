@@ -13,7 +13,7 @@ function linksFor(ids: readonly string[]) {
   return ids.flatMap((id) => SIDEBAR.flatMap((category) => category.items).filter((item) => item.id === id).map((item) => ({ href: item.href, label: item.label })));
 }
 
-/** The footer: a rounded panel with the brand, three link columns, a copyright line and the brand name as a huge outlined wordmark fading out at the bottom. It follows the theme: a warm cream panel in light, the night panel in dark. */
+/** The footer: a rounded panel with the brand, three link columns, a copyright line and the brand name as a huge outlined wordmark fading out at the bottom. */
 export function SiteFooter() {
   const columns = [
     { id: "product", title: text.product, links: linksFor(["panels", "inverters", "estimator", "companies"]) },

@@ -56,7 +56,7 @@ function Offers({ requestId, items, now }: { requestId: string; items: OfferSumm
   );
 }
 
-/** One offer: the company, its state as a chip, the total, when it ends and the way in. `name` is undefined while loading and null for a company no longer listed. */
+/** One offer: the company, its state as a chip, the total, when it ends and the way in. */
 export function OfferCard({ requestId, item, name, now }: { requestId: string; item: OfferSummary; name: string | null | undefined; now: number }) {
   const state = offerState(item, now);
   const soon = isExpiringSoon(item, now);

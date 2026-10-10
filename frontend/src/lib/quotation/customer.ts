@@ -83,11 +83,7 @@ export interface LineLike {
   product_snapshot?: unknown;
 }
 
-/**
- * What the quotation itself shows as included. Panels and inverters count as included only when an
- * equipment line for them exists; everything else the quotation does not state is NOT SPECIFIED,
- * which is different from excluded, so the customer is told to ask rather than assume.
- */
+/** What the quotation itself shows as included. */
 export function inclusionsFromLines(lines: readonly LineLike[]): Record<InclusionKey, InclusionStatus> {
   const kinds = new Set<string>();
   for (const line of lines) {

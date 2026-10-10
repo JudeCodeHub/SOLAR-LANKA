@@ -16,7 +16,6 @@ export const MOTION: MotionEntry[] = [
   { name: "orbit-spin / hub-glow", where: "The landing features orbit map", reason: "A slowly turning ring of feature photos and a softly glowing hub make the six tools read as one connected system, and the nodes taking turns invite a closer look." },
   { name: "line-draw / panel-in / sun-rise / glow-on", where: "The house drawing on the sign-in and sign-up photo side", reason: "A house that draws itself, then fills its roof with panels under a rising sun, shows what the product does in four seconds and then holds still while someone types." },
   { name: "reveal", where: "Landing sections as they scroll into view", reason: "Marks where a new section begins on a long page." },
-  { name: "draw-line", where: "Connecting lines in the landing steps", reason: "The line draws in the direction of the steps, showing their order." },
   { name: "count-up", where: "Sample figures in the landing estimate teaser", reason: "Shows the figures are computed from the visitor's inputs, not typed copy." },
   { name: "animate-in / animate-out", where: "The phone menu sheet opening and closing", reason: "Shows where a panel came from and where it went, so focus moving is not a surprise." },
   { name: "colour transitions", where: "Buttons, links, tabs and cards on hover and focus", reason: "Confirms that the pointer is on something that can be used." },

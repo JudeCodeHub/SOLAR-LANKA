@@ -25,10 +25,7 @@ const branch = (k: number) => `M ${TRUNK} ${rowY(k) - radius} A ${radius} ${radi
 const reach = (k: number) => `M ${TRUNK} 0 V ${rowY(k) - radius} A ${radius} ${radius} 0 0 0 ${TRUNK + radius} ${rowY(k)} H ${endX}`;
 const length = (k: number) => rowY(k) - radius + (Math.PI * radius) / 2 + (endX - TRUNK - radius);
 
-/**
- * The sidebar's categories as a branching tree (the "BranchedMenu" idea from React Bits, written for this app): a thin rail runs down the left, each category folds open to show its links on curved branches off a trunk, and an orange line draws itself along the branch to the page you are on while a small orange marker glides to that category's name.
- * Links are real links, so everything works with the keyboard and without a mouse.
- */
+/** The sidebar's categories as a branching tree (the "BranchedMenu" idea from React Bits, written for this app): a thin rail runs down the left, each category folds open to show its links on curved branches off a trunk, and an orange line draws itself along the branch to the page you are on while a small orange marker glides to that category's name. */
 export function BranchedNav({ categories, pathname, onNavigate }: { categories: readonly SidebarCategory[]; pathname: string; onNavigate?: () => void }) {
   const state = useSidebarState();
   const place = locate(pathname, categories);

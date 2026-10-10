@@ -89,7 +89,7 @@ export function buildComparison(products: readonly (ProductDetail | null)[]): Co
   return sections;
 }
 
-/** How a row's cells relate: the same in every product that could be loaded, different between them, not specified by some, or not specified by any. Products that could not be loaded are left out. */
+/** How a row's cells relate: the same in every product that could be loaded, different between them, not specified by some, or not specified by any. */
 export function rowRelation(cells: readonly CompareCell[]): "same" | "differs" | "unspecified" | "none" {
   const loaded = cells.filter((cell) => cell.kind !== "unavailable");
   if (loaded.length > 0 && loaded.every((cell) => cell.kind === "unspecified")) return "none";

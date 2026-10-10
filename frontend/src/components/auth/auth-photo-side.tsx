@@ -47,7 +47,7 @@ const BULB_RAYS = Array.from({ length: 13 }, (_, index) => {
   return { index, x1: +(240 + 104 * Math.cos(angle)).toFixed(1), y1: +(130 + 104 * Math.sin(angle)).toFixed(1), x2: +(240 + (long ? 142 : 128) * Math.cos(angle)).toFixed(1), y2: +(130 + (long ? 142 : 128) * Math.sin(angle)).toFixed(1) };
 });
 
-/** The sign-in drawing: a light bulb drawn in line art with a small sun for its filament; it draws itself, then switches on with a warm orange glow and rays. "Welcome back, the lights are on." */
+/** The sign-in drawing: a light bulb drawn in line art with a small sun for its filament; it draws itself, then switches on with a warm orange glow and rays. */
 function BulbDrawing() {
   return (
     <svg aria-hidden viewBox="0 0 480 330" className="w-full overflow-visible text-ink" fill="none" strokeLinecap="round" strokeLinejoin="round">

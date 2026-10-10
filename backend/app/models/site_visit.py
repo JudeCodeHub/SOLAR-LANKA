@@ -31,7 +31,6 @@ class SiteVisit(Base):
             name="ck_site_visits_status",
         ),
         # A technician cannot hold two confirmed visits whose times overlap, whatever writes them.
-        # The range is half open, so a visit may start the moment another one ends.
         ExcludeConstraint(
             ("technician_id", "="),
             (literal_column("tstzrange(confirmed_starts_at, confirmed_ends_at)"), "&&"),

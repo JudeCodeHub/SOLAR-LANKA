@@ -21,7 +21,7 @@ import { format, messages } from "@/messages";
 
 const text = messages.shell;
 
-/** The sidebar when collapsed to icons: a category with one page is a link to it; a category with several pages is a button that opens the sidebar again with that category unfolded, so one click shows where to go. The current category is marked. */
+/** The sidebar when collapsed to icons: a category with one page is a link to it; a category with several pages is a button that opens the sidebar again with that category unfolded, so one click shows where to go. */
 function CollapsedCategories({ categories, pathname }: { categories: readonly SidebarCategory[]; pathname: string }) {
   const state = useSidebarState();
   const place = locate(pathname, categories);
@@ -76,10 +76,7 @@ function NotificationsLink() {
   );
 }
 
-/**
- * The frame of every signed-in page: a sidebar of categories on the left (icons only when collapsed, a drawer on a phone), and a slim top strip with where you are, the theme switch, notifications and your account.
- * The categories are decided on the server for this person, so the sidebar only ever lists what they may open.
- */
+/** The frame of every signed-in page: a sidebar of categories on the left (icons only when collapsed, a drawer on a phone), and a slim top strip with where you are, the theme switch, notifications and your account. */
 export function AppShell({ categories, persona, children }: { categories: readonly SidebarCategory[]; persona: Persona | null; children: React.ReactNode }) {
   const pathname = usePathname();
   const state = useSidebarState();

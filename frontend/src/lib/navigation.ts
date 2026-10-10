@@ -65,10 +65,7 @@ const NOT_ADMIN = FOR("customer", "company", "technician");
 const CATEGORY_LABELS: Record<CategoryId, string> = messages.nav.categories;
 const item = (id: string, label: string, href: string, access: NavAccess, available = true): SidebarItem => ({ id, label, href, access, available });
 
-/**
- * Every sidebar link, once, grouped into categories. One tree serves all four kinds of user: a category appears for a user only if at least one of its items is theirs.
- * A customer sees eight categories (overview, plan, catalogue, installers, installation, learn, help, account), company staff eight, a technician five and an administrator seven.
- */
+/** Every sidebar link, once, grouped into categories. */
 export const SIDEBAR: readonly SidebarCategory[] = [
   {
     id: "overview",
@@ -208,7 +205,7 @@ export function personaOf(user: ShellUser): Persona {
   return "customer";
 }
 
-/** The sidebar categories this person may see, in tree order, each with only the links that are theirs and built. `user` is null while a signed-in person's profile loads, which shows only the links open to every signed-in person. */
+/** The sidebar categories this person may see, in tree order, each with only the links that are theirs and built. */
 export function sidebarFor(user: ShellUser | null, signedIn: boolean, categories: readonly SidebarCategory[] = SIDEBAR): SidebarCategory[] {
   return categories
     .map((category) => ({ ...category, items: category.items.filter((entry) => entry.available && canSee(entry, user, signedIn)) }))

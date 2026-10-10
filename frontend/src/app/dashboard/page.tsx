@@ -11,7 +11,6 @@ export const metadata: Metadata = { title: messages.titles.dashboard };
 
 const text = messages.pages.dashboardUnavailable;
 
-/** Not a page of its own: it sends each signed-in person to the home of their own area (customer, company, technician or administrator). Sign-in and sign-up both end here. */
 export default async function DashboardPage() {
   const current = await getCurrentUser();
   if (current.status === "signed-out") redirect("/sign-in");

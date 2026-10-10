@@ -41,7 +41,7 @@ const DOTS = [
   { x: 30, y: 6 },
 ] as const;
 
-/** The six things the site does as an orbit map: the brand at the centre, one photo node per feature around it, slowly turning. Hovering, focusing or pressing a node opens its words and link under the map, and the nodes also take turns by themselves until the pointer or keyboard is on the map. */
+/** The six things the site does as an orbit map: the brand at the centre, one photo node per feature around it, slowly turning. */
 export function FeatureGrid() {
   const [active, setActive] = useState(0);
   const [held, setHeld] = useState(false);

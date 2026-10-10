@@ -8,7 +8,7 @@ import { messages } from "@/messages";
 
 const text = messages.landing.story.closing;
 
-/** The last call to action: an orange card inside the page container, sized to sit within one screen, with the sunrise photo fading in from its right. Its ink stays dark in both themes, like every other text on orange. */
+/** The last call to action: an orange card inside the page container, sized to sit within one screen, with the sunrise photo fading in from its right. */
 export function ClosingBand() {
   return (
     <section aria-labelledby="closing-title" className="flex min-h-svh items-center bg-paper py-section-s" data-closing-band>

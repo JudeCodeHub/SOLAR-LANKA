@@ -75,7 +75,7 @@ const STEPS: readonly Step[] = [
   },
 ];
 
-/** A stepper: the headline and four steps on the left (the chosen one opens), and on the right a tilted panel whose pictures change with the step. The steps are real tabs, so arrow keys move between them. */
+/** A stepper: the headline and four steps on the left (the chosen one opens), and on the right a tilted panel whose pictures change with the step. */
 export function HowItWorks() {
   const [active, setActive] = useState(0);
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);

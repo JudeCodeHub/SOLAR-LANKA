@@ -12,7 +12,7 @@ const TINT = [6, 13, 22, 33, 46] as const;
 
 const HEAD = "px-5 py-5 text-left align-middle text-xs font-semibold tracking-widest uppercase sm:px-7";
 
-/** A comparison of two sample offers across five system sizes: the gap column warms up as it grows, in the page's own colours. The figures are samples and are labelled as such. */
+/** A comparison of two sample offers across five system sizes: the gap column warms up as it grows, in the page's own colours. */
 export function ComparisonSection() {
   return (
     <Section space="l" labelledBy="comparison-title" id="compare" className="scroll-mt-24 flex min-h-svh items-center">

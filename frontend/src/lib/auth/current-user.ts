@@ -19,10 +19,7 @@ export type CurrentUser =
   | { status: "unavailable" }
   | { status: "ready"; user: ShellUser; persona: Persona; home: string };
 
-/**
- * Who the signed-in person is and which area is theirs, asked of the API once per request, so a layout and its pages can all use it without extra calls.
- * `signed-out` means there is no session; `unavailable` means there is a session but the API could not say (down, or the profile is not ready), which a caller must treat as "do not decide", never as "allowed".
- */
+/** Who is signed in and which area is theirs, asked once per request; `unavailable` must never be treated as allowed. */
 export const getCurrentUser = cache(async (): Promise<CurrentUser> => {
   const identity = await getCurrentIdentity();
   if (!identity.isSignedIn) return { status: "signed-out" };
