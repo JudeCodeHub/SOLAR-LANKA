@@ -1,3 +1,4 @@
+import { Dropdown } from "@/components/ui/dropdown";
 import { Fragment } from "react";
 import { Building2, ClipboardList, FileText, Inbox, Wrench, Zap, Sun, BatteryCharging, ShieldCheck, CircleCheck, CircleX, Download, Heart, Info, OctagonAlert, TriangleAlert } from "lucide-react";
 
@@ -396,11 +397,11 @@ export function DesignGallery() {
           </Field>
           <Field>
             <FieldLabel htmlFor="d-select">{text.fields.selectLabel}</FieldLabel>
-            <select id="d-select" className="field-control field-select h-11 w-full min-w-0 px-3.5 py-2" aria-describedby="d-select-help">
+            <Dropdown id="d-select" className="field-control h-11 w-full min-w-0 px-3.5 py-2" aria-describedby="d-select-help">
               {text.fields.options.map((option) => (
                 <option key={option}>{option}</option>
               ))}
-            </select>
+            </Dropdown>
             <FieldDescription id="d-select-help">{text.fields.selectHint}</FieldDescription>
           </Field>
           <Field className="md:col-span-2">

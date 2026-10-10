@@ -1,5 +1,6 @@
 "use client";
 
+import { Dropdown } from "@/components/ui/dropdown";
 import { BackLink } from "@/components/ui/back-link";
 import { CircleAlert, CircleCheck, OctagonAlert, TriangleAlert } from "lucide-react";
 import Link from "next/link";
@@ -178,14 +179,14 @@ export function CustomerSupport() {
                 <label htmlFor="installation" className="block font-medium text-ink">
                   {text.installation}
                 </label>
-                <select id="installation" value={installation} onChange={(event) => setInstallation(event.target.value)} aria-invalid={Boolean(errors.installation)} className="h-11 w-full field-control field-select px-3">
+                <Dropdown id="installation" value={installation} onChange={(event) => setInstallation(event.target.value)} aria-invalid={Boolean(errors.installation)} className="h-11 w-full field-control px-3">
                   <option value="">{text.installation}</option>
                   {installations.data.items.map((item) => (
                     <option key={item.id} value={item.id}>
                       {format(text.installationLine, { date: formatLongDate(item.created_at) ?? item.created_at })}
                     </option>
                   ))}
-                </select>
+                </Dropdown>
                 {errors.installation ? <p className="flex items-center gap-1.5 font-medium text-danger" data-error="installation"><CircleAlert aria-hidden className="size-4 shrink-0" />{errors.installation}</p> : null}
               </div>
             ) : null}

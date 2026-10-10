@@ -1,5 +1,6 @@
 "use client";
 
+import { Dropdown } from "@/components/ui/dropdown";
 import { BackLink } from "@/components/ui/back-link";
 import { CircleAlert, CircleCheck, Lock, TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -176,14 +177,14 @@ export function ArticleFormView({ id, article, selfId }: { id: string | null; ar
           <label htmlFor="a-category" className="block font-medium text-ink">
             {f.category}
           </label>
-          <select id="a-category" value={form.category_id} disabled={!editable} onChange={(event) => set("category_id", event.target.value)} aria-invalid={Boolean(errors.category_id)} className="h-11 w-full field-control field-select px-3">
+          <Dropdown id="a-category" value={form.category_id} disabled={!editable} onChange={(event) => set("category_id", event.target.value)} aria-invalid={Boolean(errors.category_id)} className="h-11 w-full field-control px-3">
             <option value="">{f.chooseCategory}</option>
             {(categories.data ?? []).map((item) => (
               <option key={item.id} value={item.id}>
                 {item.name}
               </option>
             ))}
-          </select>
+          </Dropdown>
           {errors.category_id ? <p className="flex items-center gap-1.5 font-medium text-danger" data-error="category_id"><CircleAlert aria-hidden className="size-4 shrink-0" />{errors.category_id}</p> : null}
         </div>
         {text_("title", f.title)}
