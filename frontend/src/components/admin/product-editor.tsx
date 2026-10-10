@@ -1,5 +1,6 @@
 "use client";
 
+import { Dropdown } from "@/components/ui/dropdown";
 import { BackLink } from "@/components/ui/back-link";
 import { CircleAlert, CircleCheck, TriangleAlert } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
@@ -128,14 +129,14 @@ export function ProductForm({ id, product }: { id: string; product: Product }) {
           {label}
         </label>
         {def?.kind === "category" ? (
-          <select {...common} className={`${common.className} field-select h-11`} value={values[key] ?? ""} onChange={(event) => set({ ...values, [key]: event.target.value })}>
+          <Dropdown {...common} className={`${common.className} h-11`} value={values[key] ?? ""} onChange={(event) => set({ ...values, [key]: event.target.value })}>
             <option value="">{text.categoryNone}</option>
             {Object.entries(text.categories).map(([value, name]) => (
               <option key={value} value={value}>
                 {name}
               </option>
             ))}
-          </select>
+          </Dropdown>
         ) : def?.kind === "longtext" ? (
           <textarea {...common} rows={3} value={values[key] ?? ""} onChange={(event) => set({ ...values, [key]: event.target.value })} className={`${common.className} py-2`} />
         ) : (

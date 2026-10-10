@@ -1,5 +1,6 @@
 "use client";
 
+import { Dropdown } from "@/components/ui/dropdown";
 import { useEffect } from "react";
 import { type FieldValues, get, type Path, type UseFormReturn } from "react-hook-form";
 
@@ -8,7 +9,7 @@ import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui
 import { fieldId } from "@/lib/forms/errors";
 import { messages } from "@/messages";
 
-const selectClass = "field-control field-select h-11 w-full min-w-0 px-3.5 py-2";
+const selectClass = "field-control h-11 w-full min-w-0 px-3.5 py-2";
 
 /** A labelled native select wired like TextField: label, description, error and aria state. */
 export function SelectField<TInput extends FieldValues, TOutput extends FieldValues = TInput>({
@@ -54,7 +55,7 @@ export function SelectField<TInput extends FieldValues, TOutput extends FieldVal
           <span className="font-normal text-ink-3">{messages.forms.optionalMarker}</span>
         ) : null}
       </FieldLabel>
-      <select
+      <Dropdown
         id={id}
         aria-required={!optional}
         aria-invalid={hasError}
@@ -68,7 +69,7 @@ export function SelectField<TInput extends FieldValues, TOutput extends FieldVal
             {option.label}
           </option>
         ))}
-      </select>
+      </Dropdown>
       {description ? <FieldDescription id={descriptionId}>{description}</FieldDescription> : null}
       {hasError ? (
         <FieldError id={errorId} role={undefined}>

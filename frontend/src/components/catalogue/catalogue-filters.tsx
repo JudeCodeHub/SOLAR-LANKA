@@ -1,3 +1,4 @@
+import { Dropdown } from "@/components/ui/dropdown";
 import { X } from "lucide-react";
 import Link from "next/link";
 
@@ -17,7 +18,7 @@ const LABELS: Record<string, string> = {
   max_kw: messages.catalogue.filters.chipMaxCapacity,
 };
 
-const selectClass = "field-control field-select h-11 w-full min-w-0 px-3.5 py-2";
+const selectClass = "field-control h-11 w-full min-w-0 px-3.5 py-2";
 
 /** Search and filters as an ordinary GET form, so the chosen values end up in the address. */
 export function CatalogueFilters({
@@ -67,7 +68,7 @@ export function CatalogueFilters({
             <>
               <Field data-invalid={Boolean(errors.type)}>
                 <FieldLabel htmlFor="filter-type">{text.type}</FieldLabel>
-                <select
+                <Dropdown
                   id="filter-type"
                   name="type"
                   defaultValue={values.type ?? ""}
@@ -78,7 +79,7 @@ export function CatalogueFilters({
                   <option value="on_grid">{text.typeOptions.on_grid}</option>
                   <option value="off_grid">{text.typeOptions.off_grid}</option>
                   <option value="hybrid">{text.typeOptions.hybrid}</option>
-                </select>
+                </Dropdown>
               </Field>
               <FilterField name="min_kw" label={text.minCapacity} inputMode="decimal" value={values.min_kw ?? ""} error={errors.min_kw} />
               <FilterField name="max_kw" label={text.maxCapacity} inputMode="decimal" value={values.max_kw ?? ""} error={errors.max_kw} />

@@ -1,5 +1,6 @@
 "use client";
 
+import { Dropdown } from "@/components/ui/dropdown";
 import { BadgeCheck, CircleAlert } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState } from "react";
@@ -42,14 +43,14 @@ function Body() {
         <label htmlFor="status" className="type-subheading block text-ink">
           {text.filter}
         </label>
-        <select id="status" value={status} onChange={(event) => setStatus(event.target.value)} className="h-11 w-full field-control field-select px-3 sm:w-auto sm:min-w-56">
+        <Dropdown id="status" value={status} onChange={(event) => setStatus(event.target.value)} className="h-11 w-full field-control px-3 sm:w-auto sm:min-w-56">
           <option value="">{text.allStatuses}</option>
           {Object.entries(text.statuses).map(([value, label]) => (
             <option key={value} value={value}>
               {label}
             </option>
           ))}
-        </select>
+        </Dropdown>
       </div>
       <QueryState query={query} isEmpty={(items) => items.length === 0} empty={<EmptyState title={text.none} />}>
         {(items) => (

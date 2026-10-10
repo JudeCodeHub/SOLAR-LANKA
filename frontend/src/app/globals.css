@@ -356,16 +356,6 @@
   }
 }
 
-/* A native select with a quiet chevron; the right padding keeps long options clear of it. */
-@utility field-select {
-  appearance: none;
-  padding-inline-end: 2.5rem !important;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238A7D6F' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.875rem center;
-  background-size: 1rem;
-}
-
 /* Checkbox and radio: a drawn box that fills with orange and shows a dark mark. */
 @utility field-check {
   appearance: none;
@@ -1126,4 +1116,147 @@ html:has([data-app-shell])::-webkit-scrollbar,
 .branched-menu__head:focus-visible,
 .branched-menu__item:focus-visible {
   border-radius: 0.5rem;
+}
+
+/* Dropdown: the button fills with orange from the left as you point at it and its arrow turns over; the list drops down under it with an orange outline, and its options fill the same way. Text on orange stays dark ink in both themes. */
+.dropdown__trigger {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  width: 100%;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  overflow: hidden;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid var(--ds-field-border);
+  border-radius: 0.75rem;
+  background: var(--ds-surface);
+  color: var(--ds-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    color 0.48s cubic-bezier(0.23, 1, 0.32, 1),
+    border-color 0.48s cubic-bezier(0.23, 1, 0.32, 1),
+    border-radius 0.48s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.dropdown__trigger::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--ds-orange);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.48s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.dropdown__trigger:hover:not(:disabled),
+.dropdown[data-open] .dropdown__trigger {
+  color: var(--ds-on-orange);
+  border-color: var(--ds-orange);
+}
+.dropdown__trigger:hover:not(:disabled)::after,
+.dropdown[data-open] .dropdown__trigger::after {
+  transform: scaleX(1);
+  transform-origin: right;
+}
+.dropdown[data-open] .dropdown__trigger {
+  border-radius: 0.75rem 0.75rem 0 0;
+}
+.dropdown__trigger[aria-invalid="true"] {
+  border-color: var(--ds-danger);
+}
+.dropdown__trigger:disabled {
+  background: var(--ds-disabled-bg);
+  color: var(--ds-disabled-text);
+  cursor: not-allowed;
+}
+.dropdown__value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dropdown__placeholder {
+  opacity: 0.7;
+}
+.dropdown__arrow {
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+  transition: transform 0.48s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.dropdown:hover .dropdown__trigger:not(:disabled) .dropdown__arrow,
+.dropdown[data-open] .dropdown__arrow {
+  transform: rotate(-180deg);
+}
+.dropdown__panel::-webkit-scrollbar {
+  display: none;
+}
+
+.dropdown__panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 50;
+  width: 100%;
+  max-height: 16rem;
+  overflow-y: auto;
+  scrollbar-width: none;
+  border: 1px solid var(--ds-orange);
+  border-top-color: transparent;
+  border-radius: 0 0 0.75rem 0.75rem;
+  background: var(--ds-surface);
+  box-shadow: var(--ds-shadow-2);
+  animation: dropdown-in 0.3s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+@keyframes dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+.dropdown__option {
+  position: relative;
+  isolation: isolate;
+  display: block;
+  overflow: hidden;
+  padding: 0.625rem 1rem;
+  color: var(--ds-text);
+  cursor: pointer;
+  outline: none;
+  transition: color 0.48s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.dropdown__option::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--ds-orange);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.48s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.dropdown__option:hover::before,
+.dropdown__option:focus-visible::before {
+  transform: scaleX(1);
+  transform-origin: right;
+}
+.dropdown__option:hover,
+.dropdown__option:focus-visible {
+  color: var(--ds-on-orange);
+}
+.dropdown__option[aria-selected="true"] {
+  font-weight: 600;
+  color: var(--ds-orange-text);
+}
+.dropdown__option[aria-selected="true"]:hover,
+.dropdown__option[aria-selected="true"]:focus-visible {
+  color: var(--ds-on-orange);
+}
+.dropdown__option[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.5;
 }

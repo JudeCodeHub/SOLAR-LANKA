@@ -1,3 +1,4 @@
+import { Dropdown } from "@/components/ui/dropdown";
 import { X } from "lucide-react";
 import Link from "next/link";
 
@@ -8,7 +9,7 @@ import { buildDirectoryHref, type DirectoryState } from "@/lib/directory/params"
 import { serviceLabel } from "@/lib/landing/format";
 import { format, messages } from "@/messages";
 
-const selectClass = "field-control field-select h-11 w-full min-w-0 px-3.5 py-2";
+const selectClass = "field-control h-11 w-full min-w-0 px-3.5 py-2";
 
 const text = messages.directory.filters;
 
@@ -34,7 +35,7 @@ function Choice({
   return (
     <Field data-invalid={Boolean(error)}>
       <FieldLabel htmlFor={id}>{label}</FieldLabel>
-      <select
+      <Dropdown
         id={id}
         name={name}
         defaultValue={known ? value : ""}
@@ -48,7 +49,7 @@ function Choice({
             {option.label}
           </option>
         ))}
-      </select>
+      </Dropdown>
       {error ? (
         <FieldError id={errorId} role={undefined}>
           {error}

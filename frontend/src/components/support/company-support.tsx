@@ -1,5 +1,6 @@
 "use client";
 
+import { Dropdown } from "@/components/ui/dropdown";
 import { BackLink } from "@/components/ui/back-link";
 import { CircleAlert, OctagonAlert, TriangleAlert } from "lucide-react";
 import { useRef, useState } from "react";
@@ -156,14 +157,14 @@ function Case({ companyId, id }: { companyId: string; id: string }) {
                     <label htmlFor="technician" className="block font-medium text-ink">
                       {text.assign}
                     </label>
-                    <select id="technician" value={technician} onChange={(event) => setTechnician(event.target.value)} className="h-11 field-control field-select px-3">
+                    <Dropdown id="technician" value={technician} onChange={(event) => setTechnician(event.target.value)} className="h-11 field-control px-3">
                       <option value="">{text.choose}</option>
                       {(technicians.data ?? []).map((t) => (
                         <option key={t.user_id} value={t.user_id}>
                           {format(messages.visits.staff.technicianLine, { id: shortId(t.user_id) })}
                         </option>
                       ))}
-                    </select>
+                    </Dropdown>
                   </div>
                   <Button
                     type="button"

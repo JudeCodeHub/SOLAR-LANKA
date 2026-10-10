@@ -1,5 +1,6 @@
 "use client";
 
+import { Dropdown } from "@/components/ui/dropdown";
 import { BackLink } from "@/components/ui/back-link";
 import { Archive, Braces, CircleAlert, CircleCheck, Info, Lock, TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -46,13 +47,13 @@ function NewDraft() {
             <label htmlFor="f-scenario" className="type-subheading block text-ink">
               {text.scenarioLabel}
             </label>
-            <select id="f-scenario" value={scenario} onChange={(event) => setScenario(event.target.value as Scenario)} className="min-h-11 w-full field-control field-select px-3 text-sm">
+            <Dropdown id="f-scenario" value={scenario} onChange={(event) => setScenario(event.target.value as Scenario)} className="min-h-11 w-full field-control px-3 text-sm">
               {SCENARIOS.map((name) => (
                 <option key={name} value={name}>
                   {text.scenarios[name]}
                 </option>
               ))}
-            </select>
+            </Dropdown>
             <p className="type-small text-ink-2">{text.scenarioHelp}</p>
           </div>
           {list.length === 0 ? (

@@ -1,5 +1,6 @@
 "use client";
 
+import { Dropdown } from "@/components/ui/dropdown";
 import { CalendarCheck, CircleAlert, CircleCheck, TriangleAlert } from "lucide-react";
 import { useRef, useState } from "react";
 
@@ -106,14 +107,14 @@ function Visit({ visit, companyId, installationId, technicians, start, handlers,
       <label htmlFor={`tech-${visit.id}`} className="block font-medium text-ink">
         {text.technician}
       </label>
-      <select id={`tech-${visit.id}`} value={technician} onChange={(event) => { setTechnician(event.target.value); setMissing(false); }} aria-invalid={missing} className="h-11 w-full field-control field-select px-3 sm:w-auto sm:min-w-64">
+      <Dropdown id={`tech-${visit.id}`} value={technician} onChange={(event) => { setTechnician(event.target.value); setMissing(false); }} aria-invalid={missing} className="h-11 w-full field-control px-3 sm:w-auto sm:min-w-64">
         <option value="">{text.choose}</option>
         {technicians.map((t) => (
           <option key={t.user_id} value={t.user_id}>
             {format(text.technicianLine, { id: shortId(t.user_id) })}
           </option>
         ))}
-      </select>
+      </Dropdown>
       {technicians.length === 0 ? <p className="text-ink-2">{text.noTechnicians}</p> : null}
       {missing ? (
         <p className="flex items-center gap-1.5 font-medium text-danger" data-error="technician">
