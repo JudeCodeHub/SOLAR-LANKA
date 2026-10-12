@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: messages.titles.signUpCompany };
 export default function CompanySignUpPage() {
   return (
     <AuthLayout photo="company" eyebrow={messages.auth.companyEyebrow} line={messages.auth.companyLine} quote={messages.auth.companyQuote} switchPrompt={messages.auth.haveAccount} switchLabel={messages.auth.signIn} switchHref="/sign-in">
-      <SignUp path="/sign-up/company" routing="path" signInUrl="/sign-in" />
+      <SignUp path="/sign-up/company" routing="path" signInUrl="/sign-in" forceRedirectUrl="/my/register-company" />
     </AuthLayout>
   );
 }

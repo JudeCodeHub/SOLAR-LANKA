@@ -103,6 +103,7 @@ export const SIDEBAR: readonly SidebarCategory[] = [
       item("companies", messages.nav.items.companies, "/companies", AS_CUSTOMER),
       item("my-requests", messages.nav.items.myRequests, "/my/requests", AS_CUSTOMER),
       item("new-request", messages.nav.items.newRequest, "/my/requests/new", AS_CUSTOMER),
+      item("register-company", messages.nav.items.registerCompany, "/my/register-company", AS_CUSTOMER),
     ],
   },
   {

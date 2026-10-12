@@ -625,6 +625,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/companies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Company
+         * @description Start a private draft company and become its administrator; one per account.
+         */
+        post: operations["create_company_companies_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/companies/{company_id}": {
         parameters: {
             query?: never;
@@ -2974,7 +2994,7 @@ export interface components {
          * AuditAction
          * @enum {string}
          */
-        AuditAction: "membership.assigned" | "company.updated" | "company.submitted" | "company.approved" | "company.rejected" | "user.suspended" | "user.restored" | "installation.technician_assigned" | "installation.technician_unassigned";
+        AuditAction: "membership.assigned" | "company.created" | "company.updated" | "company.submitted" | "company.approved" | "company.rejected" | "user.suspended" | "user.restored" | "installation.technician_assigned" | "installation.technician_unassigned";
         /** AuditEventResponse */
         AuditEventResponse: {
             action: components["schemas"]["AuditAction"];
@@ -3062,6 +3082,15 @@ export interface components {
             position: number;
             /** Slug */
             slug: string;
+        };
+        /** CompanyCreate */
+        CompanyCreate: {
+            /** Name */
+            name: string;
+            /** Service Districts */
+            service_districts: ("Ampara" | "Anuradhapura" | "Badulla" | "Batticaloa" | "Colombo" | "Galle" | "Gampaha" | "Hambantota" | "Jaffna" | "Kalutara" | "Kandy" | "Kegalle" | "Kilinochchi" | "Kurunegala" | "Mannar" | "Matale" | "Matara" | "Monaragala" | "Mullaitivu" | "Nuwara Eliya" | "Polonnaruwa" | "Puttalam" | "Ratnapura" | "Trincomalee" | "Vavuniya")[];
+            /** Services */
+            services: ("installation" | "maintenance" | "repair" | "battery_installation" | "site_assessment")[];
         };
         /** CompanyDeliveryDetail */
         CompanyDeliveryDetail: {
@@ -9273,6 +9302,102 @@ export interface operations {
             };
             /** @description Bad Request */
             400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    create_company_companies_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompanyCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyProfileResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

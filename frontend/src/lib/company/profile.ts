@@ -103,6 +103,12 @@ export const profileSchema = z.object({
   declared_credentials: z.array(z.object({ name: word, issuer: word })).max(MAX_CREDENTIALS),
 });
 
+export const registerSchema = z.object({
+  name: z.string().trim().min(1, text.nameRequired).max(255),
+  service_districts: z.array(z.enum(DISTRICTS)).min(1, messages.registerCompany.districtsRequired).max(DISTRICTS.length),
+  services: z.array(z.enum(SERVICES)).min(1, messages.registerCompany.servicesRequired).max(SERVICES.length),
+});
+
 export interface Completeness {
   districts: number;
   services: number;
