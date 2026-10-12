@@ -13,6 +13,8 @@ export const queryKeys = {
   estimate: (id: string) => ["estimates", "detail", id] as const,
   /** A company's private profile and its review history (staff only). */
   companyProfile: (id: string) => ["company", id, "profile"] as const,
+  companyInvites: (id: string) => ["company", id, "invites"] as const,
+  companyMembers: (id: string) => ["company", id, "members"] as const,
   companyReviews: (id: string) => ["company", id, "reviews"] as const,
   /** A company's own offers, a product looked up by id, and a catalogue search for adding an offer. */
   companyOffers: (id: string) => ["company", id, "offers"] as const,

@@ -104,6 +104,7 @@ export const SIDEBAR: readonly SidebarCategory[] = [
       item("my-requests", messages.nav.items.myRequests, "/my/requests", AS_CUSTOMER),
       item("new-request", messages.nav.items.newRequest, "/my/requests/new", AS_CUSTOMER),
       item("register-company", messages.nav.items.registerCompany, "/my/register-company", AS_CUSTOMER),
+      item("join-company", messages.nav.items.joinCompany, "/my/join-company", AS_CUSTOMER),
     ],
   },
   {
@@ -127,7 +128,10 @@ export const SIDEBAR: readonly SidebarCategory[] = [
   {
     id: "company",
     label: CATEGORY_LABELS.company,
-    items: [item("company-profile", messages.nav.items.companyProfile, "/company/profile", AS_COMPANY)],
+    items: [
+      item("company-profile", messages.nav.items.companyProfile, "/company/profile", AS_COMPANY),
+      item("company-team", messages.nav.items.companyTeam, "/company/team", AS_COMPANY),
+    ],
   },
   {
     id: "review",

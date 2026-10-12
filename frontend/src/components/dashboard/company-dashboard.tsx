@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { NextSteps, SummaryCard } from "@/components/dashboard/dashboard-parts";
 import { Building2, FileText, Inbox, Wrench } from "lucide-react";
 
+import { ReviewBanner } from "@/components/company/review-banner";
 import { StaffGate } from "@/components/company/staff-gate";
 import { QueryState } from "@/components/query-state";
 import { useCompanyProfile } from "@/lib/company/hooks";
@@ -53,6 +54,7 @@ function Dashboard({ companyId, name }: { companyId: string; name: string }) {
         <Building2 aria-hidden className="size-4 text-orange-text" />
         {name}
       </p>
+      {profile.data ? <ReviewBanner profile={profile.data} /> : null}
       <NextSteps actions={actions} partial={partial} />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <SummaryCard id="profile" icon={Building2} title={text.profileTitle} link={{ href: `/company/profile?company=${companyId}`, label: messages.nav.items.companyProfile }}>

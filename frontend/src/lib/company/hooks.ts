@@ -84,3 +84,48 @@ export function useCreateCompany() {
     },
   });
 }
+
+export type Invite = components["schemas"]["InviteView"];
+
+export function useInvites(companyId: string) {
+  return useQuery({
+    queryKey: queryKeys.companyInvites(companyId),
+    queryFn: () => unwrap(() => api.GET("/companies/{company_id}/invites", { params: { path: { company_id: companyId } } })),
+    staleTime: 0,
+  });
+}
+
+export function useMembers(companyId: string) {
+  return useQuery({
+    queryKey: queryKeys.companyMembers(companyId),
+    queryFn: () => unwrap(() => api.GET("/companies/{company_id}/members", { params: { path: { company_id: companyId } } })),
+    staleTime: 0,
+  });
+}
+
+/** Make a one-time technician code; the code itself comes back only here. */
+export function useCreateInvite(companyId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: () => unwrap(() => api.POST("/companies/{company_id}/invites", { params: { path: { company_id: companyId } } })),
+    onSettled: () => client.invalidateQueries({ queryKey: queryKeys.companyInvites(companyId) }),
+  });
+}
+
+export function useRevokeInvite(companyId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (inviteId: string) =>
+      unwrap(() => api.DELETE("/companies/{company_id}/invites/{invite_id}", { params: { path: { company_id: companyId, invite_id: inviteId } } })),
+    onSettled: () => client.invalidateQueries({ queryKey: queryKeys.companyInvites(companyId) }),
+  });
+}
+
+/** Apply a code the signed-in account was given. */
+export function useAcceptInvite() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (code: string) => unwrap(() => api.POST("/invites/accept", { body: { code } })),
+    onSuccess: () => client.invalidateQueries({ queryKey: queryKeys.currentUser }),
+  });
+}

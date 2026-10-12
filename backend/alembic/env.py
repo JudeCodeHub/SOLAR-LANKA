@@ -8,7 +8,12 @@ from app.core.database_config import DatabaseSettings, load_test_database_settin
 from app.db.base import Base
 from app.db.session import create_database_engine
 from app.models.audit import AuditEvent  # noqa: F401
-from app.models.company import Company, CompanyMembership, CompanyReview  # noqa: F401
+from app.models.company import (  # noqa: F401
+    Company,
+    CompanyInvite,
+    CompanyMembership,
+    CompanyReview,
+)
 from app.models.education import Article, EducationCategory  # noqa: F401
 from app.models.email_delivery import EmailDelivery  # noqa: F401
 from app.models.estimator_config import EstimatorConfigVersion  # noqa: F401
