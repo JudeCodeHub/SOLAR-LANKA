@@ -62,6 +62,7 @@ export const NAV_ICONS: Record<string, LucideIcon> = {
   "compare-inverters": Scale,
   companies: Building2,
   "new-request": Plus,
+  "register-company": Building2,
   learn: BookOpen,
   troubleshooting: Zap,
   "safety-help": ShieldAlert,

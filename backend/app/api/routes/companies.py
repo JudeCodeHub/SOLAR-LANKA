@@ -8,9 +8,10 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.api.company_access import require_company_permission
-from app.api.dependencies import require_company_reviewer
+from app.api.dependencies import require_company_reviewer, require_local_user
 from app.api.errors import BusinessConflict
 from app.api.schemas.companies import (
+    CompanyCreate,
     CompanyProfileResponse,
     CompanyProfileUpdate,
     CompanyReviewDecision,
@@ -35,6 +36,46 @@ def _company(session: Session, membership: CompanyMembership) -> Company:
     if company is None:
         raise HTTPException(404)
     return company
+
+
+@router.post("", response_model=CompanyProfileResponse, status_code=201)
+def create_company(
+    body: CompanyCreate,
+    user: Annotated[AppUser, Depends(require_local_user)],
+    session: Annotated[Session, Depends(get_session)],
+) -> CompanyProfileResponse:
+    """Start a private draft company and become its administrator; one per account."""
+    session.execute(select(AppUser.id).where(AppUser.id == user.id).with_for_update())
+    already = session.scalar(
+        select(func.count())
+        .select_from(CompanyMembership)
+        .where(CompanyMembership.user_id == user.id)
+    )
+    if already:
+        raise BusinessConflict("This account already belongs to a company.")
+    company = Company(
+        name=body.name,
+        publication_status="draft",
+        service_districts=list(body.service_districts),
+        services=list(body.services),
+    )
+    session.add(company)
+    session.flush()
+    session.add(
+        CompanyMembership(
+            user_id=user.id, company_id=company.id, role="company_admin", status="active"
+        )
+    )
+    record_audit(
+        session,
+        actor_id=user.id,
+        company_id=company.id,
+        target_id=company.id,
+        action=AuditAction.COMPANY_CREATED,
+    )
+    result = CompanyProfileResponse.model_validate(company)
+    session.commit()
+    return result
 
 
 @router.get("/{company_id}", response_model=CompanyProfileResponse)

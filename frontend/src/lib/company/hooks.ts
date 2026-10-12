@@ -73,3 +73,14 @@ export function useSubmitProfile(id: string) {
     },
   });
 }
+
+/** Start a private draft company; the caller becomes its administrator. */
+export function useCreateCompany() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (body: components["schemas"]["CompanyCreate"]) => unwrap(() => api.POST("/companies", { body })),
+    onSuccess: async () => {
+      await client.invalidateQueries({ queryKey: queryKeys.currentUser });
+    },
+  });
+}

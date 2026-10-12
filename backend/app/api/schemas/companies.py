@@ -77,6 +77,22 @@ class CompanyProfileUpdate(BaseModel):
         return self
 
 
+class CompanyCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: CompanyName
+    service_districts: list[District] = Field(min_length=1, max_length=25)
+    services: list[Service] = Field(min_length=1, max_length=5)
+
+    @model_validator(mode="after")
+    def reject_duplicates(self) -> Self:
+        for field in ("service_districts", "services"):
+            values = getattr(self, field)
+            if len(values) != len(set(values)):
+                raise ValueError("Duplicate selections are not allowed")
+        return self
+
+
 class CompanyProfileResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
