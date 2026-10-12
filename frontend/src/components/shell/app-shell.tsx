@@ -87,7 +87,7 @@ export function AppShell({ categories, persona, children }: { categories: readon
   const collapsed = state.collapsed;
 
   return (
-    <div className="flex min-h-svh bg-paper" data-app-shell>
+    <div className="flex min-h-svh bg-paper" data-app-shell data-role-theme={persona ?? undefined}>
       <aside className={cn("sticky top-0 hidden h-svh shrink-0 flex-col border-r border-line bg-surface transition-[width] duration-200 motion-reduce:transition-none lg:flex", collapsed ? "w-[4.75rem]" : "w-72")} data-sidebar>
         <div className={cn("flex h-14 shrink-0 items-center border-b border-line", collapsed ? "justify-center" : "px-5")}>
           <Link href="/dashboard" aria-label={messages.app.name} className="inline-flex min-h-11 items-center text-ink">
@@ -111,7 +111,7 @@ export function AppShell({ categories, persona, children }: { categories: readon
                 <Menu aria-hidden />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="overflow-y-auto">
+            <SheetContent side="left" className="overflow-y-auto" data-role-theme={persona ?? undefined}>
               <SheetHeader>
                 <Logo height={28} className="text-ink" />
                 <SheetTitle className="sr-only">{text.menuTitle}</SheetTitle>

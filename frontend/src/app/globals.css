@@ -1260,3 +1260,52 @@ html:has([data-app-shell])::-webkit-scrollbar,
   cursor: not-allowed;
   opacity: 0.5;
 }
+
+/* One shade of the orange family per role; the signed-in shell sets data-role-theme, and customers keep the base orange. */
+[data-role-theme="company"] {
+  --ds-orange: #E8590C;
+  --ds-orange-hover: #CF4D08;
+  --ds-orange-pressed: #BD4607;
+  --ds-orange-text: #A33A00;
+  --ds-orange-tint: #FCE3D3;
+}
+
+[data-role-theme="technician"] {
+  --ds-orange: #FFA21F;
+  --ds-orange-hover: #F29200;
+  --ds-orange-pressed: #E08700;
+  --ds-orange-text: #8F5200;
+  --ds-orange-tint: #FFEFD0;
+}
+
+[data-role-theme="admin"] {
+  --ds-orange: #E5481F;
+  --ds-orange-hover: #CC3D16;
+  --ds-orange-pressed: #B83713;
+  --ds-orange-text: #A8300F;
+  --ds-orange-tint: #FADCD4;
+}
+
+.dark [data-role-theme="company"] {
+  --ds-orange: #F26A1F;
+  --ds-orange-hover: #FF7E3A;
+  --ds-orange-pressed: #DC5C14;
+  --ds-orange-text: #FF8548;
+  --ds-orange-tint: #2B190F;
+}
+
+.dark [data-role-theme="technician"] {
+  --ds-orange: #FFB02E;
+  --ds-orange-hover: #FFBE52;
+  --ds-orange-pressed: #E89E1C;
+  --ds-orange-text: #FFC266;
+  --ds-orange-tint: #2B2008;
+}
+
+.dark [data-role-theme="admin"] {
+  --ds-orange: #F2562B;
+  --ds-orange-hover: #FF6B42;
+  --ds-orange-pressed: #DC4820;
+  --ds-orange-text: #FF7E5E;
+  --ds-orange-tint: #2E1510;
+}
