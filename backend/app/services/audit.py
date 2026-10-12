@@ -10,6 +10,8 @@ from app.models.audit import AuditEvent
 
 class AuditAction(StrEnum):
     MEMBERSHIP_ASSIGNED = "membership.assigned"
+    INVITE_CREATED = "invite.created"
+    INVITE_REVOKED = "invite.revoked"
     COMPANY_CREATED = "company.created"
     COMPANY_UPDATED = "company.updated"
     COMPANY_SUBMITTED = "company.submitted"

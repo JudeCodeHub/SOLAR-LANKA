@@ -27,6 +27,8 @@ from app.api.routes.favourites import router as favourites_router
 from app.api.routes.health import router as health_router
 from app.api.routes.installations import company_router as company_installations_router
 from app.api.routes.installations import customer_router as customer_installations_router
+from app.api.routes.invites import accept_router as invite_accept_router
+from app.api.routes.invites import router as invites_router
 from app.api.routes.media_uploads import router as media_uploads_router
 from app.api.routes.memberships import router as memberships_router
 from app.api.routes.notifications import preferences_router as notification_preferences_router
@@ -115,6 +117,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(notifications_router)
     application.include_router(notification_preferences_router)
     application.include_router(memberships_router)
+    application.include_router(invites_router)
+    application.include_router(invite_accept_router)
     application.include_router(media_uploads_router)
     application.include_router(private_media_router)
     application.include_router(offers_router)

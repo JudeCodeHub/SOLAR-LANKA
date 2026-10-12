@@ -95,3 +95,33 @@ class CompanyReview(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=text("clock_timestamp()")
     )
+
+
+class CompanyInvite(Base):
+    """A one-time code a company administrator gives a technician; only its hash is stored."""
+
+    __tablename__ = "company_invites"
+    __table_args__ = (
+        UniqueConstraint("code_hash", name="uq_company_invites_code_hash"),
+        CheckConstraint("role = 'technician'", name="ck_company_invites_role"),
+    )
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=new_entity_id)
+    company_id: Mapped[UUID] = mapped_column(
+        ForeignKey("companies.id", ondelete="RESTRICT"), nullable=False, index=True
+    )
+    role: Mapped[str] = mapped_column(
+        String(32), nullable=False, default="technician", server_default="technician"
+    )
+    code_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    code_hint: Mapped[str] = mapped_column(String(8), nullable=False)
+    created_by: Mapped[UUID] = mapped_column(
+        ForeignKey("app_users.id", ondelete="RESTRICT"), nullable=False
+    )
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    used_by: Mapped[UUID | None] = mapped_column(ForeignKey("app_users.id", ondelete="RESTRICT"))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
