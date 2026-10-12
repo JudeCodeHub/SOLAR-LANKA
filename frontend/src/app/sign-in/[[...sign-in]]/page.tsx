@@ -14,7 +14,7 @@ export default function SignInPage() {
       line={messages.auth.signInLine}
       quote={messages.auth.signInQuote}
       switchPrompt={messages.auth.noAccount}
-      switchLabel={messages.auth.createAccount}
+      switchLabel={messages.auth.chooseHow}
       switchHref="/sign-up"
     >
       <SignIn />

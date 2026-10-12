@@ -1,15 +1,18 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { AuthPhotoSide } from "@/components/auth/auth-photo-side";
+import { AuthPhotoSide, type AuthKind } from "@/components/auth/auth-photo-side";
 import { Photo } from "@/components/ui/photo";
+import type { PhotoKey } from "@/lib/photos/photos";
 
-/** The frame for sign-in and sign-up: on the left a warm wall with a house that draws itself and fills its roof with panels (see AuthPhotoSide), with the brand and a sentence for this page, and on the right one centred column with the heading, a one-line subtitle, the form and the link to the other page; on a phone the photo becomes a strip above the column. */
-export function AuthLayout({ photo, eyebrow, line, quote, switchPrompt, switchLabel, switchHref, children }: { photo: "signIn" | "signUp"; eyebrow: string; line: string; quote: string; switchPrompt: string; switchLabel: string; switchHref: string; children: ReactNode }) {
+const STRIP: Record<AuthKind, PhotoKey> = { signIn: "signIn", signUp: "signUp", company: "team", technician: "technician" };
+
+/** The frame for sign-in and sign-up: on the left a warm wall with a house that draws itself and fills its roof with panels (see AuthPhotoSide; company and technician pages show a photo instead), with the brand and a sentence for this page, and on the right one centred column with the heading, a one-line subtitle, the form and the link to the other page; on a phone the photo becomes a strip above the column. */
+export function AuthLayout({ photo, eyebrow, line, quote, switchPrompt, switchLabel, switchHref, children }: { photo: AuthKind; eyebrow: string; line: string; quote: string; switchPrompt: string; switchLabel: string; switchHref: string; children: ReactNode }) {
   return (
     <div className="grid flex-1 lg:grid-cols-2" data-auth-layout>
       <div className="relative h-36 overflow-hidden sm:h-48 lg:hidden">
-        <Photo name={photo} sizes="100vw" priority className="absolute inset-0 size-full scale-105 object-cover blur-[2px]" />
+        <Photo name={STRIP[photo]} sizes="100vw" priority className="absolute inset-0 size-full scale-105 object-cover blur-[2px]" />
         <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-paper to-transparent" />
       </div>
       <div className="flex items-start justify-center px-4 py-10 sm:px-6 lg:order-2 lg:items-center lg:px-12 lg:py-16">

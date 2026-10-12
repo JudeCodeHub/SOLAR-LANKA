@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 
 import { LogoMark } from "@/components/brand/logo";
+import { Photo } from "@/components/ui/photo";
 import { messages } from "@/messages";
 
 
@@ -113,8 +114,10 @@ function HouseDrawing() {
   );
 }
 
+export type AuthKind = "signIn" | "signUp" | "company" | "technician";
+
 /** The photo side of sign-in and sign-up: on a warm wall that follows the theme, a line drawing (a light bulb with a sun filament that switches on for sign-in, a house for sign-up) draws itself, then its solar panels fill in one by one under a rising sun, and a small figure counts the system size; the logo sits above and one sentence for the page below. */
-export function AuthPhotoSide({ photo, quote }: { photo: "signIn" | "signUp"; quote: string }) {
+export function AuthPhotoSide({ photo, quote }: { photo: AuthKind; quote: string }) {
   return (
     <div className="relative hidden overflow-hidden bg-gradient-to-b from-paper-2 via-paper-2 to-orange-tint lg:order-1 lg:flex lg:flex-col lg:items-center lg:justify-between lg:gap-8 lg:px-12 lg:py-12" data-auth-photo>
       <div aria-hidden className="pointer-events-none absolute top-[12%] left-1/2 aspect-square w-[80%] -translate-x-1/2 rounded-full bg-orange/15 blur-3xl" />
@@ -123,7 +126,11 @@ export function AuthPhotoSide({ photo, quote }: { photo: "signIn" | "signUp"; qu
         <span className="font-heading text-2xl font-semibold tracking-tight">{messages.app.name}</span>
       </Link>
       <div className="relative z-10 flex w-[min(100%,34rem,92svh)] flex-col items-center gap-6" data-auth-house>
-        {photo === "signIn" ? <BulbDrawing /> : <HouseDrawing />}
+        {photo === "signIn" ? <BulbDrawing /> : photo === "company" || photo === "technician" ? (
+          <div className="aspect-[4/5] w-[min(100%,26rem)] overflow-hidden rounded-3xl border border-line shadow-e2 ring-4 ring-orange/20">
+            <Photo name={photo === "company" ? "team" : "technician"} sizes="34rem" priority className="size-full object-cover" />
+          </div>
+        ) : <HouseDrawing />}
       </div>
       <p className="footer-lede relative z-10 max-w-md text-center">{quote}</p>
     </div>
