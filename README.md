@@ -171,6 +171,8 @@ cd backend
 
 Anyone who signs in with a Clerk user that is not linked becomes an ordinary customer with no data.
 
+**The one real administrator.** A real deployment has exactly one platform administrator and no sign-up page for it. Create the person in Clerk, copy their user id (`user_...`), and run `cd backend && .venv/bin/python -m app.make_admin user_2abc...`. It marks that account as the administrator, creating it if they have not signed in yet, and refuses if a different administrator already exists (the seeded demo administrators count, so use it on a database without the demo seeds). The administrator then signs in on the common sign-in page and lands on `/admin`.
+
 ## Guided walkthrough
 
 Use two browser profiles (or a private window) so a customer and a company can be signed in at once.
