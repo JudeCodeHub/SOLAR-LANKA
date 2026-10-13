@@ -963,6 +963,19 @@ export const en = {
       installationsNone: "No installations yet. One starts when you accept an offer.",
       viewRequests: "All requests",
       viewInstallations: "All installations",
+      journey: {
+        title: "Your solar journey",
+        progress: "{done} of {total} stages done",
+        here: "You are here",
+        done: "Done",
+        upcoming: "Later",
+        steps: {
+          estimate: { label: "Estimate", none: "Find out what a system could save you.", some: { one: "{count} estimate saved.", other: "{count} estimates saved." }, action: "Start an estimate" },
+          request: { label: "Ask for quotations", none: "Send your estimate to companies.", some: { one: "{count} request sent.", other: "{count} requests sent." }, action: "Send a request" },
+          offer: { label: "Choose an offer", none: "Offers appear here once companies reply.", some: { one: "{count} offer waiting for you.", other: "{count} offers waiting for you." }, action: "See your offers" },
+          install: { label: "Installation", none: "Starts when you accept an offer.", some: { one: "{count} installation under way.", other: "{count} installations under way." }, action: "Follow your installation" },
+        },
+      },
     },
     company: {
       eyebrow: "Company workspace",
@@ -975,6 +988,16 @@ export const en = {
       addOffers: "Add your product offers so customers can see what you sell",
       profileTitle: "Profile",
       profileLine: "Directory status: {status}",
+      tiles: {
+        title: "Today at a glance",
+        enquiries: { label: "New enquiries", note: "{total} in the inbox", open: "Open the inbox" },
+        installations: { label: "Installations in progress", note: "{total} in all", open: "Manage installations" },
+        offers: { label: "Product offers", note: "Listed for customers", open: "Manage offers" },
+        unread: { label: "Unread notifications", note: "Waiting for you", open: "Read them" },
+        teamTitle: "Team",
+        teamLine: "Invite technicians and see who has joined.",
+        teamOpen: "Open the team page",
+      },
       review: {
         draftTitle: "Your company is not public yet",
         pendingTitle: "Your company is under review",

@@ -101,3 +101,25 @@ export function SummaryCard({
     </section>
   );
 }
+
+/** One big number a company works from; it turns orange when something is waiting, and the whole tile is the link. */
+export function StatTile({ id, label, figure, note, href, open, attention }: { id: string; label: string; figure: number | undefined; note: string; href: string; open: string; attention: boolean }) {
+  return (
+    <Link
+      href={href}
+      aria-label={`${label}: ${figure ?? "…"}. ${open}`}
+      data-tile={id}
+      data-attention={attention ? "" : undefined}
+      className={`group flex min-h-36 flex-col justify-between gap-3 rounded-card border p-5 shadow-e1 transition-shadow hover:shadow-e2 motion-reduce:transition-none ${attention ? "border-orange bg-orange text-on-orange" : "border-line bg-surface text-ink"}`}
+    >
+      <span className="text-sm font-semibold tracking-wide">{label}</span>
+      <span className="type-figure text-5xl font-semibold" data-figure>
+        {figure ?? "–"}
+      </span>
+      <span className="flex items-center justify-between gap-2 text-sm">
+        <span className={attention ? "" : "text-ink-2"}>{note}</span>
+        <ArrowRight aria-hidden className="size-5 shrink-0 transition-transform group-hover:translate-x-1 motion-reduce:transition-none" />
+      </span>
+    </Link>
+  );
+}

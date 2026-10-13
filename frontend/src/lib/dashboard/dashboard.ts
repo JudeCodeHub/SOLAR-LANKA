@@ -78,3 +78,48 @@ export function companyActions(s: CompanySummary, companyId: string): Action[] {
   }
   return actions;
 }
+
+export type JourneyStepId = "estimate" | "request" | "offer" | "install";
+export type JourneyState = "done" | "current" | "upcoming";
+
+export interface JourneySummary {
+  estimates?: number;
+  requests?: number;
+  openOffers?: number;
+  installations?: number;
+  completedInstallations?: number;
+}
+
+export interface JourneyStep {
+  id: JourneyStepId;
+  state: JourneyState;
+  /** How many of this stage the customer has, or undefined while it is still loading. */
+  count: number | undefined;
+  href: string;
+}
+
+/** The four stages from a first estimate to a finished installation; the first one not yet done is where the customer is. */
+export function journeySteps(s: JourneySummary): JourneyStep[] {
+  const has = (n: number | undefined) => (n ?? 0) > 0;
+  const flags: Record<JourneyStepId, boolean> = {
+    estimate: has(s.estimates) || has(s.requests) || has(s.installations),
+    request: has(s.requests) || has(s.installations),
+    offer: has(s.installations),
+    install: has(s.completedInstallations),
+  };
+  const counts: Record<JourneyStepId, number | undefined> = {
+    estimate: s.estimates,
+    request: s.requests,
+    offer: s.openOffers,
+    install: s.installations,
+  };
+  const hrefs: Record<JourneyStepId, string> = {
+    estimate: "/estimator",
+    request: has(s.estimates) ? "/my/requests/new" : "/my/requests",
+    offer: "/my/requests",
+    install: "/my/installations",
+  };
+  const order: JourneyStepId[] = ["estimate", "request", "offer", "install"];
+  const here = order.find((id) => !flags[id]);
+  return order.map((id) => ({ id, state: flags[id] ? "done" : id === here ? "current" : "upcoming", count: counts[id], href: hrefs[id] }));
+}

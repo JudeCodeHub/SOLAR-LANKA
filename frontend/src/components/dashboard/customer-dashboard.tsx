@@ -1,8 +1,10 @@
 "use client";
 
 import { HomeHeader, NextSteps, SummaryCard } from "@/components/dashboard/dashboard-parts";
+import { Journey } from "@/components/dashboard/journey";
 import { QueryState } from "@/components/query-state";
-import { customerActions } from "@/lib/dashboard/dashboard";
+import { customerActions, journeySteps } from "@/lib/dashboard/dashboard";
+import { useSavedEstimates } from "@/lib/estimates/hooks";
 import { OFFER_REQUESTS, useDashboardRequests, useOffersFor } from "@/lib/dashboard/hooks";
 import { progressText } from "@/lib/installations/progress";
 import { useUnreadCount } from "@/lib/notifications/hooks";
@@ -19,6 +21,7 @@ export function CustomerDashboard() {
   const requests = useDashboardRequests();
   const installations = useInstallations(1);
   const unread = useUnreadCount();
+  const estimates = useSavedEstimates(1);
 
   const active = (requests.data?.items ?? []).filter((request) => request.status === "submitted");
   const asked = active.slice(0, OFFER_REQUESTS);
@@ -33,6 +36,16 @@ export function CustomerDashboard() {
   const urgent = [...soon].sort((a, b) => Date.parse(a.offer.valid_until ?? "") - Date.parse(b.offer.valid_until ?? ""))[0];
   const inProgress = installations.data ? installations.data.items.filter((item) => item.completed_milestones < item.total_milestones).length : undefined;
 
+  const completed = installations.data ? installations.data.items.filter((item) => item.total_milestones > 0 && item.completed_milestones >= item.total_milestones).length : undefined;
+  const journey = journeySteps({
+    estimates: estimates.data?.total,
+    requests: requests.data?.total,
+    openOffers: offersLoaded ? open.length : undefined,
+    installations: installations.data?.total,
+    completedInstallations: completed,
+  });
+  const journeyLoading = !estimates.isSuccess || !requests.isSuccess || !installations.isSuccess;
+
   const actions = customerActions({
     totalRequests: requests.data?.total,
     activeRequests: requests.isSuccess ? active.length : undefined,
@@ -42,11 +55,12 @@ export function CustomerDashboard() {
     installationsInProgress: inProgress,
     unread: unread.data,
   });
-  const partial = requests.isError || installations.isError || unread.isError || offers.some((query) => query.isError);
+  const partial = estimates.isError || requests.isError || installations.isError || unread.isError || offers.some((query) => query.isError);
 
   return (
     <div className="mx-auto w-full max-w-5xl flex-1 space-y-8 px-4 py-8">
       <HomeHeader eyebrow={text.eyebrow} title={text.title} intro={text.intro} />
+      <Journey steps={journey} loading={journeyLoading} />
       <NextSteps actions={actions} partial={partial} />
       <div className="grid gap-4 md:grid-cols-3">
         <SummaryCard id="requests" icon={ClipboardList} figure={requests.data ? String(requests.data.total) : undefined} title={text.requestsTitle} link={{ href: "/my/requests", label: text.viewRequests }}>
