@@ -1,8 +1,8 @@
 "use client";
 
 import { PageHeader } from "@/components/ui/page-header";
-import { NextSteps, SummaryCard } from "@/components/dashboard/dashboard-parts";
-import { Building2, FileText, Inbox, Wrench } from "lucide-react";
+import { NextSteps, StatTile, SummaryCard } from "@/components/dashboard/dashboard-parts";
+import { Building2, Users } from "lucide-react";
 
 import { ReviewBanner } from "@/components/company/review-banner";
 import { StaffGate } from "@/components/company/staff-gate";
@@ -12,9 +12,10 @@ import { companyActions } from "@/lib/dashboard/dashboard";
 import { useDashboardInbox, useDashboardInstallations } from "@/lib/dashboard/hooks";
 import { useUnreadCount } from "@/lib/notifications/hooks";
 import { useOffers } from "@/lib/offers/hooks";
-import { format, messages, plural } from "@/messages";
+import { format, messages } from "@/messages";
 
 const text = messages.dashboard.company;
+const tiles = text.tiles;
 const profileStatuses = messages.company.profile.status as unknown as Record<string, { label: string }>;
 
 /** The company's home: what needs attention across its profile, enquiries, offers and installations. */
@@ -55,27 +56,26 @@ function Dashboard({ companyId, name }: { companyId: string; name: string }) {
         {name}
       </p>
       {profile.data ? <ReviewBanner profile={profile.data} /> : null}
+      <section aria-labelledby="tiles-title" className="space-y-3">
+        <h2 id="tiles-title" className="type-heading text-ink">
+          {tiles.title}
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatTile id="enquiries" label={tiles.enquiries.label} figure={fresh} note={format(tiles.enquiries.note, { total: inbox.data?.total ?? 0 })} href={`/company/inbox?company=${companyId}`} open={tiles.enquiries.open} attention={(fresh ?? 0) > 0} />
+          <StatTile id="installations" label={tiles.installations.label} figure={active} note={format(tiles.installations.note, { total: installations.data?.total ?? 0 })} href={`/company/installations?company=${companyId}`} open={tiles.installations.open} attention={false} />
+          <StatTile id="offers" label={tiles.offers.label} figure={offers.data?.length} note={tiles.offers.note} href="/company/offers" open={tiles.offers.open} attention={offers.data?.length === 0} />
+          <StatTile id="unread" label={tiles.unread.label} figure={unread.data} note={tiles.unread.note} href="/notifications?filter=unread" open={tiles.unread.open} attention={(unread.data ?? 0) > 0} />
+        </div>
+      </section>
       <NextSteps actions={actions} partial={partial} />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2">
         <SummaryCard id="profile" icon={Building2} title={text.profileTitle} link={{ href: `/company/profile?company=${companyId}`, label: messages.nav.items.companyProfile }}>
           <QueryState query={profile}>
             {(data) => <p>{format(text.profileLine, { status: profileStatuses[data.publication_status]?.label ?? data.publication_status })}</p>}
           </QueryState>
         </SummaryCard>
-        <SummaryCard id="inbox" icon={Inbox} figure={inbox.data ? String(inbox.data.total) : undefined} title={text.inboxTitle} link={{ href: `/company/inbox?company=${companyId}`, label: messages.nav.items.companyInbox }}>
-          <QueryState query={inbox} isEmpty={(result) => result.total === 0} empty={<p data-empty>{text.inboxNone}</p>}>
-            {(result) => <p>{format(plural(text.inboxLine, result.total), { count: result.total, fresh: fresh ?? 0 })}</p>}
-          </QueryState>
-        </SummaryCard>
-        <SummaryCard id="installations" icon={Wrench} figure={installations.data ? String(installations.data.total) : undefined} title={text.installationsTitle} link={{ href: `/company/installations?company=${companyId}`, label: messages.nav.items.companyInstallations }}>
-          <QueryState query={installations} isEmpty={(result) => result.total === 0} empty={<p data-empty>{text.installationsNone}</p>}>
-            {(result) => <p>{format(plural(text.installationsLine, result.total), { count: result.total, active: active ?? 0 })}</p>}
-          </QueryState>
-        </SummaryCard>
-        <SummaryCard id="offers" icon={FileText} figure={offers.data ? String(offers.data.length) : undefined} title={text.offersTitle} link={{ href: "/company/offers", label: messages.nav.items.companyOffers }}>
-          <QueryState query={offers} isEmpty={(result) => result.length === 0} empty={<p data-empty>{text.offersNone}</p>}>
-            {(result) => <p>{format(plural(text.offersLine, result.length), { count: result.length })}</p>}
-          </QueryState>
+        <SummaryCard id="team" icon={Users} title={tiles.teamTitle} link={{ href: `/company/team?company=${companyId}`, label: tiles.teamOpen }}>
+          <p>{tiles.teamLine}</p>
         </SummaryCard>
       </div>
     </>
